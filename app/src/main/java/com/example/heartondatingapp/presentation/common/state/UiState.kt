@@ -2,4 +2,5 @@ package com.example.heartondatingapp.presentation.common.state
 
 class UiState {
     // ui state
+    // fix behind main
 }
