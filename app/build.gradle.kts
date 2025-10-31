@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ktlint)
 }
 
 android {
@@ -45,4 +46,19 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    testImplementation(libs.junit)
+}
+
+// KtLint configuration
+ktlint {
+    version = "1.5.0"
+    verbose.set(true)
+    android.set(true)
+    filter {
+        exclude { element -> element.file.path.contains("generated/") }
+    }
+    reporters {
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
+    }
 }
