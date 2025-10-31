@@ -21,4 +21,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "HeartOnDatingApp"
 include(":app")
- 
