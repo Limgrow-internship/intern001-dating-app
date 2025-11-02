@@ -2,8 +2,7 @@
 agp = "8.9.1"
 datastorePreferences = "1.1.7"
 hiltAndroid = "2.51"
-hiltAndroidCompiler = "2.57.1"
-hiltCompiler = "2.50"
+hiltAndroidCompiler = "2.51"
 kotlin = "2.0.21"
 coreKtx = "1.17.0"
 junit = "4.13.2"
@@ -30,7 +29,6 @@ androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
-hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltCompiler" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -48,3 +46,4 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 google-devtools-ksp = {id= "com.google.devtools.ksp", version.ref = "ksp"}
+hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid" }
