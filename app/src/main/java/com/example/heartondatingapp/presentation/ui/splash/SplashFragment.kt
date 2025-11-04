@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.example.heartondatingapp.MainActivity
 import com.example.heartondatingapp.R
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -26,19 +27,16 @@ class SplashFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Hide bottom navigation during splash
-        (activity as? com.example.heartondatingapp.MainActivity)?.hideBottomNavigation(true)
+        (activity as? MainActivity)?.hideBottomNavigation(true)
 
-        // Navigate to home after a short delay
         viewLifecycleOwner.lifecycleScope.launch {
-            delay(2000) // 2 second delay
+            delay(2000)
             findNavController().navigate(R.id.action_splash_to_home)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Show bottom navigation when leaving splash
-        (activity as? com.example.heartondatingapp.MainActivity)?.hideBottomNavigation(false)
+        (activity as? MainActivity)?.hideBottomNavigation(false)
     }
 }
