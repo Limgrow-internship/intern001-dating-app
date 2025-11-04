@@ -12,10 +12,9 @@ class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        super.onCreate(savedInstanceState)
         setupBottomNavigation()
     }
 
@@ -23,28 +22,6 @@ class MainActivity : BaseActivity() {
 
     private fun setupBottomNavigation() {
         binding.bottomNavigation.setupWithNavController(navController)
-
-        binding.bottomNavigation.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.homeFragment -> {
-                    navController.navigate(R.id.homeFragment)
-                    true
-                }
-                R.id.chatListFragment -> {
-                    navController.navigate(R.id.chatListFragment)
-                    true
-                }
-                R.id.notificationFragment -> {
-                    navController.navigate(R.id.notificationFragment)
-                    true
-                }
-                R.id.profileFragment -> {
-                    navController.navigate(R.id.profileFragment)
-                    true
-                }
-                else -> false
-            }
-        }
     }
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp() || super.onSupportNavigateUp()

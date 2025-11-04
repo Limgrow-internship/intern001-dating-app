@@ -103,15 +103,6 @@ fun NavController.navigateToForgotPassword() {
     navigate(NavGraph.ROUTE_FORGOT_PASSWORD)
 }
 
-// Helper Functions
-fun NavController.navigateUp(): Boolean {
-    return navigateUp()
-}
-
-fun NavController.popBackStack(): Boolean {
-    return popBackStack()
-}
-
 fun NavController.popBackStackTo(route: String, inclusive: Boolean = false): Boolean {
     return popBackStack(route, inclusive)
 }
