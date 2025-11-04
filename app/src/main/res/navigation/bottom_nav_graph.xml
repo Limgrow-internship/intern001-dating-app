@@ -7,9 +7,9 @@
         android:id="@+id/chatListFragment"
         android:icon="@drawable/ic_chat_state" />
     <item
-        android:id="@+id/profileFragment"
-        android:icon="@drawable/ic_profile_state" />
-    <item
         android:id="@+id/notificationFragment"
         android:icon="@drawable/ic_notification_state"/>
+    <item
+        android:id="@+id/profileFragment"
+        android:icon="@drawable/ic_profile_state" />
 </menu>
