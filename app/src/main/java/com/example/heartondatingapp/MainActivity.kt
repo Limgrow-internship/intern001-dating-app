@@ -1,6 +1,7 @@
 package com.example.heartondatingapp
 
 import android.os.Bundle
+import android.view.View
 import androidx.navigation.ui.setupWithNavController
 import com.example.heartondatingapp.databinding.ActivityMainBinding
 import com.example.heartondatingapp.presentation.common.viewmodel.BaseActivity
@@ -15,6 +16,7 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setupNavigation()
         setupBottomNavigation()
     }
 
@@ -27,8 +29,6 @@ class MainActivity : BaseActivity() {
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
     fun hideBottomNavigation(hide: Boolean) {
-        binding.bottomNavigation.animate()
-            .translationY(if (hide) binding.bottomNavigation.height.toFloat() else 0f)
-            .duration = 300
+        binding.bottomNavigation.visibility = if (hide) View.GONE else View.VISIBLE
     }
 }

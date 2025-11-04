@@ -4,18 +4,22 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import com.example.heartondatingapp.presentation.navigation.NavigationManager
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 abstract class BaseActivity : AppCompatActivity() {
 
     protected lateinit var navController: NavController
 
+    @Inject
+    lateinit var navigationManager: NavigationManager
+
     abstract fun getNavHostFragmentId(): Int
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setupNavigation()
     }
 
     protected open fun setupNavigation() {
@@ -29,7 +33,7 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp() || super.onSupportNavigateUp()
+        return navigationManager.navigateUp(navController) || super.onSupportNavigateUp()
     }
 
     fun canNavigateBack(): Boolean {
@@ -38,7 +42,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
     fun navigateBack() {
         if (canNavigateBack()) {
-            navController.navigateUp()
+            navigationManager.navigateUp(navController)
         } else {
             finish()
         }
