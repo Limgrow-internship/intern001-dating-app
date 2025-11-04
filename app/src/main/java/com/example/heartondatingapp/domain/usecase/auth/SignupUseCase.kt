@@ -60,10 +60,9 @@ class SignupUseCase(
             password != confirmPassword ->
                 throw ValidationException("Passwords do not match")
 
-            firstName.isBlank() || firstName.length > 30 ->
+            firstName.isBlank() || firstName.length < 2 || firstName.length > 30 ->
                 throw ValidationException("Name must be 2-30 characters")
-
-            lastName.isBlank() || lastName.length > 30 ->
+            lastName.isBlank() || lastName.length < 2 || lastName.length > 30 ->
                 throw ValidationException("Last name must be 2-30 characters")
 
             gender.isEmpty() ->
