@@ -1,35 +1,35 @@
 package com.example.heartondatingapp.presentation.common.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.example.heartondatingapp.presentation.common.state.UiState
+import androidx.lifecycle.viewModelScope
+import com.example.heartondatingapp.presentation.navigation.NavigationEvent
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 
-open class BaseViewModel<T> : ViewModel() {
+open class BaseViewModel : ViewModel() {
 
-    private val _uiState = MutableStateFlow<UiState<T>>(UiState.Idle)
-    val uiState: StateFlow<UiState<T>> = _uiState.asStateFlow()
+    private val _navigationEvent = MutableSharedFlow<NavigationEvent>(extraBufferCapacity = 1)
+    val navigationEvent: SharedFlow<NavigationEvent> = _navigationEvent.asSharedFlow()
 
     protected val exceptionHandler = CoroutineExceptionHandler { _, exception ->
-        exception.printStackTrace()
-        setError(exception.message ?: "Unknown error")
+        Log.e("BaseViewModel", "Coroutine error: ${exception.message}", exception)
     }
 
-    protected fun setLoading() {
-        _uiState.value = UiState.Loading
+    protected fun navigate(event: NavigationEvent) {
+        _navigationEvent.tryEmit(event)
     }
 
-    protected fun setSuccess(data: T) {
-        _uiState.value = UiState.Success(data)
+    protected fun launchSafe(block: suspend () -> Unit) {
+        viewModelScope.launch(exceptionHandler) {
+            block()
+        }
     }
 
-    protected fun setError(message: String) {
-        _uiState.value = UiState.Error(message)
-    }
-
-    protected fun resetState() {
-        _uiState.value = UiState.Idle
+    override fun onCleared() {
+        super.onCleared()
     }
 }
