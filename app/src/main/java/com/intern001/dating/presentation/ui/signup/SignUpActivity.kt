@@ -3,8 +3,8 @@ package com.example.heartondatingapp.presentation.ui.signup
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.heartondatingapp.MainActivity
-import com.example.heartondatingapp.R
+import com.intern001.dating.MainActivity
+import com.intern001.dating.R
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

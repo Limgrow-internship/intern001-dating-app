@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import androidx.fragment.app.Fragment
-import com.example.heartondatingapp.R
+import com.intern001.dating.R
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
