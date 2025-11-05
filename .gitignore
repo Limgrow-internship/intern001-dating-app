@@ -45,3 +45,6 @@ captures/
 
 # Kotlin
 .kotlin
+
+# Ktlint configuration
+.ktlint.yaml
