@@ -9,7 +9,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="300dp"
-        android:background="@drawable/bg_hearts"
+        android:background="@drawable/bg_signup"
         android:orientation="vertical" />
 
     <LinearLayout

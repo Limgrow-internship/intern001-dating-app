@@ -36,8 +36,9 @@ class VerifyFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
     ): View? {
         val view = inflater.inflate(R.layout.fragment_verify, container, false)
 
@@ -48,10 +49,9 @@ class VerifyFragment : Fragment() {
             view.findViewById(R.id.otp3),
             view.findViewById(R.id.otp4),
             view.findViewById(R.id.otp5),
-            view.findViewById(R.id.otp6)
+            view.findViewById(R.id.otp6),
         )
 
-        // Gắn TextWatcher để tự động chuyển focus
         for (i in otpFields.indices) {
             otpFields[i].addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -73,15 +73,14 @@ class VerifyFragment : Fragment() {
             val otp = otpFields.joinToString("") { it.text.toString() }
 
             if (otp.length < 6) {
-                Toast.makeText(requireContext(), "Vui lòng nhập đủ 6 số OTP", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Please enter full 6 OTP digits", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // Kiểm tra OTP
-            if (otp == "123456") { // ví dụ
+            if (otp == "123456") {
                 listener?.onVerificationSuccess()
             } else {
-                Toast.makeText(requireContext(), "OTP không hợp lệ", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "OTP not valid", Toast.LENGTH_SHORT).show()
             }
         }
 
