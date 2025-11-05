@@ -72,7 +72,7 @@
                     android:inputType="number"
                     android:maxLength="1"
                     android:textSize="20sp"
-                    android:background="@drawable/bg_edittext" />
+                    android:background="@drawable/bg_verify_otp" />
 
                 <EditText
                     android:id="@+id/otp2"
@@ -84,7 +84,7 @@
                     android:inputType="number"
                     android:maxLength="1"
                     android:textSize="20sp"
-                    android:background="@drawable/bg_edittext" />
+                    android:background="@drawable/bg_verify_otp" />
 
                 <EditText
                     android:id="@+id/otp3"
@@ -96,7 +96,7 @@
                     android:inputType="number"
                     android:maxLength="1"
                     android:textSize="20sp"
-                    android:background="@drawable/bg_edittext" />
+                    android:background="@drawable/bg_verify_otp" />
 
                 <EditText
                     android:id="@+id/otp4"
@@ -108,7 +108,7 @@
                     android:inputType="number"
                     android:maxLength="1"
                     android:textSize="20sp"
-                    android:background="@drawable/bg_edittext" />
+                    android:background="@drawable/bg_verify_otp" />
 
                 <EditText
                     android:id="@+id/otp5"
@@ -120,7 +120,7 @@
                     android:inputType="number"
                     android:maxLength="1"
                     android:textSize="20sp"
-                    android:background="@drawable/bg_edittext" />
+                    android:background="@drawable/bg_verify_otp" />
 
                 <EditText
                     android:id="@+id/otp6"
@@ -132,7 +132,7 @@
                     android:inputType="number"
                     android:maxLength="1"
                     android:textSize="20sp"
-                    android:background="@drawable/bg_edittext" />
+                    android:background="@drawable/bg_verify_otp" />
             </LinearLayout>
 
             <LinearLayout

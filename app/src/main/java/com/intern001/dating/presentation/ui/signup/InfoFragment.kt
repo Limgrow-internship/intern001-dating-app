@@ -1,4 +1,4 @@
-package com.example.heartondatingapp.presentation.ui.signup
+package com.intern001.dating.presentation.ui.signup
 
 import android.os.Bundle
 import android.text.InputType
@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import androidx.fragment.app.Fragment
-import com.example.heartondatingapp.R
+import com.intern001.dating.R
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -26,7 +26,7 @@ class InfoFragment : Fragment() {
         val etPassword = view.findViewById<EditText>(R.id.etPassword)
 
         etPassword.setOnTouchListener { _, event ->
-            val drawableEnd = 2 // vị trí của drawableEnd (right)
+            val drawableEnd = 2
             if (event.action == android.view.MotionEvent.ACTION_UP) {
                 val drawable = etPassword.compoundDrawables[drawableEnd]
                 if (drawable != null && event.rawX >= (etPassword.right - drawable.bounds.width())) {
