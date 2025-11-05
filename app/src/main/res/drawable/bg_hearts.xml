@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Nền màu pastel cam nhạt -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FFE4C9" />
+        </shape>
+    </item>
+
+    <!-- Heart 1 - góc trái trên -->
+    <item
+        android:drawable="@drawable/heart1"
+        android:left="24dp"
+        android:top="36dp"
+        android:width="95dp"
+        android:height="95dp" />
+
+    <!-- Heart 2 - góc phải trên -->
+    <item
+        android:drawable="@drawable/heart2"
+        android:right="28dp"
+        android:top="40dp"
+        android:width="90dp"
+        android:height="90dp" />
+
+    <!-- Heart 3 - lệch trái giữa -->
+    <item
+        android:drawable="@drawable/heart3"
+        android:left="70dp"
+        android:top="160dp"
+        android:width="85dp"
+        android:height="85dp" />
+
+    <!-- Heart 4 - lệch phải giữa -->
+    <item
+        android:drawable="@drawable/heart4"
+        android:right="80dp"
+        android:top="180dp"
+        android:width="80dp"
+        android:height="80dp" />
+
+</layer-list>
