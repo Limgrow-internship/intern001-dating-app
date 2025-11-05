@@ -63,7 +63,7 @@
             android:inputType="textPassword"
             android:padding="14dp"
             android:layout_marginTop="30dp"
-            android:drawableEnd="@drawable/ic_eye_closed"
+            android:drawableEnd="@drawable/ic_eye_off"
             android:drawablePadding="12dp"/>
 
 
