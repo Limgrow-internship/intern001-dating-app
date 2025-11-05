@@ -1,4 +1,4 @@
-package com.intern001.dating.presentation.ui.splash
+package com.intern001.dating.presentation.ui.onboard
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,19 +9,16 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.heartondatingapp.R
 import com.intern001.dating.MainActivity
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@AndroidEntryPoint
-class SplashFragment : Fragment() {
-
+class OnboardFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        return inflater.inflate(R.layout.fragment_splash, container, false)
+        return inflater.inflate(R.layout.fragment_onboard, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -31,12 +28,12 @@ class SplashFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             delay(4000)
-            findNavController().navigate(R.id.action_splash_to_onboard)
+            findNavController().navigate(R.id.action_onboard_to_home)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        (activity as? MainActivity)?.hideBottomNavigation(true)
+        (activity as? MainActivity)?.hideBottomNavigation(false)
     }
 }
