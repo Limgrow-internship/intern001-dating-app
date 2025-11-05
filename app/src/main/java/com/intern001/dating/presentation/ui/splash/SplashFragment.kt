@@ -4,17 +4,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
+import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class SplashFragment : Fragment() {
+class SplashFragment : BaseFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,7 +30,7 @@ class SplashFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             delay(4000)
-            findNavController().navigate(R.id.action_splash_to_onboard)
+            navController.navigate(R.id.action_splash_to_onboard)
         }
     }
 
