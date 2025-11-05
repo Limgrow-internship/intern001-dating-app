@@ -4,15 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
+import android.widget.Button
 import androidx.navigation.fragment.findNavController
 import com.example.heartondatingapp.R
 import com.intern001.dating.MainActivity
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 
-class OnboardFragment : Fragment() {
+class OnboardFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -26,8 +24,7 @@ class OnboardFragment : Fragment() {
 
         (activity as? MainActivity)?.hideBottomNavigation(true)
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            delay(4000)
+        view.findViewById<Button>(R.id.btnNext)?.setOnClickListener {
             findNavController().navigate(R.id.action_onboard_to_home)
         }
     }

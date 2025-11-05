@@ -30,11 +30,6 @@
         android:name="com.intern001.dating.presentation.ui.onboard.OnboardFragment"
         android:label="OnboardFragment" >
         <action
-            android:id="@+id/action_onboard_to_login"
-            app:destination="@id/loginFragment"
-            app:popUpTo="@id/onboardFragment"
-            app:popUpToInclusive="true"/>
-        <action
             android:id="@+id/action_onboard_to_home"
             app:destination="@id/homeFragment"
             app:popUpTo="@id/onboardFragment"
