@@ -9,7 +9,7 @@ import com.intern001.dating.R
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class ChatListFragment : Fragment() {
+class ChatListFragment : BaseFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,

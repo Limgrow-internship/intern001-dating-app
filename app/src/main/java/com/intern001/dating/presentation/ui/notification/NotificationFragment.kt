@@ -9,7 +9,7 @@ import com.intern001.dating.R
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class NotificationFragment : Fragment() {
+class NotificationFragment : BaseFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,

@@ -1,4 +1,4 @@
-package com.example.heartondatingapp.presentation.ui.signup
+package com.intern001.dating.presentation.ui.signup
 
 import android.content.Intent
 import android.os.Bundle

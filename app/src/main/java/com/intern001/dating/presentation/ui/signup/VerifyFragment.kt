@@ -1,4 +1,4 @@
-package com.example.heartondatingapp.presentation.ui.signup
+package com.intern001.dating.presentation.ui.signup
 
 import android.content.Context
 import android.os.Bundle
@@ -15,7 +15,7 @@ import com.intern001.dating.R
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class VerifyFragment : Fragment() {
+class VerifyFragment : BaseFragment() {
 
     interface OnVerificationSuccessListener {
         fun onVerificationSuccess()
@@ -42,7 +42,6 @@ class VerifyFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_verify, container, false)
 
-        // Lấy các ô OTP
         val otpFields = listOf<EditText>(
             view.findViewById(R.id.otp1),
             view.findViewById(R.id.otp2),
