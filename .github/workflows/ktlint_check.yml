@@ -22,6 +22,43 @@ jobs:
             -   name: Grant execute permission for gradlew
                 run: chmod +x gradlew
 
+            -   name: Create ktlint configuration
+                run: |
+                    cat > .ktlint.yaml << 'EOF'
+                    root: true
+
+                    rules:
+                      import-ordering:
+                        imports_layout: "*"
+
+                      indent:
+                        size: 4
+                        continuation_indent_size: 4
+
+                      max-line-length:
+                        max_line_length: 120
+                        ignore_back_ticked_identifier: true
+
+                      trailing-comma:
+                        useTrailingCommaOnCallSite: true
+                        useTrailingCommaOnDeclarationSite: true
+
+                      string-template:
+                        template_expression_wrapping: single_line
+
+                      no-wildcard-imports: {}
+
+                      spacing:
+                        max_blank_lines: 2
+
+                      wrapping:
+                        indentation_size: 4
+
+                    disabled_rules:
+                      - discouraged-comment-location
+                      - function-expression-body
+                      - property-naming
+                    EOF
 
             -   name: Run ktlint check
                 run: ./gradlew ktlintCheck
