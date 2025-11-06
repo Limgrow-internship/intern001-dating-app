@@ -3,8 +3,8 @@ package com.intern001.dating
 import android.os.Bundle
 import android.view.View
 import androidx.navigation.ui.setupWithNavController
-import com.example.heartondatingapp.R
-import com.example.heartondatingapp.databinding.ActivityMainBinding
+import com.intern001.dating.R
+import com.intern001.dating.databinding.ActivityMainBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
 

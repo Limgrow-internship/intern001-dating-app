@@ -1,26 +1,22 @@
-package com.intern001.dating.presentation.ui.splash
+package com.intern001.dating.presentation.ui.onboard
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.lifecycleScope
+import android.widget.Button
+import androidx.navigation.fragment.findNavController
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
-@AndroidEntryPoint
-class SplashFragment : BaseFragment() {
-
+class OnboardFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        return inflater.inflate(R.layout.fragment_splash, container, false)
+        return inflater.inflate(R.layout.fragment_onboard, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -28,14 +24,13 @@ class SplashFragment : BaseFragment() {
 
         (activity as? MainActivity)?.hideBottomNavigation(true)
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            delay(4000)
-            navController.navigate(R.id.action_splash_to_onboard)
+        view.findViewById<Button>(R.id.btnNext)?.setOnClickListener {
+            findNavController().navigate(R.id.action_onboard_to_home)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        (activity as? MainActivity)?.hideBottomNavigation(true)
+        (activity as? MainActivity)?.hideBottomNavigation(false)
     }
 }

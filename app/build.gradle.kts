@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.heartondatingapp"
+    namespace = "com.intern001.dating"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.heartondatingapp"
+        applicationId = "com.intern001.dating"
         minSdk = 28
         targetSdk = 35
         versionCode = 1
