@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".presentation.ui.signup.SignUpActivity"
+            android:name=".presentation.ui.profile.ChangePasswordActivity"
             android:exported="true">
         </activity>
     </application>
