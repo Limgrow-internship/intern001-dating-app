@@ -12,10 +12,11 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.intern001.dating.R
+import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class VerifyFragment : Fragment() {
+class VerifyFragment : BaseFragment() {
 
     interface OnVerificationSuccessListener {
         fun onVerificationSuccess()
