@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import dagger.hilt.android.AndroidEntryPoint
