@@ -4,16 +4,20 @@ import android.os.Bundle
 import android.text.InputType
 import android.view.MotionEvent
 import android.widget.EditText
-import androidx.appcompat.app.AppCompatActivity
-import dagger.hilt.android.AndroidEntryPoint
 import com.intern001.dating.R
+import com.intern001.dating.presentation.common.viewmodel.BaseActivity
+import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class ChangePasswordActivity : AppCompatActivity() {
+class ChangePasswordActivity : BaseActivity() {
 
     private lateinit var etOldPassword: EditText
     private lateinit var etNewPassword: EditText
     private lateinit var etConfirmNewPassword: EditText
+
+    override fun getNavHostFragmentId(): Int {
+        TODO("Not yet implemented")
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,4 +60,3 @@ class ChangePasswordActivity : AppCompatActivity() {
         editText.setSelection(editText.text.length)
     }
 }
-
