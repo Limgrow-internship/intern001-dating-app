@@ -6,14 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
-import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import com.intern001.dating.presentation.common.ads.AdManager
 import com.intern001.dating.presentation.common.ads.NativeAdHelper
+import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 
-class NativeFullFragment : Fragment() {
+class NativeFullFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
