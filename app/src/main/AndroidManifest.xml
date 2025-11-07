@@ -19,17 +19,17 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713"/>
+
         <activity
-            android:name="com.intern001.dating.MainActivity"
+            android:name="com.intern001.dating.presentation.ui.login.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".presentation.ui.signup.SignUpActivity"
+            android:name=".presentation.ui.profile.ChangePasswordActivity"
             android:exported="true">
         </activity>
     </application>

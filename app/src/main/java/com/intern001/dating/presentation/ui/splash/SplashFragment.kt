@@ -9,6 +9,7 @@ import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import com.intern001.dating.presentation.common.ads.AdManager
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
+
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

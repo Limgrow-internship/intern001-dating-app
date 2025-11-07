@@ -1,33 +1,38 @@
-package com.intern001.dating.presentation.ui.signup
+package com.intern001.dating.presentation.ui.login
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
+import com.intern001.dating.databinding.ActivityLoginBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseActivity
+import com.intern001.dating.presentation.ui.signup.VerifyFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class SignUpActivity :
-    BaseActivity(),
-    VerifyFragment.OnVerificationSuccessListener {
+class LoginActivity : BaseActivity(),
+VerifyFragment.OnVerificationSuccessListener{
     override fun getNavHostFragmentId(): Int {
         TODO("Not yet implemented")
     }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_sign_up)
+        setContentView(R.layout.activity_login)
 
         supportFragmentManager.beginTransaction()
-            .replace(R.id.frg_container, InfoFragment())
+            .replace(R.id.login_container, LoginFragment())
             .commit()
     }
 
     override fun onVerificationSuccess() {
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
+        startActivity(
+            Intent(this, MainActivity::class.java)
+        )
         finish()
     }
+
+
 }
+
+
