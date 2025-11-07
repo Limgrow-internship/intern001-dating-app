@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">HeartOnDatingApp</string>
+    <string name="create_new_password_message">
+        Create a new password for your account. Make sure it’s strong and easy for you to remember.
+    </string>
+
 </resources>
