@@ -16,7 +16,7 @@
 
         >
         <activity
-            android:name="com.intern001.dating.MainActivity"
+            android:name="com.intern001.dating.presentation.ui.login.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
