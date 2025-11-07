@@ -3,17 +3,15 @@ package com.intern001.dating.presentation.ui.profile
 import android.os.Bundle
 import android.text.InputType
 import android.view.MotionEvent
-import android.widget.EditText
 import com.intern001.dating.R
+import com.intern001.dating.databinding.ActivityChangePasswordBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ChangePasswordActivity : BaseActivity() {
 
-    private lateinit var etOldPassword: EditText
-    private lateinit var etNewPassword: EditText
-    private lateinit var etConfirmNewPassword: EditText
+    private lateinit var binding: ActivityChangePasswordBinding
 
     override fun getNavHostFragmentId(): Int {
         TODO("Not yet implemented")
@@ -21,19 +19,16 @@ class ChangePasswordActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_change_password)
+        binding = ActivityChangePasswordBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        etOldPassword = findViewById(R.id.etOldPassword)
-        etNewPassword = findViewById(R.id.etNewPassword)
-        etConfirmNewPassword = findViewById(R.id.etConfirmNewPassword)
-
-        setupPasswordToggle(etOldPassword)
-        setupPasswordToggle(etNewPassword)
-        setupPasswordToggle(etConfirmNewPassword)
+        setupPasswordToggle(binding.etOldPassword)
+        setupPasswordToggle(binding.etNewPassword)
+        setupPasswordToggle(binding.etConfirmNewPassword)
     }
 
-    private fun setupPasswordToggle(editText: EditText) {
-        editText.setOnTouchListener { v, event ->
+    private fun setupPasswordToggle(editText: android.widget.EditText) {
+        editText.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_UP) {
                 val drawableEnd = editText.compoundDrawables[2]
                 if (drawableEnd != null && event.rawX >= (editText.right - drawableEnd.bounds.width())) {
@@ -45,7 +40,7 @@ class ChangePasswordActivity : BaseActivity() {
         }
     }
 
-    private fun togglePasswordVisibility(editText: EditText) {
+    private fun togglePasswordVisibility(editText: android.widget.EditText) {
         val isVisible = editText.inputType ==
             (InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD)
 
