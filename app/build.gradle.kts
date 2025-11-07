@@ -1,9 +1,20 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.hilt.android)
+}
+
+fun getLocalProperty(key: String, defaultValue: String): String {
+    val properties = Properties()
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        properties.load(localPropertiesFile.inputStream())
+    }
+    return properties.getProperty(key, defaultValue)
 }
 
 android {
@@ -21,7 +32,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            val devUrl = getLocalProperty("base.url.dev", "http://10.0.2.2:3000/api/")
+            buildConfigField("String", "BASE_URL", "\"$devUrl\"")
+            isDebuggable = true
+        }
         release {
+            buildConfigField("String", "BASE_URL", "\"https://api.hearton.com/api/\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -38,6 +55,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
@@ -73,6 +91,9 @@ dependencies {
     // Navigation
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+
+    // Ads
+    implementation("com.google.android.gms:play-services-ads:24.7.0")
 }
 
 // KtLint configuration

@@ -1,5 +1,6 @@
 package com.intern001.dating.di
 
+import com.intern001.dating.BuildConfig
 import com.intern001.dating.data.api.DatingApiService
 import com.intern001.dating.data.local.TokenManager
 import dagger.Module
@@ -18,7 +19,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val BASE_URL = "http://192.168.1.211:3000/api/"
     private const val CONNECT_TIMEOUT = 30L
     private const val READ_TIMEOUT = 30L
     private const val WRITE_TIMEOUT = 30L
@@ -67,7 +67,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

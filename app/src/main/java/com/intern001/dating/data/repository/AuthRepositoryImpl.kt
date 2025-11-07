@@ -8,9 +8,10 @@ import com.intern001.dating.data.model.response.UserData
 import com.intern001.dating.domain.model.AuthState
 import com.intern001.dating.domain.model.User
 import com.intern001.dating.domain.repository.AuthRepository
-import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.Period
+import java.time.format.DateTimeFormatter
 import java.util.Date
-import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -171,7 +172,6 @@ class AuthRepositoryImpl
 
         // Extension function to convert UserData (DTO) to User (domain model)
         private fun UserData.toDomainModel(): User {
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             val currentDate = Date()
 
             return User(
@@ -205,14 +205,18 @@ class AuthRepositoryImpl
             )
         }
 
+        /**
+         * Calculate age accurately using java.time.Period to handle leap years.
+         * @param dateOfBirth Date string in "yyyy-MM-dd" format
+         * @return Age in years, or null if parsing fails
+         */
         private fun calculateAge(dateOfBirth: String): Int? {
             return try {
-                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                val birthDate = dateFormat.parse(dateOfBirth) ?: return null
-                val today = Date()
-                val diff = today.time - birthDate.time
-                val age = diff / (1000L * 60 * 60 * 24 * 365)
-                age.toInt()
+                val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                val birthDate = LocalDate.parse(dateOfBirth, formatter)
+                val today = LocalDate.now()
+                val period = Period.between(birthDate, today)
+                period.years
             } catch (e: Exception) {
                 null
             }
