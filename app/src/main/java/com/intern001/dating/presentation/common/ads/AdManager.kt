@@ -11,6 +11,17 @@ object AdManager {
     var nativeAdSmall: NativeAd? = null
     var nativeAdFull: NativeAd? = null
 
+    private const val DEFAULT_AD_UNIT_ID = "ca-app-pub-3940256099942544/2247696110"
+    private const val SMALL_AD_UNIT_ID = "ca-app-pub-3940256099942544/2247696110"
+    private const val FULL_AD_UNIT_ID = "ca-app-pub-3940256099942544/2247696110"
+
+    fun getAdUnitId(type: AdType = AdType.SMALL): String = when (type) {
+        AdType.SMALL -> SMALL_AD_UNIT_ID
+        AdType.FULL -> FULL_AD_UNIT_ID
+    }
+
+    enum class AdType { SMALL, FULL }
+
     fun preloadNativeAds(context: Context, onAllLoaded: (() -> Unit)? = null) {
         var loadedCount = 0
 
@@ -20,7 +31,7 @@ object AdManager {
             if (loadedCount == 2) onAllLoaded?.invoke()
         }
 
-        AdLoader.Builder(context, "ca-app-pub-3940256099942544/2247696110")
+        AdLoader.Builder(context, getAdUnitId(AdType.SMALL))
             .forNativeAd { ad: NativeAd ->
                 Log.d("AdManager", "[SMALL] headline=${ad.headline}, media=${ad.mediaContent}, icon=${ad.icon}")
                 nativeAdSmall?.destroy()
@@ -31,7 +42,7 @@ object AdManager {
             .build()
             .loadAd(AdRequest.Builder().build())
 
-        AdLoader.Builder(context, "ca-app-pub-3940256099942544/2247696110")
+        AdLoader.Builder(context, getAdUnitId(AdType.FULL))
             .forNativeAd { ad: NativeAd ->
                 Log.d("AdManager", "[FULL] headline=${ad.headline}, media=${ad.mediaContent}, icon=${ad.icon}")
                 nativeAdFull?.destroy()
