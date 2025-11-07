@@ -9,8 +9,6 @@ data class AuthResponse(
     val refreshToken: String,
     @SerializedName("expiresIn")
     val expiresIn: Long,
-    @SerializedName("user")
-    val user: UserData,
 )
 
 data class UserData(

@@ -28,7 +28,7 @@ class AuthRepositoryImpl
             email: String,
             password: String,
             deviceToken: String?,
-        ): Result<AuthState> {
+        ): Result<String> {
             return try {
                 val request = LoginRequest(email = email, password = password)
                 val response = apiService.login(request)
@@ -42,18 +42,7 @@ class AuthRepositoryImpl
                             refreshToken = authResponse.refreshToken,
                         )
 
-                        // Convert UserData to User domain model
-                        val user = authResponse.user.toDomainModel()
-                        cachedUser = user
-
-                        Result.success(
-                            AuthState(
-                                isLoggedIn = true,
-                                user = user,
-                                token = authResponse.accessToken,
-                                error = null,
-                            ),
-                        )
+                        Result.success(authResponse.accessToken)
                     } else {
                         Result.failure(Exception("Login response body is null"))
                     }
@@ -74,7 +63,7 @@ class AuthRepositoryImpl
             gender: String,
             dateOfBirth: String,
             deviceToken: String?,
-        ): Result<AuthState> {
+        ): Result<String> {
             return try {
                 val request =
                     SignupRequest(
@@ -96,18 +85,7 @@ class AuthRepositoryImpl
                             refreshToken = authResponse.refreshToken,
                         )
 
-                        // Convert UserData to User domain model
-                        val user = authResponse.user.toDomainModel()
-                        cachedUser = user
-
-                        Result.success(
-                            AuthState(
-                                isLoggedIn = true,
-                                user = user,
-                                token = authResponse.accessToken,
-                                error = null,
-                            ),
-                        )
+                        Result.success(authResponse.accessToken)
                     } else {
                         Result.failure(Exception("Signup response body is null"))
                     }
@@ -155,8 +133,22 @@ class AuthRepositoryImpl
                     return Result.failure(Exception("User not logged in"))
                 }
 
-                // TODO: Implement API call to fetch current user when endpoint is available
-                Result.failure(Exception("Get current user API not implemented yet"))
+                // Fetch user profile from API
+                val response = apiService.getCurrentUserProfile()
+
+                if (response.isSuccessful) {
+                    val userData = response.body()
+                    if (userData != null) {
+                        val user = userData.toDomainModel()
+                        cachedUser = user
+                        Result.success(user)
+                    } else {
+                        Result.failure(Exception("User profile response body is null"))
+                    }
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Result.failure(Exception("Failed to fetch user profile: ${response.code()} - $errorBody"))
+                }
             } catch (e: Exception) {
                 Result.failure(e)
             }
