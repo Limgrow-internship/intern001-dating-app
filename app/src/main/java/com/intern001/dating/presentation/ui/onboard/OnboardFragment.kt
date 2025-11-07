@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.navigation.fragment.findNavController
-import com.example.heartondatingapp.R
 import com.intern001.dating.MainActivity
+import com.intern001.dating.R
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 
 class OnboardFragment : BaseFragment() {
