@@ -8,7 +8,7 @@ interface AuthRepository {
         email: String,
         password: String,
         deviceToken: String? = null,
-    ): Result<AuthState>
+    ): Result<String>
 
     suspend fun signup(
         email: String,
@@ -18,7 +18,7 @@ interface AuthRepository {
         gender: String,
         dateOfBirth: String,
         deviceToken: String? = null,
-    ): Result<AuthState>
+    ): Result<String>
 
     suspend fun logout(): Result<Unit>
 
