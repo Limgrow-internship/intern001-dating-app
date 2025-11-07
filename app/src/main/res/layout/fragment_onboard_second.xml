@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:id="@+id/imgContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/tvTitle">
+
+        <ImageView
+            android:id="@+id/imgOnboard"
+            android:layout_width="415dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/ob2img" />
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/imgContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="It all starts with a swipe"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:layout_marginLeft="35dp"
+        android:layout_marginRight="35dp"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:id="@+id/tvDesc"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="A single swipe can open a whole new story. Discover people nearby who share your vibe"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:layout_marginTop="18dp"
+        android:layout_marginStart="35dp"
+        android:layout_marginEnd="35dp"/>
+
+
+    <LinearLayout
+        android:id="@+id/layoutIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/tvDesc"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp">
+        <View android:layout_width="12dp" android:layout_height="12dp" android:background="@drawable/indicator_inactive" />
+        <View android:layout_width="48dp" android:layout_height="12dp" android:background="@drawable/indicator_active" android:layout_marginStart="6dp"/>
+        <View android:layout_width="12dp" android:layout_height="12dp" android:background="@drawable/indicator_inactive" android:layout_marginStart="6dp"/>
+    </LinearLayout>
+
+
+    <ImageView
+        android:id="@+id/grayBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:src="@drawable/imgob2"
+        app:layout_constraintTop_toBottomOf="@id/layoutIndicator"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btnContinue"/>
+
+
+    <LinearLayout
+        android:id="@+id/btnContinue"
+        android:layout_width="0dp"
+        android:layout_height="54dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="16dp"
+        android:background="@drawable/bg_button_black"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:id="@+id/tvBtnText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Continue"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            />
+
+        <ImageView
+            android:id="@+id/imgArrow"
+            android:layout_width="9dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_arrow"
+            android:layout_marginStart="10dp"
+            />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

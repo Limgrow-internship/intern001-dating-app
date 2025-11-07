@@ -73,6 +73,9 @@ dependencies {
     // Navigation
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+
+    // Ads
+    implementation("com.google.android.gms:play-services-ads:24.7.0")
 }
 
 // KtLint configuration
