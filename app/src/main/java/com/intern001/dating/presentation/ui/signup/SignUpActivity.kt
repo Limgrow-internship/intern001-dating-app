@@ -5,12 +5,16 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
+import com.intern001.dating.presentation.common.viewmodel.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class SignUpActivity :
-    AppCompatActivity(),
+    BaseActivity(),
     VerifyFragment.OnVerificationSuccessListener {
+    override fun getNavHostFragmentId(): Int {
+        TODO("Not yet implemented")
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
