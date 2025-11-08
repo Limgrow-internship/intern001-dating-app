@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">HeartOnDatingApp</string>
     <string name="create_new_password_message">
@@ -12,4 +13,9 @@
     <string name="signup">サインアップ</string>
     <string name="incorrect_mail">メールアドレスが正しくありません</string>
     <string name="incorrect_pass">パスワードが正しくありません</string>
+    <string name="it_all_starts_with_a_swipe">すべてはスワイプから始まります</string>
+    <string name="a_single_swipe_can_open_a_whole_new_story_discover_people_nearby_who_share_your_vibe">1回のスワイプで全く新しいストーリーが開かれます。あなたと同じ雰囲気を共有する近くの人々を見つけましょう</string>
+    <string name="find_your_vibe_not_just_a_match">単なるマッチではなく、あなたの雰囲気を見つけましょう</string>
+    <string name="we_help_you_meet_people_who_feel_right_not_just_look_right">見た目だけでなく、心が通じ合う人との出会いをお手伝いします</string>
+    <string name="btn_continue">続ける</string>
 </resources>
