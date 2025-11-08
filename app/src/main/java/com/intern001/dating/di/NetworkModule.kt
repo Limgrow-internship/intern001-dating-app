@@ -1,7 +1,6 @@
 package com.intern001.dating.di
 
 import com.intern001.dating.BuildConfig
-import com.intern001.dating.data.api.CountryApi
 import com.intern001.dating.data.api.DatingApiService
 import com.intern001.dating.data.local.TokenManager
 import dagger.Module
@@ -78,6 +77,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    @Named("datingApi")
     fun provideDatingApiService(@Named("defaultRetrofit") retrofit: Retrofit): DatingApiService {
         return retrofit.create(DatingApiService::class.java)
     }
@@ -94,7 +94,8 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideCountryApi(@Named("restCountriesRetrofit") restCountriesRetrofit: Retrofit): CountryApi {
-        return restCountriesRetrofit.create(CountryApi::class.java)
+    @Named("countryApi")
+    fun provideCountryApi(@Named("restCountriesRetrofit") restCountriesRetrofit: Retrofit): DatingApiService {
+        return restCountriesRetrofit.create(DatingApiService::class.java)
     }
 }

@@ -1,15 +1,16 @@
 package com.intern001.dating.data.repository
 
 import android.content.Context
-import com.intern001.dating.data.api.CountryApi
+import com.intern001.dating.data.api.DatingApiService
 import com.intern001.dating.domain.model.Language
 import com.intern001.dating.domain.repository.LanguageRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import javax.inject.Named
 import org.json.JSONArray
 
 class LanguageRepositoryImpl @Inject constructor(
-    private val api: CountryApi,
+    @Named("countryApi")  private val api: DatingApiService,
     @ApplicationContext private val context: Context,
 ) : LanguageRepository {
 
