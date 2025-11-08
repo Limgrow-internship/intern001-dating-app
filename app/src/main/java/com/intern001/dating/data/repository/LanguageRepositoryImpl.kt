@@ -10,7 +10,7 @@ import javax.inject.Named
 import org.json.JSONArray
 
 class LanguageRepositoryImpl @Inject constructor(
-    @Named("countryApi")  private val api: DatingApiService,
+    @Named("countryApi") private val api: DatingApiService,
     @ApplicationContext private val context: Context,
 ) : LanguageRepository {
 
