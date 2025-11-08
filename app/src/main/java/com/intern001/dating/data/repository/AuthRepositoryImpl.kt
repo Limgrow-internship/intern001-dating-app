@@ -35,7 +35,6 @@ constructor(
             if (response.isSuccessful) {
                 val authResponse = response.body()
                 if (authResponse != null) {
-                    // Save tokens
                     tokenManager.saveTokens(
                         accessToken = authResponse.accessToken,
                         refreshToken = authResponse.refreshToken,
@@ -78,7 +77,6 @@ constructor(
             if (response.isSuccessful) {
                 val authResponse = response.body()
                 if (authResponse != null) {
-                    // Save tokens
                     tokenManager.saveTokens(
                         accessToken = authResponse.accessToken,
                         refreshToken = authResponse.refreshToken,
@@ -99,21 +97,17 @@ constructor(
 
     override suspend fun logout(): Result<Unit> {
         return try {
-            // Call logout API
             val response = apiService.logout()
 
-            // Clear tokens regardless of API response
             tokenManager.clearTokens()
             cachedUser = null
 
             if (response.isSuccessful) {
                 Result.success(Unit)
             } else {
-                // Still return success since tokens are cleared locally
                 Result.success(Unit)
             }
         } catch (e: Exception) {
-            // Clear local data even if API call fails
             tokenManager.clearTokens()
             cachedUser = null
             Result.success(Unit)
@@ -122,17 +116,14 @@ constructor(
 
     override suspend fun getCurrentUser(): Result<User> {
         return try {
-            // Return cached user if available
             cachedUser?.let {
                 return Result.success(it)
             }
 
-            // If no cached user and no token, user is not logged in
             if (tokenManager.getAccessToken() == null) {
                 return Result.failure(Exception("User not logged in"))
             }
 
-            // Fetch user profile from API
             val response = apiService.getCurrentUserProfile()
 
             if (response.isSuccessful) {
@@ -161,7 +152,6 @@ constructor(
         return cachedUser
     }
 
-    // Extension function to convert UserData (DTO) to User (domain model)
     private fun UserData.toDomainModel(): User {
         val currentDate = Date()
 
@@ -196,11 +186,6 @@ constructor(
         )
     }
 
-    /**
-     * Calculate age accurately using java.time.Period to handle leap years.
-     * @param dateOfBirth Date string in "yyyy-MM-dd" format
-     * @return Age in years, or null if parsing fails
-     */
     private fun calculateAge(dateOfBirth: String): Int? {
         return try {
             val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
