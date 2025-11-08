@@ -7,6 +7,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentLoginBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
@@ -28,6 +29,13 @@ class LoginFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        (activity as? MainActivity)?.hideBottomNavigation(true)
+
+//        Handler(Looper.getMainLooper()).postDelayed({
+//            (activity as? MainActivity)?.hideBottomNavigation(true)
+//        }, 50)
+
         val etPassword = view.findViewById<EditText>(R.id.etPassword)
 
         etPassword.setOnTouchListener { _, event ->
@@ -55,4 +63,3 @@ class LoginFragment : BaseFragment() {
         _binding = null
     }
 }
-

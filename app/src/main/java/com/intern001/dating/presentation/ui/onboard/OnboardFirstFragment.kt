@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
-import com.intern001.dating.MainActivity
 import com.intern001.dating.databinding.FragmentOnboardFirstBinding
 import com.intern001.dating.presentation.common.ads.AdManager
 import com.intern001.dating.presentation.common.ads.NativeAdHelper
@@ -21,8 +20,6 @@ class OnboardFirstFragment : BaseFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        (activity as? MainActivity)?.hideBottomNavigation(true)
-
         NativeAdHelper.bindNativeAdSmall(
             requireContext(),
             binding.grayBox,
@@ -35,7 +32,6 @@ class OnboardFirstFragment : BaseFragment() {
     }
 
     override fun onDestroyView() {
-        (activity as? MainActivity)?.hideBottomNavigation(true)
         _binding = null
         super.onDestroyView()
     }

@@ -8,10 +8,11 @@
 
     <LinearLayout
         android:id="@+id/imgContainer"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
+        android:layout_marginTop="30dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -19,69 +20,89 @@
 
         <ImageView
             android:id="@+id/imgOnboard"
-            android:layout_width="415dp"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="450dp"
             android:layout_gravity="center"
-            android:layout_marginTop="10dp"
+            android:contentDescription="@string/onboarding2"
+            android:scaleType="fitXY"
             android:src="@drawable/ob2img" />
     </LinearLayout>
 
 
     <TextView
         android:id="@+id/tvTitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/imgContainer"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:text="It all starts with a swipe"
-        android:textSize="32sp"
+        android:layout_width="337dp"
+        android:layout_height="38dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="67dp"
+        android:text="@string/it_all_starts_with_a_swipe"
+        android:textColor="@android:color/black"
+        android:textSize="30sp"
         android:textStyle="bold"
-        android:layout_marginLeft="35dp"
-        android:layout_marginRight="35dp"
-        android:textColor="@android:color/black" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imgContainer" />
+
 
     <TextView
         android:id="@+id/tvDesc"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:text="A single swipe can open a whole new story. Discover people nearby who share your vibe"
-        android:textSize="18sp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="35dp"
+        android:text="@string/a_single_swipe_can_open_a_whole_new_story_discover_people_nearby_who_share_your_vibe"
         android:textColor="@android:color/black"
-        android:layout_marginTop="18dp"
-        android:layout_marginStart="35dp"
-        android:layout_marginEnd="35dp"/>
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
 
     <LinearLayout
         android:id="@+id/layoutIndicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_marginTop="4dp"
         android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@id/tvDesc"
-        app:layout_constraintStart_toStartOf="parent"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp">
-        <View android:layout_width="12dp" android:layout_height="12dp" android:background="@drawable/indicator_inactive" />
-        <View android:layout_width="48dp" android:layout_height="12dp" android:background="@drawable/indicator_active" android:layout_marginStart="6dp"/>
-        <View android:layout_width="12dp" android:layout_height="12dp" android:background="@drawable/indicator_inactive" android:layout_marginStart="6dp"/>
-    </LinearLayout>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvDesc">
 
+        <View
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:background="@drawable/indicator_inactive" />
+
+        <View
+            android:layout_width="48dp"
+            android:layout_height="12dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/indicator_active" />
+
+        <View
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/indicator_inactive" />
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/grayBox"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="130dp"
+        android:layout_marginBottom="24dp"
+        android:contentDescription="@string/tym"
         android:src="@drawable/imgob2"
-        app:layout_constraintTop_toBottomOf="@id/layoutIndicator"
-        app:layout_constraintStart_toStartOf="parent"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toTopOf="@id/btnContinue"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/btnContinue"/>
-
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layoutIndicator"
+        app:layout_constraintVertical_bias="0.0" />
 
     <LinearLayout
         android:id="@+id/btnContinue"
@@ -90,7 +111,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="40dp"
         android:background="@drawable/bg_button_black"
         android:gravity="center"
         android:orientation="horizontal"
@@ -101,7 +124,7 @@
             android:id="@+id/tvBtnText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Continue"
+            android:text="@string/btn_continue"
             android:textColor="@android:color/white"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -112,6 +135,7 @@
             android:id="@+id/imgArrow"
             android:layout_width="9dp"
             android:layout_height="16dp"
+            android:contentDescription="@string/arrow"
             android:src="@drawable/ic_arrow"
             android:layout_marginStart="10dp"
             />
