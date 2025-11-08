@@ -25,7 +25,28 @@ class LoginUseCase(
                 return Result.failure(ValidationException("Invalid password format"))
             }
 
-            authRepository.login(email, password, deviceToken)
+            val loginResult = authRepository.login(email, password, deviceToken)
+            if (loginResult.isFailure) {
+                return Result.failure(loginResult.exceptionOrNull()!!)
+            }
+
+            val token = loginResult.getOrNull()!!
+
+            val userResult = authRepository.getCurrentUser()
+            if (userResult.isFailure) {
+                return Result.failure(userResult.exceptionOrNull()!!)
+            }
+
+            val user = userResult.getOrNull()!!
+
+            Result.success(
+                AuthState(
+                    isLoggedIn = true,
+                    user = user,
+                    token = token,
+                    error = null,
+                ),
+            )
         } catch (e: Exception) {
             Result.failure(e)
         }

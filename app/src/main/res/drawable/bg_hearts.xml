@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FFCFB0" />
+        </shape>
+    </item>
+
+    <item
+        android:drawable="@drawable/heart1"
+        android:left="24dp"
+        android:top="36dp"
+        android:width="95dp"
+        android:height="95dp" />
+
+    <item
+        android:drawable="@drawable/heart2"
+        android:right="28dp"
+        android:top="40dp"
+        android:width="90dp"
+        android:height="90dp" />
+
+    <item
+        android:drawable="@drawable/heart3"
+        android:left="70dp"
+        android:top="160dp"
+        android:width="85dp"
+        android:height="85dp" />
+
+    <item
+        android:drawable="@drawable/heart4"
+        android:right="80dp"
+        android:top="180dp"
+        android:width="80dp"
+        android:height="80dp" />
+
+</layer-list>
