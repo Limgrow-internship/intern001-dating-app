@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">HeartOnDatingApp</string>
+    <string name="create_new_password_message">
+        ສ້າງລະຫັດຜ່ານໃໝ່ສໍາລັບບັນຊີຂອງທ່ານ. ກະລຸນາເລືອກລະຫັດຜ່ານທີ່ແຂງແລະຈິ່ງຈິ່ງຈິ່ງທີ່ທ່ານຈິ່ງຈິ່ງຈິ່ງຈິ່ງຈິ່ງຈິ່ງຈິ່ງຈິ່ງຈິ່ງຈິ່ງຈິ່ງຈິ່ງ</string>
+    <string name="login">ເຂົ້າສູ່ລະບົບ</string>
+    <string name="email">ອີເມວ</string>
+    <string name="pass">ລະຫັດຜ່ານ</string>
+    <string name="Forgot_pass">ລືມລະຫັດຜ່ານ</string>
+    <string name="login_with">ຫຼືເຂົ້າສູ່ລະບົບດ້ວຍ</string>
+    <string name="dont_have_account">ຍັງບໍ່ມີບັນຊີ?</string>
+    <string name="signup">ລົງທະບຽນ</string>
+    <string name="incorrect_mail">ອີເມວບໍ່ຖືກຕ້ອງ</string>
+    <string name="incorrect_pass">ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ</string>
+</resources>

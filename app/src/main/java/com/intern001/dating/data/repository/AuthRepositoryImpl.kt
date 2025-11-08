@@ -12,13 +12,14 @@ import java.time.Period
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Singleton
 class AuthRepositoryImpl
 @Inject
 constructor(
-    private val apiService: DatingApiService,
+    @Named("datingApi") private val apiService: DatingApiService,
     private val tokenManager: TokenManager,
 ) : AuthRepository {
     private var cachedUser: User? = null

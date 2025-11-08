@@ -5,15 +5,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentNativeFullBinding
-import com.intern001.dating.domain.repository.AuthRepository
+import com.intern001.dating.domain.repository.LanguageRepository
 import com.intern001.dating.presentation.common.ads.AdManager
 import com.intern001.dating.presentation.common.ads.NativeAdHelper
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class NativeFullFragment : BaseFragment() {
@@ -21,7 +24,7 @@ class NativeFullFragment : BaseFragment() {
     private val binding get() = _binding!!
 
     @Inject
-    lateinit var authRepository: AuthRepository
+    lateinit var languageRepository: LanguageRepository
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,27 +44,24 @@ class NativeFullFragment : BaseFragment() {
             AdManager.nativeAdFull,
         ) { adView, ad ->
 
-            val btnCloseTop = adView.findViewById<ImageView>(R.id.ad_close_1)
-            btnCloseTop?.setOnClickListener {
-                navigateToNextScreen()
+            val navigateToLanguage: () -> Unit = {
+                lifecycleScope.launch {
+                    languageRepository.prefetchLanguages()
+                    findNavController().navigate(R.id.action_nativeFull_to_language)
+                }
             }
-            val btnCloseBottom = adView.findViewById<ImageView>(R.id.ad_close)
-            btnCloseBottom?.setOnClickListener {
-                navigateToNextScreen()
-            }
-        }
-    }
 
-    private fun navigateToNextScreen() {
-        if (authRepository.isLoggedIn()) {
-            findNavController().navigate(R.id.action_nativeFull_to_home)
-        } else {
-            findNavController().navigate(R.id.action_nativeFull_to_login)
+            val btnCloseTop = adView.findViewById<ImageView>(R.id.ad_close_1)
+            btnCloseTop?.setOnClickListener { navigateToLanguage() }
+
+            val btnCloseBottom = adView.findViewById<ImageView>(R.id.ad_close)
+            btnCloseBottom?.setOnClickListener { navigateToLanguage() }
         }
     }
 
     override fun onDestroyView() {
-        _binding = null
         super.onDestroyView()
+        (activity as? MainActivity)?.hideBottomNavigation(true)
+        _binding = null
     }
 }
