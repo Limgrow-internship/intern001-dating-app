@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">HeartOnDatingApp</string>
+    <string name="create_new_password_message">
+        Tạo mật khẩu mới cho tài khoản của bạn. Hãy chọn mật khẩu mạnh và dễ nhớ đối với bạn.
+    </string>
+    <string name="login">ĐĂNG NHẬP</string>
+    <string name="email">Email</string>
+    <string name="pass">Mật khẩu</string>
+    <string name="Forgot_pass">Quên mật khẩu</string>
+    <string name="login_with">Hoặc đăng nhập bằng</string>
+    <string name="dont_have_account">Chưa có tài khoản?</string>
+    <string name="signup">Đăng ký</string>
+    <string name="incorrect_mail">Email không hợp lệ</string>
+    <string name="incorrect_pass">Mật khẩu không hợp lệ</string>
+</resources>

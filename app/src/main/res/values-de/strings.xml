@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HeartOnDatingApp</string>
+    <string name="create_new_password_message">
+        Erstellen Sie ein neues Passwort für Ihr Konto. Stellen Sie sicher, dass es stark und leicht zu merken ist.
+    </string>
+    <string name="login">ANMELDEN</string>
+    <string name="email">E-Mail</string>
+    <string name="pass">Passwort</string>
+    <string name="Forgot_pass">Passwort vergessen</string>
+    <string name="login_with">Oder anmelden mit</string>
+    <string name="dont_have_account">Noch kein Konto?</string>
+    <string name="signup">Registrieren</string>
+    <string name="incorrect_mail">Falsche E-Mail-Adresse</string>
+    <string name="incorrect_pass">Falsches Passwort</string>
+</resources>
