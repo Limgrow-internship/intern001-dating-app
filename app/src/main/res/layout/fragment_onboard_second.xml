@@ -23,7 +23,6 @@
             android:layout_width="match_parent"
             android:layout_height="450dp"
             android:layout_gravity="center"
-            android:contentDescription="@string/onboarding2"
             android:scaleType="fitXY"
             android:src="@drawable/ob2img" />
     </LinearLayout>
@@ -95,7 +94,6 @@
         android:layout_width="0dp"
         android:layout_height="130dp"
         android:layout_marginBottom="24dp"
-        android:contentDescription="@string/tym"
         android:src="@drawable/imgob2"
         android:scaleType="fitXY"
         app:layout_constraintBottom_toTopOf="@id/btnContinue"
@@ -135,7 +133,6 @@
             android:id="@+id/imgArrow"
             android:layout_width="9dp"
             android:layout_height="16dp"
-            android:contentDescription="@string/arrow"
             android:src="@drawable/ic_arrow"
             android:layout_marginStart="10dp"
             />

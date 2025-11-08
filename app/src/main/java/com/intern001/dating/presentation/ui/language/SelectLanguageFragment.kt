@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.edit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -36,11 +37,14 @@ class SelectLanguageFragment : BaseFragment() {
         return binding.root
     }
 
-    fun setAppLocale(languageCode: String) {
+    private fun setAppLocale(languageCode: String) {
         val locale = Locale(languageCode)
         Locale.setDefault(locale)
-        val config = resources.configuration
+
+        val config = android.content.res.Configuration(requireContext().resources.configuration)
         config.setLocale(locale)
+
+        requireContext().createConfigurationContext(config)
         requireActivity().resources.updateConfiguration(config, requireActivity().resources.displayMetrics)
     }
 
@@ -54,8 +58,11 @@ class SelectLanguageFragment : BaseFragment() {
             AdManager.nativeAdSmall,
         )
 
-        viewModel.languages.observe(viewLifecycleOwner) {
-            adapter.submitList(it)
+        viewModel.languages.observe(viewLifecycleOwner) { languages ->
+            adapter.submitList(languages)
+            if (viewModel.selectedLanguage.value == null && languages.isNotEmpty()) {
+                viewModel.selectLanguage(languages[0])
+            }
         }
         viewModel.selectedLanguage.observe(viewLifecycleOwner) { lang ->
             adapter.setSelected(lang)
@@ -66,15 +73,22 @@ class SelectLanguageFragment : BaseFragment() {
             if (lang != null) {
                 val langCode = lang.code.take(2)
 
-                setAppLocale(langCode)
                 requireActivity().getSharedPreferences("app_settings", Context.MODE_PRIVATE)
-                    .edit().putString("language", langCode).apply()
+                    .edit { putString("language", langCode) }
 
                 viewLifecycleOwner.lifecycleScope.launch {
                     appPreferencesManager.setOnboardingCompleted(true)
-                    requireActivity().recreate()
+
+                    setAppLocale(langCode)
+
                     findNavController().navigate(R.id.action_selectLanguageFragment_to_login)
                 }
+            } else {
+                android.widget.Toast.makeText(
+                    requireContext(),
+                    "Please select a language",
+                    android.widget.Toast.LENGTH_SHORT,
+                ).show()
             }
         }
 

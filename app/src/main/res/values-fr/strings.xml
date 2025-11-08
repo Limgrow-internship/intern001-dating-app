@@ -2,15 +2,20 @@
 <resources>
     <string name="app_name">HeartOnDatingApp</string>
     <string name="create_new_password_message">
-        Créez un nouveau mot de passe pour votre compte. Assurez-vous qu’il soit fort et facile à mémoriser.
+        Créez un nouveau mot de passe pour votre compte. Assurez-vous qu\'il soit fort et facile à mémoriser.
     </string>
     <string name="login">SE CONNECTER</string>
     <string name="email">Email</string>
     <string name="pass">Mot de passe</string>
     <string name="Forgot_pass">Mot de passe oublié</string>
     <string name="login_with">Ou connectez-vous avec</string>
-    <string name="dont_have_account">Pas encore de compte ?</string>
-    <string name="signup">S"'"inscrire</string>
+    <string name="dont_have_account">Pas encore de compte ?</string>
+    <string name="signup">S\'inscrire</string>
     <string name="incorrect_mail">Adresse email incorrecte</string>
     <string name="incorrect_pass">Mot de passe incorrect</string>
+    <string name="it_all_starts_with_a_swipe">Tout commence par un swipe</string>
+    <string name="a_single_swipe_can_open_a_whole_new_story_discover_people_nearby_who_share_your_vibe">Un seul swipe peut ouvrir une toute nouvelle histoire. Découvrez des personnes à proximité qui partagent votre vibe</string>
+    <string name="find_your_vibe_not_just_a_match">Trouvez votre vibe, pas seulement un match</string>
+    <string name="we_help_you_meet_people_who_feel_right_not_just_look_right">Nous vous aidons à rencontrer des personnes qui vous correspondent — pas seulement qui ont l\'air bien</string>
+    <string name="btn_continue">Continuer</string>
 </resources>
