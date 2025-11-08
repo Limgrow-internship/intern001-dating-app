@@ -55,16 +55,13 @@ class NativeFullFragment : BaseFragment() {
 
     private fun navigateToNextScreen() {
         if (authRepository.isLoggedIn()) {
-            // User đã đăng nhập, chuyển đến home screen
             findNavController().navigate(R.id.action_nativeFull_to_home)
         } else {
-            // User chưa đăng nhập, chuyển đến login screen
             findNavController().navigate(R.id.action_nativeFull_to_login)
         }
     }
 
     override fun onDestroyView() {
-        // Don't manually control bottom nav visibility - let destination listener handle it
         _binding = null
         super.onDestroyView()
     }

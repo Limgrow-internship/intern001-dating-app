@@ -32,10 +32,6 @@ class LoginFragment : BaseFragment() {
 
         (activity as? MainActivity)?.hideBottomNavigation(true)
 
-//        Handler(Looper.getMainLooper()).postDelayed({
-//            (activity as? MainActivity)?.hideBottomNavigation(true)
-//        }, 50)
-
         val etPassword = view.findViewById<EditText>(R.id.etPassword)
 
         etPassword.setOnTouchListener { _, event ->

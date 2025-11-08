@@ -43,7 +43,6 @@ class MainActivity : BaseActivity() {
 
     private fun setupDestinationListener() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            // List of destinations where bottom nav should be visible
             val showBottomNavDestinations = setOf(
                 R.id.homeFragment,
                 R.id.chatListFragment,
@@ -52,17 +51,11 @@ class MainActivity : BaseActivity() {
             )
 
             val shouldShow = showBottomNavDestinations.contains(destination.id)
-
-            // Update bottom navigation visibility
             binding.bottomNavigation.visibility = if (shouldShow) View.VISIBLE else View.GONE
 
-            // Update selected item if we're on a bottom nav destination
             if (shouldShow) {
                 binding.bottomNavigation.selectedItemId = destination.id
             }
-
-            // Debug: Print destination info
-            android.util.Log.d("MainActivity", "Destination: ${destination.label} (ID: ${destination.id}), Show bottom nav: $shouldShow, Current visibility: ${binding.bottomNavigation.visibility}")
         }
     }
 
