@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="60dp"
         android:gravity="center"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,26 +22,26 @@
             android:id="@+id/imgOnboard"
             android:layout_width="match_parent"
             android:layout_height="372dp"
-            android:src="@drawable/onboard3"
             android:layout_gravity="center"
-            />
+            android:src="@drawable/onboard3" />
     </LinearLayout>
 
 
     <TextView
         android:id="@+id/tvTitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/imgContainer"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:text="Find your vibe, not just a match"
+        android:layout_width="245dp"
+        android:layout_height="78dp"
+        android:layout_marginStart="35dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="140dp"
+        android:text="@string/find_your_vibe_not_just_a_match"
+        android:textColor="@android:color/black"
         android:textSize="32sp"
         android:textStyle="bold"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="35dp"
-        android:layout_marginRight="140dp"
-        android:textColor="@android:color/black" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imgContainer" />
 
     <TextView
         android:id="@+id/tvDesc"
@@ -50,7 +50,7 @@
         app:layout_constraintTop_toBottomOf="@id/tvTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:text="We help you meet people who feel right — not just look right"
+        android:text="@string/we_help_you_meet_people_who_feel_right_not_just_look_right"
         android:textSize="18sp"
         android:textColor="@android:color/black"
         android:layout_marginTop="15dp"
@@ -92,8 +92,11 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp"
         android:layout_marginTop="30dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginBottom="40dp"
+
         android:background="@drawable/bg_button_black"
         android:gravity="center"
         android:orientation="horizontal"
@@ -104,7 +107,7 @@
             android:id="@+id/tvBtnText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Continue"
+            android:text="@string/btn_continue"
             android:textColor="@android:color/white"
             android:textSize="18sp"
             android:textStyle="bold"

@@ -21,9 +21,7 @@
         android:label="OnboardFirstFragment" >
         <action
             android:id="@+id/action_onboardFirst_to_onboardSecond"
-            app:destination="@id/onboardSecondFragment"
-            app:popUpTo="@id/onboardFirstFragment"
-            app:popUpToInclusive="true"/>
+            app:destination="@id/onboardSecondFragment"/>
     </fragment>
     <fragment
         android:id="@+id/onboardSecondFragment"
@@ -31,9 +29,7 @@
         android:label="OnboardSecondFragment" >
         <action
             android:id="@+id/action_onboardSecond_to_onboardThird"
-            app:destination="@id/onboardThirdFragment"
-            app:popUpTo="@id/onboardSecondFragment"
-            app:popUpToInclusive="true"/>
+            app:destination="@id/onboardThirdFragment"/>
     </fragment>
     <fragment
         android:id="@+id/onboardThirdFragment"
@@ -49,6 +45,11 @@
         android:name="com.intern001.dating.presentation.ui.ads.NativeFullFragment"
         android:label="OnboardThirdFragment" >
         <action
+            android:id="@+id/action_nativeFull_to_login"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/nativeFullFragment"
+            app:popUpToInclusive="true"/>
+        <action
             android:id="@+id/action_nativeFull_to_home"
             app:destination="@id/homeFragment"
             app:popUpTo="@id/nativeFullFragment"
@@ -57,7 +58,7 @@
 
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.intern001.dating.presentation.ui.home.HomeFragment"
+        android:name="com.intern001.dating.presentation.ui.login.LoginFragment"
         android:label="LoginFragment">
         <action
             android:id="@+id/action_login_to_signup"
