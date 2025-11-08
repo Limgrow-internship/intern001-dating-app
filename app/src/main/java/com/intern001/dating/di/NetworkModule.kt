@@ -1,6 +1,7 @@
 package com.intern001.dating.di
 
 import com.intern001.dating.BuildConfig
+import com.intern001.dating.data.api.CountryApi
 import com.intern001.dating.data.api.DatingApiService
 import com.intern001.dating.data.local.TokenManager
 import dagger.Module
@@ -8,6 +9,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import java.util.concurrent.TimeUnit
+import javax.inject.Named
 import javax.inject.Singleton
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -65,6 +67,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    @Named("defaultRetrofit")
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
@@ -75,7 +78,23 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideDatingApiService(retrofit: Retrofit): DatingApiService {
+    fun provideDatingApiService(@Named("defaultRetrofit") retrofit: Retrofit): DatingApiService {
         return retrofit.create(DatingApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    @Named("restCountriesRetrofit")
+    fun provideRestCountriesRetrofit(): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl("https://restcountries.com/v2/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCountryApi(@Named("restCountriesRetrofit") restCountriesRetrofit: Retrofit): CountryApi {
+        return restCountriesRetrofit.create(CountryApi::class.java)
     }
 }

@@ -1,3 +1,4 @@
+import java.io.File
 import java.util.Properties
 
 plugins {
@@ -108,4 +109,27 @@ ktlint {
         reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
         reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
     }
+}
+
+tasks.register("generateSupportedLangs") {
+    doLast {
+        val resDir = File("$projectDir/src/main/res")
+        val langs = resDir.listFiles()
+            ?.filter { it.isDirectory && it.name.startsWith("values-") }
+            ?.map { it.name.removePrefix("values-") }
+            ?.filter { it.length == 2 }
+            ?.distinct()
+            ?: emptyList()
+        val outDir = File(resDir, "raw")
+        outDir.mkdirs()
+        val outFile = File(outDir, "supported_languages.json")
+        outFile.writeText(
+            "[${langs.joinToString(",") { "\"$it\"" }}]",
+        )
+        println("Supported languages: $langs")
+    }
+}
+
+tasks.named("preBuild") {
+    dependsOn("generateSupportedLangs")
 }

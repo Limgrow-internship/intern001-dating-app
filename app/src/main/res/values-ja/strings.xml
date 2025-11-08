@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">HeartOnDatingApp</string>
+    <string name="create_new_password_message">
+        アカウントの新しいパスワードを作成してください。強力で覚えやすいものにしましょう。
+    </string>
+    <string name="login">ログイン</string>
+    <string name="email">メールアドレス</string>
+    <string name="pass">パスワード</string>
+    <string name="Forgot_pass">パスワードをお忘れですか？</string>
+    <string name="login_with">または以下でログイン</string>
+    <string name="dont_have_account">アカウントをお持ちではありませんか？</string>
+    <string name="signup">サインアップ</string>
+    <string name="incorrect_mail">メールアドレスが正しくありません</string>
+    <string name="incorrect_pass">パスワードが正しくありません</string>
+</resources>
