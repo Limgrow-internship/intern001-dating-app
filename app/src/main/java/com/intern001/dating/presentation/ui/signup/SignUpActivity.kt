@@ -2,7 +2,6 @@ package com.intern001.dating.presentation.ui.signup
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import com.intern001.dating.presentation.common.viewmodel.BaseActivity

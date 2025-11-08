@@ -17,6 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class LoginFragment : BaseFragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
+
     private var isPasswordVisible = false
     override fun onCreateView(
         inflater: LayoutInflater,

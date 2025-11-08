@@ -1,6 +1,5 @@
 package com.intern001.dating.domain.repository
 
-import com.intern001.dating.domain.model.AuthState
 import com.intern001.dating.domain.model.User
 
 interface AuthRepository {
