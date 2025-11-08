@@ -55,4 +55,3 @@ class LoginFragment : BaseFragment() {
         _binding = null
     }
 }
-

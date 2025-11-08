@@ -5,17 +5,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentNativeFullBinding
+import com.intern001.dating.domain.repository.LanguageRepository
 import com.intern001.dating.presentation.common.ads.AdManager
 import com.intern001.dating.presentation.common.ads.NativeAdHelper
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class NativeFullFragment : BaseFragment() {
     private var _binding: FragmentNativeFullBinding? = null
     private val binding get() = _binding!!
+
+    @Inject
+    lateinit var languageRepository: LanguageRepository
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,20 +44,24 @@ class NativeFullFragment : BaseFragment() {
             AdManager.nativeAdFull,
         ) { adView, ad ->
 
+            val navigateToLanguage: () -> Unit = {
+                lifecycleScope.launch {
+                    languageRepository.prefetchLanguages()
+                    findNavController().navigate(R.id.action_nativeFull_to_language)
+                }
+            }
+
             val btnCloseTop = adView.findViewById<ImageView>(R.id.ad_close_1)
-            btnCloseTop?.setOnClickListener {
-                findNavController().navigate(com.intern001.dating.R.id.action_nativeFull_to_home)
-            }
+            btnCloseTop?.setOnClickListener { navigateToLanguage() }
+
             val btnCloseBottom = adView.findViewById<ImageView>(R.id.ad_close)
-            btnCloseBottom?.setOnClickListener {
-                findNavController().navigate(com.intern001.dating.R.id.action_nativeFull_to_home)
-            }
+            btnCloseBottom?.setOnClickListener { navigateToLanguage() }
         }
     }
 
     override fun onDestroyView() {
-        (activity as? MainActivity)?.hideBottomNavigation(false)
-        _binding = null
         super.onDestroyView()
+        (activity as? MainActivity)?.hideBottomNavigation(true)
+        _binding = null
     }
 }

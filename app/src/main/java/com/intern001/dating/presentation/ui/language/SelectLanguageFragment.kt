@@ -1,0 +1,78 @@
+package com.intern001.dating.presentation.ui.language
+
+import android.content.Context
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.intern001.dating.MainActivity
+import com.intern001.dating.R
+import com.intern001.dating.databinding.FragmentSelectLanguageBinding
+import com.intern001.dating.presentation.common.ads.AdManager
+import com.intern001.dating.presentation.common.ads.NativeAdHelper
+import com.intern001.dating.presentation.common.viewmodel.BaseFragment
+import dagger.hilt.android.AndroidEntryPoint
+import java.util.Locale
+
+@AndroidEntryPoint
+class SelectLanguageFragment : BaseFragment() {
+    private var _binding: FragmentSelectLanguageBinding? = null
+    private val binding get() = _binding!!
+    private val viewModel by viewModels<SelectLanguageViewModel>()
+    private val adapter = LanguageAdapter { lang -> viewModel.selectLanguage(lang) }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentSelectLanguageBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    fun setAppLocale(languageCode: String) {
+        val locale = Locale(languageCode)
+        Locale.setDefault(locale)
+        val config = resources.configuration
+        config.setLocale(locale)
+        requireActivity().resources.updateConfiguration(config, requireActivity().resources.displayMetrics)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        binding.rvLanguages.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvLanguages.adapter = adapter
+
+        NativeAdHelper.bindNativeAdSmall(
+            requireContext(),
+            binding.adContainer,
+            AdManager.nativeAdSmall,
+        )
+
+        viewModel.languages.observe(viewLifecycleOwner) {
+            adapter.submitList(it)
+        }
+        viewModel.selectedLanguage.observe(viewLifecycleOwner) { lang ->
+            adapter.setSelected(lang)
+        }
+
+        binding.btnContinue.setOnClickListener {
+            val lang = viewModel.selectedLanguage.value
+            if (lang != null) {
+                val langCode = lang.code.take(2)
+
+                setAppLocale(langCode)
+                requireActivity().getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+                    .edit().putString("language", langCode).apply()
+                requireActivity().recreate()
+                findNavController().navigate(R.id.action_selectLanguageFragment_to_login)
+            }
+        }
+
+        viewModel.fetchLanguages()
+    }
+
+    override fun onDestroyView() {
+        (activity as? MainActivity)?.hideBottomNavigation(true)
+        _binding = null
+        super.onDestroyView()
+    }
+}
