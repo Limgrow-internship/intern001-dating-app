@@ -1,24 +1,20 @@
 <resources>
     <string name="app_name">HeartOnDatingApp</string>
     <string name="create_new_password_message">
-        Create a new password for your account. Make sure it’s strong and easy for you to remember.
+        Create a new password for your account. Make sure it\'s strong and easy for you to remember.
     </string>
-    <string name="login">ĐĂNG NHẬP</string>
+    <string name="login">LOGIN</string>
     <string name="email">Email</string>
-    <string name="pass">Mật khẩu</string>
-    <string name="Forgot_pass">Quên mật khẩu</string>
-    <string name="login_with">Hoặc đăng nhập bằng</string>
-    <string name="dont_have_account">Chưa có tài khoản?</string>
-    <string name="signup">Đăng ký</string>
-    <string name="incorrect_mail">Email không hợp lệ</string>
-    <string name="incorrect_pass">Mật khẩu không hợp lệ</string>
-    <string name="it_all_starts_with_a_swipe" translatable="false">It all starts with a swipe</string>
-    <string name="a_single_swipe_can_open_a_whole_new_story_discover_people_nearby_who_share_your_vibe" translatable="false">A single swipe can open a whole new story. Discover people nearby who share your vibe</string>
-    <string name="onboarding2" translatable="false">onboarding2</string>
-    <string name="btn_continue" translatable="false">Continue</string>
-    <string name="arrow" translatable="false">arrow</string>
-    <string name="tym" translatable="false">tym</string>
-    <string name="find_your_vibe_not_just_a_match" translatable="false">Find your vibe, not just a match</string>
-    <string name="we_help_you_meet_people_who_feel_right_not_just_look_right" translatable="false">We help you meet people who feel right — not just look right</string>
-
+    <string name="pass">Password</string>
+    <string name="Forgot_pass">Forgot password</string>
+    <string name="login_with">Or login with</string>
+    <string name="dont_have_account">Don\'t have an account?</string>
+    <string name="signup">Sign up</string>
+    <string name="incorrect_mail">Invalid email</string>
+    <string name="incorrect_pass">Invalid password</string>
+    <string name="it_all_starts_with_a_swipe">It all starts with a swipe</string>
+    <string name="a_single_swipe_can_open_a_whole_new_story_discover_people_nearby_who_share_your_vibe">A single swipe can open a whole new story. Discover people nearby who share your vibe</string>
+    <string name="find_your_vibe_not_just_a_match">Find your vibe, not just a match</string>
+    <string name="we_help_you_meet_people_who_feel_right_not_just_look_right">We help you meet people who feel right — not just look right</string>
+    <string name="btn_continue">Continue</string>
 </resources>
