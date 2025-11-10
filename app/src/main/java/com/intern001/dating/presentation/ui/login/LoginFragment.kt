@@ -1,29 +1,34 @@
 package com.intern001.dating.presentation.ui.login
 
 import android.os.Bundle
-import android.text.InputType
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
+import androidx.core.view.isVisible
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import com.intern001.dating.MainActivity
-import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentLoginBinding
+import com.intern001.dating.presentation.common.state.UiState
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
+import com.intern001.dating.presentation.util.ValidationHelper
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class LoginFragment : BaseFragment() {
+
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
 
-    private var isPasswordVisible = false
+    private val viewModel: LoginViewModel by viewModels()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
+    ): View {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -33,28 +38,101 @@ class LoginFragment : BaseFragment() {
 
         (activity as? MainActivity)?.hideBottomNavigation(true)
 
-        val etPassword = view.findViewById<EditText>(R.id.etPassword)
+        setupClickListeners()
+        observeUiState()
+    }
 
-        etPassword.setOnTouchListener { _, event ->
-            if (event.action == MotionEvent.ACTION_UP) {
-                val drawableEnd = 2
-                val drawable = etPassword.compoundDrawables[drawableEnd]
-                if (drawable != null && event.rawX >= (etPassword.right - drawable.bounds.width())) {
-                    isPasswordVisible = !isPasswordVisible
-                    if (isPasswordVisible) {
-                        etPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                        etPassword.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye_open, 0)
-                    } else {
-                        etPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                        etPassword.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye_off, 0)
-                    }
-                    etPassword.setSelection(etPassword.text?.length ?: 0)
-                    return@setOnTouchListener true
-                }
+    private fun setupClickListeners() {
+        binding.btnLogin.setOnClickListener {
+            val email = binding.etEmail.text.toString().trim()
+            val password = binding.etPassword.text.toString().trim()
+
+            if (validateInputs(email, password)) {
+                viewModel.login(email, password)
             }
-            false
+        }
+
+        binding.btnSignUp.setOnClickListener {
+            // Navigate to sign up
+            // TODO: Update with your actual route
+            Snackbar.make(binding.root, "Navigate to Sign Up", Snackbar.LENGTH_SHORT).show()
+        }
+
+        binding.btnFogotPass.setOnClickListener {
+            // Navigate to forgot password
+            // TODO: Update with your actual route
+            Snackbar.make(binding.root, "Navigate to Forgot Password", Snackbar.LENGTH_SHORT).show()
+        }
+
+        binding.btnGoogle.setOnClickListener {
+            // Handle Google login
+            Snackbar.make(binding.root, "Google login coming soon", Snackbar.LENGTH_SHORT).show()
+        }
+
+        binding.btnFacebook.setOnClickListener {
+            // Handle Facebook login
+            Snackbar.make(binding.root, "Facebook login coming soon", Snackbar.LENGTH_SHORT).show()
         }
     }
+
+    private fun validateInputs(
+        email: String,
+        password: String,
+    ): Boolean {
+        val isEmailValid = ValidationHelper.validateEmail(email, binding.tilEmail)
+        val isPasswordValid = ValidationHelper.validatePassword(password, binding.tilPassword)
+
+        return isEmailValid && isPasswordValid
+    }
+
+    private fun observeUiState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.uiState.collect { state ->
+                when (state) {
+                    is UiState.Idle -> {
+                        binding.progressBar.isVisible = false
+                        binding.btnLogin.isEnabled = true
+                        binding.btnLogin.text = getString(com.intern001.dating.R.string.login)
+                    }
+
+                    is UiState.Loading -> {
+                        binding.progressBar.isVisible = true
+                        binding.btnLogin.isEnabled = false
+                        binding.btnLogin.text = ""
+                        ValidationHelper.clearError(binding.tilEmail)
+                        ValidationHelper.clearError(binding.tilPassword)
+                    }
+
+                    is UiState.Success -> {
+                        binding.progressBar.isVisible = false
+                        binding.btnLogin.isEnabled = true
+                        binding.btnLogin.text = getString(com.intern001.dating.R.string.login)
+
+                        Snackbar.make(
+                            binding.root,
+                            "Login successful!",
+                            Snackbar.LENGTH_SHORT,
+                        ).show()
+
+                        navController.navigate(com.intern001.dating.R.id.action_login_to_home)
+                    }
+
+                    is UiState.Error -> {
+                        binding.progressBar.isVisible = false
+                        binding.btnLogin.isEnabled = true
+                        binding.btnLogin.text = getString(com.intern001.dating.R.string.login)
+
+                        Snackbar.make(
+                            binding.root,
+                            state.message,
+                            Snackbar.LENGTH_LONG,
+                        ).show()
+                    }
+                }
+            }
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

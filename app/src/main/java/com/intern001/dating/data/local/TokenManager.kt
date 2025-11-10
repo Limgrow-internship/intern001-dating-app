@@ -28,6 +28,8 @@ constructor(
     companion object {
         private val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
         private val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
+        private val USER_ID_KEY = stringPreferencesKey("user_id")
+        private val USER_EMAIL_KEY = stringPreferencesKey("user_email")
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -38,11 +40,19 @@ constructor(
     @Volatile
     private var cachedRefreshToken: String? = null
 
+    @Volatile
+    private var cachedUserId: String? = null
+
+    @Volatile
+    private var cachedUserEmail: String? = null
+
     init {
         scope.launch {
             context.dataStore.data.collect { preferences ->
                 cachedAccessToken = preferences[ACCESS_TOKEN_KEY]
                 cachedRefreshToken = preferences[REFRESH_TOKEN_KEY]
+                cachedUserId = preferences[USER_ID_KEY]
+                cachedUserEmail = preferences[USER_EMAIL_KEY]
             }
         }
     }
@@ -59,6 +69,23 @@ constructor(
             preferences[REFRESH_TOKEN_KEY] = refreshToken
         }
     }
+
+    suspend fun saveUserInfo(
+        userId: String,
+        userEmail: String,
+    ) {
+        cachedUserId = userId
+        cachedUserEmail = userEmail
+
+        context.dataStore.edit { preferences ->
+            preferences[USER_ID_KEY] = userId
+            preferences[USER_EMAIL_KEY] = userEmail
+        }
+    }
+
+    fun getUserId(): String? = cachedUserId
+
+    fun getUserEmail(): String? = cachedUserEmail
 
     fun getAccessToken(): String? = cachedAccessToken
 
@@ -89,10 +116,14 @@ constructor(
     suspend fun clearTokens() {
         cachedAccessToken = null
         cachedRefreshToken = null
+        cachedUserId = null
+        cachedUserEmail = null
 
         context.dataStore.edit { preferences ->
             preferences.remove(ACCESS_TOKEN_KEY)
             preferences.remove(REFRESH_TOKEN_KEY)
+            preferences.remove(USER_ID_KEY)
+            preferences.remove(USER_EMAIL_KEY)
         }
     }
 }
