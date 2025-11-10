@@ -35,16 +35,19 @@ data class RefreshTokenRequest(
 
 data class OtpResponse(
     @SerializedName("message")
-    val message: String,
+    val message: String? = null,
+
     @SerializedName("success")
-    val success: Boolean,
+    val success: Boolean? = null
 )
 
 data class VerifyOtpResponse(
     @SerializedName("message")
-    val message: String,
+    val message: String? = null,
+
     @SerializedName("success")
-    val success: Boolean,
+    val success: Boolean? = null,
+
     @SerializedName("verified")
-    val verified: Boolean,
+    val verified: Boolean? = null
 )
