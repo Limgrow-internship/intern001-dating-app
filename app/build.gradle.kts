@@ -34,12 +34,12 @@ android {
 
     buildTypes {
         debug {
-            val devUrl = getLocalProperty("base.url.dev", "http://10.0.2.2:3000/api/")
+            val devUrl = getLocalProperty("base.url.dev", "http://10.0.2.2:3000/")
             buildConfigField("String", "BASE_URL", "\"$devUrl\"")
             isDebuggable = true
         }
         release {
-            buildConfigField("String", "BASE_URL", "\"https://api.hearton.com/api/\"")
+            buildConfigField("String", "BASE_URL", "\"https://api.hearton.com/\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

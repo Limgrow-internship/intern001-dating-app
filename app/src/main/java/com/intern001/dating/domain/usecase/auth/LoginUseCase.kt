@@ -32,17 +32,10 @@ class LoginUseCase(
 
             val token = loginResult.getOrNull()!!
 
-            val userResult = authRepository.getCurrentUser()
-            if (userResult.isFailure) {
-                return Result.failure(userResult.exceptionOrNull()!!)
-            }
-
-            val user = userResult.getOrNull()!!
-
             Result.success(
                 AuthState(
                     isLoggedIn = true,
-                    user = user,
+                    user = null, // User info will be loaded later in Profile screen
                     token = token,
                     error = null,
                 ),

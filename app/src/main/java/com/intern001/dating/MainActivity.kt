@@ -10,6 +10,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private var isNavigatingProgrammatically = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,6 +27,10 @@ class MainActivity : BaseActivity() {
         binding.bottomNavigation.visibility = View.GONE
 
         binding.bottomNavigation.setOnItemSelectedListener { item ->
+            if (isNavigatingProgrammatically) {
+                return@setOnItemSelectedListener true
+            }
+
             when (item.itemId) {
                 R.id.homeFragment,
                 R.id.chatListFragment,
@@ -53,7 +58,9 @@ class MainActivity : BaseActivity() {
             binding.bottomNavigation.visibility = if (shouldShow) View.VISIBLE else View.GONE
 
             if (shouldShow) {
+                isNavigatingProgrammatically = true
                 binding.bottomNavigation.selectedItemId = destination.id
+                isNavigatingProgrammatically = false
             }
         }
     }
