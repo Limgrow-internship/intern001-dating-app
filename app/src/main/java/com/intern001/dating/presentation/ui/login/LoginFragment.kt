@@ -20,7 +20,8 @@ import kotlinx.coroutines.launch
 class LoginFragment : BaseFragment() {
 
     private var _binding: FragmentLoginBinding? = null
-    private val binding get() = _binding!!
+    private val binding
+        get() = _binding!!
 
     private val viewModel: LoginViewModel by viewModels()
 
@@ -53,24 +54,18 @@ class LoginFragment : BaseFragment() {
         }
 
         binding.btnSignUp.setOnClickListener {
-            // Navigate to sign up
-            // TODO: Update with your actual route
             Snackbar.make(binding.root, "Navigate to Sign Up", Snackbar.LENGTH_SHORT).show()
         }
 
-        binding.btnFogotPass.setOnClickListener {
-            // Navigate to forgot password
-            // TODO: Update with your actual route
+        binding.btnForgotPass.setOnClickListener {
             Snackbar.make(binding.root, "Navigate to Forgot Password", Snackbar.LENGTH_SHORT).show()
         }
 
         binding.btnGoogle.setOnClickListener {
-            // Handle Google login
             Snackbar.make(binding.root, "Google login coming soon", Snackbar.LENGTH_SHORT).show()
         }
 
         binding.btnFacebook.setOnClickListener {
-            // Handle Facebook login
             Snackbar.make(binding.root, "Facebook login coming soon", Snackbar.LENGTH_SHORT).show()
         }
     }
@@ -94,7 +89,6 @@ class LoginFragment : BaseFragment() {
                         binding.btnLogin.isEnabled = true
                         binding.btnLogin.text = getString(com.intern001.dating.R.string.login)
                     }
-
                     is UiState.Loading -> {
                         binding.progressBar.isVisible = true
                         binding.btnLogin.isEnabled = false
@@ -102,7 +96,6 @@ class LoginFragment : BaseFragment() {
                         ValidationHelper.clearError(binding.tilEmail)
                         ValidationHelper.clearError(binding.tilPassword)
                     }
-
                     is UiState.Success -> {
                         binding.progressBar.isVisible = false
                         binding.btnLogin.isEnabled = true
@@ -112,11 +105,11 @@ class LoginFragment : BaseFragment() {
                             binding.root,
                             "Login successful!",
                             Snackbar.LENGTH_SHORT,
-                        ).show()
+                        )
+                            .show()
 
                         navController.navigate(com.intern001.dating.R.id.action_login_to_home)
                     }
-
                     is UiState.Error -> {
                         binding.progressBar.isVisible = false
                         binding.btnLogin.isEnabled = true
@@ -126,7 +119,8 @@ class LoginFragment : BaseFragment() {
                             binding.root,
                             state.message,
                             Snackbar.LENGTH_LONG,
-                        ).show()
+                        )
+                            .show()
                     }
                 }
             }

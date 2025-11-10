@@ -85,7 +85,7 @@
 
 
         <TextView
-            android:id="@+id/btnFogotPass"
+            android:id="@+id/btnForgotPass"
             android:text="@string/Forgot_pass"
             android:textSize="13sp"
             android:gravity="end"

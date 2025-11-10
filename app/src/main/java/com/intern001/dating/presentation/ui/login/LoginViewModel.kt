@@ -27,14 +27,10 @@ class LoginViewModel @Inject constructor(
             val result = loginUseCase(email, password)
 
             _uiState.value = if (result.isSuccess) {
-                UiState.Success(result.getOrNull()!!)
+                UiState.Success(result.getOrThrow())
             } else {
                 UiState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
             }
         }
-    }
-
-    fun resetState() {
-        _uiState.value = UiState.Idle
     }
 }
