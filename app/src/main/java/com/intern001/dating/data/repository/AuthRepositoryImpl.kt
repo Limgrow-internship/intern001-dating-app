@@ -41,6 +41,13 @@ constructor(
                         refreshToken = authResponse.refreshToken,
                     )
 
+                    authResponse.user?.let { user ->
+                        tokenManager.saveUserInfo(
+                            userId = user.id,
+                            userEmail = user.email,
+                        )
+                    }
+
                     Result.success(authResponse.accessToken)
                 } else {
                     Result.failure(Exception("Login response body is null"))

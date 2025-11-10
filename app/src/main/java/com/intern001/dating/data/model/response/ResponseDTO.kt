@@ -8,7 +8,18 @@ data class AuthResponse(
     @SerializedName("refreshToken")
     val refreshToken: String,
     @SerializedName("expiresIn")
-    val expiresIn: Long,
+    val expiresIn: Long? = null,
+    @SerializedName("user")
+    val user: UserBasicData? = null,
+    @SerializedName("message")
+    val message: String? = null,
+)
+
+data class UserBasicData(
+    @SerializedName("id")
+    val id: String,
+    @SerializedName("email")
+    val email: String,
 )
 
 data class UserData(
