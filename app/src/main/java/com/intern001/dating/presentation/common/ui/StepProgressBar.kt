@@ -42,7 +42,7 @@ class StepProgressBar @JvmOverloads constructor(
             0,
         ).apply {
             try {
-                maxSteps = getInt(R.styleable.StepProgressBar_maxSteps, 5)
+                maxSteps = getInt(R.styleable.StepProgressBar_maxSteps, 5).coerceAtLeast(1)
                 currentStep = getInt(R.styleable.StepProgressBar_currentStep, 0)
                 progressColor = getColor(
                     R.styleable.StepProgressBar_progressColor,
@@ -60,18 +60,17 @@ class StepProgressBar @JvmOverloads constructor(
 
         val viewWidth = width.toFloat()
         val viewHeight = height.toFloat()
-        val progressWidth = viewWidth * currentStep / maxSteps
 
-        // Draw background
         canvas.drawRect(0f, 0f, viewWidth, viewHeight, backgroundPaint)
 
-        // Draw progress
-        if (currentStep > 0) {
+        if (currentStep > 0 && maxSteps > 0) {
+            val progressWidth = viewWidth * currentStep / maxSteps
             canvas.drawRect(0f, 0f, progressWidth, viewHeight, progressPaint)
         }
     }
 
     fun setMaxSteps(max: Int) {
+        require(max > 0) { "maxSteps must be greater than 0, got: $max" }
         maxSteps = max
         currentStep = currentStep.coerceIn(0, maxSteps)
         invalidate()

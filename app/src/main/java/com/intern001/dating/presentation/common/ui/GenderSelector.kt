@@ -50,36 +50,21 @@ class GenderSelector @JvmOverloads constructor(
     }
 
     private fun updateUI() {
-        val orangeColor = ContextCompat.getColor(context, R.color.bottom_nav_selected)
-        val grayColor = ContextCompat.getColor(context, R.color.bottom_nav_unselected)
+        updateButtonState(binding.btnMale, selectedGender == Gender.MALE)
+        updateButtonState(binding.btnFemale, selectedGender == Gender.FEMALE)
+        updateButtonState(binding.btnOther, selectedGender == Gender.OTHER)
+    }
+
+    private fun updateButtonState(button: com.google.android.material.button.MaterialButton, isSelected: Boolean) {
         val whiteColor = ContextCompat.getColor(context, R.color.white)
         val blackColor = ContextCompat.getColor(context, R.color.black)
 
-        // Male button
-        if (selectedGender == Gender.MALE) {
-            binding.btnMale.setBackgroundResource(R.drawable.bg_button_orange)
-            binding.btnMale.setTextColor(whiteColor)
+        if (isSelected) {
+            button.setBackgroundResource(R.drawable.bg_button_orange)
+            button.setTextColor(whiteColor)
         } else {
-            binding.btnMale.setBackgroundResource(R.drawable.bg_gender_unselected)
-            binding.btnMale.setTextColor(blackColor)
-        }
-
-        // Female button
-        if (selectedGender == Gender.FEMALE) {
-            binding.btnFemale.setBackgroundResource(R.drawable.bg_button_orange)
-            binding.btnFemale.setTextColor(whiteColor)
-        } else {
-            binding.btnFemale.setBackgroundResource(R.drawable.bg_gender_unselected)
-            binding.btnFemale.setTextColor(blackColor)
-        }
-
-        // Other button
-        if (selectedGender == Gender.OTHER) {
-            binding.btnOther.setBackgroundResource(R.drawable.bg_button_orange)
-            binding.btnOther.setTextColor(whiteColor)
-        } else {
-            binding.btnOther.setBackgroundResource(R.drawable.bg_gender_unselected)
-            binding.btnOther.setTextColor(blackColor)
+            button.setBackgroundResource(R.drawable.bg_gender_unselected)
+            button.setTextColor(blackColor)
         }
     }
 

@@ -18,9 +18,9 @@ class CustomButton @JvmOverloads constructor(
         ViewCustomButtonBinding.inflate(LayoutInflater.from(context), this, true)
 
     enum class ButtonStyle {
-        PRIMARY, // Black background, white text
-        SECONDARY, // Orange background, white text
-        OUTLINE, // White background, black text with border
+        PRIMARY,
+        SECONDARY,
+        OUTLINE,
     }
 
     var text: String = ""
@@ -29,12 +29,10 @@ class CustomButton @JvmOverloads constructor(
             binding.buttonText.text = value
         }
 
-    var isEnabled: Boolean = true
-        set(value) {
-            field = value
-            binding.root.isEnabled = value
-            binding.root.alpha = if (value) 1f else 0.5f
-        }
+    override fun setEnabled(enabled: Boolean) {
+        super.setEnabled(enabled)
+        binding.root.alpha = if (enabled) 1f else 0.5f
+    }
 
     init {
         context.theme.obtainStyledAttributes(
@@ -46,7 +44,7 @@ class CustomButton @JvmOverloads constructor(
             try {
                 text = getString(R.styleable.CustomButton_buttonText) ?: "Button"
                 val styleIndex = getInt(R.styleable.CustomButton_buttonStyle, 0)
-                setButtonStyle(ButtonStyle.values()[styleIndex])
+                setButtonStyle(ButtonStyle.entries.getOrNull(styleIndex) ?: ButtonStyle.PRIMARY)
             } finally {
                 recycle()
             }
