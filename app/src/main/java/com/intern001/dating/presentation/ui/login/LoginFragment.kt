@@ -7,8 +7,10 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.intern001.dating.MainActivity
+import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentLoginBinding
 import com.intern001.dating.presentation.common.state.UiState
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
@@ -54,7 +56,7 @@ class LoginFragment : BaseFragment() {
         }
 
         binding.btnSignUp.setOnClickListener {
-            Snackbar.make(binding.root, "Navigate to Sign Up", Snackbar.LENGTH_SHORT).show()
+            findNavController().navigate(R.id.action_login_to_profile_setup)
         }
 
         binding.btnForgotPass.setOnClickListener {
