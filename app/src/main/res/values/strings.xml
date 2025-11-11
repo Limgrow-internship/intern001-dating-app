@@ -17,4 +17,8 @@
     <string name="find_your_vibe_not_just_a_match">Find your vibe, not just a match</string>
     <string name="we_help_you_meet_people_who_feel_right_not_just_look_right">We help you meet people who feel right — not just look right</string>
     <string name="btn_continue">Continue</string>
+    <string name="button">Button</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="other">Other</string>
 </resources>
