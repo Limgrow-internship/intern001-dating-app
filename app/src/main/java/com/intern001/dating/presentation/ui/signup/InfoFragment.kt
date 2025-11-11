@@ -6,16 +6,18 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import com.intern001.dating.R
+import com.intern001.dating.databinding.FragmentInfoBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class InfoFragment : BaseFragment() {
+
+    private var _binding: FragmentInfoBinding? = null
+    private val binding get() = _binding!!
 
     private var isPasswordVisible = false
     private val viewModel: InfoViewModel by viewModels()
@@ -24,42 +26,49 @@ class InfoFragment : BaseFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_info, container, false)
+    ): View {
+        _binding = FragmentInfoBinding.inflate(inflater, container, false)
+        val view = binding.root
 
-        val btnSignIn = view.findViewById<Button>(R.id.btnSignIn)
-        val etEmail = view.findViewById<EditText>(R.id.etEmail)
-        val etPassword = view.findViewById<EditText>(R.id.etPassword)
+        setupPasswordVisibilityToggle()
+        setupSignInButton()
 
-        etPassword.setOnTouchListener { _, event ->
+        return view
+    }
+
+    private fun setupPasswordVisibilityToggle() {
+        binding.etPassword.setOnTouchListener { _, event ->
             val drawableEnd = 2
             if (event.action == MotionEvent.ACTION_UP) {
-                val drawable = etPassword.compoundDrawables[drawableEnd]
-                if (drawable != null && event.rawX >= (etPassword.right - drawable.bounds.width())) {
-                    togglePasswordVisibility(etPassword)
+                val drawable = binding.etPassword.compoundDrawables[drawableEnd]
+                if (drawable != null && event.rawX >= (binding.etPassword.right - drawable.bounds.width())) {
+                    togglePasswordVisibility()
                     return@setOnTouchListener true
                 }
             }
             false
         }
+    }
 
-        btnSignIn.setOnClickListener {
-            val email = etEmail.text.toString().trim()
-            val password = etPassword.text.toString().trim()
+    private fun setupSignInButton() {
+        binding.btnSignIn.setOnClickListener {
+            val email = binding.etEmail.text.toString().trim()
+            val password = binding.etPassword.text.toString().trim()
 
             if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(requireContext(), "OTP sent successfully", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Please enter email and password", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             viewModel.sendOtp(email, password) { message ->
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 if (message.contains("OTP has been sent")) {
-                    val verifyFragment = VerifyFragment()
-                    val bundle = Bundle()
-                    bundle.putString("email", email)
-                    bundle.putString("password", password)
-                    verifyFragment.arguments = bundle
+                    val verifyFragment = VerifyFragment().apply {
+                        arguments = Bundle().apply {
+                            putString("email", email)
+                            putString("password", password)
+                        }
+                    }
 
                     parentFragmentManager.beginTransaction()
                         .replace(R.id.frg_container, verifyFragment)
@@ -68,19 +77,24 @@ class InfoFragment : BaseFragment() {
                 }
             }
         }
-
-        return view
     }
 
-    private fun togglePasswordVisibility(editText: EditText) {
+    private fun togglePasswordVisibility() {
         isPasswordVisible = !isPasswordVisible
-        if (isPasswordVisible) {
-            editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-            editText.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye_open, 0)
-        } else {
-            editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-            editText.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye_off, 0)
+        with(binding.etPassword) {
+            if (isPasswordVisible) {
+                inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye_open, 0)
+            } else {
+                inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye_off, 0)
+            }
+            setSelection(text.length)
         }
-        editText.setSelection(editText.text.length)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

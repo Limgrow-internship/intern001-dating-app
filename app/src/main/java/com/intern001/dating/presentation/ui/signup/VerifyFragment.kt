@@ -8,9 +8,10 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.EditText
+import android.widget.Toast
 import androidx.fragment.app.viewModels
-import com.intern001.dating.R
+import com.intern001.dating.databinding.FragmentVerifyBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -27,6 +28,9 @@ class VerifyFragment : BaseFragment() {
     private var email: String? = null
     private var password: String? = null
     private var countDownTimer: CountDownTimer? = null
+
+    private var _binding: FragmentVerifyBinding? = null
+    private val binding get() = _binding!!
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -45,23 +49,29 @@ class VerifyFragment : BaseFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_verify, container, false)
+    ): View {
+        _binding = FragmentVerifyBinding.inflate(inflater, container, false)
+        val view = binding.root
 
         email = arguments?.getString("email")
         password = arguments?.getString("password")
 
-        val tvEmailOtp = view.findViewById<TextView>(R.id.tvEmailOtp)
-        val tvRecentCode = view.findViewById<TextView>(R.id.tvRecentCode)
-        val btnVerify = view.findViewById<Button>(R.id.btnVerify)
+        setupOtpFields()
+        setupVerifyButton()
+        setupResendCode()
 
-        tvEmailOtp.text = email
+        binding.tvEmailOtp.text = email
+        startCountdown()
 
+        return view
+    }
+
+    private fun setupOtpFields() {
         val otpFields = listOf(
-            view.findViewById<EditText>(R.id.otp1),
-            view.findViewById<EditText>(R.id.otp2),
-            view.findViewById<EditText>(R.id.otp3),
-            view.findViewById<EditText>(R.id.otp4),
+            binding.otp1,
+            binding.otp2,
+            binding.otp3,
+            binding.otp4,
         )
 
         for (i in otpFields.indices) {
@@ -69,17 +79,20 @@ class VerifyFragment : BaseFragment() {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                 override fun afterTextChanged(s: Editable?) {}
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    if (s?.length == 1 && i < otpFields.size - 1) {
-                        otpFields[i + 1].requestFocus()
-                    } else if (s?.isEmpty() == true && i > 0) {
-                        otpFields[i - 1].requestFocus()
+                    when {
+                        s?.length == 1 && i < otpFields.size - 1 -> otpFields[i + 1].requestFocus()
+                        s?.isEmpty() == true && i > 0 -> otpFields[i - 1].requestFocus()
                     }
                 }
             })
         }
+    }
 
-        btnVerify.setOnClickListener {
-            val otp = otpFields.joinToString("") { it.text.toString() }
+    private fun setupVerifyButton() {
+        binding.btnVerify.setOnClickListener {
+            val otp = listOf(
+                binding.otp1, binding.otp2, binding.otp3, binding.otp4
+            ).joinToString("") { it.text.toString() }
 
             if (otp.length < 4) {
                 Toast.makeText(requireContext(), "Please enter full 4 OTP digits", Toast.LENGTH_SHORT).show()
@@ -96,10 +109,10 @@ class VerifyFragment : BaseFragment() {
                 }
             }
         }
+    }
 
-        startCountdown(tvRecentCode)
-
-        tvRecentCode.setOnClickListener {
+    private fun setupResendCode() {
+        binding.tvRecentCode.setOnClickListener {
             val emailValue = email
             val passwordValue = password
 
@@ -108,36 +121,39 @@ class VerifyFragment : BaseFragment() {
                 return@setOnClickListener
             }
 
-            tvRecentCode.isEnabled = false
-            tvRecentCode.alpha = 0.5f
-            tvRecentCode.text = "Resending..."
+            binding.tvRecentCode.isEnabled = false
+            binding.tvRecentCode.alpha = 0.5f
+            binding.tvRecentCode.text = "Resending..."
 
             viewModel.sendOtp(emailValue, passwordValue) { message ->
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-                startCountdown(tvRecentCode)
+                startCountdown()
             }
         }
-
-        return view
     }
 
-    private fun startCountdown(tvRecentCode: TextView) {
+    private fun startCountdown() {
         countDownTimer?.cancel()
 
-        tvRecentCode.isEnabled = false
-        tvRecentCode.alpha = 0.5f
+        binding.tvRecentCode.isEnabled = false
+        binding.tvRecentCode.alpha = 0.5f
 
         countDownTimer = object : CountDownTimer(90000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 val seconds = millisUntilFinished / 1000
-                tvRecentCode.text = "Resend code in ${seconds}s"
+                binding.tvRecentCode.text = "Resend code in ${seconds}s"
             }
 
             override fun onFinish() {
-                tvRecentCode.text = "Recent code"
-                tvRecentCode.isEnabled = true
-                tvRecentCode.alpha = 1f
+                binding.tvRecentCode.text = "Resend code"
+                binding.tvRecentCode.isEnabled = true
+                binding.tvRecentCode.alpha = 1f
             }
         }.start()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
