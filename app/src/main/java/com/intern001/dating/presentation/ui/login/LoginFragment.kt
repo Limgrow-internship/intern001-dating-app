@@ -1,9 +1,12 @@
 package com.intern001.dating.presentation.ui.login
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -12,6 +15,7 @@ import com.intern001.dating.MainActivity
 import com.intern001.dating.databinding.FragmentLoginBinding
 import com.intern001.dating.presentation.common.state.UiState
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
+import com.intern001.dating.presentation.ui.signup.SignUpActivity
 import com.intern001.dating.presentation.util.ValidationHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -124,6 +128,11 @@ class LoginFragment : BaseFragment() {
                     }
                 }
             }
+        }
+
+        btnSignUp.setOnClickListener {
+            val intent = Intent(requireContext(), SignUpActivity::class.java)
+            startActivity(intent)
         }
     }
 
