@@ -35,7 +35,7 @@ android {
     buildTypes {
         debug {
             val devUrl = getLocalProperty("base.url.dev", "http://10.0.2.2:3000/")
-            buildConfigField("String", "BASE_URL", "\"$devUrl\"")
+            buildConfigField("String", "BASE_URL", "$devUrl")
             isDebuggable = true
         }
         release {
