@@ -4,6 +4,7 @@ import com.intern001.dating.data.api.DatingApiService
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.data.model.request.LoginRequest
 import com.intern001.dating.data.model.request.SignupRequest
+import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.data.model.response.UserData
 import com.intern001.dating.domain.model.User
 import com.intern001.dating.domain.repository.AuthRepository
@@ -40,6 +41,13 @@ constructor(
                         accessToken = authResponse.accessToken,
                         refreshToken = authResponse.refreshToken,
                     )
+
+                    authResponse.user?.let { user ->
+                        tokenManager.saveUserInfo(
+                            userId = user.id,
+                            userEmail = user.email,
+                        )
+                    }
 
                     Result.success(authResponse.accessToken)
                 } else {
@@ -151,6 +159,50 @@ constructor(
 
     override fun getStoredUser(): User? {
         return cachedUser
+    }
+
+    override suspend fun updateUserProfile(
+        firstName: String?,
+        lastName: String?,
+        dateOfBirth: String?,
+        gender: String?,
+        profileImageUrl: String?,
+        goal: String?,
+        bio: String?,
+    ): Result<User> {
+        return try {
+            if (tokenManager.getAccessToken() == null) {
+                return Result.failure(Exception("User not logged in"))
+            }
+
+            val request = UpdateProfileRequest(
+                firstName = firstName,
+                lastName = lastName,
+                dateOfBirth = dateOfBirth,
+                gender = gender,
+                profileImageUrl = profileImageUrl,
+                goal = goal,
+                bio = bio,
+            )
+
+            val response = apiService.updateUserProfile(request)
+
+            if (response.isSuccessful) {
+                val userData = response.body()
+                if (userData != null) {
+                    val user = userData.toDomainModel()
+                    cachedUser = user
+                    Result.success(user)
+                } else {
+                    Result.failure(Exception("Update profile response body is null"))
+                }
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Result.failure(Exception("Failed to update profile: ${response.code()} - $errorBody"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     private fun UserData.toDomainModel(): User {

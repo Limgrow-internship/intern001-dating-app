@@ -23,6 +23,16 @@ interface AuthRepository {
 
     suspend fun getCurrentUser(): Result<User>
 
+    suspend fun updateUserProfile(
+        firstName: String? = null,
+        lastName: String? = null,
+        dateOfBirth: String? = null,
+        gender: String? = null,
+        profileImageUrl: String? = null,
+        goal: String? = null,
+        bio: String? = null,
+    ): Result<User>
+
     fun isLoggedIn(): Boolean
 
     fun getStoredUser(): User?

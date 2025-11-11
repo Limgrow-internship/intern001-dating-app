@@ -39,7 +39,7 @@ android {
             isDebuggable = true
         }
         release {
-            buildConfigField("String", "BASE_URL", "\"https://api.hearton.com/api/\"")
+            buildConfigField("String", "BASE_URL", "\"https://api.hearton.com/\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
