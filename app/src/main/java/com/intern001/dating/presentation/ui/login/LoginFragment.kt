@@ -5,12 +5,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
@@ -60,7 +57,8 @@ class LoginFragment : BaseFragment() {
         }
 
         binding.btnSignUp.setOnClickListener {
-            findNavController().navigate(R.id.action_login_to_profile_setup)
+            val intent = Intent(requireContext(), SignUpActivity::class.java)
+            startActivity(intent)
         }
 
         binding.btnForgotPass.setOnClickListener {
@@ -93,7 +91,7 @@ class LoginFragment : BaseFragment() {
                     is UiState.Idle -> {
                         binding.progressBar.isVisible = false
                         binding.btnLogin.isEnabled = true
-                        binding.btnLogin.text = getString(com.intern001.dating.R.string.login)
+                        binding.btnLogin.text = getString(R.string.login)
                     }
                     is UiState.Loading -> {
                         binding.progressBar.isVisible = true
@@ -105,7 +103,7 @@ class LoginFragment : BaseFragment() {
                     is UiState.Success -> {
                         binding.progressBar.isVisible = false
                         binding.btnLogin.isEnabled = true
-                        binding.btnLogin.text = getString(com.intern001.dating.R.string.login)
+                        binding.btnLogin.text = getString(R.string.login)
 
                         Snackbar.make(
                             binding.root,
@@ -114,12 +112,12 @@ class LoginFragment : BaseFragment() {
                         )
                             .show()
 
-                        navController.navigate(com.intern001.dating.R.id.action_login_to_home)
+                        navController.navigate(R.id.action_login_to_home)
                     }
                     is UiState.Error -> {
                         binding.progressBar.isVisible = false
                         binding.btnLogin.isEnabled = true
-                        binding.btnLogin.text = getString(com.intern001.dating.R.string.login)
+                        binding.btnLogin.text = getString(R.string.login)
 
                         Snackbar.make(
                             binding.root,
@@ -130,11 +128,6 @@ class LoginFragment : BaseFragment() {
                     }
                 }
             }
-        }
-
-        btnSignUp.setOnClickListener {
-            val intent = Intent(requireContext(), SignUpActivity::class.java)
-            startActivity(intent)
         }
     }
 

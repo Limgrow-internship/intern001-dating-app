@@ -8,7 +8,6 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import com.intern001.dating.databinding.FragmentVerifyBinding
@@ -91,7 +90,10 @@ class VerifyFragment : BaseFragment() {
     private fun setupVerifyButton() {
         binding.btnVerify.setOnClickListener {
             val otp = listOf(
-                binding.otp1, binding.otp2, binding.otp3, binding.otp4
+                binding.otp1,
+                binding.otp2,
+                binding.otp3,
+                binding.otp4,
             ).joinToString("") { it.text.toString() }
 
             if (otp.length < 4) {
