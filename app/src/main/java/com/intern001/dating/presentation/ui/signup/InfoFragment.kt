@@ -9,9 +9,9 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.fragment.app.viewModels
 import com.intern001.dating.R
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
-import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -84,4 +84,3 @@ class InfoFragment : BaseFragment() {
         editText.setSelection(editText.text.length)
     }
 }
-

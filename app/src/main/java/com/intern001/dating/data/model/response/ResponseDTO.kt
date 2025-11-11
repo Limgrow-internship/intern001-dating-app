@@ -38,7 +38,7 @@ data class OtpResponse(
     val message: String? = null,
 
     @SerializedName("success")
-    val success: Boolean? = null
+    val success: Boolean? = null,
 )
 
 data class VerifyOtpResponse(
@@ -49,5 +49,5 @@ data class VerifyOtpResponse(
     val success: Boolean? = null,
 
     @SerializedName("verified")
-    val verified: Boolean? = null
+    val verified: Boolean? = null,
 )

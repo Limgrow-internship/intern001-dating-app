@@ -61,7 +61,7 @@ class VerifyFragment : BaseFragment() {
             view.findViewById<EditText>(R.id.otp1),
             view.findViewById<EditText>(R.id.otp2),
             view.findViewById<EditText>(R.id.otp3),
-            view.findViewById<EditText>(R.id.otp4)
+            view.findViewById<EditText>(R.id.otp4),
         )
 
         for (i in otpFields.indices) {
