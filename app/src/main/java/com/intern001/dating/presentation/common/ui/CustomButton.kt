@@ -35,20 +35,8 @@ class CustomButton @JvmOverloads constructor(
     }
 
     init {
-        context.theme.obtainStyledAttributes(
-            attrs,
-            R.styleable.CustomButton,
-            0,
-            0,
-        ).apply {
-            try {
-                text = getString(R.styleable.CustomButton_buttonText) ?: "Button"
-                val styleIndex = getInt(R.styleable.CustomButton_buttonStyle, 0)
-                setButtonStyle(ButtonStyle.entries.getOrNull(styleIndex) ?: ButtonStyle.PRIMARY)
-            } finally {
-                recycle()
-            }
-        }
+        // Set default style
+        setButtonStyle(ButtonStyle.PRIMARY)
     }
 
     fun setButtonStyle(style: ButtonStyle) {

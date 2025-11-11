@@ -35,24 +35,7 @@ class StepProgressBar @JvmOverloads constructor(
     }
 
     init {
-        context.theme.obtainStyledAttributes(
-            attrs,
-            R.styleable.StepProgressBar,
-            0,
-            0,
-        ).apply {
-            try {
-                maxSteps = getInt(R.styleable.StepProgressBar_maxSteps, 5).coerceAtLeast(1)
-                currentStep = getInt(R.styleable.StepProgressBar_currentStep, 0)
-                progressColor = getColor(
-                    R.styleable.StepProgressBar_progressColor,
-                    ContextCompat.getColor(context, R.color.bottom_nav_selected),
-                )
-                progressPaint.color = progressColor
-            } finally {
-                recycle()
-            }
-        }
+        // Default values set above
     }
 
     override fun onDraw(canvas: Canvas) {
