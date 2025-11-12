@@ -35,7 +35,7 @@ android {
     buildTypes {
         debug {
             val devUrl = getLocalProperty("base.url.dev", "http://10.0.2.2:3000/")
-            buildConfigField("String", "BASE_URL", "$devUrl")
+            buildConfigField("String", "BASE_URL", "\"$devUrl\"")
             isDebuggable = true
         }
         release {
@@ -94,7 +94,7 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
 
     // Ads
-    implementation("com.google.android.gms:play-services-ads:24.7.0")
+    implementation(libs.play.services.ads)
 }
 
 // KtLint configuration
