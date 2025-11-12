@@ -5,15 +5,15 @@ import androidx.lifecycle.viewModelScope
 import com.intern001.dating.domain.usecase.profile.UpdateProfileUseCase
 import com.intern001.dating.presentation.common.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class ProfileSetupViewModel @Inject constructor(
-    private val updateProfileUseCase: UpdateProfileUseCase
+    private val updateProfileUseCase: UpdateProfileUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<UiState<Unit>>(UiState.Idle)
@@ -36,7 +36,7 @@ class ProfileSetupViewModel @Inject constructor(
                 dateOfBirth = dateOfBirth,
                 gender = gender,
                 profileImageUrl = photoUrl,
-                goal = goal
+                goal = goal,
             )
 
             result.fold(
@@ -45,7 +45,7 @@ class ProfileSetupViewModel @Inject constructor(
                 },
                 onFailure = { error ->
                     _uiState.value = UiState.Error(error.message ?: "Failed to update profile")
-                }
+                },
             )
         }
     }

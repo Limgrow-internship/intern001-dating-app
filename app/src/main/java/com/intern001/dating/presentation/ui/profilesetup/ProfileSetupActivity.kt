@@ -16,9 +16,9 @@ import com.intern001.dating.databinding.ActivityProfileSetupBinding
 import com.intern001.dating.presentation.common.state.UiState
 import com.intern001.dating.presentation.common.ui.GenderSelector
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ProfileSetupActivity : AppCompatActivity() {
@@ -29,7 +29,7 @@ class ProfileSetupActivity : AppCompatActivity() {
     private var currentStep = 0
 
     private val pickImageLauncher = registerForActivityResult(
-        ActivityResultContracts.GetContent()
+        ActivityResultContracts.GetContent(),
     ) { uri ->
         uri?.let {
             viewModel.photoUrl = it.toString()
@@ -193,7 +193,7 @@ class ProfileSetupActivity : AppCompatActivity() {
             },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
+            calendar.get(Calendar.DAY_OF_MONTH),
         )
 
         datePickerDialog.show()
@@ -209,7 +209,7 @@ class ProfileSetupActivity : AppCompatActivity() {
             binding.stepGoal.btnSomethingCasual to "Something casual",
             binding.stepGoal.btnJustVibing to "Just vibing",
             binding.stepGoal.btnOpenToAnything to "Open to anything",
-            binding.stepGoal.btnStillFiguringOut to "Still figuring it out"
+            binding.stepGoal.btnStillFiguringOut to "Still figuring it out",
         )
 
         goalButtons.forEach { (button, goal) ->
