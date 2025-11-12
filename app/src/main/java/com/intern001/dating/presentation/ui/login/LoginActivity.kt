@@ -28,6 +28,5 @@ class LoginActivity :
         startActivity(
             Intent(this, MainActivity::class.java),
         )
-        finish()
     }
 }
