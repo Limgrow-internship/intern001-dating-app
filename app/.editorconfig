@@ -14,4 +14,5 @@ ktlint_code_style = intellij_idea
 ktlint_standard_discouraged-comment-location = disabled
 ktlint_standard_function-expression-body = disabled
 ktlint_standard_property-naming = disabled
+ktlint_standard_backing-property-naming = disabled
 ktlint_function_naming_ignore_when_annotated_with = Composable

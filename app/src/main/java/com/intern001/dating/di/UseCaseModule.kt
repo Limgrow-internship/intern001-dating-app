@@ -1,3 +1,42 @@
 package com.intern001.dating.di
 
-class UseCaseModule
+import com.intern001.dating.domain.model.common.validator.EmailValidator
+import com.intern001.dating.domain.model.common.validator.PasswordValidator
+import com.intern001.dating.domain.repository.AuthRepository
+import com.intern001.dating.domain.usecase.auth.LoginUseCase
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+object UseCaseModule {
+
+    @Provides
+    @Singleton
+    fun provideEmailValidator(): EmailValidator {
+        return EmailValidator()
+    }
+
+    @Provides
+    @Singleton
+    fun providePasswordValidator(): PasswordValidator {
+        return PasswordValidator()
+    }
+
+    @Provides
+    @Singleton
+    fun provideLoginUseCase(
+        authRepository: AuthRepository,
+        emailValidator: EmailValidator,
+        passwordValidator: PasswordValidator,
+    ): LoginUseCase {
+        return LoginUseCase(
+            authRepository = authRepository,
+            emailValidator = emailValidator,
+            passwordValidator = passwordValidator,
+        )
+    }
+}

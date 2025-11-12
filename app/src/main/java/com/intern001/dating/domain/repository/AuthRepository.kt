@@ -1,6 +1,5 @@
 package com.intern001.dating.domain.repository
 
-import com.intern001.dating.domain.model.AuthState
 import com.intern001.dating.domain.model.User
 
 interface AuthRepository {
@@ -8,7 +7,7 @@ interface AuthRepository {
         email: String,
         password: String,
         deviceToken: String? = null,
-    ): Result<AuthState>
+    ): Result<String>
 
     suspend fun signup(
         email: String,
@@ -18,11 +17,21 @@ interface AuthRepository {
         gender: String,
         dateOfBirth: String,
         deviceToken: String? = null,
-    ): Result<AuthState>
+    ): Result<String>
 
     suspend fun logout(): Result<Unit>
 
     suspend fun getCurrentUser(): Result<User>
+
+    suspend fun updateUserProfile(
+        firstName: String? = null,
+        lastName: String? = null,
+        dateOfBirth: String? = null,
+        gender: String? = null,
+        profileImageUrl: String? = null,
+        goal: String? = null,
+        bio: String? = null,
+    ): Result<User>
 
     fun isLoggedIn(): Boolean
 

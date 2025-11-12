@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HeartOnDatingApp</string>
+    <string name="create_new_password_message">
+        계정의 새 비밀번호를 만드세요. 강력하고 기억하기 쉬운 비밀번호로 설정하세요.
+    </string>
+    <string name="login">로그인</string>
+    <string name="email">이메일</string>
+    <string name="pass">비밀번호</string>
+    <string name="Forgot_pass">비밀번호를 잊으셨나요?</string>
+    <string name="login_with">또는 다른 방법으로 로그인</string>
+    <string name="dont_have_account">계정이 없으신가요?</string>
+    <string name="signup">회원가입</string>
+    <string name="incorrect_mail">잘못된 이메일입니다</string>
+    <string name="incorrect_pass">잘못된 비밀번호입니다</string>
+    <string name="it_all_starts_with_a_swipe">모든 것은 스와이프로 시작됩니다</string>
+    <string name="a_single_swipe_can_open_a_whole_new_story_discover_people_nearby_who_share_your_vibe">한 번의 스와이프로 완전히 새로운 이야기가 시작될 수 있습니다. 당신과 비슷한 분위기를 가진 주변 사람들을 만나보세요</string>
+    <string name="find_your_vibe_not_just_a_match">단순한 매칭이 아닌, 당신의 분위기를 찾으세요</string>
+    <string name="we_help_you_meet_people_who_feel_right_not_just_look_right">우리는 외모만이 아닌 감정적으로 맞는 사람을 만나도록 돕습니다</string>
+    <string name="btn_continue">계속</string>
+</resources>

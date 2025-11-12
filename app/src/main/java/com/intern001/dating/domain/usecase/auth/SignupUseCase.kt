@@ -27,14 +27,37 @@ class SignupUseCase(
         return try {
             validateInputs(email, password, confirmPassword, firstName, lastName, gender, dateOfBirth)
 
-            authRepository.signup(
-                email = email,
-                password = password,
-                firstName = firstName,
-                lastName = lastName,
-                gender = gender,
-                dateOfBirth = dateOfBirth,
-                deviceToken = deviceToken,
+            val signupResult =
+                authRepository.signup(
+                    email = email,
+                    password = password,
+                    firstName = firstName,
+                    lastName = lastName,
+                    gender = gender,
+                    dateOfBirth = dateOfBirth,
+                    deviceToken = deviceToken,
+                )
+
+            if (signupResult.isFailure) {
+                return Result.failure(signupResult.exceptionOrNull()!!)
+            }
+
+            val token = signupResult.getOrNull()!!
+
+            val userResult = authRepository.getCurrentUser()
+            if (userResult.isFailure) {
+                return Result.failure(userResult.exceptionOrNull()!!)
+            }
+
+            val user = userResult.getOrNull()!!
+
+            Result.success(
+                AuthState(
+                    isLoggedIn = true,
+                    user = user,
+                    token = token,
+                    error = null,
+                ),
             )
         } catch (e: Exception) {
             Result.failure(e)

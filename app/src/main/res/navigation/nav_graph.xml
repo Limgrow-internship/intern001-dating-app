@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/splashFragment">
 
@@ -9,39 +10,88 @@
         android:name="com.intern001.dating.presentation.ui.splash.SplashFragment"
         android:label="SplashFragment">
         <action
-            android:id="@+id/action_splash_to_onboard"
-            app:destination="@id/onboardFragment"
+            android:id="@+id/action_splash_to_onboard1"
+            app:destination="@id/onboardFirstFragment"
             app:popUpTo="@id/splashFragment"
             app:popUpToInclusive="true"/>
         <action
             android:id="@+id/action_splash_to_login"
             app:destination="@id/loginFragment"
             app:popUpTo="@id/splashFragment"
-            app:popUpToInclusive="true" />
+            app:popUpToInclusive="true"/>
         <action
-            android:id="@+id/action_splash_to_home"
-            app:destination="@id/homeFragment"
+            android:id="@+id/action_splash_to_nativeAd"
+            app:destination="@id/nativeFullFragment"
             app:popUpTo="@id/splashFragment"
-            app:popUpToInclusive="true" />
+            app:popUpToInclusive="true"/>
+    </fragment>
+    <fragment
+        android:id="@+id/onboardFirstFragment"
+        android:name="com.intern001.dating.presentation.ui.onboard.OnboardFirstFragment"
+        android:label="OnboardFirstFragment" >
+        <action
+            android:id="@+id/action_onboardFirst_to_onboardSecond"
+            app:destination="@id/onboardSecondFragment"/>
+    </fragment>
+    <fragment
+        android:id="@+id/onboardSecondFragment"
+        android:name="com.intern001.dating.presentation.ui.onboard.OnboardSecondFragment"
+        android:label="OnboardSecondFragment" >
+        <action
+            android:id="@+id/action_onboardSecond_to_onboardThird"
+            app:destination="@id/onboardThirdFragment"/>
+    </fragment>
+    <fragment
+        android:id="@+id/onboardThirdFragment"
+        android:name="com.intern001.dating.presentation.ui.onboard.OnboardThirdFragment"
+        android:label="OnboardThirdFragment" >
+
+        <action
+            android:id="@+id/action_onboard3_to_nativeFullFragment"
+            app:destination="@id/nativeFullFragment"/>
+    </fragment>
+    <fragment
+        android:id="@+id/nativeFullFragment"
+        android:name="com.intern001.dating.presentation.ui.ads.NativeFullFragment"
+        android:label="NativeFullFragment" >
+        <action
+            android:id="@+id/action_nativeFull_to_login"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/nativeFullFragment"
+            app:popUpToInclusive="true"/>
+        <action
+            android:id="@+id/action_nativeFull_to_home"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/nativeFullFragment"
+            app:popUpToInclusive="true"/>
+        <action
+            android:id="@+id/action_nativeFull_to_language"
+            app:destination="@id/selectLanguageFragment"
+            app:popUpTo="@id/nativeFullFragment"
+            app:popUpToInclusive="true"/>
     </fragment>
 
     <fragment
-        android:id="@+id/onboardFragment"
-        android:name="com.intern001.dating.presentation.ui.onboard.OnboardFragment"
-        android:label="OnboardFragment" >
+        android:id="@+id/selectLanguageFragment"
+        android:name="com.intern001.dating.presentation.ui.language.SelectLanguageFragment"
+        android:label="SelectLanguageFragment" >
         <action
-            android:id="@+id/action_onboard_to_home"
-            app:destination="@id/homeFragment"
-            app:popUpTo="@id/onboardFragment"
+            android:id="@+id/action_selectLanguageFragment_to_login"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/selectLanguageFragment"
             app:popUpToInclusive="true"/>
     </fragment>
 
     <fragment
         android:id="@+id/loginFragment"
+        android:name="com.intern001.dating.presentation.ui.login.LoginFragment"
         android:label="LoginFragment">
         <action
             android:id="@+id/action_login_to_signup"
             app:destination="@id/signupFragment" />
+        <action
+            android:id="@+id/action_login_to_profile_setup"
+            app:destination="@id/profileSetupActivity" />
         <action
             android:id="@+id/action_login_to_forgot_password"
             app:destination="@id/forgotPasswordFragment" />
@@ -183,5 +233,10 @@
             app:popUpTo="@id/settingsFragment"
             app:popUpToInclusive="true" />
     </fragment>
+
+    <activity
+        android:id="@+id/profileSetupActivity"
+        android:name="com.intern001.dating.presentation.ui.profilesetup.ProfileSetupActivity"
+        android:label="Profile Setup" />
 
 </navigation>
