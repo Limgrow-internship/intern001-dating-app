@@ -2,6 +2,8 @@ package com.intern001.dating
 
 import android.os.Bundle
 import android.view.View
+import androidx.navigation.Navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import com.intern001.dating.databinding.ActivityMainBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
@@ -72,4 +74,5 @@ class MainActivity : BaseActivity() {
     fun hideBottomNavigation(hide: Boolean) {
         binding.bottomNavigation.visibility = if (hide) View.GONE else View.VISIBLE
     }
+
 }

@@ -28,7 +28,6 @@ class ProfileFragment : BaseFragment() {
         binding.btnChangePass.setOnClickListener {
             val intent = Intent(requireContext(), ChangePasswordActivity::class.java)
             startActivity(intent)
-            requireActivity().finish()
         }
 
         return view

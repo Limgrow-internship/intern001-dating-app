@@ -1,5 +1,6 @@
 package com.intern001.dating.presentation.ui.profile
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import androidx.lifecycle.lifecycleScope
@@ -7,9 +8,13 @@ import android.view.MotionEvent
 import android.widget.Toast
 import com.intern001.dating.R
 import androidx.activity.viewModels
+import com.intern001.dating.MainActivity
 import com.intern001.dating.databinding.ActivityChangePasswordBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 
 @AndroidEntryPoint
 class ChangePasswordActivity : BaseActivity() {
@@ -41,9 +46,12 @@ class ChangePasswordActivity : BaseActivity() {
             viewModel.changePassword(oldPass, newPass, confirm)
         }
 
-        binding.btnBack.setOnClickListener{
+        binding.btnBack.setOnClickListener {
+            setResult(RESULT_OK)
             finish()
         }
+
+
 
         observeChangePasswordResult()
     }
@@ -54,8 +62,12 @@ class ChangePasswordActivity : BaseActivity() {
                 result?.onSuccess { response ->
                     if (response.isSuccessful) {
                         showToast("Password changed successfully!")
-                        kotlinx.coroutines.delay(5000)
-                        finish()
+                        lifecycleScope.launch {
+                            delay(2000)
+                            setResult(RESULT_OK)
+                            finish()
+                        }
+
                     } else {
                         showToast("Failed: ${response.code()} - ${response.message()}")
                     }
