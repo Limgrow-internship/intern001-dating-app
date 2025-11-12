@@ -13,6 +13,7 @@ import androidx.fragment.app.viewModels
 import com.intern001.dating.databinding.FragmentVerifyBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
+import com.intern001.dating.R
 
 @AndroidEntryPoint
 class VerifyFragment : BaseFragment() {
@@ -108,6 +109,11 @@ class VerifyFragment : BaseFragment() {
                     message.contains("verified", ignoreCase = true)
                 ) {
                     listener?.onVerificationSuccess()
+                } else {
+                    setOtpErrorBackground()
+                    binding.tvEmailOtp.visibility = View.GONE
+                    binding.tvSendTo.text = "Invalid or Incorrect code"
+                    binding.tvSendTo.setTextColor(android.graphics.Color.parseColor("#FF0058"))
                 }
             }
         }
@@ -152,6 +158,11 @@ class VerifyFragment : BaseFragment() {
                 binding.tvRecentCode.alpha = 1f
             }
         }.start()
+    }
+
+    private fun setOtpErrorBackground() {
+        val otpFields = listOf(binding.otp1, binding.otp2, binding.otp3, binding.otp4)
+        otpFields.forEach { it.setBackgroundResource(R.drawable.bg_verify_otp_error) }
     }
 
     override fun onDestroyView() {
