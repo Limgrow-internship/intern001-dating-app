@@ -95,7 +95,10 @@ class VerifyFragment : BaseFragment() {
     private fun setupVerifyButton() {
         binding.btnVerify.setOnClickListener {
             val otp = listOf(
-                binding.otp1, binding.otp2, binding.otp3, binding.otp4
+                binding.otp1,
+                binding.otp2,
+                binding.otp3,
+                binding.otp4,
             ).joinToString("") { it.text.toString() }
 
             if (otp.length < 4) {
