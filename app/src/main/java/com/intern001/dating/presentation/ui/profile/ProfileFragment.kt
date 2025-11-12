@@ -11,11 +11,12 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.intern001.dating.R
+import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.common.viewmodel.ProfileViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class ProfileFragment : com.intern001.dating.presentation.common.viewmodel.BaseFragment() {
+class ProfileFragment : BaseFragment() {
 
     private val viewModel: ProfileViewModel by viewModels()
 
