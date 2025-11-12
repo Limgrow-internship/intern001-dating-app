@@ -130,7 +130,7 @@ class LoginFragment : BaseFragment() {
             }
         }
 
-        btnSignUp.setOnClickListener {
+        binding.btnSignUp.setOnClickListener {
             val intent = Intent(requireContext(), SignUpActivity::class.java)
             startActivity(intent)
         }

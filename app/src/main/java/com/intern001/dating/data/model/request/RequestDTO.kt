@@ -58,3 +58,17 @@ data class UpdateProfileRequest(
     @SerializedName("bio")
     val bio: String? = null,
 )
+
+data class ChangePasswordRequest(
+    @SerializedName("oldPassword")
+    val oldPassword: String? = null,
+
+    @SerializedName("newPassword")
+    val newPassword: String? = null,
+
+    @SerializedName("confirmPassword")
+    val confirmPassword: String? = null,
+
+    @SerializedName("deviceInfo")
+    val deviceInfo: String? = null,
+)
