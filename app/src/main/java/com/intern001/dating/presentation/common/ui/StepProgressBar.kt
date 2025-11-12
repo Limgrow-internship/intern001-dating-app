@@ -14,7 +14,7 @@ class StepProgressBar @JvmOverloads constructor(
     defStyleAttr: Int = 0,
 ) : View(context, attrs, defStyleAttr) {
 
-    private var maxSteps: Int = 5
+    private var maxSteps: Int = 10
     var currentStep: Int = 0
         set(value) {
             field = value.coerceIn(0, maxSteps)
@@ -22,7 +22,7 @@ class StepProgressBar @JvmOverloads constructor(
         }
 
     private var progressColor: Int = ContextCompat.getColor(context, R.color.bottom_nav_selected)
-    private var backgroundColor: Int = ContextCompat.getColor(context, R.color.bottom_nav_unselected)
+    private var backgroundColor: Int = ContextCompat.getColor(context, R.color.progress_color_loading)
 
     private val progressPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
@@ -43,12 +43,13 @@ class StepProgressBar @JvmOverloads constructor(
 
         val viewWidth = width.toFloat()
         val viewHeight = height.toFloat()
+        val cornerRadius = 16f
 
-        canvas.drawRect(0f, 0f, viewWidth, viewHeight, backgroundPaint)
+        canvas.drawRoundRect(0f, 0f, viewWidth, viewHeight, cornerRadius, cornerRadius, backgroundPaint)
 
         if (currentStep > 0 && maxSteps > 0) {
             val progressWidth = viewWidth * currentStep / maxSteps
-            canvas.drawRect(0f, 0f, progressWidth, viewHeight, progressPaint)
+            canvas.drawRoundRect(0f, 0f, progressWidth, viewHeight, cornerRadius, cornerRadius, progressPaint)
         }
     }
 

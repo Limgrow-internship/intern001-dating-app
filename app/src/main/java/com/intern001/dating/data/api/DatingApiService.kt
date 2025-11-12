@@ -32,10 +32,10 @@ interface DatingApiService {
     @POST("api/auth/logout")
     suspend fun logout(): Response<Unit>
 
-    @GET("api/user/profile")
+    @GET("api/profile")
     suspend fun getCurrentUserProfile(): Response<UserData>
 
-    @PUT("api/user/profile")
+    @PUT("api/profile")
     suspend fun updateUserProfile(@Body request: UpdateProfileRequest): Response<UserData>
 
     @POST("api/user/request-otp")

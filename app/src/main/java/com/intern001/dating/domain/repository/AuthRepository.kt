@@ -1,5 +1,6 @@
 package com.intern001.dating.domain.repository
 
+import android.net.Uri
 import com.intern001.dating.domain.model.User
 
 interface AuthRepository {
@@ -29,9 +30,11 @@ interface AuthRepository {
         dateOfBirth: String? = null,
         gender: String? = null,
         profileImageUrl: String? = null,
-        goal: String? = null,
+        mode: String? = null,
         bio: String? = null,
     ): Result<User>
+
+    suspend fun uploadImage(imageUri: Uri): Result<String>
 
     fun isLoggedIn(): Boolean
 

@@ -118,6 +118,34 @@
     </fragment>
 
     <fragment
+        android:id="@+id/profileSetupPhotoFragment"
+        android:label="ProfileSetupPhotoFragment">
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileSetupNameFragment"
+        android:label="ProfileSetupNameFragment">
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileSetupGenderFragment"
+        android:label="ProfileSetupGenderFragment">
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileSetupBirthdayFragment"
+        android:label="ProfileSetupBirthdayFragment">
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileSetupModeFragment"
+        android:label="ProfileSetupModeFragment">
+    </fragment>
+
+    <activity
+        android:id="@id/profileSetupActivity">
+    </activity>
+    <fragment
         android:id="@+id/forgotPasswordFragment"
         android:label="ForgotPasswordFragment">
         <action
