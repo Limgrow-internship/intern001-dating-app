@@ -1,26 +1,36 @@
 package com.intern001.dating.presentation.ui.profile
 
+import android.app.Dialog
+import android.content.Intent
 import android.os.Bundle
-import android.text.InputType
 import android.text.method.PasswordTransformationMethod
+import android.view.Gravity
 import android.view.MotionEvent
+import android.view.ViewGroup
+import android.view.Window
+import android.view.WindowManager
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.intern001.dating.MainActivity
 import com.intern001.dating.R
+import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.databinding.ActivityChangePasswordBinding
+import com.intern001.dating.presentation.common.viewmodel.BaseActivity
+import com.intern001.dating.presentation.ui.login.LoginActivity
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class ChangePasswordActivity : AppCompatActivity() {
+class ChangePasswordActivity : BaseActivity() {
 
     private lateinit var binding: ActivityChangePasswordBinding
     private val viewModel: ChangePasswordViewModel by viewModels()
+    private lateinit var tokenManager: TokenManager
+
+    override fun getNavHostFragmentId(): Int = 0
 
     private lateinit var tvPasswordMismatch: TextView
     private lateinit var tvWeakPassword: TextView
@@ -30,14 +40,14 @@ class ChangePasswordActivity : AppCompatActivity() {
         binding = ActivityChangePasswordBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        tokenManager = TokenManager(this)
+
         tvPasswordMismatch = binding.passwordFields.getChildAt(2) as TextView
         tvWeakPassword = binding.passwordFields.getChildAt(3) as TextView
 
-        // Ẩn TextView lỗi lúc đầu
         tvPasswordMismatch.visibility = TextView.GONE
         tvWeakPassword.visibility = TextView.GONE
 
-        // Setup toggle mắt
         setupPasswordToggle(binding.etNewPassword)
         setupPasswordToggle(binding.etConfirmNewPassword)
 
@@ -45,7 +55,6 @@ class ChangePasswordActivity : AppCompatActivity() {
             val newPass = binding.etNewPassword.text.toString()
             val confirmPass = binding.etConfirmNewPassword.text.toString()
 
-            // Reset error
             tvPasswordMismatch.visibility = TextView.GONE
             tvWeakPassword.visibility = TextView.GONE
 
@@ -54,13 +63,11 @@ class ChangePasswordActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Kiểm tra mật khẩu mạnh
             if (!isPasswordStrong(newPass)) {
                 tvWeakPassword.visibility = TextView.VISIBLE
                 return@setOnClickListener
             }
 
-            // Kiểm tra mật khẩu khớp
             if (newPass != confirmPass) {
                 tvPasswordMismatch.visibility = TextView.VISIBLE
                 return@setOnClickListener
@@ -111,12 +118,7 @@ class ChangePasswordActivity : AppCompatActivity() {
             viewModel.changePasswordState.collect { result ->
                 result?.onSuccess { response ->
                     if (response.isSuccessful) {
-                        showToast("Password changed successfully!")
-                        lifecycleScope.launch {
-                            delay(2000)
-                            setResult(RESULT_OK)
-                            finish()
-                        }
+                        showSuccessDialog()
                     } else {
                         showToast("Failed: ${response.code()} - ${response.message()}")
                     }
@@ -125,6 +127,34 @@ class ChangePasswordActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun showSuccessDialog() {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.dialog_change_password_successfully)
+        dialog.setCancelable(false)
+
+        val window = dialog.window
+        window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        window?.setBackgroundDrawableResource(android.R.color.transparent)
+        window?.setGravity(Gravity.BOTTOM)
+        window?.attributes?.windowAnimations = R.style.DialogSlideAnimation
+        window?.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+
+        val btnDone = dialog.findViewById<TextView>(R.id.btnDone)
+        btnDone.setOnClickListener {
+            lifecycleScope.launch {
+                tokenManager.clearTokens()
+                dialog.dismiss()
+                val intent = Intent(this@ChangePasswordActivity, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                finish()
+            }
+        }
+
+        dialog.show()
     }
 
     private fun showToast(msg: String) {
