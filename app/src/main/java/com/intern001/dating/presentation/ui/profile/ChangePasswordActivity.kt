@@ -51,8 +51,6 @@ class ChangePasswordActivity : BaseActivity() {
             finish()
         }
 
-
-
         observeChangePasswordResult()
     }
 

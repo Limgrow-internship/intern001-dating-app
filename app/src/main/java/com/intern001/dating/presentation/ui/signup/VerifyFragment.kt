@@ -64,7 +64,7 @@ class VerifyFragment : BaseFragment() {
         startCountdown()
 
         binding.btnBack.setOnClickListener {
-            
+            parentFragmentManager.popBackStack()
         }
 
         return binding.root
