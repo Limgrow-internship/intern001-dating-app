@@ -295,7 +295,7 @@ constructor(
 
             android.util.Log.d("AuthRepository", "Calling refresh token API...")
             val response = apiService.refreshToken(
-                com.intern001.dating.data.model.response.RefreshTokenRequest(refreshToken)
+                com.intern001.dating.data.model.response.RefreshTokenRequest(refreshToken),
             )
 
             if (response.isSuccessful) {
