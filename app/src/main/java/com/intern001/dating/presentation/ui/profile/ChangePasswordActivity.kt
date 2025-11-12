@@ -1,49 +1,72 @@
 package com.intern001.dating.presentation.ui.profile
 
-import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
-import androidx.lifecycle.lifecycleScope
+import android.text.method.PasswordTransformationMethod
 import android.view.MotionEvent
+import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
-import com.intern001.dating.R
 import androidx.activity.viewModels
-import com.intern001.dating.MainActivity
-import com.intern001.dating.databinding.ActivityChangePasswordBinding
-import com.intern001.dating.presentation.common.viewmodel.BaseActivity
-import dagger.hilt.android.AndroidEntryPoint
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
+import com.intern001.dating.R
+import com.intern001.dating.databinding.ActivityChangePasswordBinding
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class ChangePasswordActivity : BaseActivity() {
+class ChangePasswordActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityChangePasswordBinding
     private val viewModel: ChangePasswordViewModel by viewModels()
 
-    override fun getNavHostFragmentId(): Int = 0
+    private lateinit var tvPasswordMismatch: TextView
+    private lateinit var tvWeakPassword: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityChangePasswordBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupPasswordToggle(binding.etOldPassword)
+        tvPasswordMismatch = binding.passwordFields.getChildAt(2) as TextView
+        tvWeakPassword = binding.passwordFields.getChildAt(3) as TextView
+
+        // Ẩn TextView lỗi lúc đầu
+        tvPasswordMismatch.visibility = TextView.GONE
+        tvWeakPassword.visibility = TextView.GONE
+
+        // Setup toggle mắt
         setupPasswordToggle(binding.etNewPassword)
         setupPasswordToggle(binding.etConfirmNewPassword)
 
         binding.btnChangePassword.setOnClickListener {
-            val oldPass = binding.etOldPassword.text.toString()
             val newPass = binding.etNewPassword.text.toString()
-            val confirm = binding.etConfirmNewPassword.text.toString()
+            val confirmPass = binding.etConfirmNewPassword.text.toString()
 
-            if (oldPass.isBlank() || newPass.isBlank() || confirm.isBlank()) {
+            // Reset error
+            tvPasswordMismatch.visibility = TextView.GONE
+            tvWeakPassword.visibility = TextView.GONE
+
+            if (newPass.isBlank() || confirmPass.isBlank()) {
                 showToast("Please fill in all fields")
                 return@setOnClickListener
             }
 
-            viewModel.changePassword(oldPass, newPass, confirm)
+            // Kiểm tra mật khẩu mạnh
+            if (!isPasswordStrong(newPass)) {
+                tvWeakPassword.visibility = TextView.VISIBLE
+                return@setOnClickListener
+            }
+
+            // Kiểm tra mật khẩu khớp
+            if (newPass != confirmPass) {
+                tvPasswordMismatch.visibility = TextView.VISIBLE
+                return@setOnClickListener
+            }
+
+            viewModel.changePassword(newPass, confirmPass)
         }
 
         binding.btnBack.setOnClickListener {
@@ -52,6 +75,35 @@ class ChangePasswordActivity : BaseActivity() {
         }
 
         observeChangePasswordResult()
+    }
+
+    private fun isPasswordStrong(password: String): Boolean {
+        val regex = Regex("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$")
+        return regex.matches(password)
+    }
+
+    private fun setupPasswordToggle(editText: EditText) {
+        editText.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                val drawableEnd = editText.compoundDrawables[2]
+                if (drawableEnd != null && event.rawX >= (editText.right - drawableEnd.bounds.width())) {
+                    togglePasswordVisibility(editText)
+                    return@setOnTouchListener true
+                }
+            }
+            false
+        }
+    }
+
+    private fun togglePasswordVisibility(editText: EditText) {
+        if (editText.transformationMethod is PasswordTransformationMethod) {
+            editText.transformationMethod = null
+            editText.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye_open, 0)
+        } else {
+            editText.transformationMethod = PasswordTransformationMethod.getInstance()
+            editText.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye_off, 0)
+        }
+        editText.setSelection(editText.text.length)
     }
 
     private fun observeChangePasswordResult() {
@@ -65,7 +117,6 @@ class ChangePasswordActivity : BaseActivity() {
                             setResult(RESULT_OK)
                             finish()
                         }
-
                     } else {
                         showToast("Failed: ${response.code()} - ${response.message()}")
                     }
@@ -78,33 +129,5 @@ class ChangePasswordActivity : BaseActivity() {
 
     private fun showToast(msg: String) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun setupPasswordToggle(editText: android.widget.EditText) {
-        editText.setOnTouchListener { _, event ->
-            if (event.action == MotionEvent.ACTION_UP) {
-                val drawableEnd = editText.compoundDrawables[2]
-                if (drawableEnd != null && event.rawX >= (editText.right - drawableEnd.bounds.width())) {
-                    togglePasswordVisibility(editText)
-                    return@setOnTouchListener true
-                }
-            }
-            false
-        }
-    }
-
-    private fun togglePasswordVisibility(editText: android.widget.EditText) {
-        val isVisible = editText.inputType ==
-            (InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD)
-
-        if (isVisible) {
-            editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-            editText.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye_off, 0)
-        } else {
-            editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-            editText.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye_open, 0)
-        }
-
-        editText.setSelection(editText.text.length)
     }
 }

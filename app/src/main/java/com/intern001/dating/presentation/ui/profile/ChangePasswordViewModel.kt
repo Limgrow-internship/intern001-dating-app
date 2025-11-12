@@ -21,14 +21,12 @@ class ChangePasswordViewModel @Inject constructor(
     val changePasswordState = _changePasswordState.asStateFlow()
 
     fun changePassword(
-        oldPassword: String,
         newPassword: String,
         confirmPassword: String,
     ) {
         viewModelScope.launch {
             try {
                 val request = ChangePasswordRequest(
-                    oldPassword = oldPassword,
                     newPassword = newPassword,
                     confirmPassword = confirmPassword,
                     deviceInfo = "Android"

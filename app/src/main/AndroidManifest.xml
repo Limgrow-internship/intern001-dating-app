@@ -32,6 +32,10 @@
             android:exported="true">
         </activity>
         <activity
+            android:name=".presentation.ui.profile.ChangePasswordActivity"
+            android:exported="true">
+        </activity>
+        <activity
             android:name=".presentation.ui.profilesetup.ProfileSetupActivity"
             android:exported="false"
             android:screenOrientation="portrait">
