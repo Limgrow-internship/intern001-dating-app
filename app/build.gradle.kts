@@ -95,6 +95,10 @@ dependencies {
 
     // Ads
     implementation(libs.play.services.ads)
+
+    // play billing
+    implementation(libs.billing.ktx)
+    implementation(libs.billing)
 }
 
 // KtLint configuration
