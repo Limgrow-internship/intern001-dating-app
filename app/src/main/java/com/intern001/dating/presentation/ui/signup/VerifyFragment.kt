@@ -127,8 +127,10 @@ class VerifyFragment : BaseFragment() {
                     // Tokens saved successfully, navigate to ProfileSetup
                     listener?.onVerificationSuccess()
                 } else {
-                    // Only show toast on error
-                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                    setOtpErrorBackground()
+                    binding.tvEmailOtp.visibility = View.GONE
+                    binding.tvSendTo.text = "Invalid or Incorrect code"
+                    binding.tvSendTo.setTextColor(android.graphics.Color.parseColor("#FF0058"))
                 }
             }
         }
@@ -173,6 +175,11 @@ class VerifyFragment : BaseFragment() {
                 binding.tvRecentCode.alpha = 1f
             }
         }.start()
+    }
+
+    private fun setOtpErrorBackground() {
+        val otpFields = listOf(binding.otp1, binding.otp2, binding.otp3, binding.otp4)
+        otpFields.forEach { it.setBackgroundResource(R.drawable.bg_verify_otp_error) }
     }
 
     override fun onDestroyView() {
