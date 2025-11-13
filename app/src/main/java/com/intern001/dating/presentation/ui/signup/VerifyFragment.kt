@@ -13,6 +13,7 @@ import androidx.fragment.app.viewModels
 import com.intern001.dating.databinding.FragmentVerifyBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
+import com.intern001.dating.R
 
 @AndroidEntryPoint
 class VerifyFragment : BaseFragment() {
@@ -62,7 +63,11 @@ class VerifyFragment : BaseFragment() {
         binding.tvEmailOtp.text = email
         startCountdown()
 
-        return view
+        binding.btnBack.setOnClickListener {
+            parentFragmentManager.popBackStack()
+        }
+
+        return binding.root
     }
 
     private fun setupOtpFields() {

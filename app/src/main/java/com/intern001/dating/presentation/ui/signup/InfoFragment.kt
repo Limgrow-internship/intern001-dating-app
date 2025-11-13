@@ -1,5 +1,6 @@
 package com.intern001.dating.presentation.ui.signup
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import android.view.LayoutInflater
@@ -8,9 +9,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentInfoBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
+import com.intern001.dating.presentation.ui.login.LoginActivity
+import com.intern001.dating.presentation.ui.login.LoginFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -32,6 +37,11 @@ class InfoFragment : BaseFragment() {
 
         setupPasswordVisibilityToggle()
         setupSignInButton()
+
+        binding.tvLogin.setOnClickListener {
+            val intent = Intent(requireContext(), LoginActivity::class.java)
+            startActivity(intent)
+        }
 
         return view
     }
@@ -60,12 +70,12 @@ class InfoFragment : BaseFragment() {
                 return@setOnClickListener
             }
 
-            // Show loading animation
-            showLoading(true)
+            binding.progressBar.visibility = View.VISIBLE
+            binding.btnSignIn.isEnabled = false
 
             viewModel.sendOtp(email, password) { message ->
-                // Hide loading animation
-                showLoading(false)
+                binding.progressBar.visibility = View.GONE
+                binding.btnSignIn.isEnabled = true
 
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 if (message.contains("OTP has been sent")) {
