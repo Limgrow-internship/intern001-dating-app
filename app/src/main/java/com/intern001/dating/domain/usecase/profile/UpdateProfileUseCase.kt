@@ -13,7 +13,7 @@ class UpdateProfileUseCase @Inject constructor(
         dateOfBirth: String? = null,
         gender: String? = null,
         profileImageUrl: String? = null,
-        goal: String? = null,
+        mode: String? = null,
         bio: String? = null,
     ): Result<User> {
         return authRepository.updateUserProfile(
@@ -22,7 +22,7 @@ class UpdateProfileUseCase @Inject constructor(
             dateOfBirth = dateOfBirth,
             gender = gender,
             profileImageUrl = profileImageUrl,
-            goal = goal,
+            mode = mode,
             bio = bio,
         )
     }

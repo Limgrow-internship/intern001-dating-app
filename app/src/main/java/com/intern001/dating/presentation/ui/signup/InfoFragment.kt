@@ -69,6 +69,9 @@ class InfoFragment : BaseFragment() {
             }
 
             viewModel.sendOtp(email, password) { message ->
+                // Hide loading animation
+                showLoading(false)
+
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 if (message.contains("OTP has been sent")) {
                     val verifyFragment = VerifyFragment().apply {
@@ -85,6 +88,12 @@ class InfoFragment : BaseFragment() {
                 }
             }
         }
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        binding.btnSignIn.isEnabled = !isLoading
+        binding.btnSignIn.text = if (isLoading) "" else getString(R.string.sign_up)
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     private fun togglePasswordVisibility() {

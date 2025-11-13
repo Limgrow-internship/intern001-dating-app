@@ -24,8 +24,8 @@
         android:visibility="gone" />
 
     <include
-        android:id="@+id/step_goal"
-        layout="@layout/fragment_profile_setup_goal"
+        android:id="@+id/step_mode"
+        layout="@layout/fragment_profile_setup_mode"
         android:visibility="gone" />
 
     <ProgressBar

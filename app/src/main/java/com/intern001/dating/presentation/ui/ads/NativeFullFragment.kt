@@ -1,15 +1,17 @@
 package com.intern001.dating.presentation.ui.ads
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.intern001.dating.MainActivity
 import com.intern001.dating.R
+import com.intern001.dating.data.local.AppPreferencesManager
 import com.intern001.dating.databinding.FragmentNativeFullBinding
+import com.intern001.dating.domain.repository.AuthRepository
 import com.intern001.dating.domain.repository.LanguageRepository
 import com.intern001.dating.presentation.common.ads.AdManager
 import com.intern001.dating.presentation.common.ads.NativeAdHelper
@@ -26,6 +28,15 @@ class NativeFullFragment : BaseFragment() {
     @Inject
     lateinit var languageRepository: LanguageRepository
 
+    @Inject
+    lateinit var appPreferencesManager: AppPreferencesManager
+
+    @Inject
+    lateinit var authRepository: AuthRepository
+
+    private val autoCloseHandler = Handler(Looper.getMainLooper())
+    private var autoCloseRunnable: Runnable? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -38,30 +49,45 @@ class NativeFullFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val adContainer = binding.nativeAdContainer
 
+        val navigateToNextScreen: () -> Unit = {
+            lifecycleScope.launch {
+                val languageSelected = appPreferencesManager.isLanguageSelected()
+                val isLoggedIn = authRepository.isLoggedIn()
+
+                when {
+                    !languageSelected -> {
+                        // Prefetch languages and navigate to language selection
+                        languageRepository.prefetchLanguages()
+                        findNavController().navigate(R.id.action_nativeFull_to_language)
+                    }
+                    !isLoggedIn -> {
+                        // Navigate to login
+                        findNavController().navigate(R.id.action_nativeFull_to_login)
+                    }
+                    else -> {
+                        // User has selected language and logged in -> go to home
+                        findNavController().navigate(R.id.action_nativeFull_to_home)
+                    }
+                }
+            }
+        }
+
         NativeAdHelper.bindNativeAdFull(
             requireContext(),
             adContainer,
             AdManager.nativeAdFull,
         ) { adView, ad ->
-
-            val navigateToLanguage: () -> Unit = {
-                lifecycleScope.launch {
-                    languageRepository.prefetchLanguages()
-                    findNavController().navigate(R.id.action_nativeFull_to_language)
-                }
+            // Auto close after 2 seconds
+            autoCloseRunnable = Runnable {
+                navigateToNextScreen()
             }
-
-            val btnCloseTop = adView.findViewById<ImageView>(R.id.ad_close_1)
-            btnCloseTop?.setOnClickListener { navigateToLanguage() }
-
-            val btnCloseBottom = adView.findViewById<ImageView>(R.id.ad_close)
-            btnCloseBottom?.setOnClickListener { navigateToLanguage() }
+            autoCloseHandler.postDelayed(autoCloseRunnable!!, 2000)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        (activity as? MainActivity)?.hideBottomNavigation(true)
+        autoCloseRunnable?.let { autoCloseHandler.removeCallbacks(it) }
         _binding = null
     }
 }

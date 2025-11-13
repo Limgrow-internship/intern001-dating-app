@@ -71,15 +71,28 @@
                 android:layout_marginBottom="30dp"
                 android:visibility="gone" />
 
-            <Button
-                android:id="@+id/btnSignIn"
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:text="@string/sign_up"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:backgroundTint="#000000"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="16dp">
+
+                <Button
+                    android:id="@+id/btnSignIn"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/sign_up"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:backgroundTint="#000000" />
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:indeterminateTint="@android:color/white"
+                    android:visibility="gone" />
+            </FrameLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -102,6 +115,7 @@
                 android:id="@+id/tvLogin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:textFontWeight="700"
                 android:textSize="18sp"
                 android:text="@string/login"
