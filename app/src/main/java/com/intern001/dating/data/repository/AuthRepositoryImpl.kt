@@ -190,8 +190,8 @@ constructor(
         }
     }
 
-    override fun isLoggedIn(): Boolean {
-        return tokenManager.getAccessToken() != null
+    override suspend fun isLoggedIn(): Boolean {
+        return tokenManager.getAccessTokenAsync() != null
     }
 
     override fun getStoredUser(): User? {

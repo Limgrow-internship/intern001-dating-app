@@ -36,7 +36,7 @@ interface AuthRepository {
 
     suspend fun uploadImage(imageUri: Uri): Result<String>
 
-    fun isLoggedIn(): Boolean
+    suspend fun isLoggedIn(): Boolean
 
     fun getStoredUser(): User?
 }

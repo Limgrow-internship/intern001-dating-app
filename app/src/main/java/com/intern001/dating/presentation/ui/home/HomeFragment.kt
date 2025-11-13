@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -21,6 +22,9 @@ class HomeFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Show bottom navigation when in HomeFragment
+        (activity as? MainActivity)?.hideBottomNavigation(false)
 
         // Example: Using NavigationManager to navigate
         // Uncomment to test navigation:

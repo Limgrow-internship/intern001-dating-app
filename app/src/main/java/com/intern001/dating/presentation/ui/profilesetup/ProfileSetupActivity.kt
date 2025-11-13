@@ -196,7 +196,6 @@ class ProfileSetupActivity : AppCompatActivity() {
         binding.stepGender.progressBar.currentStep = 2
         binding.stepGender.tvProgress.text = "20%"
 
-        // Restore selected gender if available
         if (viewModel.gender.isNotEmpty()) {
             val selectedGender = when (viewModel.gender) {
                 "male" -> GenderSelector.Gender.MALE
@@ -236,7 +235,6 @@ class ProfileSetupActivity : AppCompatActivity() {
 
         val calendar = Calendar.getInstance()
 
-        // If birthday is already set, use it; otherwise use default
         if (viewModel.dateOfBirth.isNotEmpty()) {
             try {
                 val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -249,7 +247,6 @@ class ProfileSetupActivity : AppCompatActivity() {
             calendar.set(2004, Calendar.APRIL, 1)
         }
 
-        // Display current date
         binding.stepBirthday.tvMonth.text = SimpleDateFormat("MMMM", Locale.getDefault()).format(calendar.time)
         binding.stepBirthday.tvDay.text = String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH))
         binding.stepBirthday.tvYear.text = calendar.get(Calendar.YEAR).toString()
@@ -306,7 +303,6 @@ class ProfileSetupActivity : AppCompatActivity() {
             binding.stepMode.chipFriendMode to "friend",
         )
 
-        // Restore selected mode if available
         if (viewModel.mode.isNotEmpty()) {
             when (viewModel.mode) {
                 "dating" -> binding.stepMode.chipDatingMode.isChecked = true

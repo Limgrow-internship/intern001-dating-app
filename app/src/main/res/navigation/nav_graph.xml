@@ -90,9 +90,6 @@
             android:id="@+id/action_login_to_signup"
             app:destination="@id/signupFragment" />
         <action
-            android:id="@+id/action_login_to_profile_setup"
-            app:destination="@id/profileSetupActivity" />
-        <action
             android:id="@+id/action_login_to_forgot_password"
             app:destination="@id/forgotPasswordFragment" />
         <action
@@ -142,9 +139,6 @@
         android:label="ProfileSetupModeFragment">
     </fragment>
 
-    <activity
-        android:id="@id/profileSetupActivity">
-    </activity>
     <fragment
         android:id="@+id/forgotPasswordFragment"
         android:label="ForgotPasswordFragment">
@@ -261,10 +255,5 @@
             app:popUpTo="@id/settingsFragment"
             app:popUpToInclusive="true" />
     </fragment>
-
-    <activity
-        android:id="@+id/profileSetupActivity"
-        android:name="com.intern001.dating.presentation.ui.profilesetup.ProfileSetupActivity"
-        android:label="Profile Setup" />
 
 </navigation>

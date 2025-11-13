@@ -3,7 +3,7 @@
     <string name="create_new_password_message">
         Create a new password for your account. Make sure it\'s strong and easy for you to remember.
     </string>
-    <string name="login">LOGIN</string>
+    <string name="login">Login</string>
     <string name="email">Email</string>
     <string name="pass">Password</string>
     <string name="Forgot_pass">Forgot password</string>

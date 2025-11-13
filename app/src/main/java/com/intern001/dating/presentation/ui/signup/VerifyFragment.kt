@@ -117,11 +117,13 @@ class VerifyFragment : BaseFragment() {
             // Verify OTP then auto-login to get tokens (all in background)
             viewModel.verifyOtpAndLogin(emailValue, otp, passwordValue) { success, message ->
                 binding.btnVerify.isEnabled = true
-                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
 
                 if (success) {
                     // Tokens saved successfully, navigate to ProfileSetup
                     listener?.onVerificationSuccess()
+                } else {
+                    // Only show toast on error
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 }
             }
         }

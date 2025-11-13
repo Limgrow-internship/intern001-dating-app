@@ -105,13 +105,6 @@ class LoginFragment : BaseFragment() {
                         binding.btnLogin.isEnabled = true
                         binding.btnLogin.text = getString(R.string.login)
 
-                        Snackbar.make(
-                            binding.root,
-                            "Login successful!",
-                            Snackbar.LENGTH_SHORT,
-                        )
-                            .show()
-
                         navController.navigate(R.id.action_login_to_home)
                     }
                     is UiState.Error -> {
