@@ -70,6 +70,13 @@ class InfoFragment : BaseFragment() {
                 return@setOnClickListener
             }
 
+            val passwordPattern = Regex("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$")
+            if (!passwordPattern.matches(password)) {
+                binding.tvError.visibility = View.VISIBLE
+                return@setOnClickListener
+            } else {
+                binding.tvError.visibility = View.GONE
+            }
             binding.progressBar.visibility = View.VISIBLE
             binding.btnSignIn.isEnabled = false
 

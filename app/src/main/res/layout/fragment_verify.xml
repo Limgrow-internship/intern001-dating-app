@@ -134,6 +134,7 @@
                     android:gravity="center"
                     android:text="+limgrow@gmail.com"
                     android:textSize="18dp"
+                    android:visibility="visible"
                     android:textColor="#00BEFF" />
             </LinearLayout>
 
