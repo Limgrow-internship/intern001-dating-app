@@ -113,3 +113,4 @@ class ProfileFragment : BaseFragment() {
         _binding = null
     }
 }
+
