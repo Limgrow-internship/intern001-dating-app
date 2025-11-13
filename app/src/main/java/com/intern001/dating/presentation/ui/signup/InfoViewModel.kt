@@ -36,7 +36,7 @@ class InfoViewModel @Inject constructor(
         email: String,
         otp: String,
         password: String,
-        onResult: (Boolean, String) -> Unit
+        onResult: (Boolean, String) -> Unit,
     ) {
         viewModelScope.launch {
             try {
@@ -66,14 +66,14 @@ class InfoViewModel @Inject constructor(
                     // Save tokens
                     tokenManager.saveTokens(
                         accessToken = accessToken,
-                        refreshToken = refreshToken
+                        refreshToken = refreshToken,
                     )
 
                     // Save user info if available
                     responseBody.user?.let {
                         tokenManager.saveUserInfo(
                             userId = it.id,
-                            userEmail = it.email
+                            userEmail = it.email,
                         )
                     }
 
@@ -85,7 +85,7 @@ class InfoViewModel @Inject constructor(
 
                     val loginRequest = com.intern001.dating.data.model.request.LoginRequest(
                         email = email,
-                        password = password
+                        password = password,
                     )
                     val loginResponse = apiService.login(loginRequest)
 
@@ -103,14 +103,14 @@ class InfoViewModel @Inject constructor(
                         // Save tokens from login response
                         tokenManager.saveTokens(
                             accessToken = authResponse.accessToken,
-                            refreshToken = authResponse.refreshToken
+                            refreshToken = authResponse.refreshToken,
                         )
 
                         // Save user info
                         authResponse.user?.let {
                             tokenManager.saveUserInfo(
                                 userId = it.id,
-                                userEmail = it.email
+                                userEmail = it.email,
                             )
                         }
 
