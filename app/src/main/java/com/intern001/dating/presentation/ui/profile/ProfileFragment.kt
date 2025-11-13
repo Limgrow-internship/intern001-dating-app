@@ -6,17 +6,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import com.intern001.dating.R
+import androidx.lifecycle.lifecycleScope
+import com.intern001.dating.MainActivity
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.databinding.FragmentProfileBinding
 import com.intern001.dating.presentation.common.ads.AdManager
+import com.intern001.dating.presentation.common.ads.NativeAdHelper
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
-import com.intern001.dating.presentation.common.ads.NativeAdHelper
-import com.intern001.dating.presentation.ui.login.LoginActivity
 import javax.inject.Inject
-import androidx.lifecycle.lifecycleScope
-import com.intern001.dating.MainActivity
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -60,7 +58,6 @@ class ProfileFragment : BaseFragment() {
 
         return view
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()

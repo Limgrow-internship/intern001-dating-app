@@ -78,6 +78,7 @@ class SelectLanguageFragment : BaseFragment() {
 
                 viewLifecycleOwner.lifecycleScope.launch {
                     appPreferencesManager.setOnboardingCompleted(true)
+                    appPreferencesManager.setLanguageSelected(true)
 
                     setAppLocale(langCode)
 

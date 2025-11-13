@@ -53,8 +53,8 @@ data class UpdateProfileRequest(
     val gender: String? = null,
     @SerializedName("profileImageUrl")
     val profileImageUrl: String? = null,
-    @SerializedName("goal")
-    val goal: String? = null,
+    @SerializedName("mode")
+    val mode: String? = null,
     @SerializedName("bio")
     val bio: String? = null,
 )

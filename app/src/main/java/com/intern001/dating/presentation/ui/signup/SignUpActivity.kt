@@ -2,9 +2,9 @@ package com.intern001.dating.presentation.ui.signup
 
 import android.content.Intent
 import android.os.Bundle
-import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import com.intern001.dating.presentation.common.viewmodel.BaseActivity
+import com.intern001.dating.presentation.ui.profilesetup.ProfileSetupActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -25,7 +25,7 @@ class SignUpActivity :
     }
 
     override fun onVerificationSuccess() {
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(this, ProfileSetupActivity::class.java)
         startActivity(intent)
         finish()
     }

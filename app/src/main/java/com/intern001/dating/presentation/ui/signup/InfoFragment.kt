@@ -95,6 +95,12 @@ class InfoFragment : BaseFragment() {
         }
     }
 
+    private fun showLoading(isLoading: Boolean) {
+        binding.btnSignIn.isEnabled = !isLoading
+        binding.btnSignIn.text = if (isLoading) "" else getString(R.string.sign_up)
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+    }
+
     private fun togglePasswordVisibility() {
         isPasswordVisible = !isPasswordVisible
         with(binding.etPassword) {

@@ -106,13 +106,29 @@ class VerifyFragment : BaseFragment() {
                 return@setOnClickListener
             }
 
-            val emailValue = email ?: return@setOnClickListener
-            viewModel.verifyOtp(emailValue, otp) { message ->
-                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-                if (message.contains("success", ignoreCase = true) ||
-                    message.contains("verified", ignoreCase = true)
-                ) {
+            val emailValue = email ?: run {
+                Toast.makeText(requireContext(), "Email is missing", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val passwordValue = password ?: run {
+                Toast.makeText(requireContext(), "Password is missing", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Disable button during processing
+            binding.btnVerify.isEnabled = false
+
+            // Verify OTP then auto-login to get tokens (all in background)
+            viewModel.verifyOtpAndLogin(emailValue, otp, passwordValue) { success, message ->
+                binding.btnVerify.isEnabled = true
+
+                if (success) {
+                    // Tokens saved successfully, navigate to ProfileSetup
                     listener?.onVerificationSuccess()
+                } else {
+                    // Only show toast on error
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 }
             }
         }
