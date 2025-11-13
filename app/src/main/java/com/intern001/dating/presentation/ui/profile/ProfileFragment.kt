@@ -1,6 +1,5 @@
 package com.intern001.dating.presentation.ui.profile
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,16 +21,9 @@ import com.intern001.dating.presentation.common.ads.NativeAdHelper
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.common.viewmodel.ProfileViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ProfileFragment : BaseFragment() {
-    @Inject
-    lateinit var tokenManager: TokenManager
-
-    private var _binding: FragmentProfileBinding? = null
-    private val binding get() = _binding!!
 
     private val viewModel: ProfileViewModel by viewModels()
 
