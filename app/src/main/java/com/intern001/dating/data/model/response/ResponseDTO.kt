@@ -24,19 +24,23 @@ data class UserBasicData(
 
 data class UserData(
     @SerializedName("id")
-    val id: String,
+    val id: String? = null,
     @SerializedName("email")
-    val email: String,
+    val email: String? = null,
     @SerializedName("firstName")
-    val firstName: String,
+    val firstName: String? = null,
     @SerializedName("lastName")
-    val lastName: String,
+    val lastName: String? = null,
     @SerializedName("dateOfBirth")
-    val dateOfBirth: String,
+    val dateOfBirth: String? = null,
     @SerializedName("gender")
-    val gender: String,
+    val gender: String? = null,
     @SerializedName("profileImageUrl")
     val profileImageUrl: String? = null,
+    @SerializedName("mode")
+    val mode: String? = null,
+    @SerializedName("bio")
+    val bio: String? = null,
 )
 
 data class RefreshTokenRequest(
@@ -61,4 +65,13 @@ data class VerifyOtpResponse(
 
     @SerializedName("verified")
     val verified: Boolean? = null,
+
+    @SerializedName("accessToken")
+    val accessToken: String? = null,
+
+    @SerializedName("refreshToken")
+    val refreshToken: String? = null,
+
+    @SerializedName("user")
+    val user: UserBasicData? = null,
 )

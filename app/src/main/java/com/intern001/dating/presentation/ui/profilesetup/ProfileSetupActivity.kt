@@ -7,11 +7,11 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.intern001.dating.MainActivity
-import com.intern001.dating.R
 import com.intern001.dating.databinding.ActivityProfileSetupBinding
 import com.intern001.dating.presentation.common.state.UiState
 import com.intern001.dating.presentation.common.ui.GenderSelector
@@ -28,12 +28,36 @@ class ProfileSetupActivity : AppCompatActivity() {
 
     private var currentStep = 0
 
-    private val pickImageLauncher = registerForActivityResult(
+    private val pickImage1Launcher = registerForActivityResult(
         ActivityResultContracts.GetContent(),
     ) { uri ->
         uri?.let {
-            viewModel.photoUrl = it.toString()
-            Toast.makeText(this, "Photo selected", Toast.LENGTH_SHORT).show()
+            viewModel.photo1Url = it.toString()
+            binding.stepPhoto.ivPhoto1.setImageURI(it)
+            binding.stepPhoto.ivAdd1.visibility = View.GONE
+            Toast.makeText(this, "Photo 1 selected", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val pickImage2Launcher = registerForActivityResult(
+        ActivityResultContracts.GetContent(),
+    ) { uri ->
+        uri?.let {
+            viewModel.photo2Url = it.toString()
+            binding.stepPhoto.ivPhoto2.setImageURI(it)
+            binding.stepPhoto.ivAdd2.visibility = View.GONE
+            Toast.makeText(this, "Photo 2 selected", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val pickImage3Launcher = registerForActivityResult(
+        ActivityResultContracts.GetContent(),
+    ) { uri ->
+        uri?.let {
+            viewModel.photo3Url = it.toString()
+            binding.stepPhoto.ivPhoto3.setImageURI(it)
+            binding.stepPhoto.ivAdd3.visibility = View.GONE
+            Toast.makeText(this, "Photo 3 selected", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -72,6 +96,13 @@ class ProfileSetupActivity : AppCompatActivity() {
         }
     }
 
+    private fun navigateToHome() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
+    }
+
     private fun showStep(step: Int) {
         currentStep = step
 
@@ -79,14 +110,14 @@ class ProfileSetupActivity : AppCompatActivity() {
         binding.stepName.root.visibility = View.GONE
         binding.stepGender.root.visibility = View.GONE
         binding.stepBirthday.root.visibility = View.GONE
-        binding.stepGoal.root.visibility = View.GONE
+        binding.stepMode.root.visibility = View.GONE
 
         when (step) {
             0 -> setupPhotoStep()
             1 -> setupNameStep()
             2 -> setupGenderStep()
             3 -> setupBirthdayStep()
-            4 -> setupGoalStep()
+            4 -> setupModeStep()
         }
     }
 
@@ -95,19 +126,45 @@ class ProfileSetupActivity : AppCompatActivity() {
         binding.stepPhoto.progressBar.currentStep = 0
         binding.stepPhoto.tvProgress.text = "0%"
 
+        viewModel.photo1Url?.let {
+            binding.stepPhoto.ivPhoto1.setImageURI(it.toUri())
+            binding.stepPhoto.ivAdd1.visibility = View.GONE
+        } ?: run {
+            binding.stepPhoto.ivAdd1.visibility = View.VISIBLE
+        }
+
+        viewModel.photo2Url?.let {
+            binding.stepPhoto.ivPhoto2.setImageURI(it.toUri())
+            binding.stepPhoto.ivAdd2.visibility = View.GONE
+        } ?: run {
+            binding.stepPhoto.ivAdd2.visibility = View.VISIBLE
+        }
+
+        viewModel.photo3Url?.let {
+            binding.stepPhoto.ivPhoto3.setImageURI(android.net.Uri.parse(it))
+            binding.stepPhoto.ivAdd3.visibility = View.GONE
+        } ?: run {
+            binding.stepPhoto.ivAdd3.visibility = View.VISIBLE
+        }
+
         binding.stepPhoto.flPhoto1.setOnClickListener {
-            pickImageLauncher.launch("image/*")
+            pickImage1Launcher.launch("image/*")
         }
 
         binding.stepPhoto.flPhoto2.setOnClickListener {
-            pickImageLauncher.launch("image/*")
+            pickImage2Launcher.launch("image/*")
         }
 
         binding.stepPhoto.flPhoto3.setOnClickListener {
-            pickImageLauncher.launch("image/*")
+            pickImage3Launcher.launch("image/*")
         }
 
         binding.stepPhoto.btnNext.setOnClickListener {
+            // Validation: At least one photo must be selected
+            if (viewModel.photo1Url == null && viewModel.photo2Url == null && viewModel.photo3Url == null) {
+                Toast.makeText(this, "Please select at least one photo", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             showStep(1)
         }
     }
@@ -115,9 +172,13 @@ class ProfileSetupActivity : AppCompatActivity() {
     private fun setupNameStep() {
         binding.stepName.root.visibility = View.VISIBLE
         binding.stepName.progressBar.currentStep = 1
-        binding.stepName.tvProgress.text = "20%"
+        binding.stepName.tvProgress.text = "10%"
 
         binding.stepName.etName.setText(viewModel.name)
+
+        binding.stepName.ivBack.setOnClickListener {
+            showStep(0)
+        }
 
         binding.stepName.btnNext.setOnClickListener {
             val name = binding.stepName.etName.text.toString().trim()
@@ -133,7 +194,17 @@ class ProfileSetupActivity : AppCompatActivity() {
     private fun setupGenderStep() {
         binding.stepGender.root.visibility = View.VISIBLE
         binding.stepGender.progressBar.currentStep = 2
-        binding.stepGender.tvProgress.text = "40%"
+        binding.stepGender.tvProgress.text = "20%"
+
+        if (viewModel.gender.isNotEmpty()) {
+            val selectedGender = when (viewModel.gender) {
+                "male" -> GenderSelector.Gender.MALE
+                "female" -> GenderSelector.Gender.FEMALE
+                "other" -> GenderSelector.Gender.OTHER
+                else -> null
+            }
+            selectedGender?.let { binding.stepGender.genderSelector.setSelectedGender(it) }
+        }
 
         binding.stepGender.genderSelector.setOnGenderSelectedListener { gender ->
             viewModel.gender = when (gender) {
@@ -142,6 +213,10 @@ class ProfileSetupActivity : AppCompatActivity() {
                 GenderSelector.Gender.OTHER -> "other"
                 else -> ""
             }
+        }
+
+        binding.stepGender.ivBack.setOnClickListener {
+            showStep(1)
         }
 
         binding.stepGender.btnNext.setOnClickListener {
@@ -156,13 +231,32 @@ class ProfileSetupActivity : AppCompatActivity() {
     private fun setupBirthdayStep() {
         binding.stepBirthday.root.visibility = View.VISIBLE
         binding.stepBirthday.progressBar.currentStep = 3
-        binding.stepBirthday.tvProgress.text = "60%"
+        binding.stepBirthday.tvProgress.text = "30%"
 
         val calendar = Calendar.getInstance()
-        calendar.set(2004, Calendar.APRIL, 1)
+
+        if (viewModel.dateOfBirth.isNotEmpty()) {
+            try {
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                val date = dateFormat.parse(viewModel.dateOfBirth)
+                date?.let { calendar.time = it }
+            } catch (e: Exception) {
+                calendar.set(2004, Calendar.APRIL, 1)
+            }
+        } else {
+            calendar.set(2004, Calendar.APRIL, 1)
+        }
+
+        binding.stepBirthday.tvMonth.text = SimpleDateFormat("MMMM", Locale.getDefault()).format(calendar.time)
+        binding.stepBirthday.tvDay.text = String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH))
+        binding.stepBirthday.tvYear.text = calendar.get(Calendar.YEAR).toString()
 
         binding.stepBirthday.llDatePicker.setOnClickListener {
             showDatePicker()
+        }
+
+        binding.stepBirthday.ivBack.setOnClickListener {
+            showStep(2)
         }
 
         binding.stepBirthday.btnNext.setOnClickListener {
@@ -199,49 +293,47 @@ class ProfileSetupActivity : AppCompatActivity() {
         datePickerDialog.show()
     }
 
-    private fun setupGoalStep() {
-        binding.stepGoal.root.visibility = View.VISIBLE
-        binding.stepGoal.progressBar.currentStep = 4
-        binding.stepGoal.tvProgress.text = "80%"
+    private fun setupModeStep() {
+        binding.stepMode.root.visibility = View.VISIBLE
+        binding.stepMode.progressBar.currentStep = 4
+        binding.stepMode.tvProgress.text = "40%"
 
-        val goalButtons = listOf(
-            binding.stepGoal.btnNewFriends to "New friends",
-            binding.stepGoal.btnSomethingCasual to "Something casual",
-            binding.stepGoal.btnJustVibing to "Just vibing",
-            binding.stepGoal.btnOpenToAnything to "Open to anything",
-            binding.stepGoal.btnStillFiguringOut to "Still figuring it out",
+        val modeChips = listOf(
+            binding.stepMode.chipDatingMode to "dating",
+            binding.stepMode.chipFriendMode to "friend",
         )
 
-        goalButtons.forEach { (button, goal) ->
-            button.setOnClickListener {
-                viewModel.goal = goal
-                goalButtons.forEach { (btn, _) ->
-                    btn.setBackgroundResource(R.drawable.bg_gender_unselected)
-                    btn.setTextColor(getColor(R.color.black))
-                }
-                button.setBackgroundResource(R.drawable.bg_button_orange)
-                button.setTextColor(getColor(R.color.white))
+        if (viewModel.mode.isNotEmpty()) {
+            when (viewModel.mode) {
+                "dating" -> binding.stepMode.chipDatingMode.isChecked = true
+                "friend" -> binding.stepMode.chipFriendMode.isChecked = true
             }
         }
 
-        binding.stepGoal.ivSkip.setOnClickListener {
-            navigateToHome()
+        modeChips.forEach { (chip, mode) ->
+            chip.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    viewModel.mode = mode
+                    modeChips.forEach { (otherChip, _) ->
+                        if (otherChip != chip) {
+                            otherChip.isChecked = false
+                        }
+                    }
+                }
+            }
         }
 
-        binding.stepGoal.btnNext.setOnClickListener {
-            if (viewModel.goal.isEmpty()) {
-                Toast.makeText(this, "Please select a goal", Toast.LENGTH_SHORT).show()
+        binding.stepMode.ivBack.setOnClickListener {
+            showStep(3)
+        }
+
+        binding.stepMode.btnNext.setOnClickListener {
+            if (viewModel.mode.isEmpty()) {
+                Toast.makeText(this, "Please select a mode", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             viewModel.updateProfile()
         }
-    }
-
-    private fun navigateToHome() {
-        val intent = Intent(this, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-        finish()
     }
 
     @Deprecated("Deprecated in Java")

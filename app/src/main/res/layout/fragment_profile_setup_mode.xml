@@ -10,8 +10,9 @@
         android:id="@+id/iv_back"
         android:layout_width="24dp"
         android:layout_height="24dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="28dp"
         android:src="@drawable/ic_back"
-        android:layout_marginTop="24dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -20,7 +21,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="48dp"
-        android:text="Choose your gender"
+        android:text="Mode"
         android:textColor="@color/black"
         android:textSize="28sp"
         android:textStyle="bold"
@@ -28,14 +29,44 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iv_back" />
 
-    <com.intern001.dating.presentation.common.ui.GenderSelector
-        android:id="@+id/gender_selector"
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chip_group_modes"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
+        app:chipSpacingHorizontal="8dp"
+        app:chipSpacingVertical="8dp"
+        app:singleSelection="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_title" />
+        app:layout_constraintTop_toBottomOf="@id/tv_title">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_dating_mode"
+            style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dating Mode"
+            android:textColor="@color/chip_text_color"
+            app:checkedIconVisible="false"
+            app:chipBackgroundColor="@color/chip_background_color"
+            app:chipCornerRadius="50dp"
+            app:chipStrokeColor="@color/chip_stroke_color"
+            app:chipStrokeWidth="1dp" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_friend_mode"
+            style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Friend Mode"
+            android:textColor="@color/chip_text_color"
+            app:checkedIconVisible="false"
+            app:chipBackgroundColor="@color/chip_background_color"
+            app:chipCornerRadius="50dp"
+            app:chipStrokeColor="@color/chip_stroke_color"
+            app:chipStrokeWidth="1dp" />
+    </com.google.android.material.chip.ChipGroup>
 
     <LinearLayout
         android:id="@+id/ll_progress"
@@ -53,7 +84,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="1.5dp"
-            android:text="@string/_40"
+            android:text="50%"
             android:textColor="#FF6500"
             android:textSize="12sp"
             android:textStyle="bold" />
@@ -71,7 +102,7 @@
         android:background="@drawable/bg_button_black"
         android:elevation="0dp"
         android:stateListAnimator="@null"
-        android:text="@string/next"
+        android:text="Next"
         android:textAllCaps="false"
         android:textColor="@color/white"
         android:textSize="16sp"

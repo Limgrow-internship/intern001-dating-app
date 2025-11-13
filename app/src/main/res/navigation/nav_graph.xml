@@ -90,9 +90,6 @@
             android:id="@+id/action_login_to_signup"
             app:destination="@id/signupFragment" />
         <action
-            android:id="@+id/action_login_to_profile_setup"
-            app:destination="@id/profileSetupActivity" />
-        <action
             android:id="@+id/action_login_to_forgot_password"
             app:destination="@id/forgotPasswordFragment" />
         <action
@@ -115,6 +112,31 @@
             app:destination="@id/homeFragment"
             app:popUpTo="@id/signupFragment"
             app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileSetupPhotoFragment"
+        android:label="ProfileSetupPhotoFragment">
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileSetupNameFragment"
+        android:label="ProfileSetupNameFragment">
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileSetupGenderFragment"
+        android:label="ProfileSetupGenderFragment">
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileSetupBirthdayFragment"
+        android:label="ProfileSetupBirthdayFragment">
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileSetupModeFragment"
+        android:label="ProfileSetupModeFragment">
     </fragment>
 
     <fragment
@@ -233,10 +255,5 @@
             app:popUpTo="@id/settingsFragment"
             app:popUpToInclusive="true" />
     </fragment>
-
-    <activity
-        android:id="@+id/profileSetupActivity"
-        android:name="com.intern001.dating.presentation.ui.profilesetup.ProfileSetupActivity"
-        android:label="Profile Setup" />
 
 </navigation>
