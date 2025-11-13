@@ -2,8 +2,11 @@ package com.intern001.dating
 
 import android.os.Bundle
 import android.view.View
+import androidx.navigation.Navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import com.intern001.dating.databinding.ActivityMainBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseActivity
+import com.intern001.dating.presentation.ui.home.HomeFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -12,6 +15,7 @@ class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
     private var isNavigatingProgrammatically = false
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -19,6 +23,12 @@ class MainActivity : BaseActivity() {
         setupNavigation()
         setupBottomNavigation()
         setupDestinationListener()
+
+        if (intent.getBooleanExtra("open_home", false)) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.nav_host_fragment, HomeFragment())
+                .commit()
+        }
     }
 
     override fun getNavHostFragmentId() = R.id.nav_host_fragment
@@ -72,4 +82,5 @@ class MainActivity : BaseActivity() {
     fun hideBottomNavigation(hide: Boolean) {
         binding.bottomNavigation.visibility = if (hide) View.GONE else View.VISIBLE
     }
+
 }
