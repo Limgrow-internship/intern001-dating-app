@@ -1,5 +1,6 @@
 package com.intern001.dating.presentation.ui.profilesetup
 
+import android.net.Uri
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,16 +8,16 @@ import com.intern001.dating.domain.usecase.profile.UpdateProfileUseCase
 import com.intern001.dating.domain.usecase.profile.UploadImageUseCase
 import com.intern001.dating.presentation.common.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class ProfileSetupViewModel @Inject constructor(
     private val updateProfileUseCase: UpdateProfileUseCase,
-    private val uploadImageUseCase: UploadImageUseCase,
+    private val uploadImageUseCase: UploadImageUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<UiState<Unit>>(UiState.Idle)
@@ -81,7 +82,7 @@ class ProfileSetupViewModel @Inject constructor(
                                 android.util.Log.e("ProfileSetupViewModel", "Failed to upload photo 1", error)
                                 _uiState.value = UiState.Error("Failed to upload photo 1: ${error.message}")
                                 return@launch
-                            },
+                            }
                         )
                     }
 
@@ -97,7 +98,7 @@ class ProfileSetupViewModel @Inject constructor(
                                 android.util.Log.e("ProfileSetupViewModel", "Failed to upload photo 2", error)
                                 _uiState.value = UiState.Error("Failed to upload photo 2: ${error.message}")
                                 return@launch
-                            },
+                            }
                         )
                     }
 
@@ -113,7 +114,7 @@ class ProfileSetupViewModel @Inject constructor(
                                 android.util.Log.e("ProfileSetupViewModel", "Failed to upload photo 3", error)
                                 _uiState.value = UiState.Error("Failed to upload photo 3: ${error.message}")
                                 return@launch
-                            },
+                            }
                         )
                     }
                 } else {
@@ -139,7 +140,7 @@ class ProfileSetupViewModel @Inject constructor(
                     dateOfBirth = dateOfBirth,
                     gender = gender,
                     profileImageUrl = profileImage,
-                    mode = mode,
+                    mode = mode
                 )
 
                 result.fold(
@@ -150,7 +151,7 @@ class ProfileSetupViewModel @Inject constructor(
                     onFailure = { error ->
                         android.util.Log.e("ProfileSetupViewModel", "Failed to update profile", error)
                         _uiState.value = UiState.Error(error.message ?: "Failed to update profile")
-                    },
+                    }
                 )
             } catch (e: Exception) {
                 android.util.Log.e("ProfileSetupViewModel", "Error in updateProfile", e)
