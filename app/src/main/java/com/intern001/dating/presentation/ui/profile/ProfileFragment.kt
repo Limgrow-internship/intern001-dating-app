@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -51,18 +52,7 @@ class ProfileFragment : BaseFragment() {
         }
 
         binding.btnLogout.setOnClickListener {
-            viewLifecycleOwner.lifecycleScope.launch {
-                tokenManager.clearTokens()
-
-                AdManager.clear()
-
-                context?.let { ctx ->
-                    val intent = Intent(ctx, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                    Toast.makeText(ctx, "Logout successfully!", Toast.LENGTH_SHORT).show()
-                }
-            }
+            showLogOutBottomSheet()
         }
 
         val btnDeleteAccount = view.findViewById<LinearLayout>(R.id.btnDeleteAccount)
@@ -79,6 +69,44 @@ class ProfileFragment : BaseFragment() {
         }
 
         return view
+    }
+
+    private fun showLogOutBottomSheet() {
+        val dialog = BottomSheetDialog(requireContext())
+        val view = layoutInflater.inflate(R.layout.dialog_log_out, null)
+        dialog.setContentView(view)
+
+        dialog.setCancelable(true)
+        dialog.setCanceledOnTouchOutside(true)
+
+        val btnCancel = view.findViewById<ImageView>(R.id.btnCancel)
+        val btnConfirmLogout = view.findViewById<TextView>(R.id.btnLogout)
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnConfirmLogout.setOnClickListener {
+            dialog.dismiss()
+            performLogout()
+        }
+
+        dialog.show()
+    }
+
+
+    private fun performLogout() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            tokenManager.clearTokens()
+            AdManager.clear()
+
+            context?.let { ctx ->
+                val intent = Intent(ctx, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                Toast.makeText(ctx, "Logout successfully!", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun showDeleteAccountBottomSheet() {
