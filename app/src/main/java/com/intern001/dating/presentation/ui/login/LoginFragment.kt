@@ -18,8 +18,6 @@ import com.intern001.dating.presentation.ui.signup.SignUpActivity
 import com.intern001.dating.presentation.util.ValidationHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import androidx.navigation.findNavController
-
 
 @AndroidEntryPoint
 class LoginFragment : BaseFragment() {
@@ -107,17 +105,7 @@ class LoginFragment : BaseFragment() {
                         binding.btnLogin.isEnabled = true
                         binding.btnLogin.text = getString(R.string.login)
 
-                        Snackbar.make(
-                            binding.root,
-                            "Login successful!",
-                            Snackbar.LENGTH_SHORT,
-                        ).show()
-
-                        view?.let { rootView ->
-                            val controller = (requireActivity() as MainActivity).findNavController(R.id.nav_host_fragment)
-                            controller.navigate(R.id.action_login_to_home)
-                        }
-
+                        navController.navigate(R.id.action_login_to_home)
                     }
                     is UiState.Error -> {
                         binding.progressBar.isVisible = false
