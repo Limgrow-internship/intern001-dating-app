@@ -10,10 +10,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentVerifyBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
-import com.intern001.dating.R
 
 @AndroidEntryPoint
 class VerifyFragment : BaseFragment() {

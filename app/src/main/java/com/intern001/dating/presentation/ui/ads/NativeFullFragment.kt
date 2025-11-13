@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import com.intern001.dating.data.local.AppPreferencesManager
 import com.intern001.dating.databinding.FragmentNativeFullBinding
