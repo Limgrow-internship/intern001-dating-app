@@ -63,7 +63,11 @@ class VerifyFragment : BaseFragment() {
         binding.tvEmailOtp.text = email
         startCountdown()
 
-        return view
+        binding.btnBack.setOnClickListener {
+            parentFragmentManager.popBackStack()
+        }
+
+        return binding.root
     }
 
     private fun setupOtpFields() {

@@ -75,3 +75,20 @@ data class VerifyOtpResponse(
     @SerializedName("user")
     val user: UserBasicData? = null,
 )
+
+data class ChangePasswordResponse(
+    @SerializedName("id")
+    val id: String,
+
+    @SerializedName("oldPassword")
+    val oldPassword: String? = null,
+
+    @SerializedName("newPassword")
+    val newPassword: String? = null,
+
+    @SerializedName("confirmPassword")
+    val confirmPassword: String? = null,
+
+    @SerializedName("deviceInfo")
+    val deviceInfo: String? = null,
+)
