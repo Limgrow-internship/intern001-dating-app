@@ -42,6 +42,7 @@ class InfoViewModel @Inject constructor(
             try {
                 android.util.Log.d("InfoViewModel", "Step 1: Verifying OTP...")
 
+                // Step 1: Verify OTP
                 val verifyRequest = VerifyOtpRequest(email, otp)
                 val verifyResponse = apiService.verifyOtp(verifyRequest)
 

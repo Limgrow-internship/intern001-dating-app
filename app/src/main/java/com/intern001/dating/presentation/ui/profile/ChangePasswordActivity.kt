@@ -19,7 +19,6 @@ import com.intern001.dating.R
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.databinding.ActivityChangePasswordBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseActivity
-import com.intern001.dating.presentation.ui.login.LoginActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 

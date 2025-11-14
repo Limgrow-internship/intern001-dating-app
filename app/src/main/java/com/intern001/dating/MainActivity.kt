@@ -2,8 +2,6 @@ package com.intern001.dating
 
 import android.os.Bundle
 import android.view.View
-import androidx.navigation.Navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment
 import com.intern001.dating.databinding.ActivityMainBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseActivity
 import com.intern001.dating.presentation.ui.home.HomeFragment
@@ -14,7 +12,6 @@ class MainActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private var isNavigatingProgrammatically = false
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,5 +79,4 @@ class MainActivity : BaseActivity() {
     fun hideBottomNavigation(hide: Boolean) {
         binding.bottomNavigation.visibility = if (hide) View.GONE else View.VISIBLE
     }
-
 }
