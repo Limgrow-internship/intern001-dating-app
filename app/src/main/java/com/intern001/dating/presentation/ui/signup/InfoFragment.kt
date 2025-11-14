@@ -1,5 +1,6 @@
 package com.intern001.dating.presentation.ui.signup
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import android.view.LayoutInflater
@@ -11,6 +12,7 @@ import androidx.fragment.app.viewModels
 import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentInfoBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
+import com.intern001.dating.presentation.ui.login.LoginActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -32,6 +34,11 @@ class InfoFragment : BaseFragment() {
 
         setupPasswordVisibilityToggle()
         setupSignInButton()
+
+        binding.tvLogin.setOnClickListener {
+            val intent = Intent(requireContext(), LoginActivity::class.java)
+            startActivity(intent)
+        }
 
         return view
     }
@@ -60,12 +67,21 @@ class InfoFragment : BaseFragment() {
                 return@setOnClickListener
             }
 
-            // Show loading animation
-            showLoading(true)
+            val passwordPattern = Regex("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$")
+            if (!passwordPattern.matches(password)) {
+                binding.tvError.visibility = View.VISIBLE
+                return@setOnClickListener
+            } else {
+                binding.tvError.visibility = View.GONE
+            }
+            binding.progressBarBottom.visibility = View.VISIBLE
+            binding.btnSignIn.text = ""
+            binding.btnSignIn.isEnabled = false
 
             viewModel.sendOtp(email, password) { message ->
-                // Hide loading animation
-                showLoading(false)
+                binding.progressBarBottom.visibility = View.GONE
+                binding.btnSignIn.text = getString(R.string.sign_up)
+                binding.btnSignIn.isEnabled = true
 
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 if (message.contains("OTP has been sent")) {
@@ -88,7 +104,7 @@ class InfoFragment : BaseFragment() {
     private fun showLoading(isLoading: Boolean) {
         binding.btnSignIn.isEnabled = !isLoading
         binding.btnSignIn.text = if (isLoading) "" else getString(R.string.sign_up)
-        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        binding.progressBarBottom.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     private fun togglePasswordVisibility() {

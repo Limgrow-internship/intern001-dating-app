@@ -122,6 +122,11 @@ class LoginFragment : BaseFragment() {
                 }
             }
         }
+
+        binding.btnSignUp.setOnClickListener {
+            val intent = Intent(requireContext(), SignUpActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onDestroyView() {

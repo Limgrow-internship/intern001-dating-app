@@ -38,11 +38,8 @@ class SplashFragment : BaseFragment() {
         (activity as? MainActivity)?.hideBottomNavigation(true)
 
         AdManager.preloadNativeAds(requireContext()) {
-            if (!isAdded || view == null) return@preloadNativeAds
-
             viewLifecycleOwner.lifecycleScope.launch {
                 delay(1500)
-                if (!isAdded || view == null) return@launch
                 navigateToNextScreen()
             }
         }

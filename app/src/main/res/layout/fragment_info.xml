@@ -35,7 +35,8 @@
                 android:textStyle="bold"
                 android:textSize="32sp"
                 android:textColor="@android:color/black"
-                android:layout_marginBottom="24dp" />
+                android:layout_marginBottom="48dp"
+                android:layout_marginTop="24dp"/>
 
             <EditText
                 android:id="@+id/etEmail"
@@ -58,7 +59,17 @@
                 android:paddingHorizontal="12dp"
                 android:textColorHint="#A9A9A9"
                 android:drawableEnd="@drawable/ic_eye_off"
-                android:layout_marginBottom="24dp" />
+                android:layout_marginBottom="24dp"/>
+
+            <TextView
+                android:id="@+id/tvError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/error_signup"
+                android:textSize="16sp"
+                android:textColor="#FF0058"
+                android:layout_marginBottom="30dp"
+                android:visibility="gone" />
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -75,7 +86,7 @@
                     android:backgroundTint="#000000" />
 
                 <ProgressBar
-                    android:id="@+id/progressBar"
+                    android:id="@+id/progressBarBottom"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_gravity="center"
@@ -97,7 +108,8 @@
                 android:textSize="18sp"
                 android:layout_height="wrap_content"
                 android:text="@string/already_have_account"
-                android:textColor="@android:color/black" />
+                android:textColor="@android:color/black"
+                android:layout_marginRight="5dp"/>
 
             <TextView
                 android:id="@+id/tvLogin"
@@ -108,10 +120,17 @@
                 android:textSize="18sp"
                 android:text="@string/login"
                 android:textStyle="bold"
-                android:textColor="#00BEFF"
+                android:textColor="#006AFF"
                 android:clickable="true"
                 android:focusable="true" />
         </LinearLayout>
     </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
 
 </FrameLayout>

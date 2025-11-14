@@ -3,7 +3,8 @@
     <string name="create_new_password_message">
         Create a new password for your account. Make sure it\'s strong and easy for you to remember.
     </string>
-    <string name="login">Login</string>
+    <string name="error_signup">Please choose a stronger password. Try a combination of letters, numbersmail</string>
+    <string name="login">Log in</string>
     <string name="email">Email</string>
     <string name="pass">Password</string>
     <string name="Forgot_pass">Forgot password</string>
@@ -26,4 +27,5 @@
     <string name="already_have_account">Already have account?</string>
     <string name="_40">40%</string>
     <string name="next">Next</string>
+    <string name="log_out">Log out</string>
 </resources>

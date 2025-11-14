@@ -5,58 +5,134 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.intern001.dating.MainActivity
+import com.intern001.dating.R
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.databinding.FragmentProfileBinding
 import com.intern001.dating.presentation.common.ads.AdManager
 import com.intern001.dating.presentation.common.ads.NativeAdHelper
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
+import com.intern001.dating.presentation.common.viewmodel.ProfileViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ProfileFragment : BaseFragment() {
-    @Inject
-    lateinit var tokenManager: TokenManager
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
+    private val viewModel: ProfileViewModel by viewModels()
+
+    @Inject
+    lateinit var tokenManager: TokenManager
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View {
+    ): View? {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val view = binding.root
-
+        val adContainer = binding.grayBox
         context?.let { ctx ->
             NativeAdHelper.bindNativeAdSmall(
                 ctx,
-                binding.adContainer,
+                adContainer,
                 AdManager.nativeAdSmall,
             )
         }
 
         binding.btnLogout.setOnClickListener {
-            viewLifecycleOwner.lifecycleScope.launch {
-                tokenManager.clearTokens()
+            showLogOutBottomSheet()
+        }
 
-                AdManager.clear()
+        val btnDeleteAccount = view.findViewById<LinearLayout>(R.id.btnDeleteAccount)
+        btnDeleteAccount.setOnClickListener {
+            showDeleteAccountBottomSheet()
+        }
 
-                context?.let { ctx ->
-                    val intent = Intent(ctx, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                    Toast.makeText(ctx, "Logout successfully!", Toast.LENGTH_SHORT).show()
-                }
+        viewModel.deleteResult.observe(viewLifecycleOwner) { result ->
+            if (result.isSuccess) {
+                showDeleteAccountSuccessSheet()
+            } else {
+                Toast.makeText(context, "Delete failed!", Toast.LENGTH_SHORT).show()
             }
         }
 
         return view
+    }
+
+    private fun showLogOutBottomSheet() {
+        val dialog = BottomSheetDialog(requireContext())
+        val view = layoutInflater.inflate(R.layout.dialog_log_out, null)
+        dialog.setContentView(view)
+
+        dialog.setCancelable(true)
+        dialog.setCanceledOnTouchOutside(true)
+
+        val btnCancel = view.findViewById<ImageView>(R.id.btnCancel)
+        val btnConfirmLogout = view.findViewById<TextView>(R.id.btnLogout)
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnConfirmLogout.setOnClickListener {
+            dialog.dismiss()
+            performLogout()
+        }
+
+        dialog.show()
+    }
+
+    private fun performLogout() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            tokenManager.clearTokens()
+            AdManager.clear()
+
+            context?.let { ctx ->
+                val intent = Intent(ctx, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                Toast.makeText(ctx, "Logout successfully!", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun showDeleteAccountBottomSheet() {
+        val dialog = BottomSheetDialog(requireContext())
+        val view = layoutInflater.inflate(R.layout.dialog_delete_account, null)
+        dialog.setContentView(view)
+
+        view.findViewById<TextView>(R.id.btnDelete).setOnClickListener {
+            dialog.dismiss()
+            viewModel.deleteAccount()
+        }
+        dialog.show()
+    }
+
+    private fun showDeleteAccountSuccessSheet() {
+        val dialog = BottomSheetDialog(requireContext())
+        val view = layoutInflater.inflate(R.layout.dialog_delete_success, null)
+        dialog.setContentView(view)
+        view.findViewById<TextView>(R.id.btnDone).setOnClickListener {
+            dialog.dismiss()
+            goToLoginScreen()
+        }
+        dialog.show()
+    }
+
+    private fun goToLoginScreen() {
+        findNavController().navigate(R.id.action_profile_to_login)
     }
 
     override fun onDestroyView() {

@@ -51,10 +51,24 @@ data class UpdateProfileRequest(
     val dateOfBirth: String? = null,
     @SerializedName("gender")
     val gender: String? = null,
-    @SerializedName("profileImageUrl")
+    @SerializedName("profilePicture")
     val profileImageUrl: String? = null,
     @SerializedName("mode")
     val mode: String? = null,
     @SerializedName("bio")
     val bio: String? = null,
+)
+
+data class ChangePasswordRequest(
+    @SerializedName("oldPassword")
+    val oldPassword: String? = null,
+
+    @SerializedName("newPassword")
+    val newPassword: String? = null,
+
+    @SerializedName("confirmPassword")
+    val confirmPassword: String? = null,
+
+    @SerializedName("deviceInfo")
+    val deviceInfo: String? = null,
 )
