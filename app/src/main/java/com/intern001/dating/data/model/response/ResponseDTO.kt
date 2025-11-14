@@ -35,7 +35,7 @@ data class UserData(
     val dateOfBirth: String? = null,
     @SerializedName("gender")
     val gender: String? = null,
-    @SerializedName("profileImageUrl")
+    @SerializedName("profilePicture")
     val profileImageUrl: String? = null,
     @SerializedName("mode")
     val mode: String? = null,
