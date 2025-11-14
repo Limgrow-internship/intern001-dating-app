@@ -74,11 +74,13 @@ class InfoFragment : BaseFragment() {
             } else {
                 binding.tvError.visibility = View.GONE
             }
-            binding.progressBar.visibility = View.VISIBLE
+            binding.progressBarBottom.visibility = View.VISIBLE
+            binding.btnSignIn.text = ""
             binding.btnSignIn.isEnabled = false
 
             viewModel.sendOtp(email, password) { message ->
-                binding.progressBar.visibility = View.GONE
+                binding.progressBarBottom.visibility = View.GONE
+                binding.btnSignIn.text = getString(R.string.sign_up)
                 binding.btnSignIn.isEnabled = true
 
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
@@ -102,7 +104,7 @@ class InfoFragment : BaseFragment() {
     private fun showLoading(isLoading: Boolean) {
         binding.btnSignIn.isEnabled = !isLoading
         binding.btnSignIn.text = if (isLoading) "" else getString(R.string.sign_up)
-        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        binding.progressBarBottom.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     private fun togglePasswordVisibility() {

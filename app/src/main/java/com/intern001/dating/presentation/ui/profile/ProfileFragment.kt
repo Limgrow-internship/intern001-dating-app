@@ -1,5 +1,6 @@
 package com.intern001.dating.presentation.ui.profile
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,16 +16,24 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentProfileBinding
+import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.presentation.common.ads.AdManager
 import com.intern001.dating.presentation.common.ads.NativeAdHelper
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.common.viewmodel.ProfileViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class ProfileFragment : BaseFragment() {
 
+    private var _binding: FragmentProfileBinding? = null
+    private val binding get() = _binding!!
     private val viewModel: ProfileViewModel by viewModels()
+
+    @Inject
+    lateinit var tokenManager: TokenManager
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,11 +42,11 @@ class ProfileFragment : BaseFragment() {
     ): View? {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val view = binding.root
-
+        val adContainer = binding.grayBox
         context?.let { ctx ->
             NativeAdHelper.bindNativeAdSmall(
                 ctx,
-                binding.adContainer,
+                adContainer,
                 AdManager.nativeAdSmall,
             )
         }
