@@ -34,6 +34,7 @@
                 android:orientation="horizontal">
 
                 <ImageView
+                    android:id="@+id/btnBack"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_back"
@@ -110,29 +111,6 @@
                     android:textSize="20sp"
                     android:background="@drawable/bg_verify_otp" />
 
-                <EditText
-                    android:id="@+id/otp5"
-                    android:layout_width="0dp"
-                    android:layout_height="56dp"
-                    android:layout_weight="1"
-                    android:layout_margin="4dp"
-                    android:gravity="center"
-                    android:inputType="number"
-                    android:maxLength="1"
-                    android:textSize="20sp"
-                    android:background="@drawable/bg_verify_otp" />
-
-                <EditText
-                    android:id="@+id/otp6"
-                    android:layout_width="0dp"
-                    android:layout_height="56dp"
-                    android:layout_weight="1"
-                    android:layout_margin="4dp"
-                    android:gravity="center"
-                    android:inputType="number"
-                    android:maxLength="1"
-                    android:textSize="20sp"
-                    android:background="@drawable/bg_verify_otp" />
             </LinearLayout>
 
             <LinearLayout
@@ -156,6 +134,7 @@
                     android:gravity="center"
                     android:text="+limgrow@gmail.com"
                     android:textSize="18dp"
+                    android:visibility="visible"
                     android:textColor="#00BEFF" />
             </LinearLayout>
 
@@ -185,7 +164,7 @@
                 android:textColor="@android:color/black" />
 
             <TextView
-                android:id="@+id/tvLogin"
+                android:id="@+id/tvRecentCode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textFontWeight="700"

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import com.intern001.dating.databinding.ActivityMainBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseActivity
+import com.intern001.dating.presentation.ui.home.HomeFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -19,6 +20,12 @@ class MainActivity : BaseActivity() {
         setupNavigation()
         setupBottomNavigation()
         setupDestinationListener()
+
+        if (intent.getBooleanExtra("open_home", false)) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.nav_host_fragment, HomeFragment())
+                .commit()
+        }
     }
 
     override fun getNavHostFragmentId() = R.id.nav_host_fragment

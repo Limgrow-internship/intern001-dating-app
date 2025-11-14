@@ -21,26 +21,6 @@
             android:layout_alignParentStart="true"
             android:layout_marginStart="2dp"
             android:layout_marginTop="2dp"/>
-
-        <ImageView
-            android:id="@+id/ad_info_1"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/ic_info"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="32dp"
-            android:layout_marginTop="2dp"/>
-
-        <ImageView
-            android:id="@+id/ad_close_1"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/ic_close"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="4dp"
-            android:layout_marginTop="2dp"
-            android:clickable="true"
-            android:focusable="true"/>
     </RelativeLayout>
 
     <com.google.android.gms.ads.nativead.MediaView
@@ -74,26 +54,6 @@
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="2dp"
                 android:layout_marginTop="2dp"/>
-
-            <ImageView
-                android:id="@+id/ad_info"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/ic_info"
-                android:layout_alignParentEnd="true"
-                android:layout_marginEnd="32dp"
-                android:layout_marginTop="2dp"/>
-
-            <ImageView
-                android:id="@+id/ad_close"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/ic_close"
-                android:layout_alignParentEnd="true"
-                android:layout_marginEnd="4dp"
-                android:layout_marginTop="2dp"
-                android:clickable="true"
-                android:focusable="true"/>
         </RelativeLayout>
 
         <LinearLayout

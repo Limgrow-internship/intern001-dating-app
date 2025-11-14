@@ -41,3 +41,34 @@ data class VerifyOtpRequest(
     @SerializedName("otp")
     val otp: String,
 )
+
+data class UpdateProfileRequest(
+    @SerializedName("firstName")
+    val firstName: String? = null,
+    @SerializedName("lastName")
+    val lastName: String? = null,
+    @SerializedName("dateOfBirth")
+    val dateOfBirth: String? = null,
+    @SerializedName("gender")
+    val gender: String? = null,
+    @SerializedName("profilePicture")
+    val profileImageUrl: String? = null,
+    @SerializedName("mode")
+    val mode: String? = null,
+    @SerializedName("bio")
+    val bio: String? = null,
+)
+
+data class ChangePasswordRequest(
+    @SerializedName("oldPassword")
+    val oldPassword: String? = null,
+
+    @SerializedName("newPassword")
+    val newPassword: String? = null,
+
+    @SerializedName("confirmPassword")
+    val confirmPassword: String? = null,
+
+    @SerializedName("deviceInfo")
+    val deviceInfo: String? = null,
+)

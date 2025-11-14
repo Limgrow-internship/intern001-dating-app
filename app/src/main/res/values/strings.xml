@@ -3,7 +3,8 @@
     <string name="create_new_password_message">
         Create a new password for your account. Make sure it\'s strong and easy for you to remember.
     </string>
-    <string name="login">LOGIN</string>
+    <string name="error_signup">Please choose a stronger password. Try a combination of letters, numbersmail</string>
+    <string name="login">Log in</string>
     <string name="email">Email</string>
     <string name="pass">Password</string>
     <string name="Forgot_pass">Forgot password</string>
@@ -17,4 +18,14 @@
     <string name="find_your_vibe_not_just_a_match">Find your vibe, not just a match</string>
     <string name="we_help_you_meet_people_who_feel_right_not_just_look_right">We help you meet people who feel right — not just look right</string>
     <string name="btn_continue">Continue</string>
+    <string name="button">Button</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="other">Other</string>
+    <string name="sign_up">SIGN UP</string>
+    <string name="password">Password</string>
+    <string name="already_have_account">Already have account?</string>
+    <string name="_40">40%</string>
+    <string name="next">Next</string>
+    <string name="log_out">Log out</string>
 </resources>

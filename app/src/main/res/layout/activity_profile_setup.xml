@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/step_photo"
+        layout="@layout/fragment_profile_setup_photo"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/step_name"
+        layout="@layout/fragment_profile_setup_name"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/step_gender"
+        layout="@layout/fragment_profile_setup_gender"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/step_birthday"
+        layout="@layout/fragment_profile_setup_birthday"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/step_mode"
+        layout="@layout/fragment_profile_setup_mode"
+        android:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/loading_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+</FrameLayout>

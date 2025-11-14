@@ -24,19 +24,23 @@ data class UserBasicData(
 
 data class UserData(
     @SerializedName("id")
-    val id: String,
+    val id: String? = null,
     @SerializedName("email")
-    val email: String,
+    val email: String? = null,
     @SerializedName("firstName")
-    val firstName: String,
+    val firstName: String? = null,
     @SerializedName("lastName")
-    val lastName: String,
+    val lastName: String? = null,
     @SerializedName("dateOfBirth")
-    val dateOfBirth: String,
+    val dateOfBirth: String? = null,
     @SerializedName("gender")
-    val gender: String,
-    @SerializedName("profileImageUrl")
+    val gender: String? = null,
+    @SerializedName("profilePicture")
     val profileImageUrl: String? = null,
+    @SerializedName("mode")
+    val mode: String? = null,
+    @SerializedName("bio")
+    val bio: String? = null,
 )
 
 data class RefreshTokenRequest(
@@ -46,16 +50,45 @@ data class RefreshTokenRequest(
 
 data class OtpResponse(
     @SerializedName("message")
-    val message: String,
+    val message: String? = null,
+
     @SerializedName("success")
-    val success: Boolean,
+    val success: Boolean? = null,
 )
 
 data class VerifyOtpResponse(
     @SerializedName("message")
-    val message: String,
+    val message: String? = null,
+
     @SerializedName("success")
-    val success: Boolean,
+    val success: Boolean? = null,
+
     @SerializedName("verified")
-    val verified: Boolean,
+    val verified: Boolean? = null,
+
+    @SerializedName("accessToken")
+    val accessToken: String? = null,
+
+    @SerializedName("refreshToken")
+    val refreshToken: String? = null,
+
+    @SerializedName("user")
+    val user: UserBasicData? = null,
+)
+
+data class ChangePasswordResponse(
+    @SerializedName("id")
+    val id: String,
+
+    @SerializedName("oldPassword")
+    val oldPassword: String? = null,
+
+    @SerializedName("newPassword")
+    val newPassword: String? = null,
+
+    @SerializedName("confirmPassword")
+    val confirmPassword: String? = null,
+
+    @SerializedName("deviceInfo")
+    val deviceInfo: String? = null,
 )
