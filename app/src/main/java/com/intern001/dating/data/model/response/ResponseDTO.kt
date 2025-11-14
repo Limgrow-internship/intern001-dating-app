@@ -15,6 +15,16 @@ data class AuthResponse(
     val message: String? = null,
 )
 
+data class LoginGoogleResponse(
+    @SerializedName("accessToken")
+    val accessToken: String,
+    @SerializedName("user")
+    val user: UserBasicData? = null,
+    @SerializedName("message")
+    val message: String? = null
+)
+
+
 data class UserBasicData(
     @SerializedName("id")
     val id: String,

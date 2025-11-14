@@ -95,6 +95,9 @@ dependencies {
 
     // Ads
     implementation(libs.play.services.ads)
+
+    // Google Sign-In
+    implementation(libs.google.login)
 }
 
 // KtLint configuration

@@ -27,6 +27,9 @@ interface DatingApiService {
     @POST("api/auth/login")
     suspend fun login(@Body request: LoginRequest): Response<AuthResponse>
 
+    @POST("api/auth/google")
+    suspend fun googleLogin(@Body body: Map<String, String>): Response<AuthResponse>
+
     @POST("api/auth/signup")
     suspend fun signup(@Body request: SignupRequest): Response<AuthResponse>
 
