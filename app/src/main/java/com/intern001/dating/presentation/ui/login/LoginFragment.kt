@@ -53,38 +53,6 @@ class LoginFragment : BaseFragment() {
 
         setupClickListeners()
         observeUiState()
-
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build()
-
-        googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
-
-        binding.btnGoogle.setOnClickListener {
-            val signInIntent = googleSignInClient.signInIntent
-            startActivityForResult(signInIntent, GOOGLE_SIGN_IN_REQUEST_CODE)
-        }
-
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == GOOGLE_SIGN_IN_REQUEST_CODE) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-            try {
-                val account = task.getResult(ApiException::class.java)
-                account?.idToken?.let { idToken ->
-                    viewModel.loginWithGoogle(idToken)
-                } ?: run {
-                    Snackbar.make(binding.root, "Google Sign-In failed: no token", Snackbar.LENGTH_LONG).show()
-                }
-            } catch (e: ApiException) {
-                Snackbar.make(binding.root, "Google Sign-In failed: ${e.message}", Snackbar.LENGTH_LONG).show()
-            }
-        }
-
     }
 
     private fun setupClickListeners() {

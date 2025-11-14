@@ -39,43 +39,4 @@ class LoginViewModel @Inject constructor(
             }
         }
     }
-    fun loginWithGoogle(idToken: String) {
-        viewModelScope.launch {
-            _uiState.value = UiState.Loading
-            try {
-                val response = apiService.googleLogin(mapOf("idToken" to idToken))
-
-                if (response.isSuccessful) {
-                    val body = response.body()
-                    if (body != null) {
-                        tokenManager.saveTokens(body.accessToken)
-
-                        val authStateUser: User? = body.user?.let { userBasic: UserBasicData ->
-                            User(
-                                id = userBasic.id,
-                                email = userBasic.email,
-                                firstName = userBasic.firstName ?: "",
-                                lastName = userBasic.lastName ?: "",
-                                gender = null
-                            )
-                        }
-
-                        _uiState.value = UiState.Success(
-                            AuthState(
-                                isLoggedIn = true,
-                                token = body.accessToken,
-                                user = authStateUser
-                            )
-                        )
-                    } else {
-                        _uiState.value = UiState.Error("Google login failed: empty response")
-                    }
-                } else {
-                    _uiState.value = UiState.Error("Google login failed: ${response.code()} ${response.message()}")
-                }
-            } catch (e: Exception) {
-                _uiState.value = UiState.Error(e.message ?: "Google login failed")
-            }
-        }
-    }
 }

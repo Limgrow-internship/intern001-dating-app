@@ -15,15 +15,12 @@ data class AuthResponse(
     val message: String? = null,
 )
 
-data class LoginGoogleResponse(
-    @SerializedName("accessToken")
+data class GoogleLoginResponse(
+    val message: String,
     val accessToken: String,
-    @SerializedName("user")
-    val user: UserBasicData? = null,
-    @SerializedName("message")
-    val message: String? = null
+    val refreshToken: String,
+    val user: User
 )
-
 
 data class UserBasicData(
     @SerializedName("id")
