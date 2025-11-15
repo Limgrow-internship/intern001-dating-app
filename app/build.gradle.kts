@@ -99,6 +99,9 @@ dependencies {
     // play billing
     implementation(libs.billing.ktx)
     implementation(libs.billing)
+
+    // Facebook
+    implementation("com.facebook.android:facebook-login:[16.3.0]")
 }
 
 // KtLint configuration
