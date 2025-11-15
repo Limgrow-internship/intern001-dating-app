@@ -3,11 +3,13 @@ package com.intern001.dating.presentation.ui.premium
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.android.billingclient.api.ProductDetails
+import com.intern001.dating.data.billing.BillingConfig
 import com.intern001.dating.data.billing.BillingManager
 import com.intern001.dating.databinding.ActivityPremiumBinding
 import com.intern001.dating.presentation.common.state.PurchaseState
@@ -39,7 +41,7 @@ class PremiumActivity : AppCompatActivity() {
     }
 
     private fun setupViews() {
-        selectedProductId = BillingManager.PRODUCT_NO_ADS
+        selectedProductId = BillingConfig.InAppProducts.getNoAdsProductId()
         binding.radio1Month.isChecked = true
     }
 
@@ -49,11 +51,11 @@ class PremiumActivity : AppCompatActivity() {
         }
 
         binding.card1Month.setOnClickListener {
-            selectPackage(BillingManager.PRODUCT_NO_ADS)
+            selectPackage(BillingConfig.InAppProducts.getNoAdsProductId())
         }
 
         binding.radio1Month.setOnClickListener {
-            selectPackage(BillingManager.PRODUCT_NO_ADS)
+            selectPackage(BillingConfig.InAppProducts.getNoAdsProductId())
         }
 
         binding.btnSubscribe.setOnClickListener {
@@ -85,7 +87,7 @@ class PremiumActivity : AppCompatActivity() {
     private fun updatePricesFromProducts(products: List<ProductDetails>) {
         products.forEach { product ->
             when (product.productId) {
-                BillingManager.PRODUCT_NO_ADS -> {
+                BillingConfig.InAppProducts.getNoAdsProductId() -> {
                     // Product found, will update button text below
                 }
             }
@@ -113,8 +115,7 @@ class PremiumActivity : AppCompatActivity() {
                         }
                         is PurchaseState.Purchased -> {
                             showLoading(false)
-                            Toast.makeText(this@PremiumActivity, "Purchase successful! Ads removed.", Toast.LENGTH_LONG).show()
-                            finish()
+                            showPurchaseSuccessDialog()
                         }
                         is PurchaseState.Error -> {
                             showLoading(false)
@@ -152,7 +153,7 @@ class PremiumActivity : AppCompatActivity() {
         selectedProductId = productId
 
         // Update radio button (only one option)
-        binding.radio1Month.isChecked = productId == BillingManager.PRODUCT_NO_ADS
+        binding.radio1Month.isChecked = productId == BillingConfig.InAppProducts.getNoAdsProductId()
 
         // Update button text
         updateSubscribeButtonText(productId)
@@ -183,5 +184,17 @@ class PremiumActivity : AppCompatActivity() {
         } else {
             binding.btnSubscribe.alpha = 1.0f
         }
+    }
+
+    private fun showPurchaseSuccessDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Purchase Successful")
+            .setMessage("Thank you for your purchase! All ads have been removed from your account.")
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()
+                finish()
+            }
+            .setCancelable(false)
+            .show()
     }
 }

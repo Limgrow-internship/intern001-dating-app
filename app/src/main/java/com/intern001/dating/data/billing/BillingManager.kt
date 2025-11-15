@@ -94,7 +94,7 @@ class BillingManager @Inject constructor(
             override fun onBillingServiceDisconnected() {
                 isInitialized = false
                 scope.launch {
-                    kotlinx.coroutines.delay(3000)
+                    kotlinx.coroutines.delay(BillingConfig.RetryConfig.RECONNECT_DELAY_MS)
                     if (!isInitialized) {
                         initialize()
                     }
@@ -106,7 +106,7 @@ class BillingManager @Inject constructor(
     private fun queryInAppProducts() {
         val productList = listOf(
             QueryProductDetailsParams.Product.newBuilder()
-                .setProductId(PRODUCT_NO_ADS)
+                .setProductId(BillingConfig.InAppProducts.getNoAdsProductId())
                 .setProductType(BillingClient.ProductType.INAPP)
                 .build(),
         )
@@ -121,7 +121,7 @@ class BillingManager @Inject constructor(
                 _subscriptionProducts.value = products
 
                 if (products.isEmpty()) {
-                    Log.w(TAG, "No products found for $PRODUCT_NO_ADS")
+                    Log.w(TAG, "No products found for ${BillingConfig.InAppProducts.getNoAdsProductId()}")
                 }
             } else {
                 Log.e(TAG, "Query products failed: ${billingResult.debugMessage}")
@@ -209,7 +209,7 @@ class BillingManager @Inject constructor(
         billingClient?.queryPurchasesAsync(queryPurchasesParams) { billingResult, purchases ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 val hasActivePurchase = purchases.any {
-                    it.products.contains(PRODUCT_NO_ADS) &&
+                    it.products.contains(BillingConfig.InAppProducts.getNoAdsProductId()) &&
                         it.purchaseState == Purchase.PurchaseState.PURCHASED
                 }
 
@@ -247,10 +247,5 @@ class BillingManager @Inject constructor(
 
     companion object {
         private const val TAG = "BillingManager"
-        const val PRODUCT_NO_ADS = "android.test.purchased" // Test in-app purchase
-
-        // PRODUCTION: Uncomment when real products are created in Console
-        // const val PRODUCT_NO_ADS = "no_ads"  // Real in-app purchase
-        // const val PRODUCT_PREMIUM_TEST = "premium_test"  // Real subscription
     }
 }
