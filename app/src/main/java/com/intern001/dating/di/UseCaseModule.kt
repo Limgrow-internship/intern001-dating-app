@@ -3,6 +3,7 @@ package com.intern001.dating.di
 import com.intern001.dating.domain.model.common.validator.EmailValidator
 import com.intern001.dating.domain.model.common.validator.PasswordValidator
 import com.intern001.dating.domain.repository.AuthRepository
+import com.intern001.dating.domain.usecase.auth.FacebookLoginUseCase
 import com.intern001.dating.domain.usecase.auth.GoogleLoginUseCase
 import com.intern001.dating.domain.usecase.auth.LoginUseCase
 import dagger.Module
@@ -45,5 +46,10 @@ object UseCaseModule {
     @Singleton
     fun provideGoogleLoginUseCase(authRepository: AuthRepository): GoogleLoginUseCase {
         return GoogleLoginUseCase(authRepository)
+    }
+
+    @Provides
+    fun provideFacebookLoginUseCase(authRepository: AuthRepository): FacebookLoginUseCase {
+        return FacebookLoginUseCase(authRepository)
     }
 }
