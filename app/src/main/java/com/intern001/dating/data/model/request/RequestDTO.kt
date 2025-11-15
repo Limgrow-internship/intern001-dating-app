@@ -72,3 +72,8 @@ data class ChangePasswordRequest(
     @SerializedName("deviceInfo")
     val deviceInfo: String? = null,
 )
+
+data class FacebookLoginRequest(
+    @SerializedName("accessToken")
+    val accessToken: String,
+)

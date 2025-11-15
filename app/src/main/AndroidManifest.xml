@@ -8,6 +8,11 @@
         android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
+    <queries>
+        <package android:name="com.facebook.katana" />
+        <package android:name="com.facebook.wakizashi" />
+    </queries>
+
     <application
         android:name="com.intern001.dating.HeartOnApplication"
         android:allowBackup="true"
@@ -20,6 +25,14 @@
         android:theme="@style/Theme.HeartOnDatingApp"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+
+            android:value="1141510008153900"/>
+        <meta-data
+            android:name="com.facebook.sdk.ClientToken"
+            android:value="1924cb16dbb66d8938a7ff90381ed46b" />
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713"/>
@@ -29,7 +42,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
+                <data android:scheme="fb1141510008153900" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
