@@ -6,28 +6,28 @@ import com.android.billingclient.api.ProductDetails
 import com.intern001.dating.data.billing.BillingManager
 import com.intern001.dating.presentation.common.state.PurchaseState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
-import javax.inject.Inject
 
 @HiltViewModel
 class PremiumViewModel @Inject constructor(
-    private val billingManager: BillingManager
+    private val billingManager: BillingManager,
 ) : ViewModel() {
 
     val subscriptionProducts: StateFlow<List<ProductDetails>> =
         billingManager.subscriptionProducts.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
-            emptyList()
+            emptyList(),
         )
 
     val purchaseState: StateFlow<PurchaseState> =
         billingManager.purchaseState.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
-            PurchaseState.Idle
+            PurchaseState.Idle,
         )
 
     fun hasActiveSubscription(): Boolean {
