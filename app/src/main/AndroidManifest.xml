@@ -59,6 +59,11 @@
             android:exported="false"
             android:screenOrientation="portrait">
         </activity>
+        <activity
+            android:name=".presentation.ui.premium.PremiumActivity"
+            android:exported="false"
+            android:screenOrientation="portrait">
+        </activity>
     </application>
 
 </manifest>
