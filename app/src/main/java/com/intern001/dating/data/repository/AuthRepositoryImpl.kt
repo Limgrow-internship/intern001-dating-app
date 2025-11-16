@@ -87,6 +87,22 @@ constructor(
             Result.failure(e)
         }
     }
+    override suspend fun facebookLogin(accessToken: String): Result<FacebookLoginResponse> {
+        return try {
+            val response = apiService.facebookLogin(FacebookLoginRequest(accessToken))
+            tokenManager.saveTokens(
+                accessToken = response.accessToken,
+                refreshToken = response.refreshToken,
+            )
+            tokenManager.saveUserInfo(
+                userId = response.user.id,
+                userEmail = response.user.email,
+            )
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
     override suspend fun googleLogin(accessToken: String): Result<GoogleLoginResponse> {
         return try {
@@ -102,24 +118,6 @@ constructor(
                 userEmail = response.user.email,
             )
 
-            Result.success(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    override suspend fun facebookLogin(accessToken: String): Result<FacebookLoginResponse> {
-        return try {
-            val response = apiService.facebookLogin(FacebookLoginRequest(accessToken))
-            // Lưu token nếu muốn
-            tokenManager.saveTokens(
-                accessToken = response.accessToken,
-                refreshToken = response.refreshToken,
-            )
-            tokenManager.saveUserInfo(
-                userId = response.user.id,
-                userEmail = response.user.email,
-            )
             Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)

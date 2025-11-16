@@ -2,9 +2,12 @@ package com.intern001.dating.presentation.ui.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.data.model.response.FacebookLoginResponse
+import com.intern001.dating.data.model.response.GoogleLoginResponse
 import com.intern001.dating.domain.model.AuthState
 import com.intern001.dating.domain.usecase.auth.FacebookLoginUseCase
+import com.intern001.dating.domain.usecase.auth.GoogleLoginUseCase
 import com.intern001.dating.domain.usecase.auth.LoginUseCase
 import com.intern001.dating.presentation.common.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,6 +20,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
+    private val googleLoginUseCase: GoogleLoginUseCase,
+    private val tokenManager: TokenManager,
     private val facebookLoginUseCase: FacebookLoginUseCase,
 ) : ViewModel() {
 
@@ -25,6 +30,9 @@ class LoginViewModel @Inject constructor(
 
     private val _fbUiState = MutableStateFlow<UiState<FacebookLoginResponse>>(UiState.Idle)
     val fbUiState: StateFlow<UiState<FacebookLoginResponse>> = _fbUiState.asStateFlow()
+
+    private val _googleUiState = MutableStateFlow<UiState<GoogleLoginResponse>>(UiState.Idle)
+    val googleUiState: StateFlow<UiState<GoogleLoginResponse>> = _googleUiState.asStateFlow()
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
@@ -47,6 +55,20 @@ class LoginViewModel @Inject constructor(
                 UiState.Success(result.getOrThrow())
             } else {
                 UiState.Error(result.exceptionOrNull()?.message ?: "Facebook login error")
+            }
+        }
+    }
+
+    fun googleLogin(accessToken: String) {
+        viewModelScope.launch {
+            _googleUiState.value = UiState.Loading
+
+            val result = googleLoginUseCase(accessToken)
+
+            _googleUiState.value = if (result.isSuccess) {
+                UiState.Success(result.getOrThrow())
+            } else {
+                UiState.Error(result.exceptionOrNull()?.message ?: "Google login failed")
             }
         }
     }
