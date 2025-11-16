@@ -23,7 +23,7 @@ roomRuntime = "2.8.3"
 navigationFragmentKtxVersion = "2.9.6"
 navigationUiKtx = "2.9.6"
 nav = "2.7.2"
-google = "21.2.0"
+google = "20.7.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

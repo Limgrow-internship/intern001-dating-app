@@ -1,6 +1,7 @@
 package com.intern001.dating.domain.repository
 
 import android.net.Uri
+import com.intern001.dating.data.model.response.GoogleLoginResponse
 import com.intern001.dating.domain.model.User
 
 interface AuthRepository {
@@ -39,4 +40,8 @@ interface AuthRepository {
     suspend fun isLoggedIn(): Boolean
 
     fun getStoredUser(): User?
+
+    suspend fun googleLogin(
+        accessToken: String,
+    ): Result<GoogleLoginResponse>
 }

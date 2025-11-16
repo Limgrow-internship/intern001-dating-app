@@ -3,6 +3,7 @@ package com.intern001.dating.data.api
 import com.intern001.dating.data.model.CountryResponse
 import com.intern001.dating.data.model.LanguageResponse
 import com.intern001.dating.data.model.request.ChangePasswordRequest
+import com.intern001.dating.data.model.request.GoogleLoginRequest
 import com.intern001.dating.data.model.request.LoginRequest
 import com.intern001.dating.data.model.request.RequestOtpRequest
 import com.intern001.dating.data.model.request.SignupRequest
@@ -10,6 +11,7 @@ import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.data.model.request.VerifyOtpRequest
 import com.intern001.dating.data.model.response.AuthResponse
 import com.intern001.dating.data.model.response.ChangePasswordResponse
+import com.intern001.dating.data.model.response.GoogleLoginResponse
 import com.intern001.dating.data.model.response.OtpResponse
 import com.intern001.dating.data.model.response.RefreshTokenRequest
 import com.intern001.dating.data.model.response.UserData
@@ -26,6 +28,9 @@ import retrofit2.http.Query
 interface DatingApiService {
     @POST("api/auth/login")
     suspend fun login(@Body request: LoginRequest): Response<AuthResponse>
+
+    @POST("api/auth/google-login")
+    suspend fun googleLogin(@Body request: GoogleLoginRequest): GoogleLoginResponse
 
     @POST("api/auth/signup")
     suspend fun signup(@Body request: SignupRequest): Response<AuthResponse>
