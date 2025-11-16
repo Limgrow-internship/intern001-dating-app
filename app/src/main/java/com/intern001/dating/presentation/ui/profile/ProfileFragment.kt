@@ -44,12 +44,18 @@ class ProfileFragment : BaseFragment() {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val view = binding.root
         val adContainer = binding.grayBox
-        context?.let { ctx ->
-            NativeAdHelper.bindNativeAdSmall(
-                ctx,
-                adContainer,
-                AdManager.nativeAdSmall,
-            )
+
+        // Only show ads if user hasn't purchased "no ads"
+        if (!viewModel.hasActiveSubscription()) {
+            context?.let { ctx ->
+                NativeAdHelper.bindNativeAdSmall(
+                    ctx,
+                    adContainer,
+                    AdManager.nativeAdSmall,
+                )
+            }
+        } else {
+            adContainer.visibility = View.GONE
         }
 
         binding.btnContinuePremium.setOnClickListener {
