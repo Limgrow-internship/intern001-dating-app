@@ -10,6 +10,8 @@ import com.intern001.dating.data.model.response.UserBasicData
 import com.intern001.dating.domain.model.AuthState
 import com.intern001.dating.domain.model.User
 import com.intern001.dating.domain.usecase.auth.GoogleLoginUseCase
+import com.intern001.dating.data.model.response.FacebookLoginResponse
+import com.intern001.dating.domain.usecase.auth.FacebookLoginUseCase
 import com.intern001.dating.domain.usecase.auth.LoginUseCase
 import com.intern001.dating.presentation.common.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel

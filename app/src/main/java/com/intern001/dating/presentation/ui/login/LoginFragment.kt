@@ -9,6 +9,11 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.login.LoginManager
+import com.facebook.login.LoginResult
 import com.google.android.material.snackbar.Snackbar
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
@@ -34,6 +39,7 @@ class LoginFragment : BaseFragment() {
     private val binding get() = _binding!!
 
     private val viewModel: LoginViewModel by viewModels()
+    private lateinit var callbackManager: CallbackManager
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -81,9 +87,6 @@ class LoginFragment : BaseFragment() {
         }
     }
 
-    /**
-     * Safe Google login: sign out trước khi mở intent
-     */
     private fun safeGoogleLogin() {
         googleSignInClient.signOut().addOnCompleteListener {
             val intent = googleSignInClient.signInIntent
