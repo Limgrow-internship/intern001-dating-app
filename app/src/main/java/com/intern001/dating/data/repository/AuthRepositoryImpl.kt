@@ -9,8 +9,14 @@ import com.intern001.dating.data.model.request.LoginRequest
 import com.intern001.dating.data.model.request.SignupRequest
 import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.data.model.response.GoogleLoginResponse
+import com.intern001.dating.data.model.request.FacebookLoginRequest
+import com.intern001.dating.data.model.request.LoginRequest
+import com.intern001.dating.data.model.request.SignupRequest
+import com.intern001.dating.data.model.request.UpdateProfileRequest
+import com.intern001.dating.data.model.response.FacebookLoginResponse
 import com.intern001.dating.data.model.response.UserData
 import com.intern001.dating.domain.model.User
+import com.intern001.dating.domain.model.UserProfile
 import com.intern001.dating.domain.repository.AuthRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
@@ -40,6 +46,7 @@ constructor(
     @ApplicationContext private val context: Context,
 ) : AuthRepository {
     private var cachedUser: User? = null
+    private var cachedUserProfile: UserProfile? = null
 
     companion object {
         private const val CLOUDINARY_CLOUD_NAME = "dkkucj4ax"
@@ -170,6 +177,7 @@ constructor(
 
             tokenManager.clearTokens()
             cachedUser = null
+            cachedUserProfile = null
 
             if (response.isSuccessful) {
                 Result.success(Unit)
@@ -179,6 +187,7 @@ constructor(
         } catch (e: Exception) {
             tokenManager.clearTokens()
             cachedUser = null
+            cachedUserProfile = null
             Result.success(Unit)
         }
     }
@@ -198,9 +207,39 @@ constructor(
             if (response.isSuccessful) {
                 val userData = response.body()
                 if (userData != null) {
-                    val user = userData.toDomainModel()
+                    val user = userData.toUserModel()
                     cachedUser = user
                     Result.success(user)
+                } else {
+                    Result.failure(Exception("User profile response body is null"))
+                }
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Result.failure(Exception("Failed to fetch user profile: ${response.code()} - $errorBody"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getUserProfile(): Result<UserProfile> {
+        return try {
+            cachedUserProfile?.let {
+                return Result.success(it)
+            }
+
+            if (tokenManager.getAccessToken() == null) {
+                return Result.failure(Exception("User not logged in"))
+            }
+
+            val response = apiService.getCurrentUserProfile()
+
+            if (response.isSuccessful) {
+                val userData = response.body()
+                if (userData != null) {
+                    val userProfile = userData.toUserProfileModel()
+                    cachedUserProfile = userProfile
+                    Result.success(userProfile)
                 } else {
                     Result.failure(Exception("User profile response body is null"))
                 }
@@ -221,6 +260,10 @@ constructor(
         return cachedUser
     }
 
+    override fun getStoredUserProfile(): UserProfile? {
+        return cachedUserProfile
+    }
+
     override suspend fun updateUserProfile(
         firstName: String?,
         lastName: String?,
@@ -229,7 +272,7 @@ constructor(
         profileImageUrl: String?,
         mode: String?,
         bio: String?,
-    ): Result<User> {
+    ): Result<UserProfile> {
         return try {
             val token = tokenManager.getAccessToken()
             android.util.Log.d("AuthRepository", "Update profile - Token exists: ${token != null}, Token: ${token?.take(20)}...")
@@ -258,10 +301,10 @@ constructor(
             if (response.isSuccessful) {
                 val userData = response.body()
                 if (userData != null) {
-                    val user = userData.toDomainModel()
-                    cachedUser = user
+                    val userProfile = userData.toUserProfileModel()
+                    cachedUserProfile = userProfile
                     android.util.Log.d("AuthRepository", "Profile updated successfully")
-                    Result.success(user)
+                    Result.success(userProfile)
                 } else {
                     android.util.Log.e("AuthRepository", "Update profile response body is null")
                     Result.failure(Exception("Update profile response body is null"))
@@ -287,10 +330,10 @@ constructor(
                         if (retryResponse.isSuccessful) {
                             val userData = retryResponse.body()
                             if (userData != null) {
-                                val user = userData.toDomainModel()
-                                cachedUser = user
+                                val userProfile = userData.toUserProfileModel()
+                                cachedUserProfile = userProfile
                                 android.util.Log.d("AuthRepository", "Profile updated successfully after retry")
-                                return Result.success(user)
+                                return Result.success(userProfile)
                             }
                         } else {
                             val retryErrorBody = retryResponse.errorBody()?.string()
@@ -348,13 +391,28 @@ constructor(
         }
     }
 
-    private fun UserData.toDomainModel(): User {
+    private fun UserData.toUserModel(): User {
         val currentDate = Date()
 
         return User(
             id = this.id ?: "",
             email = this.email ?: "",
             phoneNumber = null,
+            isVerified = false,
+            status = "active",
+            lastLogin = currentDate,
+            createdAt = currentDate,
+            updatedAt = currentDate,
+        )
+    }
+
+    private fun UserData.toUserProfileModel(): UserProfile {
+        val currentDate = Date()
+        val userId = this.id ?: ""
+
+        return UserProfile(
+            id = userId, // Profile ID same as User ID for now
+            userId = userId,
             firstName = this.firstName ?: "",
             lastName = this.lastName ?: "",
             displayName = "${this.firstName ?: ""} ${this.lastName ?: ""}".trim(),
@@ -371,12 +429,9 @@ constructor(
             company = null,
             education = null,
             zodiacSign = null,
-            isVerified = false,
             photos = emptyList(),
             profileCompleteness = 0,
             profileViews = 0,
-            lastLogin = currentDate,
-            status = "active",
             createdAt = currentDate,
             updatedAt = currentDate,
         )

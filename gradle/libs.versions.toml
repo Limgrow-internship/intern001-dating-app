@@ -1,5 +1,8 @@
 [versions]
 agp = "8.9.3"
+billing = "8.0.0"
+billingKtx = "8.1.0"
+billingVersion = "8.1.0"
 datastorePreferences = "1.1.7"
 hiltAndroid = "2.56"
 hiltAndroidCompiler = "2.56"
@@ -20,10 +23,9 @@ okhttp = "4.12.0"
 playServicesAds = "24.7.0"
 retrofit = "2.11.0"
 roomRuntime = "2.8.3"
-navigationFragmentKtxVersion = "2.9.6"
-navigationUiKtx = "2.9.6"
 nav = "2.7.2"
 google = "20.7.0"
+google-service = "4.4.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -51,6 +53,8 @@ retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit
 google-login = { module = "com.google.android.gms:play-services-auth", version.ref = "google" }
 
 
+billing = { module = "com.android.billingclient:billing", version.ref = "billing" }
+billing-ktx = { module = "com.android.billingclient:billing-ktx", version.ref = "billing" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -59,3 +63,4 @@ ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 google-devtools-ksp = {id= "com.google.devtools.ksp", version.ref = "ksp"}
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid" }
 navigationSafeArgs = { id = "androidx.navigation.safeargs.kotlin", version.ref = "nav" }
+google-service = { id = "com.google.gms.google-services", version.ref = "google-service"}
