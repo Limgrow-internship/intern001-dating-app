@@ -81,9 +81,6 @@ class LoginFragment : BaseFragment() {
         }
     }
 
-    /**
-     * Safe Google login: sign out trước khi mở intent
-     */
     private fun safeGoogleLogin() {
         googleSignInClient.signOut().addOnCompleteListener {
             val intent = googleSignInClient.signInIntent
@@ -105,7 +102,6 @@ class LoginFragment : BaseFragment() {
                 val account = task.getResult(ApiException::class.java)
                 val idToken = account?.idToken
 
-                // Log chi tiết token
                 Log.d("GoogleLogin", "idToken=${idToken?.take(20)}... length=${idToken?.length}")
                 Log.d("GoogleLogin", "account.email=${account?.email}, account.id=${account?.id}")
 
