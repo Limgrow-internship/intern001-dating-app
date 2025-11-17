@@ -93,7 +93,7 @@ data class ChangePasswordResponse(
     val deviceInfo: String? = null,
 )
 
-data class FacebookLoginResponse(
+data class GoogleLoginResponse(
     @SerializedName("accessToken")
     val accessToken: String,
     @SerializedName("refreshToken")

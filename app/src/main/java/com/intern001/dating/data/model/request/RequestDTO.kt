@@ -11,6 +11,11 @@ data class LoginRequest(
     val deviceId: String? = null,
 )
 
+data class GoogleLoginRequest(
+    @SerializedName("accessToken")
+    val accessToken: String,
+)
+
 data class SignupRequest(
     @SerializedName("firstName")
     val firstName: String,

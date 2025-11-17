@@ -96,6 +96,8 @@ dependencies {
     // Ads
     implementation(libs.play.services.ads)
 
+    // Google Sign-In
+    implementation(libs.google.login)
     // play billing
     implementation(libs.billing.ktx)
     implementation(libs.billing)

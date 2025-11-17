@@ -4,6 +4,11 @@ import android.content.Context
 import android.net.Uri
 import com.intern001.dating.data.api.DatingApiService
 import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.model.request.GoogleLoginRequest
+import com.intern001.dating.data.model.request.LoginRequest
+import com.intern001.dating.data.model.request.SignupRequest
+import com.intern001.dating.data.model.request.UpdateProfileRequest
+import com.intern001.dating.data.model.response.GoogleLoginResponse
 import com.intern001.dating.data.model.request.FacebookLoginRequest
 import com.intern001.dating.data.model.request.LoginRequest
 import com.intern001.dating.data.model.request.SignupRequest
@@ -86,23 +91,26 @@ constructor(
         }
     }
 
-    override suspend fun facebookLogin(accessToken: String): Result<FacebookLoginResponse> {
+    override suspend fun googleLogin(accessToken: String): Result<GoogleLoginResponse> {
         return try {
-            val response = apiService.facebookLogin(FacebookLoginRequest(accessToken))
-            // Lưu token nếu muốn
+            val response = apiService.googleLogin(GoogleLoginRequest(accessToken))
+
             tokenManager.saveTokens(
                 accessToken = response.accessToken,
                 refreshToken = response.refreshToken,
             )
+
             tokenManager.saveUserInfo(
                 userId = response.user.id,
                 userEmail = response.user.email,
             )
+
             Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
+
 
     override suspend fun signup(
         email: String,
