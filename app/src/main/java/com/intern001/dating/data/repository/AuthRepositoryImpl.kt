@@ -4,10 +4,12 @@ import android.content.Context
 import android.net.Uri
 import com.intern001.dating.data.api.DatingApiService
 import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.model.request.FacebookLoginRequest
 import com.intern001.dating.data.model.request.GoogleLoginRequest
 import com.intern001.dating.data.model.request.LoginRequest
 import com.intern001.dating.data.model.request.SignupRequest
 import com.intern001.dating.data.model.request.UpdateProfileRequest
+import com.intern001.dating.data.model.response.FacebookLoginResponse
 import com.intern001.dating.data.model.response.GoogleLoginResponse
 import com.intern001.dating.data.model.response.UserData
 import com.intern001.dating.domain.model.User
@@ -81,6 +83,22 @@ constructor(
                 val errorBody = response.errorBody()?.string()
                 Result.failure(Exception("Login failed: ${response.code()} - $errorBody"))
             }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    override suspend fun facebookLogin(accessToken: String): Result<FacebookLoginResponse> {
+        return try {
+            val response = apiService.facebookLogin(FacebookLoginRequest(accessToken))
+            tokenManager.saveTokens(
+                accessToken = response.accessToken,
+                refreshToken = response.refreshToken,
+            )
+            tokenManager.saveUserInfo(
+                userId = response.user.id,
+                userEmail = response.user.email,
+            )
+            Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -252,10 +270,6 @@ constructor(
 
     override fun getStoredUser(): User? {
         return cachedUser
-    }
-
-    override fun getStoredUserProfile(): UserProfile? {
-        return cachedUserProfile
     }
 
     override suspend fun updateUserProfile(
