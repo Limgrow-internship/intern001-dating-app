@@ -49,3 +49,6 @@ captures/
 
 # Ktlint configuration
 .ktlint.yaml
+
+# Google Services (contains Firebase config)
+google-services.json

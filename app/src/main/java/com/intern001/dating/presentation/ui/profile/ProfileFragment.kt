@@ -21,6 +21,7 @@ import com.intern001.dating.presentation.common.ads.AdManager
 import com.intern001.dating.presentation.common.ads.NativeAdHelper
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.common.viewmodel.ProfileViewModel
+import com.intern001.dating.presentation.ui.premium.PremiumActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -43,12 +44,22 @@ class ProfileFragment : BaseFragment() {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val view = binding.root
         val adContainer = binding.grayBox
-        context?.let { ctx ->
-            NativeAdHelper.bindNativeAdSmall(
-                ctx,
-                adContainer,
-                AdManager.nativeAdSmall,
-            )
+
+        // Only show ads if user hasn't purchased "no ads"
+        if (!viewModel.hasActiveSubscription()) {
+            context?.let { ctx ->
+                NativeAdHelper.bindNativeAdSmall(
+                    ctx,
+                    adContainer,
+                    AdManager.nativeAdSmall,
+                )
+            }
+        } else {
+            adContainer.visibility = View.GONE
+        }
+
+        binding.btnContinuePremium.setOnClickListener {
+            navigateToPremium()
         }
 
         binding.btnLogout.setOnClickListener {
@@ -133,6 +144,11 @@ class ProfileFragment : BaseFragment() {
 
     private fun goToLoginScreen() {
         findNavController().navigate(R.id.action_profile_to_login)
+    }
+
+    private fun navigateToPremium() {
+        val intent = Intent(requireContext(), PremiumActivity::class.java)
+        startActivity(intent)
     }
 
     override fun onDestroyView() {

@@ -96,9 +96,14 @@ dependencies {
     // Ads
     implementation(libs.play.services.ads)
 
+    // Google Sign-In
+    implementation(libs.google.login)
     // play billing
     implementation(libs.billing.ktx)
     implementation(libs.billing)
+
+    // Facebook
+    implementation("com.facebook.android:facebook-login:[16.3.0]")
 }
 
 // KtLint configuration

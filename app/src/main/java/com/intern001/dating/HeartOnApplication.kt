@@ -4,6 +4,8 @@ import android.app.Application
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
+import com.facebook.FacebookSdk
+import com.facebook.appevents.AppEventsLogger
 import dagger.hilt.android.HiltAndroidApp
 import java.util.Locale
 
@@ -11,6 +13,8 @@ import java.util.Locale
 class HeartOnApplication : Application() {
     override fun onCreate() {
         super.onCreate()
+        FacebookSdk.sdkInitialize(applicationContext)
+        AppEventsLogger.activateApp(this)
         applyLanguage()
     }
 

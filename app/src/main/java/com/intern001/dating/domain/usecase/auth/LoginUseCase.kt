@@ -35,7 +35,7 @@ class LoginUseCase(
             Result.success(
                 AuthState(
                     isLoggedIn = true,
-                    user = null, // User info will be loaded later in Profile screen
+                    user = null,
                     token = token,
                     error = null,
                 ),

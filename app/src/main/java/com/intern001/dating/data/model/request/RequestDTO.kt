@@ -11,6 +11,11 @@ data class LoginRequest(
     val deviceId: String? = null,
 )
 
+data class GoogleLoginRequest(
+    @SerializedName("accessToken")
+    val accessToken: String,
+)
+
 data class SignupRequest(
     @SerializedName("firstName")
     val firstName: String,
@@ -71,4 +76,9 @@ data class ChangePasswordRequest(
 
     @SerializedName("deviceInfo")
     val deviceInfo: String? = null,
+)
+
+data class FacebookLoginRequest(
+    @SerializedName("accessToken")
+    val accessToken: String,
 )
