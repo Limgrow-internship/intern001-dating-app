@@ -1,10 +1,7 @@
-@file:Suppress("ktlint:standard:import-ordering")
-
 package com.intern001.dating.data.billing
 
 import android.app.Activity
 import android.content.Context
-import android.util.Log
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -13,10 +10,10 @@ import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
-import com.intern001.dating.presentation.common.state.PurchaseState
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
+import com.intern001.dating.presentation.common.state.PurchaseState
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -86,7 +83,6 @@ class BillingManager @Inject constructor(
                     queryInAppProducts()
                     queryPurchases()
                 } else {
-                    Log.e(TAG, "BillingClient setup failed: ${billingResult.debugMessage}")
                     _purchaseState.value = PurchaseState.NotPurchased
                 }
             }
@@ -104,27 +100,43 @@ class BillingManager @Inject constructor(
     }
 
     private fun queryInAppProducts() {
-        val productList = listOf(
+        val inAppProductList = listOf(
             QueryProductDetailsParams.Product.newBuilder()
                 .setProductId(BillingConfig.InAppProducts.getNoAdsProductId())
                 .setProductType(BillingClient.ProductType.INAPP)
                 .build(),
         )
 
-        val params = QueryProductDetailsParams.newBuilder()
-            .setProductList(productList)
+        val inAppParams = QueryProductDetailsParams.newBuilder()
+            .setProductList(inAppProductList)
             .build()
 
-        billingClient?.queryProductDetailsAsync(params) { billingResult, queryProductDetailsResult ->
-            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                val products = queryProductDetailsResult.productDetailsList
-                _subscriptionProducts.value = products
+        billingClient?.queryProductDetailsAsync(inAppParams) { inAppResult, inAppProducts ->
+            if (inAppResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                val inAppList = inAppProducts.productDetailsList
 
-                if (products.isEmpty()) {
-                    Log.w(TAG, "No products found for ${BillingConfig.InAppProducts.getNoAdsProductId()}")
+                val subscriptionProductList = BillingConfig.Subscriptions.getAllSubscriptionIds().map {
+                    QueryProductDetailsParams.Product.newBuilder()
+                        .setProductId(it)
+                        .setProductType(BillingClient.ProductType.SUBS)
+                        .build()
+                }
+
+                val subsParams = QueryProductDetailsParams.newBuilder()
+                    .setProductList(subscriptionProductList)
+                    .build()
+
+                billingClient?.queryProductDetailsAsync(subsParams) { subsResult, subsProducts ->
+                    if (subsResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                        val subsList = subsProducts.productDetailsList
+                        val allProducts = inAppList + subsList
+                        _subscriptionProducts.value = allProducts
+                    } else {
+                        _subscriptionProducts.value = inAppList
+                    }
                 }
             } else {
-                Log.e(TAG, "Query products failed: ${billingResult.debugMessage}")
+                _subscriptionProducts.value = emptyList()
             }
         }
     }
@@ -202,27 +214,40 @@ class BillingManager @Inject constructor(
             return
         }
 
-        val queryPurchasesParams = QueryPurchasesParams.newBuilder()
+        val inAppParams = QueryPurchasesParams.newBuilder()
             .setProductType(BillingClient.ProductType.INAPP)
             .build()
 
-        billingClient?.queryPurchasesAsync(queryPurchasesParams) { billingResult, purchases ->
-            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                val hasActivePurchase = purchases.any {
-                    it.products.contains(BillingConfig.InAppProducts.getNoAdsProductId()) &&
-                        it.purchaseState == Purchase.PurchaseState.PURCHASED
-                }
+        billingClient?.queryPurchasesAsync(inAppParams) { inAppResult, inAppPurchases ->
+            if (inAppResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                val subsParams = QueryPurchasesParams.newBuilder()
+                    .setProductType(BillingClient.ProductType.SUBS)
+                    .build()
 
-                _purchaseState.value = if (hasActivePurchase) {
-                    val activePurchase = purchases.first {
-                        it.purchaseState == Purchase.PurchaseState.PURCHASED
+                billingClient?.queryPurchasesAsync(subsParams) { subsResult, subsPurchases ->
+                    if (subsResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                        val allPurchases = (inAppPurchases + subsPurchases).filter {
+                            it.purchaseState == Purchase.PurchaseState.PURCHASED
+                        }
+
+                        if (allPurchases.isNotEmpty()) {
+                            _purchaseState.value = PurchaseState.Purchased(allPurchases.first())
+                        } else {
+                            _purchaseState.value = PurchaseState.NotPurchased
+                        }
+                    } else {
+                        val hasInAppPurchase = inAppPurchases.any {
+                            it.purchaseState == Purchase.PurchaseState.PURCHASED
+                        }
+                        if (hasInAppPurchase) {
+                            _purchaseState.value = PurchaseState.Purchased(inAppPurchases.first())
+                        } else {
+                            _purchaseState.value = PurchaseState.NotPurchased
+                        }
                     }
-                    PurchaseState.Purchased(activePurchase)
-                } else {
-                    PurchaseState.NotPurchased
                 }
             } else {
-                Log.e(TAG, "Failed to query purchases: ${billingResult.debugMessage}")
+                _purchaseState.value = PurchaseState.NotPurchased
             }
         }
     }
@@ -243,9 +268,5 @@ class BillingManager @Inject constructor(
         billingClient?.endConnection()
         billingClient = null
         isInitialized = false
-    }
-
-    companion object {
-        private const val TAG = "BillingManager"
     }
 }

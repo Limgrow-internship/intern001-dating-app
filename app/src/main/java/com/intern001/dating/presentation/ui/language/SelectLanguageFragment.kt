@@ -52,11 +52,16 @@ class SelectLanguageFragment : BaseFragment() {
         binding.rvLanguages.layoutManager = LinearLayoutManager(requireContext())
         binding.rvLanguages.adapter = adapter
 
-        NativeAdHelper.bindNativeAdSmall(
-            requireContext(),
-            binding.adContainer,
-            AdManager.nativeAdSmall,
-        )
+        // Only show ads if user hasn't purchased "no ads"
+        if (!viewModel.hasActiveSubscription()) {
+            NativeAdHelper.bindNativeAdSmall(
+                requireContext(),
+                binding.adContainer,
+                AdManager.nativeAdSmall,
+            )
+        } else {
+            binding.adContainer.visibility = View.GONE
+        }
 
         viewModel.languages.observe(viewLifecycleOwner) { languages ->
             adapter.submitList(languages)

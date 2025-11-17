@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
@@ -18,6 +19,8 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SplashFragment : BaseFragment() {
+
+    private val viewModel: SplashViewModel by viewModels()
 
     @Inject
     lateinit var appPreferencesManager: AppPreferencesManager
@@ -48,15 +51,27 @@ class SplashFragment : BaseFragment() {
     private suspend fun navigateToNextScreen() {
         val onboardingCompleted = appPreferencesManager.isOnboardingCompleted()
         val isLoggedIn = authRepository.isLoggedIn()
+        val hasPurchasedNoAds = viewModel.hasActiveSubscription()
 
         when {
             !onboardingCompleted -> {
+                // User hasn't completed onboarding -> go to onboarding
                 navController.navigate(R.id.action_splash_to_onboard1)
             }
+            hasPurchasedNoAds && !isLoggedIn -> {
+                // User purchased "no ads" but not logged in -> go to login (skip ads)
+                navController.navigate(R.id.action_splash_to_login)
+            }
+            hasPurchasedNoAds && isLoggedIn -> {
+                // User purchased "no ads" and logged in -> go to home (skip ads)
+                navController.navigate(R.id.action_splash_to_home)
+            }
             !isLoggedIn -> {
+                // User hasn't purchased and not logged in -> go to login
                 navController.navigate(R.id.action_splash_to_login)
             }
             else -> {
+                // User hasn't purchased but logged in -> show full ad
                 navController.navigate(R.id.action_splash_to_nativeAd)
             }
         }

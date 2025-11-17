@@ -6,6 +6,7 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.intern001.dating.R
@@ -24,6 +25,7 @@ import kotlinx.coroutines.launch
 class NativeFullFragment : BaseFragment() {
     private var _binding: FragmentNativeFullBinding? = null
     private val binding get() = _binding!!
+    private val viewModel: NativeFullViewModel by viewModels()
 
     @Inject
     lateinit var languageRepository: LanguageRepository
@@ -47,8 +49,6 @@ class NativeFullFragment : BaseFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val adContainer = binding.nativeAdContainer
-
         val navigateToNextScreen: () -> Unit = {
             lifecycleScope.launch {
                 val languageSelected = appPreferencesManager.isLanguageSelected()
@@ -72,16 +72,23 @@ class NativeFullFragment : BaseFragment() {
             }
         }
 
-        NativeAdHelper.bindNativeAdFull(
-            requireContext(),
-            adContainer,
-            AdManager.nativeAdFull,
-        ) { adView, ad ->
-            // Auto close after 2 seconds
-            autoCloseRunnable = Runnable {
-                navigateToNextScreen()
+        // If user has purchased "no ads", skip ad and navigate immediately
+        if (viewModel.hasActiveSubscription()) {
+            navigateToNextScreen()
+        } else {
+            // Show full screen ad
+            val adContainer = binding.nativeAdContainer
+            NativeAdHelper.bindNativeAdFull(
+                requireContext(),
+                adContainer,
+                AdManager.nativeAdFull,
+            ) { adView, ad ->
+                // Auto close after 2 seconds
+                autoCloseRunnable = Runnable {
+                    navigateToNextScreen()
+                }
+                autoCloseHandler.postDelayed(autoCloseRunnable!!, 2000)
             }
-            autoCloseHandler.postDelayed(autoCloseRunnable!!, 2000)
         }
     }
 
