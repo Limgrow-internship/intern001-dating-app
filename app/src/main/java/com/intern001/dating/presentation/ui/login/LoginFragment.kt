@@ -10,10 +10,10 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.facebook.CallbackManager
-import com.facebook.FacebookCallback
-import com.facebook.FacebookException
-import com.facebook.login.LoginManager
-import com.facebook.login.LoginResult
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.google.android.material.snackbar.Snackbar
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
@@ -24,10 +24,6 @@ import com.intern001.dating.presentation.ui.signup.SignUpActivity
 import com.intern001.dating.presentation.util.ValidationHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
 
 @AndroidEntryPoint
 class LoginFragment : BaseFragment() {
@@ -117,7 +113,6 @@ class LoginFragment : BaseFragment() {
                     googleSignInClient.signOut()
                     logError("Google login failed: idToken null, force sign out")
                 }
-
             } catch (e: ApiException) {
                 logError("Google login ApiException code=${e.statusCode}, message=${e.message}")
                 if (e.statusCode == 401) googleSignInClient.signOut()
@@ -131,7 +126,6 @@ class LoginFragment : BaseFragment() {
         Log.e("GoogleLogin", msg)
         Snackbar.make(binding.root, msg, Snackbar.LENGTH_LONG).show()
     }
-
 
     private fun validateInputs(email: String, password: String): Boolean {
         val isEmailValid = ValidationHelper.validateEmail(email, binding.tilEmail)
