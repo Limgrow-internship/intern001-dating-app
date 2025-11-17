@@ -1,6 +1,7 @@
 package com.intern001.dating.domain.repository
 
 import android.net.Uri
+import com.intern001.dating.data.model.response.FacebookLoginResponse
 import com.intern001.dating.data.model.response.GoogleLoginResponse
 import com.intern001.dating.domain.model.User
 import com.intern001.dating.domain.model.UserProfile
