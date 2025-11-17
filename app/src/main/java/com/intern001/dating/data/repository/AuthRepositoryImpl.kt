@@ -9,11 +9,6 @@ import com.intern001.dating.data.model.request.LoginRequest
 import com.intern001.dating.data.model.request.SignupRequest
 import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.data.model.response.GoogleLoginResponse
-import com.intern001.dating.data.model.request.FacebookLoginRequest
-import com.intern001.dating.data.model.request.LoginRequest
-import com.intern001.dating.data.model.request.SignupRequest
-import com.intern001.dating.data.model.request.UpdateProfileRequest
-import com.intern001.dating.data.model.response.FacebookLoginResponse
 import com.intern001.dating.data.model.response.UserData
 import com.intern001.dating.domain.model.User
 import com.intern001.dating.domain.model.UserProfile
@@ -110,7 +105,6 @@ constructor(
             Result.failure(e)
         }
     }
-
 
     override suspend fun signup(
         email: String,
