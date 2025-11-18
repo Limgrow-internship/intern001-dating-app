@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+android:id="@+id/verifyConstraintLayout"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="#FFF">
+
+<!-- PHẦN 1: Header -->
+<LinearLayout
+    android:id="@+id/headerLayout"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:paddingBottom="20dp"
+    android:paddingTop="20dp"
+    android:paddingLeft="24dp"
+    android:paddingRight="30dp"
+    android:layout_marginTop="62dp"
+    android:layout_marginStart="0dp"
+    android:layout_marginEnd="0dp"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintRight_toRightOf="parent">
+
+    <ImageView
+        android:id="@+id/btnBack"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginRight="8dp"
+        android:src="@drawable/ic_back" />
+
+    <TextView
+        android:id="@+id/titleVerify"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="Verify Account"
+        android:textColor="#FF6A00"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+</LinearLayout>
+
+<!-- PHẦN 2: Icon verify và text ở giữa -->
+<LinearLayout
+    android:id="@+id/contentLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    app:layout_constraintTop_toBottomOf="@id/headerLayout"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintBottom_toTopOf="@id/btnTakePhoto">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:text="Face inside the frame"
+        android:textColor="#222"
+        android:textSize="15sp" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/black">
+
+        <androidx.camera.view.PreviewView
+            android:id="@+id/previewView"
+            android:layout_width="match_parent"
+            android:layout_height="440dp"
+            android:layout_gravity="center" />
+    </FrameLayout>
+
+
+    <TextView
+        android:id="@+id/textDesc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"
+        android:text="We cannot recognize your face."
+        android:textColor="#FF3939"
+        android:textSize="16sp"
+        android:visibility="gone"
+        android:layout_marginBottom="16dp"
+        />
+</LinearLayout>
+
+<!-- PHẦN 3: Button cố định dưới cùng -->
+<TextView
+    android:id="@+id/btnTakePhoto"
+    android:layout_width="0dp"
+    android:layout_height="56dp"
+    android:layout_marginLeft="24dp"
+    android:layout_marginRight="24dp"
+    android:layout_marginBottom="28dp"
+    android:layout_marginTop="40dp"
+    android:background="@drawable/bg_button_black"
+    android:gravity="center"
+    android:text="Take a photo"
+    android:textAllCaps="false"
+    android:textColor="#FFF"
+    android:textSize="18sp"
+    android:textStyle="bold"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintRight_toRightOf="parent" />
+
+<TextView
+    android:id="@+id/btnTryAgain"
+    android:layout_width="0dp"
+    android:layout_height="56dp"
+    android:layout_marginLeft="24dp"
+    android:layout_marginRight="24dp"
+    android:layout_marginBottom="28dp"
+    android:layout_marginTop="40dp"
+    android:background="@drawable/bg_button_black"
+    android:gravity="center"
+    android:text="Try again"
+    android:textAllCaps="false"
+    android:textColor="#FFF"
+    android:textSize="18sp"
+    android:textStyle="bold"
+    android:visibility="gone"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintRight_toRightOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="130dp"
+        android:indeterminateTint="#FF6500"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@id/contentLayout"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
