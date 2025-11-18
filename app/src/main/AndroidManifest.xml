@@ -57,6 +57,10 @@
             android:exported="true">
         </activity>
         <activity
+            android:name=".presentation.ui.profile.edit.ProfileActivity"
+            android:exported="true">
+        </activity>
+        <activity
             android:name=".presentation.ui.profilesetup.ProfileSetupActivity"
             android:exported="false"
             android:screenOrientation="portrait">

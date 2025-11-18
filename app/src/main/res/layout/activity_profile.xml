@@ -1,0 +1,98 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- Header -->
+    <LinearLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="20dp">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_back"
+            android:tint="#FF6500" />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Profile"
+            android:textColor="#FF6500"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <androidx.constraintlayout.motion.widget.MotionLayout
+        android:id="@+id/motionNav"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="30dp"
+        app:layoutDescription="@xml/motion_tabs"
+        app:currentState="@id/start">
+
+        <View
+            android:id="@+id/bg"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_gray_border"
+            android:layout_marginHorizontal="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <View
+            android:id="@+id/slider"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_orange_round"
+            app:layout_constraintTop_toTopOf="@id/bg"
+            app:layout_constraintBottom_toBottomOf="@id/bg"
+            app:layout_constraintStart_toStartOf="@id/btnEdit"
+            app:layout_constraintEnd_toEndOf="@id/btnEdit" />
+
+        <TextView
+            android:id="@+id/btnEdit"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:text="Edit Profile"
+            android:gravity="center"
+            app:layout_constraintTop_toTopOf="@id/bg"
+            app:layout_constraintBottom_toBottomOf="@id/bg"
+            app:layout_constraintStart_toStartOf="@id/bg"
+            app:layout_constraintEnd_toStartOf="@id/btnView"
+            app:layout_constraintHorizontal_weight="1"/>
+
+        <TextView
+            android:id="@+id/btnView"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:text="View Profile"
+            android:gravity="center"
+            app:layout_constraintTop_toTopOf="@id/bg"
+            app:layout_constraintBottom_toBottomOf="@id/bg"
+            app:layout_constraintStart_toEndOf="@id/btnEdit"
+            app:layout_constraintEnd_toEndOf="@id/bg"
+            app:layout_constraintHorizontal_weight="1"/>
+
+    </androidx.constraintlayout.motion.widget.MotionLayout>
+
+    <FrameLayout
+        android:id="@+id/fragmentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_weight="1" />
+
+</LinearLayout>
