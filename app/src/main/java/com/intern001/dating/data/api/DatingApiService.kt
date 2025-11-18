@@ -17,14 +17,18 @@ import com.intern001.dating.data.model.response.GoogleLoginResponse
 import com.intern001.dating.data.model.response.OtpResponse
 import com.intern001.dating.data.model.response.RefreshTokenRequest
 import com.intern001.dating.data.model.response.UserData
+import com.intern001.dating.data.model.response.VerifyFaceResponse
 import com.intern001.dating.data.model.response.VerifyOtpResponse
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Query
 
 interface DatingApiService {
@@ -73,4 +77,10 @@ interface DatingApiService {
 
     @POST("api/auth/facebook-login")
     suspend fun facebookLogin(@Body request: FacebookLoginRequest): FacebookLoginResponse
+
+    @Multipart
+    @POST("api/verify-face")
+    suspend fun verifyFace(
+        @Part selfie: MultipartBody.Part,
+    ): Response<VerifyFaceResponse>
 }

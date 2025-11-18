@@ -233,6 +233,38 @@
             app:destination="@id/loginFragment"
             app:popUpTo="@id/profileFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_profile_to_verifyAccount"
+            app:destination="@id/verifyAccountFragment"
+            app:popUpTo="@id/profileFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/verifyAccountFragment"
+        android:name="com.intern001.dating.presentation.ui.verify.VerifyAccountFragment"
+        android:label="VerifyAccountFragment">
+        <action
+            android:id="@+id/action_verifyAccountFragment_to_verifyCameraFragment"
+            app:destination="@id/verifyCameraFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/verifyCameraFragment"
+        android:name="com.intern001.dating.presentation.ui.verify.VerifyCameraFragment"
+        android:label="VerifyCameraFragment">
+        <action
+            android:id="@+id/action_verifyCameraFragment_to_verificationSuccessFragment"
+            app:destination="@id/verificationSuccessFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/verificationSuccessFragment"
+        android:name="com.intern001.dating.presentation.ui.verify.VerificationSuccessFragment"
+        android:label="VerificationSuccessFragment">
+        <action
+            android:id="@+id/action_verificationSuccessFragment_to_home"
+            app:destination="@id/homeFragment" />
     </fragment>
 
     <fragment
