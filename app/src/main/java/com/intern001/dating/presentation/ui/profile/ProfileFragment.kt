@@ -22,6 +22,7 @@ import com.intern001.dating.presentation.common.ads.NativeAdHelper
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.common.viewmodel.ProfileViewModel
 import com.intern001.dating.presentation.ui.premium.PremiumActivity
+import com.intern001.dating.presentation.ui.profile.edit.ProfileActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -64,6 +65,11 @@ class ProfileFragment : BaseFragment() {
 
         binding.btnLogout.setOnClickListener {
             showLogOutBottomSheet()
+        }
+
+        binding.btnProfile.setOnClickListener {
+            val intent = Intent(context, ProfileActivity::class.java)
+            startActivity(intent)
         }
 
         val btnDeleteAccount = view.findViewById<LinearLayout>(R.id.btnDeleteAccount)
