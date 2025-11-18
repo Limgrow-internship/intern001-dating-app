@@ -1,5 +1,4 @@
 package com.intern001.dating.presentation.ui.login
-
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -14,6 +13,10 @@ import com.facebook.FacebookCallback
 import com.facebook.FacebookException
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.google.android.material.snackbar.Snackbar
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
@@ -24,10 +27,6 @@ import com.intern001.dating.presentation.ui.signup.SignUpActivity
 import com.intern001.dating.presentation.util.ValidationHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
 
 @AndroidEntryPoint
 class LoginFragment : BaseFragment() {
@@ -49,16 +48,18 @@ class LoginFragment : BaseFragment() {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
     }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         (activity as? MainActivity)?.hideBottomNavigation(true)
 
+        callbackManager = CallbackManager.Factory.create()
+
         setupGoogleSignIn()
         setupClickListeners()
         observeUiState()
         observeGoogleUiState()
+        observeFacebookUiState()
     }
 
     private fun setupGoogleSignIn() {
@@ -73,20 +74,21 @@ class LoginFragment : BaseFragment() {
         binding.btnLogin.setOnClickListener {
             val email = binding.etEmail.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
-            if (validateInputs(email, password)) viewModel.login(email, password)
+            if (validateInputs(email, password)) {
+                viewModel.login(email, password)
+            }
         }
 
         binding.btnGoogle.setOnClickListener { safeGoogleLogin() }
 
         binding.btnSignUp.setOnClickListener {
-            startActivity(Intent(requireContext(), SignUpActivity::class.java))
+            val intent = Intent(requireContext(), SignUpActivity::class.java)
+            startActivity(intent)
         }
-
         binding.btnForgotPass.setOnClickListener {
             Snackbar.make(binding.root, "Navigate to Forgot Password", Snackbar.LENGTH_SHORT).show()
         }
     }
-
     private fun safeGoogleLogin() {
         googleSignInClient.signOut().addOnCompleteListener {
             val intent = googleSignInClient.signInIntent
@@ -96,6 +98,31 @@ class LoginFragment : BaseFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
+        binding.btnFacebook.setOnClickListener {
+            binding.progressBar.isVisible = true
+            LoginManager.getInstance().logInWithReadPermissions(
+                this,
+                listOf("email", "public_profile", "pages_show_list", "pages_read_engagement"),
+            )
+            LoginManager.getInstance().registerCallback(
+                callbackManager,
+                object : FacebookCallback<LoginResult> {
+                    override fun onSuccess(result: LoginResult) {
+                        val fbToken = result.accessToken.token
+                        viewModel.loginWithFacebook(fbToken)
+                    }
+                    override fun onCancel() {
+                        binding.progressBar.isVisible = false
+                        Snackbar.make(binding.root, "Facebook login cancelled", Snackbar.LENGTH_SHORT).show()
+                    }
+                    override fun onError(error: FacebookException) {
+                        binding.progressBar.isVisible = false
+                        Snackbar.make(binding.root, "Facebook login error: ${error.message}", Snackbar.LENGTH_LONG).show()
+                    }
+                },
+            )
+        }
 
         if (requestCode == GOOGLE_SIGN_IN_REQUEST_CODE) {
             if (data == null) {
@@ -108,6 +135,7 @@ class LoginFragment : BaseFragment() {
                 val account = task.getResult(ApiException::class.java)
                 val idToken = account?.idToken
 
+                // Log chi tiết token
                 Log.d("GoogleLogin", "idToken=${idToken?.take(20)}... length=${idToken?.length}")
                 Log.d("GoogleLogin", "account.email=${account?.email}, account.id=${account?.id}")
 
@@ -117,7 +145,6 @@ class LoginFragment : BaseFragment() {
                     googleSignInClient.signOut()
                     logError("Google login failed: idToken null, force sign out")
                 }
-
             } catch (e: ApiException) {
                 logError("Google login ApiException code=${e.statusCode}, message=${e.message}")
                 if (e.statusCode == 401) googleSignInClient.signOut()
@@ -132,7 +159,6 @@ class LoginFragment : BaseFragment() {
         Snackbar.make(binding.root, msg, Snackbar.LENGTH_LONG).show()
     }
 
-
     private fun validateInputs(email: String, password: String): Boolean {
         val isEmailValid = ValidationHelper.validateEmail(email, binding.tilEmail)
         val isPasswordValid = ValidationHelper.validatePassword(password, binding.tilPassword)
@@ -143,12 +169,43 @@ class LoginFragment : BaseFragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collect { state ->
                 when (state) {
-                    is UiState.Idle -> handleIdle()
-                    is UiState.Loading -> handleLoading()
-                    is UiState.Success -> handleSuccess()
-                    is UiState.Error -> handleError(state.message)
+                    is UiState.Idle -> {
+                        binding.progressBar.isVisible = false
+                        binding.btnLogin.isEnabled = true
+                        binding.btnLogin.text = getString(R.string.login)
+                    }
+                    is UiState.Loading -> {
+                        binding.progressBar.isVisible = true
+                        binding.btnLogin.isEnabled = false
+                        binding.btnLogin.text = ""
+                        ValidationHelper.clearError(binding.tilEmail)
+                        ValidationHelper.clearError(binding.tilPassword)
+                    }
+                    is UiState.Success -> {
+                        binding.progressBar.isVisible = false
+                        binding.btnLogin.isEnabled = true
+                        binding.btnLogin.text = getString(R.string.login)
+
+                        navController.navigate(R.id.action_login_to_home)
+                    }
+                    is UiState.Error -> {
+                        binding.progressBar.isVisible = false
+                        binding.btnLogin.isEnabled = true
+                        binding.btnLogin.text = getString(R.string.login)
+
+                        Snackbar.make(
+                            binding.root,
+                            state.message,
+                            Snackbar.LENGTH_LONG,
+                        ).show()
+                    }
                 }
             }
+        }
+
+        binding.btnSignUp.setOnClickListener {
+            val intent = Intent(requireContext(), SignUpActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -191,6 +248,42 @@ class LoginFragment : BaseFragment() {
         binding.btnLogin.isEnabled = true
         binding.btnLogin.text = getString(R.string.login)
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+    }
+
+    private fun observeFacebookUiState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.fbUiState.collect { state ->
+                when (state) {
+                    is UiState.Idle -> {
+                        binding.progressBar.isVisible = false
+                        binding.btnFacebook.isEnabled = true
+                    }
+                    is UiState.Loading -> {
+                        binding.progressBar.isVisible = true
+                        binding.btnFacebook.isEnabled = false
+                    }
+                    is UiState.Success -> {
+                        binding.progressBar.isVisible = false
+                        binding.btnFacebook.isEnabled = true
+                        Snackbar.make(
+                            binding.root,
+                            "Xin chào ${state.data.profile.firstName}",
+                            Snackbar.LENGTH_LONG,
+                        ).show()
+                        navController.navigate(R.id.action_login_to_home)
+                    }
+                    is UiState.Error -> {
+                        binding.progressBar.isVisible = false
+                        binding.btnFacebook.isEnabled = true
+                        Snackbar.make(
+                            binding.root,
+                            state.message,
+                            Snackbar.LENGTH_LONG,
+                        ).show()
+                    }
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {

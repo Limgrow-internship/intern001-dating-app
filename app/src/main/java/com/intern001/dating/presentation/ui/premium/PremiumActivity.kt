@@ -1,5 +1,6 @@
 package com.intern001.dating.presentation.ui.premium
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -8,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.ProductDetails
 import com.intern001.dating.data.billing.BillingConfig
 import com.intern001.dating.data.billing.BillingManager
@@ -41,8 +43,8 @@ class PremiumActivity : AppCompatActivity() {
     }
 
     private fun setupViews() {
-        selectedProductId = BillingConfig.InAppProducts.getNoAdsProductId()
-        binding.radio1Month.isChecked = true
+        selectedProductId = BillingConfig.Subscriptions.MONTHLY
+        binding.radioMonthly.isChecked = true
     }
 
     private fun setupListeners() {
@@ -50,11 +52,31 @@ class PremiumActivity : AppCompatActivity() {
             finish()
         }
 
-        binding.card1Month.setOnClickListener {
-            selectPackage(BillingConfig.InAppProducts.getNoAdsProductId())
+        binding.cardWeekly.setOnClickListener {
+            selectPackage(BillingConfig.Subscriptions.WEEKLY)
+        }
+        binding.radioWeekly.setOnClickListener {
+            selectPackage(BillingConfig.Subscriptions.WEEKLY)
         }
 
-        binding.radio1Month.setOnClickListener {
+        binding.cardMonthly.setOnClickListener {
+            selectPackage(BillingConfig.Subscriptions.MONTHLY)
+        }
+        binding.radioMonthly.setOnClickListener {
+            selectPackage(BillingConfig.Subscriptions.MONTHLY)
+        }
+
+        binding.cardYearly.setOnClickListener {
+            selectPackage(BillingConfig.Subscriptions.YEARLY)
+        }
+        binding.radioYearly.setOnClickListener {
+            selectPackage(BillingConfig.Subscriptions.YEARLY)
+        }
+
+        binding.cardNoAds.setOnClickListener {
+            selectPackage(BillingConfig.InAppProducts.getNoAdsProductId())
+        }
+        binding.radioNoAds.setOnClickListener {
             selectPackage(BillingConfig.InAppProducts.getNoAdsProductId())
         }
 
@@ -87,8 +109,21 @@ class PremiumActivity : AppCompatActivity() {
     private fun updatePricesFromProducts(products: List<ProductDetails>) {
         products.forEach { product ->
             when (product.productId) {
+                BillingConfig.Subscriptions.WEEKLY -> {
+                    val price = product.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice ?: "N/A"
+                    binding.tvWeeklyPrice.text = "$price/week"
+                }
+                BillingConfig.Subscriptions.MONTHLY -> {
+                    val price = product.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice ?: "N/A"
+                    binding.tvMonthlyPrice.text = "$price/month"
+                }
+                BillingConfig.Subscriptions.YEARLY -> {
+                    val price = product.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice ?: "N/A"
+                    binding.tvYearlyPrice.text = "$price/year"
+                }
                 BillingConfig.InAppProducts.getNoAdsProductId() -> {
-                    // Product found, will update button text below
+                    val price = product.oneTimePurchaseOfferDetails?.formattedPrice ?: "N/A"
+                    binding.tvNoAdsPrice.text = "$price - One-time purchase"
                 }
             }
         }
@@ -98,6 +133,7 @@ class PremiumActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun observePurchaseState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -152,18 +188,35 @@ class PremiumActivity : AppCompatActivity() {
     private fun selectPackage(productId: String) {
         selectedProductId = productId
 
-        // Update radio button (only one option)
-        binding.radio1Month.isChecked = productId == BillingConfig.InAppProducts.getNoAdsProductId()
+        binding.radioWeekly.isChecked = productId == BillingConfig.Subscriptions.WEEKLY
+        binding.radioMonthly.isChecked = productId == BillingConfig.Subscriptions.MONTHLY
+        binding.radioYearly.isChecked = productId == BillingConfig.Subscriptions.YEARLY
+        binding.radioNoAds.isChecked = productId == BillingConfig.InAppProducts.getNoAdsProductId()
 
-        // Update button text
         updateSubscribeButtonText(productId)
+        updatePaymentInfo(productId)
     }
 
     private fun updateSubscribeButtonText(productId: String) {
         val product = productsMap[productId]
-        val price = product?.oneTimePurchaseOfferDetails?.formattedPrice ?: "N/A"
 
-        binding.btnSubscribe.text = "Purchase for $price"
+        val price = if (product?.productType == BillingClient.ProductType.SUBS) {
+            product.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice ?: "N/A"
+        } else {
+            product?.oneTimePurchaseOfferDetails?.formattedPrice ?: "N/A"
+        }
+
+        binding.btnSubscribe.text = when (productId) {
+            BillingConfig.InAppProducts.getNoAdsProductId() -> "Purchase for $price"
+            else -> "Subscribe for $price"
+        }
+    }
+
+    private fun updatePaymentInfo(productId: String) {
+        binding.tvPaymentInfo.text = when (productId) {
+            BillingConfig.InAppProducts.getNoAdsProductId() -> "One-time purchase. No recurring charges."
+            else -> "Subscription renews automatically. Cancel anytime."
+        }
     }
 
     private fun handlePurchase() {
@@ -173,12 +226,10 @@ class PremiumActivity : AppCompatActivity() {
             return
         }
 
-        // Launch billing flow
         billingManager.launchPurchaseFlow(this, productId)
     }
 
     private fun showLoading(show: Boolean) {
-        // You can add a progress bar to the layout if needed
         if (show) {
             binding.btnSubscribe.alpha = 0.5f
         } else {

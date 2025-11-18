@@ -3,8 +3,8 @@ package com.intern001.dating.data.api
 import com.intern001.dating.data.model.CountryResponse
 import com.intern001.dating.data.model.LanguageResponse
 import com.intern001.dating.data.model.request.ChangePasswordRequest
-import com.intern001.dating.data.model.request.GoogleLoginRequest
 import com.intern001.dating.data.model.request.FacebookLoginRequest
+import com.intern001.dating.data.model.request.GoogleLoginRequest
 import com.intern001.dating.data.model.request.LoginRequest
 import com.intern001.dating.data.model.request.RequestOtpRequest
 import com.intern001.dating.data.model.request.SignupRequest
@@ -12,8 +12,8 @@ import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.data.model.request.VerifyOtpRequest
 import com.intern001.dating.data.model.response.AuthResponse
 import com.intern001.dating.data.model.response.ChangePasswordResponse
-import com.intern001.dating.data.model.response.GoogleLoginResponse
 import com.intern001.dating.data.model.response.FacebookLoginResponse
+import com.intern001.dating.data.model.response.GoogleLoginResponse
 import com.intern001.dating.data.model.response.OtpResponse
 import com.intern001.dating.data.model.response.RefreshTokenRequest
 import com.intern001.dating.data.model.response.UserData
