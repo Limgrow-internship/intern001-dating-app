@@ -7,16 +7,18 @@ import javax.inject.Inject
 class GetMatchesUseCase
 @Inject
 constructor(
-    private val matchRepository: MatchRepository,
+        private val matchRepository: MatchRepository,
 ) {
     suspend operator fun invoke(
-        page: Int = 1,
-        limit: Int = 20,
+            page: Int = 1,
+            limit: Int = 20,
     ): Result<List<Match>> {
-        return try {
-            matchRepository.getMatches(page, limit)
-        } catch (e: Exception) {
-            Result.failure(e)
+        if (page <= 0) {
+            return Result.failure(IllegalArgumentException("Page must be greater than 0"))
         }
+        if (limit <= 0) {
+            return Result.failure(IllegalArgumentException("Limit must be greater than 0"))
+        }
+        return matchRepository.getMatches(page, limit)
     }
 }

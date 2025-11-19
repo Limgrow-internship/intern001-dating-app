@@ -7,13 +7,12 @@ import javax.inject.Inject
 class GetMatchCardsUseCase
 @Inject
 constructor(
-    private val matchRepository: MatchRepository,
+        private val matchRepository: MatchRepository,
 ) {
     suspend operator fun invoke(limit: Int = 10): Result<List<MatchCard>> {
-        return try {
-            matchRepository.getMatchCards(limit)
-        } catch (e: Exception) {
-            Result.failure(e)
+        if (limit <= 0) {
+            return Result.failure(IllegalArgumentException("Limit must be greater than 0"))
         }
+        return matchRepository.getMatchCards(limit)
     }
 }

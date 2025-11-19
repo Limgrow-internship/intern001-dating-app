@@ -39,11 +39,11 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Part
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface DatingApiService {
-    @POST("api/auth/login")
-    suspend fun login(@Body request: LoginRequest): Response<AuthResponse>
+    @POST("api/auth/login") suspend fun login(@Body request: LoginRequest): Response<AuthResponse>
 
     @POST("api/auth/google-login")
     suspend fun googleLogin(@Body request: GoogleLoginRequest): GoogleLoginResponse
@@ -54,11 +54,9 @@ interface DatingApiService {
     @POST("api/auth/refresh")
     suspend fun refreshToken(@Body request: RefreshTokenRequest): Response<AuthResponse>
 
-    @POST("api/auth/logout")
-    suspend fun logout(): Response<Unit>
+    @POST("api/auth/logout") suspend fun logout(): Response<Unit>
 
-    @GET("api/profile")
-    suspend fun getCurrentUserProfile(): Response<UserData>
+    @GET("api/profile") suspend fun getCurrentUserProfile(): Response<UserData>
 
     @PUT("api/profile")
     suspend fun updateUserProfile(@Body request: UpdateProfileRequest): Response<UserData>
@@ -70,31 +68,31 @@ interface DatingApiService {
     suspend fun verifyOtp(@Body request: VerifyOtpRequest): Response<VerifyOtpResponse>
 
     @PUT("api/user/change-password")
-    suspend fun changePassword(@Body request: ChangePasswordRequest): Response<ChangePasswordResponse>
+    suspend fun changePassword(
+            @Body request: ChangePasswordRequest
+    ): Response<ChangePasswordResponse>
 
     @GET("all")
     suspend fun getAllCountries(
-        @Query("fields") fields: String = "name,languages",
+            @Query("fields") fields: String = "name,languages",
     ): List<CountryResponse>
 
-    @GET("languages")
-    suspend fun getLanguages(): List<LanguageResponse>
+    @GET("languages") suspend fun getLanguages(): List<LanguageResponse>
 
     @DELETE("api/user/account")
     suspend fun deleteAccount(
-        @Header("Authorization") token: String,
+            @Header("Authorization") token: String,
     ): Response<Unit>
 
     @POST("api/auth/facebook-login")
     suspend fun facebookLogin(@Body request: FacebookLoginRequest): FacebookLoginResponse
 
     // Match endpoints
-    @GET("api/matches/next")
-    suspend fun getNextMatchCard(): Response<MatchCardResponse>
+    @GET("api/matches/next") suspend fun getNextMatchCard(): Response<MatchCardResponse>
 
     @GET("api/matches/cards")
     suspend fun getMatchCards(
-        @Query("limit") limit: Int = 10,
+            @Query("limit") limit: Int = 10,
     ): Response<MatchCardsListResponse>
 
     @POST("api/matches/like")
@@ -111,17 +109,16 @@ interface DatingApiService {
 
     @GET("api/matches")
     suspend fun getMatches(
-        @Query("page") page: Int = 1,
-        @Query("limit") limit: Int = 20,
+            @Query("page") page: Int = 1,
+            @Query("limit") limit: Int = 20,
     ): Response<MatchesListResponse>
 
     @GET("api/matches/{matchId}")
     suspend fun getMatchById(
-        @Query("matchId") matchId: String,
+            @Path("matchId") matchId: String,
     ): Response<MatchResponse>
 
-    @POST("api/matches/unmatch")
-    suspend fun unmatch(@Body request: UnmatchRequest): Response<Unit>
+    @POST("api/matches/unmatch") suspend fun unmatch(@Body request: UnmatchRequest): Response<Unit>
 
     // Recommendation endpoints
     @GET("api/recommendations/criteria")
@@ -129,12 +126,12 @@ interface DatingApiService {
 
     @PUT("api/recommendations/criteria")
     suspend fun updateRecommendationCriteria(
-        @Body request: RecommendationCriteriaRequest,
+            @Body request: RecommendationCriteriaRequest,
     ): Response<RecommendationCriteriaResponse>
 
     @Multipart
     @POST("api/verify-face")
     suspend fun verifyFace(
-        @Part selfie: MultipartBody.Part,
+            @Part selfie: MultipartBody.Part,
     ): Response<VerifyFaceResponse>
 }

@@ -6,16 +6,12 @@ import javax.inject.Inject
 class PassUserUseCase
 @Inject
 constructor(
-    private val matchRepository: MatchRepository,
+        private val matchRepository: MatchRepository,
 ) {
     suspend operator fun invoke(targetUserId: String): Result<Unit> {
-        return try {
-            if (targetUserId.isBlank()) {
-                return Result.failure(IllegalArgumentException("Target user ID cannot be empty"))
-            }
-            matchRepository.passUser(targetUserId)
-        } catch (e: Exception) {
-            Result.failure(e)
+        if (targetUserId.isBlank()) {
+            return Result.failure(IllegalArgumentException("Target user ID cannot be empty"))
         }
+        return matchRepository.passUser(targetUserId)
     }
 }
