@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.hilt.android)
+    alias(libs.plugins.google.service)
 }
 
 fun getLocalProperty(key: String, defaultValue: String): String {
@@ -98,12 +99,24 @@ dependencies {
 
     // Google Sign-In
     implementation(libs.google.login)
+
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
+    implementation("com.google.firebase:firebase-analytics")
+
     // play billing
     implementation(libs.billing.ktx)
     implementation(libs.billing)
 
     // Facebook
     implementation("com.facebook.android:facebook-login:[16.3.0]")
+
+    // Camera
+    implementation("androidx.camera:camera-core:1.3.0")
+    implementation("androidx.camera:camera-camera2:1.3.0")
+    implementation("androidx.camera:camera-lifecycle:1.3.0")
+    implementation("androidx.camera:camera-view:1.3.0")
+    implementation("com.google.guava:guava:31.0.1-android")
 }
 
 // KtLint configuration

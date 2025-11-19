@@ -125,3 +125,8 @@ data class ProfileData(
     @SerializedName("lastName")
     val lastName: String?,
 )
+
+data class VerifyFaceResponse(
+    val verified: Boolean,
+    val message: String,
+)

@@ -78,7 +78,7 @@
         android:layout_marginBottom="12dp">
 
         <LinearLayout
-            android:id="@+id/btnChangePass"
+            android:id="@+id/btnProfile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -133,6 +133,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/btnVerifyProfile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -145,6 +146,7 @@
                 android:src="@drawable/ic_verify" />
 
             <TextView
+
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

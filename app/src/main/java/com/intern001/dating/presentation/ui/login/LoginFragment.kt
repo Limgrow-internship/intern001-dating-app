@@ -1,4 +1,5 @@
 package com.intern001.dating.presentation.ui.login
+
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -48,6 +49,7 @@ class LoginFragment : BaseFragment() {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -64,7 +66,7 @@ class LoginFragment : BaseFragment() {
 
     private fun setupGoogleSignIn() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id)) // Bắt buộc Web client ID
+            .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
         googleSignInClient = GoogleSignIn.getClient(requireContext(), gso)
@@ -85,20 +87,12 @@ class LoginFragment : BaseFragment() {
             val intent = Intent(requireContext(), SignUpActivity::class.java)
             startActivity(intent)
         }
+
         binding.btnForgotPass.setOnClickListener {
             Snackbar.make(binding.root, "Navigate to Forgot Password", Snackbar.LENGTH_SHORT).show()
         }
-    }
-    private fun safeGoogleLogin() {
-        googleSignInClient.signOut().addOnCompleteListener {
-            val intent = googleSignInClient.signInIntent
-            startActivityForResult(intent, GOOGLE_SIGN_IN_REQUEST_CODE)
-        }
-    }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
+        // ĐẶT LẠI LISTENER CHO FACEBOOK TẠI ĐÂY (thay vì trong onActivityResult!!)
         binding.btnFacebook.setOnClickListener {
             binding.progressBar.isVisible = true
             LoginManager.getInstance().logInWithReadPermissions(
@@ -123,6 +117,20 @@ class LoginFragment : BaseFragment() {
                 },
             )
         }
+    }
+
+    private fun safeGoogleLogin() {
+        googleSignInClient.signOut().addOnCompleteListener {
+            val intent = googleSignInClient.signInIntent
+            startActivityForResult(intent, GOOGLE_SIGN_IN_REQUEST_CODE)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        // Facebook callbackManager nhận sự kiện login Facebook tại đây!
+        callbackManager.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == GOOGLE_SIGN_IN_REQUEST_CODE) {
             if (data == null) {
@@ -135,7 +143,6 @@ class LoginFragment : BaseFragment() {
                 val account = task.getResult(ApiException::class.java)
                 val idToken = account?.idToken
 
-                // Log chi tiết token
                 Log.d("GoogleLogin", "idToken=${idToken?.take(20)}... length=${idToken?.length}")
                 Log.d("GoogleLogin", "account.email=${account?.email}, account.id=${account?.id}")
 
@@ -201,11 +208,6 @@ class LoginFragment : BaseFragment() {
                     }
                 }
             }
-        }
-
-        binding.btnSignUp.setOnClickListener {
-            val intent = Intent(requireContext(), SignUpActivity::class.java)
-            startActivity(intent)
         }
     }
 
