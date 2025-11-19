@@ -104,6 +104,9 @@ dependencies {
 
     // Facebook
     implementation("com.facebook.android:facebook-login:[16.3.0]")
+
+    // Flexbox
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
 }
 
 // KtLint configuration
