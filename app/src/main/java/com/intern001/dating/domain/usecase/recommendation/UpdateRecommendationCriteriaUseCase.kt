@@ -7,7 +7,7 @@ import javax.inject.Inject
 class UpdateRecommendationCriteriaUseCase
 @Inject
 constructor(
-        private val recommendationRepository: RecommendationRepository,
+    private val recommendationRepository: RecommendationRepository,
 ) {
     suspend operator fun invoke(criteria: MatchCriteria): Result<MatchCriteria> {
         return recommendationRepository.updateRecommendationCriteria(criteria)

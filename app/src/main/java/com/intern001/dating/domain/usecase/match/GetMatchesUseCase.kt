@@ -7,11 +7,11 @@ import javax.inject.Inject
 class GetMatchesUseCase
 @Inject
 constructor(
-        private val matchRepository: MatchRepository,
+    private val matchRepository: MatchRepository,
 ) {
     suspend operator fun invoke(
-            page: Int = 1,
-            limit: Int = 20,
+        page: Int = 1,
+        limit: Int = 20,
     ): Result<List<Match>> {
         if (page <= 0) {
             return Result.failure(IllegalArgumentException("Page must be greater than 0"))

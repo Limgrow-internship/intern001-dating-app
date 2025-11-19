@@ -7,7 +7,7 @@ import javax.inject.Inject
 class LikeUserUseCase
 @Inject
 constructor(
-        private val matchRepository: MatchRepository,
+    private val matchRepository: MatchRepository,
 ) {
     suspend operator fun invoke(targetUserId: String): Result<MatchResult> {
         if (targetUserId.isBlank()) {

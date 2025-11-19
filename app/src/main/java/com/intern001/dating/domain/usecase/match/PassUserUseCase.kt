@@ -6,7 +6,7 @@ import javax.inject.Inject
 class PassUserUseCase
 @Inject
 constructor(
-        private val matchRepository: MatchRepository,
+    private val matchRepository: MatchRepository,
 ) {
     suspend operator fun invoke(targetUserId: String): Result<Unit> {
         if (targetUserId.isBlank()) {

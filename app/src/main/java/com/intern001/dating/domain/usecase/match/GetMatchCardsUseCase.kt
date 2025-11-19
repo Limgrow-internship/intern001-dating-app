@@ -7,7 +7,7 @@ import javax.inject.Inject
 class GetMatchCardsUseCase
 @Inject
 constructor(
-        private val matchRepository: MatchRepository,
+    private val matchRepository: MatchRepository,
 ) {
     suspend operator fun invoke(limit: Int = 10): Result<List<MatchCard>> {
         if (limit <= 0) {
