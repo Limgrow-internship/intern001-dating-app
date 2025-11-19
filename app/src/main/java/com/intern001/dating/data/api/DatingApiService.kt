@@ -2,19 +2,29 @@ package com.intern001.dating.data.api
 
 import com.intern001.dating.data.model.CountryResponse
 import com.intern001.dating.data.model.LanguageResponse
+import com.intern001.dating.data.model.request.BlockUserRequest
 import com.intern001.dating.data.model.request.ChangePasswordRequest
 import com.intern001.dating.data.model.request.FacebookLoginRequest
 import com.intern001.dating.data.model.request.GoogleLoginRequest
 import com.intern001.dating.data.model.request.LoginRequest
+import com.intern001.dating.data.model.request.MatchActionRequest
+import com.intern001.dating.data.model.request.RecommendationCriteriaRequest
 import com.intern001.dating.data.model.request.RequestOtpRequest
 import com.intern001.dating.data.model.request.SignupRequest
+import com.intern001.dating.data.model.request.UnmatchRequest
 import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.data.model.request.VerifyOtpRequest
 import com.intern001.dating.data.model.response.AuthResponse
 import com.intern001.dating.data.model.response.ChangePasswordResponse
 import com.intern001.dating.data.model.response.FacebookLoginResponse
 import com.intern001.dating.data.model.response.GoogleLoginResponse
+import com.intern001.dating.data.model.response.MatchCardResponse
+import com.intern001.dating.data.model.response.MatchCardsListResponse
+import com.intern001.dating.data.model.response.MatchResponse
+import com.intern001.dating.data.model.response.MatchResultResponse
+import com.intern001.dating.data.model.response.MatchesListResponse
 import com.intern001.dating.data.model.response.OtpResponse
+import com.intern001.dating.data.model.response.RecommendationCriteriaResponse
 import com.intern001.dating.data.model.response.RefreshTokenRequest
 import com.intern001.dating.data.model.response.UserData
 import com.intern001.dating.data.model.response.VerifyFaceResponse
@@ -29,6 +39,7 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Part
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface DatingApiService {
@@ -60,7 +71,9 @@ interface DatingApiService {
     suspend fun verifyOtp(@Body request: VerifyOtpRequest): Response<VerifyOtpResponse>
 
     @PUT("api/user/change-password")
-    suspend fun changePassword(@Body request: ChangePasswordRequest): Response<ChangePasswordResponse>
+    suspend fun changePassword(
+        @Body request: ChangePasswordRequest,
+    ): Response<ChangePasswordResponse>
 
     @GET("all")
     suspend fun getAllCountries(
@@ -77,6 +90,50 @@ interface DatingApiService {
 
     @POST("api/auth/facebook-login")
     suspend fun facebookLogin(@Body request: FacebookLoginRequest): FacebookLoginResponse
+
+    // Match endpoints
+    @GET("api/matches/next")
+    suspend fun getNextMatchCard(): Response<MatchCardResponse>
+
+    @GET("api/matches/cards")
+    suspend fun getMatchCards(
+        @Query("limit") limit: Int = 10,
+    ): Response<MatchCardsListResponse>
+
+    @POST("api/matches/like")
+    suspend fun likeUser(@Body request: MatchActionRequest): Response<MatchResultResponse>
+
+    @POST("api/matches/pass")
+    suspend fun passUser(@Body request: MatchActionRequest): Response<Unit>
+
+    @POST("api/matches/superlike")
+    suspend fun superLikeUser(@Body request: MatchActionRequest): Response<MatchResultResponse>
+
+    @POST("api/matches/block")
+    suspend fun blockUser(@Body request: BlockUserRequest): Response<Unit>
+
+    @GET("api/matches")
+    suspend fun getMatches(
+        @Query("page") page: Int = 1,
+        @Query("limit") limit: Int = 20,
+    ): Response<MatchesListResponse>
+
+    @GET("api/matches/{matchId}")
+    suspend fun getMatchById(
+        @Path("matchId") matchId: String,
+    ): Response<MatchResponse>
+
+    @POST("api/matches/unmatch")
+    suspend fun unmatch(@Body request: UnmatchRequest): Response<Unit>
+
+    // Recommendation endpoints
+    @GET("api/recommendations/criteria")
+    suspend fun getRecommendationCriteria(): Response<RecommendationCriteriaResponse>
+
+    @PUT("api/recommendations/criteria")
+    suspend fun updateRecommendationCriteria(
+        @Body request: RecommendationCriteriaRequest,
+    ): Response<RecommendationCriteriaResponse>
 
     @Multipart
     @POST("api/verify-face")
