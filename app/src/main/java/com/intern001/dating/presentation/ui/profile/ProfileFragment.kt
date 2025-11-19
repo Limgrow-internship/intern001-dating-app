@@ -59,6 +59,11 @@ class ProfileFragment : BaseFragment() {
             adContainer.visibility = View.GONE
         }
 
+        val btnVerifyProfile = view.findViewById<LinearLayout>(R.id.btnVerifyProfile)
+        btnVerifyProfile.setOnClickListener {
+            findNavController().navigate(R.id.action_profile_to_verifyAccount)
+        }
+
         binding.btnContinuePremium.setOnClickListener {
             navigateToPremium()
         }
