@@ -20,7 +20,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="48dp"
-        android:text="Choose your gender"
+        android:text="@string/choose_gender"
         android:textColor="@color/black"
         android:textSize="28sp"
         android:textStyle="bold"

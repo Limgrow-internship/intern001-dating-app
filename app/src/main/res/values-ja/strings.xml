@@ -1,21 +1,62 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">HeartOnDatingApp</string>
     <string name="create_new_password_message">
-        アカウントの新しいパスワードを作成してください。強力で覚えやすいものにしましょう。
+        アカウント用の新しいパスワードを作成してください。強力で自分が覚えやすいものにしましょう。
     </string>
+    <string name="error_signup">より強力なパスワードを選択してください。英字と数字を組み合わせてみてください。</string>
     <string name="login">ログイン</string>
     <string name="email">メールアドレス</string>
     <string name="pass">パスワード</string>
-    <string name="Forgot_pass">パスワードをお忘れですか？</string>
-    <string name="login_with">または以下でログイン</string>
-    <string name="dont_have_account">アカウントをお持ちではありませんか？</string>
-    <string name="signup">サインアップ</string>
-    <string name="incorrect_mail">メールアドレスが正しくありません</string>
-    <string name="incorrect_pass">パスワードが正しくありません</string>
+    <string name="Forgot_pass">パスワードを忘れた場合</string>
+    <string name="login_with">または次でログイン</string>
+    <string name="dont_have_account">アカウントをお持ちでないですか？</string>
+    <string name="signup">新規登録</string>
+    <string name="incorrect_mail">有効なメールアドレスではありません</string>
+    <string name="incorrect_pass">無効なパスワードです</string>
     <string name="it_all_starts_with_a_swipe">すべてはスワイプから始まります</string>
-    <string name="a_single_swipe_can_open_a_whole_new_story_discover_people_nearby_who_share_your_vibe">1回のスワイプで全く新しいストーリーが開かれます。あなたと同じ雰囲気を共有する近くの人々を見つけましょう</string>
-    <string name="find_your_vibe_not_just_a_match">単なるマッチではなく、あなたの雰囲気を見つけましょう</string>
-    <string name="we_help_you_meet_people_who_feel_right_not_just_look_right">見た目だけでなく、心が通じ合う人との出会いをお手伝いします</string>
+    <string name="a_single_swipe_can_open_a_whole_new_story_discover_people_nearby_who_share_your_vibe">たったひとつのスワイプで新しい物語が始まります。自分と波長が合う近くの人を見つけましょう。</string>
+    <string name="find_your_vibe_not_just_a_match">マッチだけでなく、自分の波長を見つけましょう</string>
+    <string name="we_help_you_meet_people_who_feel_right_not_just_look_right">見た目だけでなく、フィーリングが合う人と出会えるようサポートします。</string>
     <string name="btn_continue">続ける</string>
+    <string name="button">ボタン</string>
+    <string name="male">男性</string>
+    <string name="female">女性</string>
+    <string name="other">その他</string>
+    <string name="sign_up">新規登録</string>
+    <string name="password">パスワード</string>
+    <string name="already_have_account">すでにアカウントをお持ちですか？</string>
+    <string name="_40">40%</string>
+    <string name="next">次へ</string>
+    <string name="default_web_client_id">657435569191-s3n5md0h818sh72j2u7gls8vla24d90d.apps.googleusercontent.com</string>
+    <string name="log_out">ログアウト</string>
+    <string name="billing_sub_week" translatable="false">com.ledkeyboard.weekly</string>
+    <string name="billing_sub_month" translatable="false">monthly</string>
+    <string name="billing_sub_year" translatable="false">com.led.yearlytest</string>
+    <string name="billing_inapp_onetime" translatable="false">test1</string>
+    <string name="registration">登録</string>
+    <string name="enter_the_code">送信されたコードを入力してください</string>
+    <string name="email_example">+limgrow@gmail.com</string>
+    <string name="verify">認証</string>
+    <string name="didn_receive">コードを受け取っていませんか？</string>
+    <string name="recent_code">コードを再送</string>
+    <string name="choose_photo">ベストな写真を選んでください！</string>
+    <string name="btn_next">次へ</string>
+    <string name="what_name">あなたのお名前は？</string>
+    <string name="enter_name">名前を入力してください</string>
+    <string name="choose_gender">性別を選択してください</string>
+    <string name="birthday">誕生日を選択してください</string>
+    <string name="mode">モード</string>
+    <string name="dating">デーティングモード</string>
+    <string name="friend">フレンドモード</string>
+    <string name="upgrade">Heart Onにアップグレード</string>
+    <string name="upgrade_text">今すぐアップグレードして愛を広めましょう！</string>
+    <string name="btn_upgrad">今すぐアップグレード</string>
+    <string name="profile">プロフィール</string>
+    <string name="change_password">パスワードを変更</string>
+    <string name="verify_profile">プロフィール認証</string>
+    <string name="language">言語</string>
+    <string name="notications">通知</string>
+    <string name="help_center">ヘルプセンター</string>
+    <string name="contact_us">お問い合わせ</string>
+    <string name="delete_acc">アカウントを削除</string>
 </resources>

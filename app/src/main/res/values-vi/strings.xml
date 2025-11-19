@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">HeartOnDatingApp</string>
     <string name="create_new_password_message">
-        Tạo mật khẩu mới cho tài khoản của bạn. Hãy đảm bảo mật khẩu mạnh và dễ nhớ.
+        Tạo một mật khẩu mới cho tài khoản của bạn. Hãy đảm bảo mật khẩu mạnh và dễ nhớ với bạn.
     </string>
-    <string name="login">ĐĂNG NHẬP</string>
+    <string name="error_signup">Vui lòng chọn mật khẩu mạnh hơn. Hãy thử kết hợp chữ cái và số.</string>
+    <string name="login">Đăng nhập</string>
     <string name="email">Email</string>
     <string name="pass">Mật khẩu</string>
     <string name="Forgot_pass">Quên mật khẩu</string>
@@ -13,9 +13,50 @@
     <string name="signup">Đăng ký</string>
     <string name="incorrect_mail">Email không hợp lệ</string>
     <string name="incorrect_pass">Mật khẩu không hợp lệ</string>
-    <string name="it_all_starts_with_a_swipe">Tất cả bắt đầu từ một cái vuốt</string>
-    <string name="a_single_swipe_can_open_a_whole_new_story_discover_people_nearby_who_share_your_vibe">Một cái vuốt có thể mở ra cả một câu chuyện mới. Khám phá những người xung quanh có cùng sở thích với bạn</string>
-    <string name="find_your_vibe_not_just_a_match">Tìm người hợp gu, không chỉ là hợp mặt</string>
-    <string name="we_help_you_meet_people_who_feel_right_not_just_look_right">Chúng tôi giúp bạn gặp những người hợp tính — không chỉ hợp mắt</string>
+    <string name="it_all_starts_with_a_swipe">Tất cả bắt đầu từ một cú vuốt</string>
+    <string name="a_single_swipe_can_open_a_whole_new_story_discover_people_nearby_who_share_your_vibe">Một cú vuốt có thể mở ra một câu chuyện hoàn toàn mới. Khám phá những người gần bạn có chung cảm xúc.</string>
+    <string name="find_your_vibe_not_just_a_match">Tìm cảm xúc của bạn, không chỉ là sự phù hợp</string>
+    <string name="we_help_you_meet_people_who_feel_right_not_just_look_right">Chúng tôi giúp bạn gặp được người hợp với bạn về cảm xúc — không chỉ là vẻ ngoài.</string>
     <string name="btn_continue">Tiếp tục</string>
+    <string name="button">Nút</string>
+    <string name="male">Nam</string>
+    <string name="female">Nữ</string>
+    <string name="other">Khác</string>
+    <string name="sign_up">ĐĂNG KÝ</string>
+    <string name="password">Mật khẩu</string>
+    <string name="already_have_account">Đã có tài khoản?</string>
+    <string name="_40">40%</string>
+    <string name="next">Tiếp theo</string>
+    <string name="default_web_client_id">657435569191-s3n5md0h818sh72j2u7gls8vla24d90d.apps.googleusercontent.com</string>
+    <string name="log_out">Đăng xuất</string>
+    <string name="billing_sub_week" translatable="false">com.ledkeyboard.weekly</string>
+    <string name="billing_sub_month" translatable="false">monthly</string>
+    <string name="billing_sub_year" translatable="false">com.led.yearlytest</string>
+    <string name="billing_inapp_onetime" translatable="false">test1</string>
+    <string name="registration">ĐĂNG KÝ</string>
+    <string name="enter_the_code">Nhập mã được gửi đến</string>
+    <string name="email_example">+limgrow@gmail.com</string>
+    <string name="verify">XÁC NHẬN</string>
+    <string name="didn_receive">Không nhận được mã?</string>
+    <string name="recent_code">Gửi lại mã</string>
+    <string name="choose_photo">Chọn ảnh đẹp nhất của bạn!</string>
+    <string name="btn_next">Tiếp theo</string>
+    <string name="what_name">Tên của bạn là gì?</string>
+    <string name="enter_name">Nhập tên của bạn</string>
+    <string name="choose_gender">Chọn giới tính của bạn</string>
+    <string name="birthday">Chọn ngày sinh</string>
+    <string name="mode">Chế độ</string>
+    <string name="dating">Chế độ Hẹn hò</string>
+    <string name="friend">Chế độ Bạn bè</string>
+    <string name="upgrade">Nâng cấp lên Heart On</string>
+    <string name="upgrade_text">Nâng cấp ngay và lan tỏa yêu thương!</string>
+    <string name="btn_upgrad">Nâng cấp ngay</string>
+    <string name="profile">Hồ sơ cá nhân</string>
+    <string name="change_password">Đổi mật khẩu</string>
+    <string name="verify_profile">Xác thực hồ sơ</string>
+    <string name="language">Ngôn ngữ</string>
+    <string name="notications">Thông báo</string>
+    <string name="help_center">Trung tâm trợ giúp</string>
+    <string name="contact_us">Liên hệ với chúng tôi</string>
+    <string name="delete_acc">Xóa tài khoản</string>
 </resources>

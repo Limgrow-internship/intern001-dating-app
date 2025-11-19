@@ -1,21 +1,62 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">HeartOnDatingApp</string>
     <string name="create_new_password_message">
-        Erstellen Sie ein neues Passwort für Ihr Konto. Stellen Sie sicher, dass es stark und leicht zu merken ist.
+        Erstellen Sie ein neues Passwort für Ihr Konto. Stellen Sie sicher, dass es stark ist und Sie es sich leicht merken können.
     </string>
-    <string name="login">ANMELDEN</string>
+    <string name="error_signup">Bitte wählen Sie ein stärkeres Passwort. Verwenden Sie eine Kombination aus Buchstaben und Zahlen.</string>
+    <string name="login">Anmelden</string>
     <string name="email">E-Mail</string>
     <string name="pass">Passwort</string>
     <string name="Forgot_pass">Passwort vergessen</string>
     <string name="login_with">Oder anmelden mit</string>
-    <string name="dont_have_account">Noch kein Konto?</string>
+    <string name="dont_have_account">Sie haben kein Konto?</string>
     <string name="signup">Registrieren</string>
     <string name="incorrect_mail">Ungültige E-Mail</string>
     <string name="incorrect_pass">Ungültiges Passwort</string>
     <string name="it_all_starts_with_a_swipe">Alles beginnt mit einem Swipe</string>
-    <string name="a_single_swipe_can_open_a_whole_new_story_discover_people_nearby_who_share_your_vibe">Ein einziger Swipe kann eine ganz neue Geschichte eröffnen. Entdecken Sie Menschen in Ihrer Nähe, die Ihre Stimmung teilen</string>
+    <string name="a_single_swipe_can_open_a_whole_new_story_discover_people_nearby_who_share_your_vibe">Ein einziger Swipe kann eine ganz neue Geschichte eröffnen. Entdecken Sie Personen in Ihrer Nähe mit ähnlicher Stimmung.</string>
     <string name="find_your_vibe_not_just_a_match">Finden Sie Ihre Stimmung, nicht nur ein Match</string>
-    <string name="we_help_you_meet_people_who_feel_right_not_just_look_right">Wir helfen Ihnen, Menschen zu treffen, die sich richtig anfühlen — nicht nur richtig aussehen</string>
+    <string name="we_help_you_meet_people_who_feel_right_not_just_look_right">Wir helfen Ihnen, Menschen zu treffen, die sich richtig anfühlen — nicht nur richtig aussehen.</string>
     <string name="btn_continue">Weiter</string>
+    <string name="button">Taste</string>
+    <string name="male">Männlich</string>
+    <string name="female">Weiblich</string>
+    <string name="other">Andere</string>
+    <string name="sign_up">REGISTRIEREN</string>
+    <string name="password">Passwort</string>
+    <string name="already_have_account">Bereits ein Konto?</string>
+    <string name="_40">40%</string>
+    <string name="next">Weiter</string>
+    <string name="default_web_client_id">657435569191-s3n5md0h818sh72j2u7gls8vla24d90d.apps.googleusercontent.com</string>
+    <string name="log_out">Abmelden</string>
+    <string name="billing_sub_week" translatable="false">com.ledkeyboard.weekly</string>
+    <string name="billing_sub_month" translatable="false">monthly</string>
+    <string name="billing_sub_year" translatable="false">com.led.yearlytest</string>
+    <string name="billing_inapp_onetime" translatable="false">test1</string>
+    <string name="registration">REGISTRIERUNG</string>
+    <string name="enter_the_code">Geben Sie den Code ein, der gesendet wurde an</string>
+    <string name="email_example">+limgrow@gmail.com</string>
+    <string name="verify">BESTÄTIGEN</string>
+    <string name="didn_receive">Code nicht erhalten?</string>
+    <string name="recent_code">Erneut senden</string>
+    <string name="choose_photo">Wählen Sie Ihr bestes Foto!</string>
+    <string name="btn_next">Weiter</string>
+    <string name="what_name">Wie ist Ihr Name?</string>
+    <string name="enter_name">Geben Sie Ihren Namen ein</string>
+    <string name="choose_gender">Wählen Sie Ihr Geschlecht</string>
+    <string name="birthday">Geburtsdatum auswählen</string>
+    <string name="mode">Modus</string>
+    <string name="dating">Dating-Modus</string>
+    <string name="friend">Freunde-Modus</string>
+    <string name="upgrade">Update auf Heart On</string>
+    <string name="upgrade_text">Jetzt upgraden und Liebe verbreiten!</string>
+    <string name="btn_upgrad">Jetzt upgraden</string>
+    <string name="profile">Profil</string>
+    <string name="change_password">Passwort ändern</string>
+    <string name="verify_profile">Profil bestätigen</string>
+    <string name="language">Sprache</string>
+    <string name="notications">Benachrichtigungen</string>
+    <string name="help_center">Hilfecenter</string>
+    <string name="contact_us">Kontaktieren Sie uns</string>
+    <string name="delete_acc">Konto löschen</string>
 </resources>

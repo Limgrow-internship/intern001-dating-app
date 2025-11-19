@@ -1,21 +1,62 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">HeartOnDatingApp</string>
     <string name="create_new_password_message">
-        Créez un nouveau mot de passe pour votre compte. Assurez-vous qu\'il soit fort et facile à mémoriser.
+        Créez un nouveau mot de passe pour votre compte. Assurez-vous qu"'"il soit solide et facile à retenir.
     </string>
-    <string name="login">SE CONNECTER</string>
-    <string name="email">Email</string>
+    <string name="error_signup">Veuillez choisir un mot de passe plus fort. Essayez une combinaison de lettres et de chiffres.</string>
+    <string name="login">Se connecter</string>
+    <string name="email">E-mail</string>
     <string name="pass">Mot de passe</string>
     <string name="Forgot_pass">Mot de passe oublié</string>
-    <string name="login_with">Ou connectez-vous avec</string>
-    <string name="dont_have_account">Pas encore de compte ?</string>
-    <string name="signup">S\'inscrire</string>
-    <string name="incorrect_mail">Adresse email incorrecte</string>
-    <string name="incorrect_pass">Mot de passe incorrect</string>
+    <string name="login_with">Ou se connecter avec</string>
+    <string name="dont_have_account">Vous n"'"avez pas de compte ?</string>
+    <string name="signup">S"'"inscrire</string>
+    <string name="incorrect_mail">E-mail invalide</string>
+    <string name="incorrect_pass">Mot de passe invalide</string>
     <string name="it_all_starts_with_a_swipe">Tout commence par un swipe</string>
-    <string name="a_single_swipe_can_open_a_whole_new_story_discover_people_nearby_who_share_your_vibe">Un seul swipe peut ouvrir une toute nouvelle histoire. Découvrez des personnes à proximité qui partagent votre vibe</string>
-    <string name="find_your_vibe_not_just_a_match">Trouvez votre vibe, pas seulement un match</string>
-    <string name="we_help_you_meet_people_who_feel_right_not_just_look_right">Nous vous aidons à rencontrer des personnes qui vous correspondent — pas seulement qui ont l\'air bien</string>
+    <string name="a_single_swipe_can_open_a_whole_new_story_discover_people_nearby_who_share_your_vibe">Un seul swipe peut ouvrir une toute nouvelle histoire. Découvrez des personnes proches qui partagent vos vibrations.</string>
+    <string name="find_your_vibe_not_just_a_match">Trouvez votre vibe, pas seulement une correspondance</string>
+    <string name="we_help_you_meet_people_who_feel_right_not_just_look_right">Nous vous aidons à rencontrer des personnes qui vous correspondent, pas seulement qui ont l"'"air bien.</string>
     <string name="btn_continue">Continuer</string>
+    <string name="button">Bouton</string>
+    <string name="male">Homme</string>
+    <string name="female">Femme</string>
+    <string name="other">Autre</string>
+    <string name="sign_up">S"'"INSCRIRE</string>
+    <string name="password">Mot de passe</string>
+    <string name="already_have_account">Vous avez déjà un compte ?</string>
+    <string name="_40">40%</string>
+    <string name="next">Suivant</string>
+    <string name="default_web_client_id">657435569191-s3n5md0h818sh72j2u7gls8vla24d90d.apps.googleusercontent.com</string>
+    <string name="log_out">Déconnexion</string>
+    <string name="billing_sub_week" translatable="false">com.ledkeyboard.weekly</string>
+    <string name="billing_sub_month" translatable="false">monthly</string>
+    <string name="billing_sub_year" translatable="false">com.led.yearlytest</string>
+    <string name="billing_inapp_onetime" translatable="false">test1</string>
+    <string name="registration">INSCRIPTION</string>
+    <string name="enter_the_code">Entrez le code envoyé à</string>
+    <string name="email_example">+limgrow@gmail.com</string>
+    <string name="verify">VÉRIFIER</string>
+    <string name="didn_receive">Vous n"'"avez pas reçu le code ?</string>
+    <string name="recent_code">Renvoyer le code</string>
+    <string name="choose_photo">Choisissez votre meilleure photo !</string>
+    <string name="btn_next">Suivant</string>
+    <string name="what_name">Quel est votre nom ?</string>
+    <string name="enter_name">Entrez votre nom</string>
+    <string name="choose_gender">Choisissez votre sexe</string>
+    <string name="birthday">Sélectionnez votre anniversaire</string>
+    <string name="mode">Mode</string>
+    <string name="dating">Mode Rencontre</string>
+    <string name="friend">Mode Ami</string>
+    <string name="upgrade">Passez à Heart On</string>
+    <string name="upgrade_text">Améliorez maintenant et partagez l"'"amour !</string>
+    <string name="btn_upgrad">Améliorer maintenant</string>
+    <string name="profile">Profil</string>
+    <string name="change_password">Changer le mot de passe</string>
+    <string name="verify_profile">Vérifier le profil</string>
+    <string name="language">Langue</string>
+    <string name="notications">Notifications</string>
+    <string name="help_center">Centre d"'"aide</string>
+    <string name="contact_us">Contactez-nous</string>
+    <string name="delete_acc">Supprimer le compte</string>
 </resources>
