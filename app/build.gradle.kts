@@ -117,6 +117,10 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:1.3.0")
     implementation("androidx.camera:camera-view:1.3.0")
     implementation("com.google.guava:guava:31.0.1-android")
+
+    // Glide for image loading
+    implementation(libs.glide)
+    ksp(libs.glide.compiler)
 }
 
 // KtLint configuration

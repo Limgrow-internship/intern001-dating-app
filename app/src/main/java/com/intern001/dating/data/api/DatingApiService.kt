@@ -91,40 +91,73 @@ interface DatingApiService {
     @POST("api/auth/facebook-login")
     suspend fun facebookLogin(@Body request: FacebookLoginRequest): FacebookLoginResponse
 
-    // Match endpoints
-    @GET("api/matches/next")
+    // ============================================================
+    // Discovery APIs - For Swiping UI (Simple, Fast)
+    // ============================================================
+
+    // Get next match card (single)
+    @GET("api/discovery/next")
     suspend fun getNextMatchCard(): Response<MatchCardResponse>
 
-    @GET("api/matches/cards")
+    // Get batch of match cards
+    @GET("api/discovery/cards")
     suspend fun getMatchCards(
         @Query("limit") limit: Int = 10,
     ): Response<MatchCardsListResponse>
 
-    @POST("api/matches/like")
-    suspend fun likeUser(@Body request: MatchActionRequest): Response<MatchResultResponse>
+    // Like/Swipe right (simple, no quota)
+    @POST("api/discovery/like")
+    suspend fun discoveryLike(@Body request: MatchActionRequest): Response<MatchResultResponse>
 
-    @POST("api/matches/pass")
-    suspend fun passUser(@Body request: MatchActionRequest): Response<Unit>
+    // Pass/Swipe left
+    @POST("api/discovery/pass")
+    suspend fun discoveryPass(@Body request: MatchActionRequest): Response<Unit>
 
-    @POST("api/matches/superlike")
-    suspend fun superLikeUser(@Body request: MatchActionRequest): Response<MatchResultResponse>
+    // Send a super like (simple, no quota)
+    @POST("api/discovery/superlike")
+    suspend fun discoverySuperlike(@Body request: MatchActionRequest): Response<MatchResultResponse>
 
-    @POST("api/matches/block")
-    suspend fun blockUser(@Body request: BlockUserRequest): Response<Unit>
+    // Block a user
+    @POST("api/discovery/block")
+    suspend fun discoveryBlock(@Body request: BlockUserRequest): Response<Unit>
 
+    // Get all matches (paginated)
+    @GET("api/discovery")
+    suspend fun getDiscoveryMatches(
+        @Query("page") page: Int = 1,
+        @Query("limit") limit: Int = 20,
+    ): Response<MatchesListResponse>
+
+    // Get match by ID
+    @GET("api/discovery/{matchId}")
+    suspend fun getDiscoveryMatchById(
+        @Path("matchId") matchId: String,
+    ): Response<MatchResponse>
+
+    // Unmatch with a user
+    @POST("api/discovery/unmatch")
+    suspend fun discoveryUnmatch(@Body request: UnmatchRequest): Response<Unit>
+
+    // ============================================================
+    // Match APIs - For Match Management (With Quota & Premium)
+    // ============================================================
+
+    // Get all your matches (simple list)
     @GET("api/matches")
     suspend fun getMatches(
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 20,
     ): Response<MatchesListResponse>
 
+    // Get specific match details
     @GET("api/matches/{matchId}")
     suspend fun getMatchById(
         @Path("matchId") matchId: String,
     ): Response<MatchResponse>
 
-    @POST("api/matches/unmatch")
-    suspend fun unmatch(@Body request: UnmatchRequest): Response<Unit>
+    // Perform action on match
+    @POST("api/matches/action")
+    suspend fun matchAction(@Body request: MatchActionRequest): Response<Unit>
 
     // Recommendation endpoints
     @GET("api/recommendations/criteria")

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- Flame/Heart Icon for Match -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M60,100C60,100 30,75 30,55C30,40 40,30 50,30C55,30 60,35 60,35C60,35 65,30 70,30C80,30 90,40 90,55C90,75 60,100 60,100Z" />
+
+    <!-- Inner Flame -->
+    <path
+        android:fillColor="#FFE66D"
+        android:pathData="M60,85C60,85 40,67 40,55C40,45 47,38 54,38C57,38 60,42 60,42C60,42 63,38 66,38C73,38 80,45 80,55C80,67 60,85 60,85Z" />
+
+</vector>

@@ -4,13 +4,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.google.android.material.button.MaterialButton
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
+import com.intern001.dating.presentation.ui.discover.DiscoverFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class HomeFragment : BaseFragment() {
+
+    private lateinit var btnForYou: MaterialButton
+    private lateinit var btnLikedYou: MaterialButton
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -26,25 +31,72 @@ class HomeFragment : BaseFragment() {
         // Show bottom navigation when in HomeFragment
         (activity as? MainActivity)?.hideBottomNavigation(false)
 
-        // Example: Using NavigationManager to navigate
-        // Uncomment to test navigation:
+        initViews(view)
+        setupListeners()
 
-        // Navigate to profile detail
-        // view.findViewById<View>(R.id.someButton)?.setOnClickListener {
-        //     navigationManager.navigateToDynamicRoute(
-        //         navController,
-        //         "profile_detail/userId123"
-        //     )
-        // }
+        // Show DiscoverFragment by default
+        if (savedInstanceState == null) {
+            showForYou()
+        }
+    }
 
-        // Or navigate using action ID
-        // view.findViewById<View>(R.id.someButton)?.setOnClickListener {
-        //     navController.navigate(R.id.action_home_to_profileDetail)
-        // }
+    private fun initViews(view: View) {
+        btnForYou = view.findViewById(R.id.btnForYou)
+        btnLikedYou = view.findViewById(R.id.btnLikedYou)
+    }
 
-        // Or navigate back
-        // view.findViewById<View>(R.id.backButton)?.setOnClickListener {
-        //     navigateUp()
-        // }
+    private fun setupListeners() {
+        btnForYou.setOnClickListener {
+            showForYou()
+        }
+
+        btnLikedYou.setOnClickListener {
+            showLikedYou()
+        }
+    }
+
+    private fun showForYou() {
+        // Update tab UI
+        updateTabUI(true)
+
+        // Show DiscoverFragment
+        childFragmentManager.beginTransaction()
+            .replace(R.id.homeContainer, DiscoverFragment())
+            .commit()
+    }
+
+    private fun showLikedYou() {
+        // Update tab UI
+        updateTabUI(false)
+
+        // TODO: Show LikedYouFragment
+        // For now, show empty fragment
+        childFragmentManager.beginTransaction()
+            .replace(R.id.homeContainer, LikedYouFragment())
+            .commit()
+    }
+
+    private fun updateTabUI(isForYouSelected: Boolean) {
+        if (isForYouSelected) {
+            // For You selected
+            btnForYou.apply {
+                setBackgroundColor(context.getColor(R.color.bottom_nav_selected))
+                setTextColor(context.getColor(R.color.white))
+            }
+            btnLikedYou.apply {
+                setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                setTextColor(context.getColor(R.color.bottom_nav_unselected))
+            }
+        } else {
+            // Liked You selected
+            btnForYou.apply {
+                setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                setTextColor(context.getColor(R.color.bottom_nav_unselected))
+            }
+            btnLikedYou.apply {
+                setBackgroundColor(context.getColor(R.color.bottom_nav_selected))
+                setTextColor(context.getColor(R.color.white))
+            }
+        }
     }
 }

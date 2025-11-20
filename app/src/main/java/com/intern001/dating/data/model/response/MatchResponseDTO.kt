@@ -45,6 +45,13 @@ data class MatchCardResponse(
     val isVerified: Boolean? = null,
 )
 
+/**
+ * PhotoResponse can handle both formats:
+ * 1. String URL: "https://cloudinary.com/image.jpg"
+ * 2. Object: { "url": "...", "order": 0, "uploadedAt": "..." }
+ *
+ * Note: Gson will deserialize String as PhotoResponse with just url field populated
+ */
 data class PhotoResponse(
     @SerializedName("url")
     val url: String,
@@ -52,6 +59,8 @@ data class PhotoResponse(
     val order: Int? = null,
     @SerializedName("uploadedAt")
     val uploadedAt: String? = null,
+    @SerializedName("id")
+    val id: String? = null
 )
 
 data class LocationResponse(
