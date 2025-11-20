@@ -13,7 +13,6 @@
         android:textSize="24dp"
         android:textStyle="bold" />
 
-    <!-- Job -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -35,7 +34,6 @@
             android:background="@android:color/transparent"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Education -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -57,7 +55,6 @@
             android:background="@android:color/transparent"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Address -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -79,7 +76,6 @@
             android:background="@android:color/transparent"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Divider -->
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
@@ -87,7 +83,6 @@
         android:layout_marginBottom="16dp"
         android:background="#EEEEEE"/>
 
-    <!-- Height & Weight -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -124,7 +119,6 @@
             android:inputType="textMultiLine"/>
     </LinearLayout>
 
-    <!-- Zodiac -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
