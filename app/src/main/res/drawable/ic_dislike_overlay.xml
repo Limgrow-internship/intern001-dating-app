@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- Background Circle -->
+    <path
+        android:fillColor="#4D9A9A9A"
+        android:pathData="M60,60m-50,0a50,50 0,1 1,100 0a50,50 0,1 1,-100 0" />
+
+    <!-- NOPE Text -->
+    <path
+        android:fillColor="#9A9A9A"
+        android:pathData="M30,55h8v20l-8,-12zM41,55h8v20h-8zM52,55h10v5h-10zM52,63h10v5h-10zM52,71h10v5h-10zM65,55h8v12h5v8h-13zM78,55h8v20h-8z" />
+
+</vector>

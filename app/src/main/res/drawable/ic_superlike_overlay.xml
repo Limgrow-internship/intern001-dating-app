@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- Background Circle -->
+    <path
+        android:fillColor="#4DFFE66D"
+        android:pathData="M60,60m-50,0a50,50 0,1 1,100 0a50,50 0,1 1,-100 0" />
+
+    <!-- Star/Flame Icon -->
+    <path
+        android:fillColor="#FFE66D"
+        android:pathData="M60,30L65,50L80,52L68,64L72,80L60,72L48,80L52,64L40,52L55,50Z" />
+
+</vector>

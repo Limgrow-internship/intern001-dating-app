@@ -1,15 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface">
+    android:orientation="vertical"
+    android:background="@color/white">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Home"
-        android:textSize="32sp"
-        android:textStyle="bold" />
+    <!-- Tab Layout - Fixed 40dp height -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal"
+        android:background="@drawable/tab_background"
+        android:padding="2dp">
 
-</FrameLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnForYou"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="@string/for_you"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            app:backgroundTint="@color/bottom_nav_selected"
+            app:cornerRadius="18dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLikedYou"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:layout_marginStart="2dp"
+            android:text="@string/liked_you"
+            android:textAllCaps="false"
+            android:textColor="@color/bottom_nav_unselected"
+            android:textSize="13sp"
+            app:backgroundTint="@android:color/transparent"
+            app:cornerRadius="18dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            app:strokeWidth="0dp" />
+
+    </LinearLayout>
+
+    <!-- Content Container -->
+    <FrameLayout
+        android:id="@+id/homeContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>

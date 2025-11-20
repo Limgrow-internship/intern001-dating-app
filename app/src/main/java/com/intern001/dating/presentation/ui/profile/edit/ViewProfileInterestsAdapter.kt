@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.intern001.dating.R
 
 class ViewProfileInterestsAdapter(
-    private val items: List<String>
+    private val items: List<String>,
 ) : RecyclerView.Adapter<ViewProfileInterestsAdapter.ViewHolder>() {
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

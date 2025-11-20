@@ -65,7 +65,7 @@ constructor(
     override suspend fun likeUser(targetUserId: String): Result<MatchResult> {
         return try {
             val request = MatchActionRequest(targetUserId = targetUserId)
-            val response = apiService.likeUser(request)
+            val response = apiService.discoveryLike(request)
             if (response.isSuccessful) {
                 val matchResult = response.body()?.toMatchResult()
                 if (matchResult != null) {
@@ -87,7 +87,7 @@ constructor(
     override suspend fun passUser(targetUserId: String): Result<Unit> {
         return try {
             val request = MatchActionRequest(targetUserId = targetUserId)
-            val response = apiService.passUser(request)
+            val response = apiService.discoveryPass(request)
             if (response.isSuccessful) {
                 Result.success(Unit)
             } else {
@@ -104,7 +104,7 @@ constructor(
     override suspend fun superLikeUser(targetUserId: String): Result<MatchResult> {
         return try {
             val request = MatchActionRequest(targetUserId = targetUserId)
-            val response = apiService.superLikeUser(request)
+            val response = apiService.discoverySuperlike(request)
             if (response.isSuccessful) {
                 val matchResult = response.body()?.toMatchResult()
                 if (matchResult != null) {
@@ -129,7 +129,7 @@ constructor(
     ): Result<Unit> {
         return try {
             val request = BlockUserRequest(targetUserId = targetUserId, reason = reason)
-            val response = apiService.blockUser(request)
+            val response = apiService.discoveryBlock(request)
             if (response.isSuccessful) {
                 Result.success(Unit)
             } else {
@@ -187,7 +187,7 @@ constructor(
     override suspend fun unmatch(matchId: String): Result<Unit> {
         return try {
             val request = UnmatchRequest(matchId = matchId)
-            val response = apiService.unmatch(request)
+            val response = apiService.discoveryUnmatch(request)
             if (response.isSuccessful) {
                 Result.success(Unit)
             } else {

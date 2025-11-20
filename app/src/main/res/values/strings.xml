@@ -59,4 +59,25 @@
     <string name="help_center">Help Center</string>
     <string name="contact_us">Contact Us</string>
     <string name="delete_acc">Delete Account</string>
+
+    <!-- Home Screen Tabs -->
+    <string name="for_you">For you</string>
+    <string name="liked_you">Liked you</string>
+
+    <!-- Discover Screen -->
+    <string name="tap_to_meet_more_heart">Tap to meet more heart</string>
+    <string name="back">Back</string>
+    <string name="dislike">Pass</string>
+    <string name="super_like">Super Like</string>
+    <string name="match">Like</string>
+    <string name="no_more_cards">No more profiles</string>
+    <string name="check_back_later">Check back later for new people</string>
+    <string name="km_away">%s km away</string>
+
+    <!-- Match Found Screen -->
+    <string name="its_a_match">It\'s a Match!</string>
+    <string name="match_found">Match Found</string>
+    <string name="your_hearts_just_turned_on">Your hearts just turned ON</string>
+    <string name="send_message">Send Message</string>
+    <string name="keep_swiping">Keep Swiping</string>
 </resources>
