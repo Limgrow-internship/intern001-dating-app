@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <!-- Yellow circle background (path instead of circle) -->
+    <path
+        android:fillColor="#FFE66D"
+        android:pathData="M 32,0 A 32,32 0 1,1 32,64 A 32,32 0 1,1 32,0 Z" />
+    <!-- Heart icon path -->
+    <path
+        android:fillColor="#FF6500"
+        android:pathData="M32,52.7L29.1,50.06C18.8,40.72 12,34.54 12,27C12,20.82 16.84,16 23,16C26.48,16 29.82,17.62 32,20.16C34.18,17.62 37.52,16 41,16C47.16,16 52,20.82 52,27C52,34.54 45.2,40.72 34.9,50.06L32,52.7Z" />
+</vector>

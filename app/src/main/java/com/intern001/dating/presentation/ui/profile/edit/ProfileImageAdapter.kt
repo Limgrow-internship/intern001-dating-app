@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.intern001.dating.R
 
 class ProfileImageAdapter(
-    private val images: List<Int>
+    private val images: List<Int>,
 ) : RecyclerView.Adapter<ProfileImageAdapter.ImageViewHolder>() {
 
     inner class ImageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -27,4 +27,3 @@ class ProfileImageAdapter(
         holder.img.setImageResource(images[position])
     }
 }
-
