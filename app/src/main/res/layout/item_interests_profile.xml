@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_interests"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="22dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Interests"
+        android:textColor="@color/black"
+        android:textSize="24dp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="16dp">
+
+        <!-- Row 1 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="39dp"
+                android:text="Music"
+                android:layout_weight="1"
+                android:layout_marginRight="10dp"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:background="@drawable/chip_unselected" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="39dp"
+                android:text="Photography"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:layout_marginRight="10dp"
+                android:gravity="center"
+                android:background="@drawable/chip_unselected" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="39dp"
+                android:text="Travel"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/chip_selected" />
+        </LinearLayout>
+
+        <!-- Row 2 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="39dp"
+                android:layout_weight="1"
+                android:text="Deep talks"
+                android:layout_marginRight="10dp"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/chip_selected" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="39dp"
+                android:layout_weight="1"
+                android:text="Read book"
+                android:layout_marginRight="10dp"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/chip_selected" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="39dp"
+                android:layout_weight="1"
+                android:text="Walking"
+                android:layout_marginRight="10dp"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:background="@drawable/chip_unselected" />
+        </LinearLayout>
+
+        <!-- Row 3 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="39dp"
+                android:layout_weight="1"
+                android:text="Pets / Animal lover"
+                android:layout_marginRight="10dp"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:background="@drawable/chip_unselected" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="39dp"
+                android:layout_weight="1"
+                android:text="Cooking"
+                android:layout_marginRight="10dp"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:background="@drawable/chip_unselected" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
