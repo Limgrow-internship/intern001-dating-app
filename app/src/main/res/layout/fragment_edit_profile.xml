@@ -46,77 +46,17 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <FrameLayout
-                    android:id="@+id/fl_photo_1"
-                    android:layout_width="0dp"
-                    android:layout_height="230dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_photo_frame">
+                <include
+                    android:id="@+id/item_photo_1"
+                    layout="@layout/item_photo_profile" />
 
-                    <ImageView
-                        android:id="@+id/iv_photo_1"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        tools:src="@tools:sample/avatars"/>
+                <include
+                    android:id="@+id/item_photo_2"
+                    layout="@layout/item_photo_profile" />
 
-                    <ImageView
-                        android:id="@+id/iv_add_1"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_gravity="center"
-                        android:src="@android:drawable/ic_menu_add"
-                        android:tint="@color/bottom_nav_unselected" />
-                </FrameLayout>
-
-                <FrameLayout
-                    android:id="@+id/fl_photo_2"
-                    android:layout_width="0dp"
-                    android:layout_height="230dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_photo_frame">
-
-                    <ImageView
-                        android:id="@+id/iv_photo_2"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        tools:src="@tools:sample/avatars"/>
-
-                    <ImageView
-                        android:id="@+id/iv_add_2"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_gravity="center"
-                        android:src="@android:drawable/ic_menu_add"
-                        android:tint="@color/bottom_nav_unselected" />
-                </FrameLayout>
-
-                <FrameLayout
-                    android:id="@+id/fl_photo_3"
-                    android:layout_width="0dp"
-                    android:layout_height="230dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_photo_frame">
-
-                    <ImageView
-                        android:id="@+id/iv_photo_3"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        tools:src="@tools:sample/avatars"/>
-
-                    <ImageView
-                        android:id="@+id/iv_add_3"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_gravity="center"
-                        android:src="@android:drawable/ic_menu_add"
-                        android:tint="@color/bottom_nav_unselected" />
-                </FrameLayout>
-
+                <include
+                    android:id="@+id/item_photo_3"
+                    layout="@layout/item_photo_profile" />
             </LinearLayout>
 
             <LinearLayout
@@ -125,76 +65,17 @@
                 android:orientation="horizontal"
                 android:layout_marginTop="16dp">
 
-                <FrameLayout
-                    android:id="@+id/fl_photo_4"
-                    android:layout_width="0dp"
-                    android:layout_height="230dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_photo_frame">
+                <include
+                    android:id="@+id/item_photo_4"
+                    layout="@layout/item_photo_profile" />
 
-                    <ImageView
-                        android:id="@+id/iv_photo_4"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        tools:src="@tools:sample/avatars"/>
+                <include
+                    android:id="@+id/item_photo_5"
+                    layout="@layout/item_photo_profile" />
 
-                    <ImageView
-                        android:id="@+id/iv_add_4"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_gravity="center"
-                        android:src="@android:drawable/ic_menu_add"
-                        android:tint="@color/bottom_nav_unselected" />
-                </FrameLayout>
-
-                <FrameLayout
-                    android:id="@+id/fl_photo_5"
-                    android:layout_width="0dp"
-                    android:layout_height="230dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_photo_frame">
-
-                    <ImageView
-                        android:id="@+id/iv_photo_5"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        tools:src="@tools:sample/avatars"/>
-
-                    <ImageView
-                        android:id="@+id/iv_add_5"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_gravity="center"
-                        android:src="@android:drawable/ic_menu_add"
-                        android:tint="@color/bottom_nav_unselected" />
-                </FrameLayout>
-
-                <FrameLayout
-                    android:id="@+id/fl_photo_6"
-                    android:layout_width="0dp"
-                    android:layout_height="230dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_photo_frame">
-
-                    <ImageView
-                        android:id="@+id/iv_photo_6"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop" />
-
-                    <ImageView
-                        android:id="@+id/iv_add_6"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_gravity="center"
-                        android:src="@android:drawable/ic_menu_add"
-                        android:tint="@color/bottom_nav_unselected" />
-                </FrameLayout>
-
+                <include
+                    android:id="@+id/item_photo_6"
+                    layout="@layout/item_photo_profile" />
             </LinearLayout>
 
         </LinearLayout>
@@ -206,67 +87,9 @@
             android:layout_marginTop="22dp"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Info"
-                android:textColor="@color/black"
-                android:textSize="24dp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/et_name"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_edittext"
-                android:hint="Name"
-                android:inputType="textPersonName"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:textColor="#000000"
-                android:textColorHint="#777777"
-                android:textSize="16sp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2">
-
-                <EditText
-                    android:id="@+id/et_birthday"
-                    android:layout_width="0dp"
-                    android:layout_height="56dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_edittext"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp"
-                    android:textSize="16sp"
-                    android:hint="Birthday"
-                    android:textColor="#000000"
-                    android:textColorHint="#777777"
-                    android:inputType="date"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginEnd="8dp" />
-
-                <EditText
-                    android:id="@+id/et_gender"
-                    android:layout_width="0dp"
-                    android:layout_height="56dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_edittext"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp"
-                    android:textSize="16sp"
-                    android:hint="Gender"
-                    android:textColor="#000000"
-                    android:textColorHint="#777777"
-                    android:inputType="text"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginStart="8dp" />
-
-            </LinearLayout>
+            <include
+                android:id="@+id/include_info"
+                layout="@layout/item_info_profile" />
         </LinearLayout>
 
         <LinearLayout
@@ -276,27 +99,9 @@
             android:layout_marginTop="22dp"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="About Me"
-                android:textColor="@color/black"
-                android:textSize="24dp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/et_introduce"
-                android:layout_width="match_parent"
-                android:layout_height="120dp"
-                android:background="@drawable/bg_edittext_outline"
-                android:padding="16dp"
-                android:textSize="16sp"
-                android:hint="Introduce your self"
-                android:textColor="#000000"
-                android:textColorHint="#777777"
-                android:gravity="top|start"
-                android:inputType="textMultiLine"
-                android:layout_marginTop="12dp" />
+            <include
+                android:id="@+id/include_about"
+                layout="@layout/item_about_profile" />
         </LinearLayout>
 
         <LinearLayout
@@ -306,103 +111,9 @@
             android:layout_marginTop="22dp"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Goals"
-                android:textColor="@color/black"
-                android:textSize="24dp"
-                android:textStyle="bold"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="12dp"
-                    android:weightSum="2">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="39dp"
-                        android:layout_weight="1"
-                        android:text="Serious relationship"
-                        android:layout_marginRight="10dp"
-                        android:textSize="16sp"
-                        android:gravity="center"
-                        android:textColor="#FFFFFF"
-                        android:background="@drawable/chip_selected" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="39dp"
-                        android:layout_weight="1"
-                        android:text="New friends"
-                        android:textSize="16sp"
-                        android:gravity="center"
-                        android:background="@drawable/chip_unselected" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="12dp"
-                    android:weightSum="2">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="39dp"
-                        android:layout_weight="1"
-                        android:text="Something casual"
-                        android:layout_marginRight="10dp"
-                        android:textSize="16sp"
-                        android:gravity="center"
-                        android:background="@drawable/chip_unselected" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="39dp"
-                        android:layout_weight="1"
-                        android:text="Just vibing"
-                        android:textSize="16sp"
-                        android:gravity="center"
-                        android:background="@drawable/chip_unselected" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="12dp"
-                    android:weightSum="2">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="39dp"
-                        android:layout_weight="1"
-                        android:text="Open to anything"
-                        android:layout_marginRight="10dp"
-                        android:textSize="16sp"
-                        android:gravity="center"
-                        android:background="@drawable/chip_unselected" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="39dp"
-                        android:layout_weight="1"
-                        android:text="Still figuring it out"
-                        android:textSize="16sp"
-                        android:gravity="center"
-                        android:textColor="#FFFFFF"
-                        android:background="@drawable/chip_selected" />
-                </LinearLayout>
-            </LinearLayout>
+            <include
+                android:id="@+id/include_goals"
+                layout="@layout/item_goals_profile" />
         </LinearLayout>
 
         <LinearLayout
@@ -412,140 +123,9 @@
             android:layout_marginTop="22dp"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Personal Details"
-                android:textColor="@color/black"
-                android:textSize="24dp"
-                android:textStyle="bold" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/combobox_background"
-                android:hint="Job"
-                android:layout_marginTop="16dp"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                app:endIconMode="custom"
-                app:endIconDrawable="@drawable/ic_drop_down"
-                app:endIconTint="#999999">
-
-                <AutoCompleteTextView
-                    android:id="@+id/comboJob"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:padding="16dp"
-                    android:textColor="#333333"
-                    android:textSize="18sp"
-                    android:background="@android:color/transparent"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/combobox_background"
-                android:hint="Education"
-                android:layout_marginTop="16dp"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                app:endIconMode="custom"
-                app:endIconDrawable="@drawable/ic_drop_down"
-                app:endIconTint="#999999">
-
-                <AutoCompleteTextView
-                    android:id="@+id/comboEducation"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:padding="16dp"
-                    android:textColor="#333333"
-                    android:textSize="18sp"
-                    android:background="@android:color/transparent"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/combobox_background"
-                android:hint="Address"
-                android:layout_marginTop="16dp"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                app:endIconMode="custom"
-                app:endIconDrawable="@drawable/ic_drop_down"
-                app:endIconTint="#999999">
-
-                <AutoCompleteTextView
-                    android:id="@+id/comboAddress"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:padding="16dp"
-                    android:textColor="#333333"
-                    android:textSize="18sp"
-                    android:background="@android:color/transparent"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:background="#EEEEEE"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2">
-
-                <EditText
-                    android:id="@+id/et_height"
-                    android:layout_width="0dp"
-                    android:layout_height="56dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_edittext_outline"
-                    android:padding="16dp"
-                    android:textSize="16sp"
-                    android:hint="Height"
-                    android:textColor="#000000"
-                    android:textColorHint="#777777"
-                    android:gravity="top|start"
-                    android:inputType="textMultiLine"
-                    android:layout_marginRight="14dp" />
-
-                <EditText
-                    android:id="@+id/et_weight"
-                    android:layout_width="0dp"
-                    android:layout_height="56dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_edittext_outline"
-                    android:padding="16dp"
-                    android:textSize="16sp"
-                    android:hint="Weight"
-                    android:textColor="#000000"
-                    android:textColorHint="#777777"
-                    android:gravity="top|start"
-                    android:inputType="textMultiLine" />
-            </LinearLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/combobox_background"
-                android:hint="Zodiac"
-                android:layout_marginTop="16dp"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                app:endIconMode="custom"
-                app:endIconDrawable="@drawable/ic_drop_down"
-                app:endIconTint="#999999">
-
-                <AutoCompleteTextView
-                    android:id="@+id/comboZodiac"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:padding="16dp"
-                    android:textColor="#333333"
-                    android:textSize="18sp"
-                    android:background="@android:color/transparent"/>
-            </com.google.android.material.textfield.TextInputLayout>
+            <include
+                android:id="@+id/include_details"
+                layout="@layout/item_details_profile" />
         </LinearLayout>
 
         <LinearLayout
@@ -555,123 +135,9 @@
             android:layout_marginTop="22dp"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Interests"
-                android:textColor="@color/black"
-                android:textSize="24dp"
-                android:textStyle="bold" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="12dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="39dp"
-                        android:text="Music"
-                        android:layout_weight="1"
-                        android:layout_marginRight="10dp"
-                        android:textSize="16sp"
-                        android:gravity="center"
-                        android:background="@drawable/chip_unselected" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="39dp"
-                        android:text="Photography"
-                        android:layout_weight="1"
-                        android:textSize="16sp"
-                        android:layout_marginRight="10dp"
-                        android:gravity="center"
-                        android:background="@drawable/chip_unselected" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="39dp"
-                        android:text="Travel"
-                        android:layout_weight="1"
-                        android:textSize="16sp"
-                        android:gravity="center"
-                        android:textColor="#FFFFFF"
-                        android:background="@drawable/chip_selected" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="12dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="39dp"
-                        android:layout_weight="1"
-                        android:text="Deep talks"
-                        android:layout_marginRight="10dp"
-                        android:textSize="16sp"
-                        android:gravity="center"
-                        android:textColor="#FFFFFF"
-                        android:background="@drawable/chip_selected" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="39dp"
-                        android:layout_weight="1"
-                        android:text="Read book"
-                        android:layout_marginRight="10dp"
-                        android:textSize="16sp"
-                        android:gravity="center"
-                        android:textColor="#FFFFFF"
-                        android:background="@drawable/chip_selected" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="39dp"
-                        android:layout_weight="1"
-                        android:text="Walking"
-                        android:layout_marginRight="10dp"
-                        android:textSize="16sp"
-                        android:gravity="center"
-                        android:background="@drawable/chip_unselected" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="12dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="39dp"
-                        android:layout_weight="1"
-                        android:text="Pets / Animal lover"
-                        android:layout_marginRight="10dp"
-                        android:textSize="16sp"
-                        android:gravity="center"
-                        android:background="@drawable/chip_unselected" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="39dp"
-                        android:layout_weight="1"
-                        android:text="Cooking"
-                        android:layout_marginRight="10dp"
-                        android:textSize="16sp"
-                        android:gravity="center"
-                        android:background="@drawable/chip_unselected" />
-                </LinearLayout>
-            </LinearLayout>
+            <include
+                android:id="@+id/include_interests"
+                layout="@layout/item_interests_profile" />
         </LinearLayout>
 
         <LinearLayout
@@ -681,123 +147,13 @@
             android:layout_marginTop="22dp"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Open Questions"
-                android:textColor="@color/black"
-                android:textSize="24dp"
-                android:textStyle="bold" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/combobox_background"
-                    android:hint="What’s something that always ..."
-                    android:layout_marginTop="16dp"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    app:endIconMode="custom"
-                    app:endIconDrawable="@drawable/ic_drop_down"
-                    app:endIconTint="#999999">
-
-                    <AutoCompleteTextView
-                        android:id="@+id/comboWhat"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:padding="16dp"
-                        android:textColor="#333333"
-                        android:textSize="18sp"
-                        android:background="@android:color/transparent"/>
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginTop="10dp"
-                    android:src="@drawable/ic_cancel"/>
-            </LinearLayout>
-
-            <EditText
-                android:id="@+id/et_what"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_edittext_outline"
-                android:padding="16dp"
-                android:textSize="16sp"
-                android:hint="Accidentally catching my reflection and realizing I look fine today"
-                android:textColor="#000000"
-                android:textColorHint="#777777"
-                android:gravity="top|start"
-                android:inputType="textMultiLine"
-                android:layout_marginTop="12dp" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:background="#EEEEEE"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/combobox_background"
-                    android:hint="My ideal weekend is..."
-                    android:layout_marginTop="16dp"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    app:endIconMode="custom"
-                    app:endIconDrawable="@drawable/ic_drop_down"
-                    app:endIconTint="#999999">
-
-                    <AutoCompleteTextView
-                        android:id="@+id/comboWeekend"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:padding="16dp"
-                        android:textColor="#333333"
-                        android:textSize="18sp"
-                        android:background="@android:color/transparent"/>
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginTop="10dp"
-                    android:src="@drawable/ic_cancel"/>
-            </LinearLayout>
-
-            <EditText
-                android:id="@+id/et_weekend"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_edittext_outline"
-                android:padding="16dp"
-                android:textSize="16sp"
-                android:hint="Beach, music, and you"
-                android:textColor="#000000"
-                android:textColorHint="#777777"
-                android:gravity="top|start"
-                android:inputType="textMultiLine"
-                android:layout_marginTop="12dp" />
+            <include
+                android:id="@+id/include_questions"
+                layout="@layout/item_open_questions_profile" />
         </LinearLayout>
 
         <Button
+            android:id="@+id/btnSave"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:text="Save"
