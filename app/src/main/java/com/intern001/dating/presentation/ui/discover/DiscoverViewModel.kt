@@ -8,9 +8,9 @@ import com.intern001.dating.domain.usecase.match.GetMatchCardsUseCase
 import com.intern001.dating.domain.usecase.match.LikeUserUseCase
 import com.intern001.dating.domain.usecase.match.PassUserUseCase
 import com.intern001.dating.domain.usecase.match.SuperLikeUserUseCase
-import com.intern001.dating.presentation.common.state.UiState
 import com.intern001.dating.presentation.common.viewmodel.BaseStateViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class DiscoverViewModel @Inject constructor(
@@ -64,7 +63,7 @@ class DiscoverViewModel @Inject constructor(
                 onFailure = { error ->
                     Log.e(TAG, "❌ Failed to load cards: ${error.message}", error)
                     setError(error.message ?: "Failed to load cards")
-                }
+                },
             )
         }
     }
@@ -86,7 +85,7 @@ class DiscoverViewModel @Inject constructor(
                 onFailure = {
                     // Handle error silently or show toast
                     moveToNextCard(currentCard)
-                }
+                },
             )
         }
     }
@@ -101,7 +100,7 @@ class DiscoverViewModel @Inject constructor(
                 onFailure = {
                     // Handle error silently or show toast
                     moveToNextCard(currentCard)
-                }
+                },
             )
         }
     }
@@ -117,7 +116,7 @@ class DiscoverViewModel @Inject constructor(
                 onFailure = {
                     // Handle error silently or show toast
                     moveToNextCard(currentCard)
-                }
+                },
             )
         }
     }

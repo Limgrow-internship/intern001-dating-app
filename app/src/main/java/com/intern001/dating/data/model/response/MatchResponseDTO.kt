@@ -60,7 +60,7 @@ data class PhotoResponse(
     @SerializedName("uploadedAt")
     val uploadedAt: String? = null,
     @SerializedName("id")
-    val id: String? = null
+    val id: String? = null,
 )
 
 data class LocationResponse(

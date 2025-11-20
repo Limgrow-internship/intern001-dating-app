@@ -10,9 +10,9 @@ import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
+import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentViewProfileBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
-import com.intern001.dating.R
 
 class ViewProfileFragment : BaseFragment() {
 
@@ -22,7 +22,7 @@ class ViewProfileFragment : BaseFragment() {
     private val imageList = listOf(
         R.drawable.co4la,
         R.drawable.co4la,
-        R.drawable.co4la
+        R.drawable.co4la,
     )
 
     override fun onCreateView(
@@ -64,7 +64,7 @@ class ViewProfileFragment : BaseFragment() {
             val bar = View(requireContext())
             val params = LinearLayout.LayoutParams(
                 0,
-                LinearLayout.LayoutParams.MATCH_PARENT
+                LinearLayout.LayoutParams.MATCH_PARENT,
             )
             params.weight = 1f
             params.marginEnd = 12
@@ -89,7 +89,6 @@ class ViewProfileFragment : BaseFragment() {
     }
 
     private fun setupGoalsRecyclerView() {
-
         val goalList = listOf(
             "Serious relationship",
             "New friends",
@@ -97,7 +96,7 @@ class ViewProfileFragment : BaseFragment() {
             "Something casual",
             "Hang out",
             "Travel",
-            "Café meetup"
+            "Café meetup",
         )
 
         val layoutManager = FlexboxLayoutManager(requireContext()).apply {
@@ -115,7 +114,7 @@ class ViewProfileFragment : BaseFragment() {
             "Music",
             "Photography",
             "Travel",
-            "Deep talks"
+            "Deep talks",
         )
 
         val layoutManager = FlexboxLayoutManager(requireContext()).apply {
@@ -127,7 +126,6 @@ class ViewProfileFragment : BaseFragment() {
         binding.rvInterests.layoutManager = layoutManager
         binding.rvInterests.adapter = ViewProfileInterestsAdapter(goalList)
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()

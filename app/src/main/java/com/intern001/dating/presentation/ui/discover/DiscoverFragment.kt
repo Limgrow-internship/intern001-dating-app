@@ -1,6 +1,5 @@
 package com.intern001.dating.presentation.ui.discover
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -98,7 +97,7 @@ class DiscoverFragment : BaseFragment() {
                         Toast.makeText(
                             requireContext(),
                             state.message ?: "An error occurred while loading cards",
-                            Toast.LENGTH_LONG
+                            Toast.LENGTH_LONG,
                         ).show()
                     }
                     is UiState.Idle -> {

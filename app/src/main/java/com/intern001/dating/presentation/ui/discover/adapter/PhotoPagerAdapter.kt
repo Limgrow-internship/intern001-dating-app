@@ -10,7 +10,7 @@ import com.intern001.dating.R
 import com.intern001.dating.domain.model.Photo
 
 class PhotoPagerAdapter(
-    private val photos: List<Photo>
+    private val photos: List<Photo>,
 ) : RecyclerView.Adapter<PhotoPagerAdapter.PhotoViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {

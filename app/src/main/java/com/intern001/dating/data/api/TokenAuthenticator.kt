@@ -3,13 +3,13 @@ package com.intern001.dating.data.api
 import android.util.Log
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.data.model.response.RefreshTokenRequest
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import okhttp3.Authenticator
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.Route
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * TokenAuthenticator automatically refreshes the access token when a 401 response is received.
@@ -24,7 +24,7 @@ import javax.inject.Singleton
 @Singleton
 class TokenAuthenticator @Inject constructor(
     private val tokenManager: TokenManager,
-    private val apiService: DatingApiService
+    private val apiService: DatingApiService,
 ) : Authenticator {
 
     companion object {

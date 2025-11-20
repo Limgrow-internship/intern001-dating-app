@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.intern001.dating.R
 
 class ViewProfileGoalsAdapter(
-    private val items: List<String>
+    private val items: List<String>,
 ) : RecyclerView.Adapter<ViewProfileGoalsAdapter.ViewHolder>() {
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -27,4 +27,3 @@ class ViewProfileGoalsAdapter(
 
     override fun getItemCount(): Int = items.size
 }
-

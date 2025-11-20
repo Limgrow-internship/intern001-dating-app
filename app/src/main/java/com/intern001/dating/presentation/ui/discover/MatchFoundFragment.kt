@@ -41,7 +41,7 @@ class MatchFoundFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentMatchFoundBinding.inflate(inflater, container, false)
         return binding.root
@@ -134,8 +134,10 @@ class MatchFoundFragment : BaseFragment() {
 
         val photosAnimator = AnimatorSet().apply {
             playTogether(
-                currentPhotoTransX, currentPhotoAlpha,
-                matchedPhotoTransX, matchedPhotoAlpha
+                currentPhotoTransX,
+                currentPhotoAlpha,
+                matchedPhotoTransX,
+                matchedPhotoAlpha,
             )
             duration = 500
             startDelay = 600
@@ -171,7 +173,7 @@ class MatchFoundFragment : BaseFragment() {
             matchedUserId: String,
             matchedUserName: String,
             matchedUserPhotoUrl: String?,
-            currentUserPhotoUrl: String?
+            currentUserPhotoUrl: String?,
         ) = MatchFoundFragment().apply {
             arguments = Bundle().apply {
                 putString(ARG_MATCH_ID, matchId)

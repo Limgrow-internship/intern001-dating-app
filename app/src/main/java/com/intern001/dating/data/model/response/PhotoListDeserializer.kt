@@ -3,7 +3,6 @@ package com.intern001.dating.data.model.response
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
 import java.lang.reflect.Type
 
 /**
@@ -15,7 +14,7 @@ class PhotoListDeserializer : JsonDeserializer<List<PhotoResponse>> {
     override fun deserialize(
         json: JsonElement?,
         typeOfT: Type?,
-        context: JsonDeserializationContext?
+        context: JsonDeserializationContext?,
     ): List<PhotoResponse> {
         if (json == null || !json.isJsonArray) {
             return emptyList()
@@ -35,8 +34,8 @@ class PhotoListDeserializer : JsonDeserializer<List<PhotoResponse>> {
                                 url = url,
                                 order = index,
                                 uploadedAt = null,
-                                id = null
-                            )
+                                id = null,
+                            ),
                         )
                     }
                     // Case 2: Element is an object
@@ -53,8 +52,8 @@ class PhotoListDeserializer : JsonDeserializer<List<PhotoResponse>> {
                                     url = url,
                                     order = order,
                                     uploadedAt = uploadedAt,
-                                    id = id
-                                )
+                                    id = id,
+                                ),
                             )
                         }
                     }

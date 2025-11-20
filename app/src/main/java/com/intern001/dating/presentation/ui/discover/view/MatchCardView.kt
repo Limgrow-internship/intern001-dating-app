@@ -21,7 +21,7 @@ import kotlin.math.abs
 class MatchCardView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
+    defStyleAttr: Int = 0,
 ) : CardView(context, attrs, defStyleAttr) {
 
     private val binding: ItemMatchCardBinding
@@ -39,23 +39,26 @@ class MatchCardView @JvmOverloads constructor(
     init {
         binding = ItemMatchCardBinding.inflate(LayoutInflater.from(context), this, true)
 
-        gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-            override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                // Check if dark overlay is visible
-                if (binding.darkOverlay.isVisible) {
-                    // Hide overlay when tapped
-                    hideDarkOverlay()
+        gestureDetector = GestureDetector(
+            context,
+            object : GestureDetector.SimpleOnGestureListener() {
+                override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+                    // Check if dark overlay is visible
+                    if (binding.darkOverlay.isVisible) {
+                        // Hide overlay when tapped
+                        hideDarkOverlay()
+                        return true
+                    }
+                    // Handle photo tap navigation
+                    handlePhotoTap(e.x)
                     return true
                 }
-                // Handle photo tap navigation
-                handlePhotoTap(e.x)
-                return true
-            }
 
-            override fun onLongPress(e: MotionEvent) {
-                onPhotoClickListener?.onLongPress()
-            }
-        })
+                override fun onLongPress(e: MotionEvent) {
+                    onPhotoClickListener?.onLongPress()
+                }
+            },
+        )
 
         // Setup overlay click listener
         binding.darkOverlay.setOnClickListener {
@@ -134,13 +137,16 @@ class MatchCardView @JvmOverloads constructor(
                 layoutParams = android.widget.LinearLayout.LayoutParams(
                     0,
                     context.resources.getDimensionPixelSize(R.dimen.indicator_height),
-                    1f
+                    1f,
                 ).apply {
                     if (i > 0) marginStart = context.resources.getDimensionPixelSize(R.dimen.indicator_margin)
                 }
                 setBackgroundResource(
-                    if (i == 0) R.drawable.photo_indicator_active
-                    else R.drawable.photo_indicator_inactive
+                    if (i == 0) {
+                        R.drawable.photo_indicator_active
+                    } else {
+                        R.drawable.photo_indicator_inactive
+                    },
                 )
             }
             binding.photoIndicators.addView(indicator)
@@ -151,8 +157,11 @@ class MatchCardView @JvmOverloads constructor(
         for (i in 0 until binding.photoIndicators.childCount) {
             val indicator = binding.photoIndicators.getChildAt(i)
             indicator.setBackgroundResource(
-                if (i == position) R.drawable.photo_indicator_active
-                else R.drawable.photo_indicator_inactive
+                if (i == position) {
+                    R.drawable.photo_indicator_active
+                } else {
+                    R.drawable.photo_indicator_inactive
+                },
             )
         }
     }
@@ -331,6 +340,8 @@ class MatchCardView @JvmOverloads constructor(
     }
 
     enum class SwipeDirection {
-        LEFT, RIGHT, UP
+        LEFT,
+        RIGHT,
+        UP,
     }
 }

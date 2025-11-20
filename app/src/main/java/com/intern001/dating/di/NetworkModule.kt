@@ -92,7 +92,7 @@ object NetworkModule {
         // Create TokenAuthenticator with refresh API service
         val tokenAuthenticator = com.intern001.dating.data.api.TokenAuthenticator(
             tokenManager,
-            refreshApiService
+            refreshApiService,
         )
 
         // Create main OkHttpClient with authenticator
@@ -112,7 +112,7 @@ object NetworkModule {
         return GsonBuilder()
             .registerTypeAdapter(
                 object : TypeToken<List<PhotoResponse>>() {}.type,
-                PhotoListDeserializer()
+                PhotoListDeserializer(),
             )
             .create()
     }
