@@ -143,7 +143,7 @@
                     android:id="@+id/btnDislike"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
-                    android:layout_marginStart="20dp"
+                    android:layout_marginStart="35dp"
                     android:background="@drawable/ic_dislike_discover"
                     android:contentDescription="@string/dislike"
                     android:scaleType="centerInside" />
@@ -152,7 +152,7 @@
                     android:id="@+id/btnSuperLike"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
-                    android:layout_marginStart="20dp"
+                    android:layout_marginStart="35dp"
                     android:background="@drawable/ic_superlike_discover"
                     android:contentDescription="@string/super_like"
                     android:scaleType="centerInside" />
@@ -161,7 +161,7 @@
                     android:id="@+id/btnLike"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
-                    android:layout_marginStart="20dp"
+                    android:layout_marginStart="35dp"
                     android:background="@drawable/ic_match_discover"
                     android:contentDescription="@string/match"
                     android:scaleType="centerInside" />
@@ -169,35 +169,6 @@
             </LinearLayout>
 
         </LinearLayout>
-
-        <!-- Dark Overlay with "Tap to meet more heart" -->
-        <View
-            android:id="@+id/darkOverlay"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="#80000000"
-            android:clickable="true"
-            android:focusable="true"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tvTapToMeet"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/tap_to_meet"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.45" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

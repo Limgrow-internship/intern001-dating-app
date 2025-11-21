@@ -9,23 +9,22 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import androidx.cardview.widget.CardView
-import androidx.core.view.isVisible
 import androidx.viewpager2.widget.ViewPager2
 import com.intern001.dating.R
-import com.intern001.dating.databinding.ItemMatchCardBinding
+import com.intern001.dating.databinding.ViewSwipeableCardBinding
 import com.intern001.dating.domain.model.MatchCard
 import com.intern001.dating.presentation.ui.discover.adapter.PhotoPagerAdapter
-class MatchCardView @JvmOverloads constructor(
+
+class SwipeableCardView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
 ) : CardView(context, attrs, defStyleAttr) {
 
-    private val binding: ItemMatchCardBinding
+    private val binding: ViewSwipeableCardBinding
 
     private var onSwipeListener: OnSwipeListener? = null
     private var onPhotoClickListener: OnPhotoClickListener? = null
-    private var onOverlayTapListener: OnOverlayTapListener? = null
     private var onActionClickListener: OnActionClickListener? = null
 
     private var initialX = 0f
@@ -33,22 +32,16 @@ class MatchCardView @JvmOverloads constructor(
     private var dX = 0f
     private var dY = 0f
 
+    private val swipeThreshold = 50f
     private val gestureDetector: GestureDetector
 
     init {
-        binding = ItemMatchCardBinding.inflate(LayoutInflater.from(context), this, true)
+        binding = ViewSwipeableCardBinding.inflate(LayoutInflater.from(context), this, true)
 
         gestureDetector = GestureDetector(
             context,
             object : GestureDetector.SimpleOnGestureListener() {
                 override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                    // Check if dark overlay is visible
-                    if (binding.darkOverlay.isVisible) {
-                        // Notify listener that overlay was tapped (for navigation to mode screen)
-                        onOverlayTapListener?.onOverlayTap()
-                        return true
-                    }
-                    // Handle photo tap navigation
                     handlePhotoTap(e.x)
                     return true
                 }
@@ -59,16 +52,7 @@ class MatchCardView @JvmOverloads constructor(
             },
         )
 
-        // Setup overlay click listener
-        binding.darkOverlay.setOnClickListener {
-            onOverlayTapListener?.onOverlayTap()
-        }
-
-        // Setup action button listeners
         setupActionButtons()
-
-        // Show overlay by default
-        showDarkOverlay()
     }
 
     private fun setupActionButtons() {
@@ -87,22 +71,6 @@ class MatchCardView @JvmOverloads constructor(
             animateSwipeOut(SwipeDirection.RIGHT)
             onSwipeListener?.onLike()
         }
-    }
-
-    private fun showDarkOverlay() {
-        binding.darkOverlay.visibility = View.VISIBLE
-        binding.tvTapToMeet.visibility = View.VISIBLE
-    }
-
-    private fun hideDarkOverlay() {
-        binding.darkOverlay.animate()
-            .alpha(0f)
-            .setDuration(300)
-            .withEndAction {
-                binding.darkOverlay.visibility = View.GONE
-                binding.tvTapToMeet.visibility = View.GONE
-            }
-            .start()
     }
 
     fun bindCard(card: MatchCard) {
@@ -179,19 +147,36 @@ class MatchCardView @JvmOverloads constructor(
     private fun handlePhotoTap(x: Float) {
         val width = binding.viewPagerPhotos.width
         if (x < width / 2) {
-            // Tap on left side - previous photo
             val currentItem = binding.viewPagerPhotos.currentItem
             if (currentItem > 0) {
                 binding.viewPagerPhotos.currentItem = currentItem - 1
             }
         } else {
-            // Tap on right side - next photo
             val currentItem = binding.viewPagerPhotos.currentItem
             val adapter = binding.viewPagerPhotos.adapter
             if (adapter != null && currentItem < adapter.itemCount - 1) {
                 binding.viewPagerPhotos.currentItem = currentItem + 1
             }
         }
+    }
+
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+        when (ev.action) {
+            MotionEvent.ACTION_DOWN -> {
+                initialX = x
+                initialY = y
+                dX = x - ev.rawX
+                dY = y - ev.rawY
+            }
+            MotionEvent.ACTION_MOVE -> {
+                val deltaX = kotlin.math.abs(ev.rawX + dX - initialX)
+                val deltaY = kotlin.math.abs(ev.rawY + dY - initialY)
+                if (deltaX > swipeThreshold && deltaX > deltaY) {
+                    return true
+                }
+            }
+        }
+        return false
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -208,41 +193,27 @@ class MatchCardView @JvmOverloads constructor(
 
             MotionEvent.ACTION_MOVE -> {
                 val newX = event.rawX + dX
-                val newY = event.rawY + dY
+                val deltaX = newX - initialX
 
                 x = newX
-                y = newY
-
-                // Calculate swipe direction and rotation
-                val deltaX = newX - initialX
                 val rotation = deltaX / 20f
-
                 this.rotation = rotation
                 return true
             }
 
             MotionEvent.ACTION_UP -> {
                 val deltaX = x - initialX
-                val deltaY = y - initialY
 
                 when {
-                    deltaY < -300 -> {
-                        // Super like
-                        animateSwipeOut(SwipeDirection.UP)
-                        onSwipeListener?.onSuperLike()
-                    }
                     deltaX > 200 -> {
-                        // Like
                         animateSwipeOut(SwipeDirection.RIGHT)
                         onSwipeListener?.onLike()
                     }
                     deltaX < -200 -> {
-                        // Dislike
                         animateSwipeOut(SwipeDirection.LEFT)
                         onSwipeListener?.onDislike()
                     }
                     else -> {
-                        // Return to original position
                         animateReturn()
                     }
                 }
@@ -299,10 +270,6 @@ class MatchCardView @JvmOverloads constructor(
         this.onPhotoClickListener = listener
     }
 
-    fun setOnOverlayTapListener(listener: OnOverlayTapListener) {
-        this.onOverlayTapListener = listener
-    }
-
     fun setOnActionClickListener(listener: OnActionClickListener) {
         this.onActionClickListener = listener
     }
@@ -315,10 +282,6 @@ class MatchCardView @JvmOverloads constructor(
 
     interface OnPhotoClickListener {
         fun onLongPress()
-    }
-
-    interface OnOverlayTapListener {
-        fun onOverlayTap()
     }
 
     interface OnActionClickListener {
