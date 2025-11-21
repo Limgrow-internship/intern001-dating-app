@@ -42,8 +42,17 @@ class DiscoverViewModel @Inject constructor(
 
     private val _undoStack = MutableStateFlow<List<MatchCard>>(emptyList())
 
+    private var isInitialized = false
+
     init {
-        loadMatchCards()
+        loadMatchCardsIfNeeded()
+    }
+
+    private fun loadMatchCardsIfNeeded() {
+        if (!isInitialized) {
+            isInitialized = true
+            loadMatchCards()
+        }
     }
 
     fun loadMatchCards(limit: Int = 10) {

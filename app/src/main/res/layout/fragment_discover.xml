@@ -6,72 +6,19 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-    <!-- Card Container -->
+    <!-- Card Container - Full height (action buttons are inside the card now) -->
     <FrameLayout
         android:id="@+id/cardContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="24dp"
-        app:layout_constraintBottom_toTopOf="@+id/actionButtonsLayout"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <!-- Action Buttons Layout -->
-    <LinearLayout
-        android:id="@+id/actionButtonsLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <!-- Back Button -->
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/ic_back_discover"
-            android:contentDescription="@string/back"
-            android:scaleType="centerInside" />
-
-        <!-- Dislike Button -->
-        <ImageButton
-            android:id="@+id/btnDislike"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/ic_dislike_discover"
-            android:contentDescription="@string/dislike"
-            android:scaleType="centerInside" />
-
-        <!-- Super Like Button -->
-        <ImageButton
-            android:id="@+id/btnSuperLike"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/ic_superlike_discover"
-            android:contentDescription="@string/super_like"
-            android:scaleType="centerInside" />
-
-        <!-- Match Button -->
-        <ImageButton
-            android:id="@+id/btnMatch"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="@drawable/ic_match_discover"
-            android:contentDescription="@string/match"
-            android:scaleType="centerInside" />
-
-    </LinearLayout>
 
     <!-- Loading Indicator -->
     <ProgressBar

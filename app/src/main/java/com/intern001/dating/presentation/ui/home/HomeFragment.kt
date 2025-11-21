@@ -4,9 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.material.button.MaterialButton
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
+import com.intern001.dating.databinding.FragmentHomeBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.ui.discover.DiscoverFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -14,15 +14,16 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class HomeFragment : BaseFragment() {
 
-    private lateinit var btnForYou: MaterialButton
-    private lateinit var btnLikedYou: MaterialButton
+    private var _binding: FragmentHomeBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
-        return inflater.inflate(R.layout.fragment_home, container, false)
+    ): View {
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -31,7 +32,6 @@ class HomeFragment : BaseFragment() {
         // Show bottom navigation when in HomeFragment
         (activity as? MainActivity)?.hideBottomNavigation(false)
 
-        initViews(view)
         setupListeners()
 
         // Show DiscoverFragment by default
@@ -40,17 +40,17 @@ class HomeFragment : BaseFragment() {
         }
     }
 
-    private fun initViews(view: View) {
-        btnForYou = view.findViewById(R.id.btnForYou)
-        btnLikedYou = view.findViewById(R.id.btnLikedYou)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun setupListeners() {
-        btnForYou.setOnClickListener {
+        binding.btnForYou.setOnClickListener {
             showForYou()
         }
 
-        btnLikedYou.setOnClickListener {
+        binding.btnLikedYou.setOnClickListener {
             showLikedYou()
         }
     }
@@ -76,24 +76,28 @@ class HomeFragment : BaseFragment() {
             .commit()
     }
 
+    fun hideTabBar(hide: Boolean) {
+        _binding?.tabContainer?.visibility = if (hide) View.GONE else View.VISIBLE
+    }
+
     private fun updateTabUI(isForYouSelected: Boolean) {
         if (isForYouSelected) {
             // For You selected
-            btnForYou.apply {
+            binding.btnForYou.apply {
                 setBackgroundColor(context.getColor(R.color.bottom_nav_selected))
                 setTextColor(context.getColor(R.color.white))
             }
-            btnLikedYou.apply {
+            binding.btnLikedYou.apply {
                 setBackgroundColor(android.graphics.Color.TRANSPARENT)
                 setTextColor(context.getColor(R.color.bottom_nav_unselected))
             }
         } else {
             // Liked You selected
-            btnForYou.apply {
+            binding.btnForYou.apply {
                 setBackgroundColor(android.graphics.Color.TRANSPARENT)
                 setTextColor(context.getColor(R.color.bottom_nav_unselected))
             }
-            btnLikedYou.apply {
+            binding.btnLikedYou.apply {
                 setBackgroundColor(context.getColor(R.color.bottom_nav_selected))
                 setTextColor(context.getColor(R.color.white))
             }
