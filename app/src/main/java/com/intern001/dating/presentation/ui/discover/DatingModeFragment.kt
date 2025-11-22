@@ -136,10 +136,10 @@ class DatingModeFragment : BaseFragment() {
     private fun showCurrentCard() {
         val currentCard = viewModel.getCurrentCard() ?: return
 
-        // Remove old card view
-        currentCardView?.let { binding.cardContainer.removeView(it) }
+        val container = binding.cardContainer
 
-        // Use next card if available, otherwise create new
+        currentCardView?.let { container.removeView(it) }
+
         currentCardView = nextCardView ?: createCardView()
         nextCardView = null
         currentCardView?.let { cardView ->
@@ -147,23 +147,20 @@ class DatingModeFragment : BaseFragment() {
             cardView.visibility = View.VISIBLE
 
             if (cardView.parent == null) {
-                binding.cardContainer.addView(cardView, 0)
+                container.addView(cardView, 0)
             }
 
             setupCardSwipeListener(cardView)
         }
 
-        // Update detail info section
         bindDetailInfo(currentCard)
 
         prepareNextCard()
     }
 
     private fun bindDetailInfo(card: MatchCard) {
-        // Reset scroll position
         binding.detailScrollView.scrollTo(0, 0)
 
-        // Bio
         if (!card.bio.isNullOrEmpty()) {
             binding.tvBio.text = card.bio
             binding.tvBio.visibility = View.VISIBLE
@@ -171,7 +168,6 @@ class DatingModeFragment : BaseFragment() {
             binding.tvBio.visibility = View.GONE
         }
 
-        // Occupation
         if (!card.occupation.isNullOrEmpty()) {
             binding.tvOccupation.text = card.occupation
             binding.occupationSection.visibility = View.VISIBLE
@@ -179,7 +175,6 @@ class DatingModeFragment : BaseFragment() {
             binding.occupationSection.visibility = View.GONE
         }
 
-        // Education
         if (!card.education.isNullOrEmpty()) {
             binding.tvEducation.text = card.education
             binding.educationSection.visibility = View.VISIBLE
@@ -187,7 +182,6 @@ class DatingModeFragment : BaseFragment() {
             binding.educationSection.visibility = View.GONE
         }
 
-        // Location detail
         card.location?.let { loc ->
             if (!loc.city.isNullOrEmpty()) {
                 val locationText = buildString {
@@ -206,7 +200,6 @@ class DatingModeFragment : BaseFragment() {
             binding.locationSection.visibility = View.GONE
         }
 
-        // Zodiac
         if (!card.zodiacSign.isNullOrEmpty()) {
             binding.tvZodiac.text = card.zodiacSign
             binding.zodiacSection.visibility = View.VISIBLE
@@ -214,7 +207,6 @@ class DatingModeFragment : BaseFragment() {
             binding.zodiacSection.visibility = View.GONE
         }
 
-        // Looking for chips
         if (!card.relationshipMode.isNullOrEmpty()) {
             binding.tvLookingForTitle.visibility = View.VISIBLE
             binding.chipGroupLookingFor.visibility = View.VISIBLE
@@ -227,7 +219,6 @@ class DatingModeFragment : BaseFragment() {
             binding.chipGroupLookingFor.visibility = View.GONE
         }
 
-        // Interests chips
         if (card.interests.isNotEmpty()) {
             binding.tvInterestsTitle.visibility = View.VISIBLE
             binding.chipGroupInterests.visibility = View.VISIBLE
@@ -261,10 +252,11 @@ class DatingModeFragment : BaseFragment() {
         val nextIndex = viewModel.currentCardIndex.value + 1
 
         if (nextIndex < cards.size) {
+            val container = binding.cardContainer
             nextCardView = createCardView().apply {
                 bindCard(cards[nextIndex])
                 visibility = View.VISIBLE
-                binding.cardContainer.addView(this, 0)
+                container.addView(this, 0)
             }
         }
     }

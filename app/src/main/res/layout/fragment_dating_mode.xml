@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-    <!-- Header -->
     <ImageView
         android:id="@+id/btnBack"
         android:layout_width="40dp"
@@ -44,23 +43,32 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/orange_500" />
 
-    <!-- Swipeable Card Container (top part - fixed height) -->
-    <FrameLayout
-        android:id="@+id/cardContainer"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardContainerWrapper"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="0dp"
         app:layout_constraintBottom_toTopOf="@id/detailScrollView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.55"
+        app:layout_constraintHeight_percent="0.70"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnBack"
         app:layout_constraintVertical_bias="0"
-        app:layout_constraintVertical_chainStyle="packed" />
+        app:layout_constraintVertical_chainStyle="packed">
 
-    <!-- Detail Info Section (bottom part - scrollable) -->
+        <FrameLayout
+            android:id="@+id/cardContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipChildren="false"
+            android:clipToPadding="false" />
+
+    </androidx.cardview.widget.CardView>
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/detailScrollView"
         android:layout_width="0dp"
@@ -71,7 +79,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardContainer">
+        app:layout_constraintTop_toBottomOf="@id/cardContainerWrapper">
 
         <LinearLayout
             android:id="@+id/detailInfoContainer"
@@ -81,7 +89,6 @@
             android:orientation="vertical"
             android:paddingBottom="32dp">
 
-            <!-- Bio Section -->
             <TextView
                 android:id="@+id/tvBio"
                 android:layout_width="match_parent"
@@ -95,7 +102,6 @@
                 tools:text="Just a coffee lover who enjoys deep talks and spontaneous trips."
                 tools:visibility="visible" />
 
-            <!-- Occupation Section -->
             <LinearLayout
                 android:id="@+id/occupationSection"
                 android:layout_width="match_parent"
@@ -124,7 +130,6 @@
 
             </LinearLayout>
 
-            <!-- Education Section -->
             <LinearLayout
                 android:id="@+id/educationSection"
                 android:layout_width="match_parent"
@@ -153,7 +158,6 @@
 
             </LinearLayout>
 
-            <!-- Location Section -->
             <LinearLayout
                 android:id="@+id/locationSection"
                 android:layout_width="match_parent"
@@ -182,7 +186,6 @@
 
             </LinearLayout>
 
-            <!-- Zodiac Section -->
             <LinearLayout
                 android:id="@+id/zodiacSection"
                 android:layout_width="match_parent"
@@ -211,7 +214,6 @@
 
             </LinearLayout>
 
-            <!-- Looking For Section -->
             <TextView
                 android:id="@+id/tvLookingForTitle"
                 android:layout_width="wrap_content"
@@ -237,7 +239,6 @@
                 app:singleLine="false"
                 tools:visibility="visible" />
 
-            <!-- Interests Section -->
             <TextView
                 android:id="@+id/tvInterestsTitle"
                 android:layout_width="wrap_content"
@@ -267,7 +268,6 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Loading Indicator -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
@@ -279,7 +279,6 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:visibility="visible" />
 
-    <!-- No More Cards Message -->
     <LinearLayout
         android:id="@+id/noMoreCardsLayout"
         android:layout_width="wrap_content"

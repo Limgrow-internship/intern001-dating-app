@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="150dp"
+    android:height="180dp"
+    android:viewportWidth="150"
+    android:viewportHeight="180">
+
+    <!-- Flame outer shape -->
+    <path
+        android:fillColor="#FF6B35"
+        android:pathData="M75,10C75,10 45,40 40,70C35,100 45,130 55,145C65,160 75,170 75,170C75,170 85,160 95,145C105,130 115,100 110,70C105,40 75,10 75,10Z" />
+
+    <!-- Flame inner glow -->
+    <path
+        android:fillColor="#FF8C42"
+        android:pathData="M75,30C75,30 55,55 52,80C49,105 57,125 65,138C73,151 75,155 75,155C75,155 77,151 85,138C93,125 101,105 98,80C95,55 75,30 75,30Z" />
+
+    <!-- Heart inside flame -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M75,70C75,70 65,62 58,68C51,74 51,85 58,95C65,105 75,115 75,115C75,115 85,105 92,95C99,85 99,74 92,68C85,62 75,70 75,70Z" />
+
+</vector>

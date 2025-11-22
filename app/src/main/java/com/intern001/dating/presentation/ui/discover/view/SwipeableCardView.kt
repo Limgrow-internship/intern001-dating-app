@@ -3,11 +3,13 @@ package com.intern001.dating.presentation.ui.discover.view
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
+import android.graphics.Outline
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewOutlineProvider
 import androidx.cardview.widget.CardView
 import androidx.viewpager2.widget.ViewPager2
 import com.intern001.dating.R
@@ -37,6 +39,14 @@ class SwipeableCardView @JvmOverloads constructor(
 
     init {
         binding = ViewSwipeableCardBinding.inflate(LayoutInflater.from(context), this, true)
+
+        val cornerRadius = 24f * context.resources.displayMetrics.density
+        binding.viewPagerPhotos.outlineProvider = object : ViewOutlineProvider() {
+            override fun getOutline(view: View, outline: Outline) {
+                outline.setRoundRect(0, 0, view.width, view.height, cornerRadius)
+            }
+        }
+        binding.viewPagerPhotos.clipToOutline = true
 
         gestureDetector = GestureDetector(
             context,
@@ -74,12 +84,9 @@ class SwipeableCardView @JvmOverloads constructor(
     }
 
     fun bindCard(card: MatchCard) {
-        // Setup photo viewpager
         val photoAdapter = PhotoPagerAdapter(card.photos)
         binding.viewPagerPhotos.adapter = photoAdapter
         setupPhotoIndicators(card.photos.size)
-
-        // Setup viewpager page change listener
         binding.viewPagerPhotos.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
@@ -87,17 +94,13 @@ class SwipeableCardView @JvmOverloads constructor(
             }
         })
 
-        // Bind basic data
         binding.tvName.text = card.firstName
 
-        // Calculate and display age
         val age = card.age
         binding.tvAge.text = if (age != null && age > 0) ", $age" else ""
 
-        // Gender
         binding.tvGender.text = card.gender?.replaceFirstChar { it.uppercase() } ?: ""
 
-        // Distance badge on top-left
         val distance = card.distance?.toInt() ?: 0
         binding.tvDistanceBadge.text = context.getString(R.string.km_format, distance)
     }
@@ -198,6 +201,9 @@ class SwipeableCardView @JvmOverloads constructor(
                 x = newX
                 val rotation = deltaX / 20f
                 this.rotation = rotation
+
+                // Update swipe overlay based on direction
+                updateSwipeOverlay(deltaX)
                 return true
             }
 
@@ -215,12 +221,33 @@ class SwipeableCardView @JvmOverloads constructor(
                     }
                     else -> {
                         animateReturn()
+                        resetSwipeOverlay()
                     }
                 }
                 return true
             }
         }
         return super.onTouchEvent(event)
+    }
+
+    private fun updateSwipeOverlay(deltaX: Float) {
+        val swipeThreshold = 200f
+        val alpha = (kotlin.math.abs(deltaX) / swipeThreshold).coerceIn(0f, 1f)
+
+        if (deltaX > 0) {
+            binding.likeOverlay.alpha = alpha
+            binding.dislikeOverlay.alpha = 0f
+        } else if (deltaX < 0) {
+            binding.dislikeOverlay.alpha = alpha
+            binding.likeOverlay.alpha = 0f
+        } else {
+            resetSwipeOverlay()
+        }
+    }
+
+    private fun resetSwipeOverlay() {
+        binding.likeOverlay.alpha = 0f
+        binding.dislikeOverlay.alpha = 0f
     }
 
     fun animateSwipeOut(direction: SwipeDirection) {

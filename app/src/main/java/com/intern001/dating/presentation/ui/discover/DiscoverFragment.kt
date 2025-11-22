@@ -58,8 +58,6 @@ class DiscoverFragment : BaseFragment() {
     }
 
     private fun setupListeners() {
-        // Action buttons are now inside the card view (MatchCardExpandedView)
-        // See setupCardSwipeListener for button click handling
     }
 
     private fun observeViewModel() {
@@ -127,13 +125,10 @@ class DiscoverFragment : BaseFragment() {
     private fun showCurrentCard() {
         val currentCard = viewModel.getCurrentCard() ?: return
 
-        // Hide no more cards layout when showing a card
         binding.noMoreCardsLayout.isVisible = false
 
-        // Remove old card view
         currentCardView?.let { binding.cardContainer.removeView(it) }
 
-        // Use next card if available, otherwise create new
         currentCardView = nextCardView ?: createCardView()
         nextCardView = null
 
@@ -141,7 +136,6 @@ class DiscoverFragment : BaseFragment() {
             cardView.bindCard(currentCard)
             cardView.visibility = View.VISIBLE
 
-            // Add to container if not already added
             if (cardView.parent == null) {
                 binding.cardContainer.addView(cardView, 0)
             }
@@ -230,9 +224,7 @@ class DiscoverFragment : BaseFragment() {
     }
 
     private fun navigateToModeScreen(mode: String) {
-        // Navigate to Dating Mode or Friend Mode screen based on user's mode
         val fragment = if (mode.lowercase() == "friend") {
-            // TODO: Create FriendModeFragment
             DatingModeFragment()
         } else {
             DatingModeFragment()

@@ -3,11 +3,13 @@ package com.intern001.dating.presentation.ui.discover.view
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
+import android.graphics.Outline
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewOutlineProvider
 import androidx.cardview.widget.CardView
 import androidx.core.view.isVisible
 import androidx.viewpager2.widget.ViewPager2
@@ -38,17 +40,22 @@ class MatchCardView @JvmOverloads constructor(
     init {
         binding = ItemMatchCardBinding.inflate(LayoutInflater.from(context), this, true)
 
+        val cornerRadius = 24f * context.resources.displayMetrics.density
+        binding.viewPagerPhotos.outlineProvider = object : ViewOutlineProvider() {
+            override fun getOutline(view: View, outline: Outline) {
+                outline.setRoundRect(0, 0, view.width, view.height, cornerRadius)
+            }
+        }
+        binding.viewPagerPhotos.clipToOutline = true
+
         gestureDetector = GestureDetector(
             context,
             object : GestureDetector.SimpleOnGestureListener() {
                 override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                    // Check if dark overlay is visible
                     if (binding.darkOverlay.isVisible) {
-                        // Notify listener that overlay was tapped (for navigation to mode screen)
                         onOverlayTapListener?.onOverlayTap()
                         return true
                     }
-                    // Handle photo tap navigation
                     handlePhotoTap(e.x)
                     return true
                 }
@@ -59,15 +66,12 @@ class MatchCardView @JvmOverloads constructor(
             },
         )
 
-        // Setup overlay click listener
         binding.darkOverlay.setOnClickListener {
             onOverlayTapListener?.onOverlayTap()
         }
 
-        // Setup action button listeners
         setupActionButtons()
 
-        // Show overlay by default
         showDarkOverlay()
     }
 
@@ -218,6 +222,9 @@ class MatchCardView @JvmOverloads constructor(
                 val rotation = deltaX / 20f
 
                 this.rotation = rotation
+
+                // Update swipe overlay based on direction
+                updateSwipeOverlay(deltaX)
                 return true
             }
 
@@ -244,12 +251,35 @@ class MatchCardView @JvmOverloads constructor(
                     else -> {
                         // Return to original position
                         animateReturn()
+                        resetSwipeOverlay()
                     }
                 }
                 return true
             }
         }
         return super.onTouchEvent(event)
+    }
+
+    private fun updateSwipeOverlay(deltaX: Float) {
+        val swipeThreshold = 200f
+        val alpha = (kotlin.math.abs(deltaX) / swipeThreshold).coerceIn(0f, 1f)
+
+        if (deltaX > 0) {
+            // Swiping right - like (yellow gradient)
+            binding.likeOverlay.alpha = alpha
+            binding.dislikeOverlay.alpha = 0f
+        } else if (deltaX < 0) {
+            // Swiping left - dislike (gray)
+            binding.dislikeOverlay.alpha = alpha
+            binding.likeOverlay.alpha = 0f
+        } else {
+            resetSwipeOverlay()
+        }
+    }
+
+    private fun resetSwipeOverlay() {
+        binding.likeOverlay.alpha = 0f
+        binding.dislikeOverlay.alpha = 0f
     }
 
     fun animateSwipeOut(direction: SwipeDirection) {

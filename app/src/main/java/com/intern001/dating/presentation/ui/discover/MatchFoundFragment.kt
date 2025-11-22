@@ -2,18 +2,21 @@ package com.intern001.dating.presentation.ui.discover
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.graphics.RenderEffect
+import android.graphics.Shader
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.OvershootInterpolator
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.intern001.dating.MainActivity
-import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentMatchFoundBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
+import jp.wasabeef.glide.transformations.BlurTransformation
 
 @AndroidEntryPoint
 class MatchFoundFragment : BaseFragment() {
@@ -82,20 +85,20 @@ class MatchFoundFragment : BaseFragment() {
             binding.tvMatchedUserName.text = it
         }
 
+        // Load blurred background photo
         matchedUserPhotoUrl?.let { url ->
             Glide.with(this)
                 .load(url)
+                .apply(RequestOptions.bitmapTransform(BlurTransformation(25, 3)))
                 .centerCrop()
-                .placeholder(R.drawable.ic_launcher_background)
-                .into(binding.ivMatchedUserPhoto)
-        }
+                .into(binding.ivBackgroundPhoto)
 
-        currentUserPhotoUrl?.let { url ->
-            Glide.with(this)
-                .load(url)
-                .centerCrop()
-                .placeholder(R.drawable.ic_launcher_background)
-                .into(binding.ivCurrentUserPhoto)
+            // Also apply RenderEffect for API 31+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                binding.ivBackgroundPhoto.setRenderEffect(
+                    RenderEffect.createBlurEffect(30f, 30f, Shader.TileMode.CLAMP),
+                )
+            }
         }
     }
 
@@ -105,53 +108,43 @@ class MatchFoundFragment : BaseFragment() {
         binding.ivMatchIcon.scaleX = 0f
         binding.ivMatchIcon.scaleY = 0f
         binding.tvMatchMessage.alpha = 0f
-        binding.ivCurrentUserPhoto.alpha = 0f
-        binding.ivMatchedUserPhoto.alpha = 0f
-        binding.tvMatchedUserName.alpha = 0f
+        binding.tvMatchTitle.alpha = 0f
+        binding.buttonsContainer.alpha = 0f
 
-        // Animate match icon
-        val iconScaleX = ObjectAnimator.ofFloat(binding.ivMatchIcon, View.SCALE_X, 0f, 1.2f, 1f)
-        val iconScaleY = ObjectAnimator.ofFloat(binding.ivMatchIcon, View.SCALE_Y, 0f, 1.2f, 1f)
+        // Animate match icon with bounce effect
+        val iconScaleX = ObjectAnimator.ofFloat(binding.ivMatchIcon, View.SCALE_X, 0f, 1.3f, 1f)
+        val iconScaleY = ObjectAnimator.ofFloat(binding.ivMatchIcon, View.SCALE_Y, 0f, 1.3f, 1f)
         val iconAlpha = ObjectAnimator.ofFloat(binding.ivMatchIcon, View.ALPHA, 0f, 1f)
 
         val iconAnimator = AnimatorSet().apply {
             playTogether(iconScaleX, iconScaleY, iconAlpha)
-            duration = 600
-            interpolator = OvershootInterpolator()
+            duration = 700
+            interpolator = OvershootInterpolator(2f)
+        }
+
+        // Animate title
+        val titleAlpha = ObjectAnimator.ofFloat(binding.tvMatchTitle, View.ALPHA, 0f, 1f)
+        val titleTransY = ObjectAnimator.ofFloat(binding.tvMatchTitle, View.TRANSLATION_Y, 50f, 0f)
+        val titleAnimator = AnimatorSet().apply {
+            playTogether(titleAlpha, titleTransY)
+            duration = 400
         }
 
         // Animate message
         val messageAlpha = ObjectAnimator.ofFloat(binding.tvMatchMessage, View.ALPHA, 0f, 1f)
         messageAlpha.duration = 400
-        messageAlpha.startDelay = 300
 
-        // Animate photos from sides
-        val currentPhotoTransX = ObjectAnimator.ofFloat(binding.ivCurrentUserPhoto, View.TRANSLATION_X, -300f, 0f)
-        val currentPhotoAlpha = ObjectAnimator.ofFloat(binding.ivCurrentUserPhoto, View.ALPHA, 0f, 1f)
-
-        val matchedPhotoTransX = ObjectAnimator.ofFloat(binding.ivMatchedUserPhoto, View.TRANSLATION_X, 300f, 0f)
-        val matchedPhotoAlpha = ObjectAnimator.ofFloat(binding.ivMatchedUserPhoto, View.ALPHA, 0f, 1f)
-
-        val photosAnimator = AnimatorSet().apply {
-            playTogether(
-                currentPhotoTransX,
-                currentPhotoAlpha,
-                matchedPhotoTransX,
-                matchedPhotoAlpha,
-            )
+        // Animate buttons
+        val buttonsAlpha = ObjectAnimator.ofFloat(binding.buttonsContainer, View.ALPHA, 0f, 1f)
+        val buttonsTransY = ObjectAnimator.ofFloat(binding.buttonsContainer, View.TRANSLATION_Y, 100f, 0f)
+        val buttonsAnimator = AnimatorSet().apply {
+            playTogether(buttonsAlpha, buttonsTransY)
             duration = 500
-            startDelay = 600
-            interpolator = AccelerateDecelerateInterpolator()
         }
 
-        // Animate name
-        val nameAlpha = ObjectAnimator.ofFloat(binding.tvMatchedUserName, View.ALPHA, 0f, 1f)
-        nameAlpha.duration = 400
-        nameAlpha.startDelay = 1100
-
-        // Play all animations
+        // Play all animations sequentially
         AnimatorSet().apply {
-            playSequentially(iconAnimator, messageAlpha, photosAnimator, nameAlpha)
+            playSequentially(iconAnimator, titleAnimator, messageAlpha, buttonsAnimator)
             start()
         }
     }
