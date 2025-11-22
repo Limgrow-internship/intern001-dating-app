@@ -12,6 +12,8 @@ import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.data.model.response.FacebookLoginResponse
 import com.intern001.dating.data.model.response.GoogleLoginResponse
 import com.intern001.dating.data.model.response.UserData
+import com.intern001.dating.data.model.response.toUpdateProfile
+import com.intern001.dating.domain.model.UpdateProfile
 import com.intern001.dating.domain.model.User
 import com.intern001.dating.domain.model.UserProfile
 import com.intern001.dating.domain.repository.AuthRepository
@@ -234,13 +236,16 @@ constructor(
         }
     }
 
-    override suspend fun getUserProfile(): Result<UserProfile> {
+    override suspend fun getUserProfile(): Result<UpdateProfile> {
         return try {
             cachedUserProfile?.let {
-                return Result.success(it)
+                // Map cached UserProfile -> UpdateProfile
+                val updateProfile = it.toUpdateProfile()
+                return Result.success(updateProfile)
             }
 
-            if (tokenManager.getAccessToken() == null) {
+            val token = tokenManager.getAccessToken()
+            if (token == null) {
                 return Result.failure(Exception("User not logged in"))
             }
 
@@ -251,7 +256,10 @@ constructor(
                 if (userData != null) {
                     val userProfile = userData.toUserProfileModel()
                     cachedUserProfile = userProfile
-                    Result.success(userProfile)
+
+                    // Map UserProfile -> UpdateProfile
+                    val updateProfile = userProfile.toUpdateProfile()
+                    Result.success(updateProfile)
                 } else {
                     Result.failure(Exception("User profile response body is null"))
                 }
@@ -264,6 +272,7 @@ constructor(
         }
     }
 
+
     override suspend fun isLoggedIn(): Boolean {
         return tokenManager.getAccessTokenAsync() != null
     }
@@ -272,93 +281,93 @@ constructor(
         return cachedUser
     }
 
-    override suspend fun updateUserProfile(
-        firstName: String?,
-        lastName: String?,
-        dateOfBirth: String?,
-        gender: String?,
-        profileImageUrl: String?,
-        mode: String?,
-        bio: String?,
-    ): Result<UserProfile> {
+    override suspend fun updateUserProfile(request: UpdateProfileRequest): Result<UpdateProfile> {
         return try {
             val token = tokenManager.getAccessToken()
-            android.util.Log.d("AuthRepository", "Update profile - Token exists: ${token != null}, Token: ${token?.take(20)}...")
-
             if (token == null) {
                 android.util.Log.e("AuthRepository", "No token found! User not logged in")
                 return Result.failure(Exception("User not logged in. Please login again."))
             }
 
-            val request = UpdateProfileRequest(
-                firstName = firstName,
-                lastName = lastName,
-                dateOfBirth = dateOfBirth,
-                gender = gender,
-                profileImageUrl = profileImageUrl,
-                mode = mode,
-                bio = bio,
-            )
-
             android.util.Log.d("AuthRepository", "Sending update profile request: $request")
 
-            val response = apiService.updateUserProfile(request)
+            suspend fun callApi(): Result<UpdateProfile> {
+                val response = apiService.updateUserProfile(request)
+                android.util.Log.d("AuthRepository", "Update profile response code: ${response.code()}")
 
-            android.util.Log.d("AuthRepository", "Update profile response code: ${response.code()}")
+                if (response.isSuccessful) {
+                    val userData = response.body()
+                    if (userData != null) {
+                        val userProfile = userData.toUserProfileModel()
+                        cachedUserProfile = userProfile
 
-            if (response.isSuccessful) {
-                val userData = response.body()
-                if (userData != null) {
-                    val userProfile = userData.toUserProfileModel()
-                    cachedUserProfile = userProfile
-                    android.util.Log.d("AuthRepository", "Profile updated successfully")
-                    Result.success(userProfile)
-                } else {
-                    android.util.Log.e("AuthRepository", "Update profile response body is null")
-                    Result.failure(Exception("Update profile response body is null"))
-                }
-            } else {
-                val errorBody = response.errorBody()?.string()
-                android.util.Log.e("AuthRepository", "Update profile failed: ${response.code()} - $errorBody")
+                        val updateProfile = UpdateProfile(
+                            id = userProfile.id,
+                            userId = userProfile.userId,
+                            firstName = userProfile.firstName,
+                            lastName = userProfile.lastName,
+                            displayName = userProfile.displayName,
+                            avatar = userProfile.avatar,
+                            bio = userProfile.bio,
+                            age = userProfile.age,
+                            gender = userProfile.gender,
+                            interests = userProfile.interests,
+                            relationshipMode = userProfile.relationshipMode,
+                            height = userProfile.height,
+                            weight = userProfile.weight,
+                            location = userProfile.location,
+                            occupation = userProfile.occupation,
+                            company = userProfile.company,
+                            education = userProfile.education,
+                            zodiacSign = userProfile.zodiacSign,
+                            photos = userProfile.photos.map { it.url },
+                            profileCompleteness = userProfile.profileCompleteness,
+                            profileViews = userProfile.profileViews,
+                            mode = userProfile.mode,
+                            verifiedAt = userProfile.verifiedAt,
+                            selfieImage = userProfile.selfieImage,
+                            verifiedBadge = userProfile.verifiedBadge,
+                            job = userProfile.job,
+                            goals = userProfile.goals,
+                            isVerified = userProfile.isVerified,
+                            openQuestionAnswers = userProfile.openQuestionAnswers,
+                            createdAt = userProfile.createdAt,
+                            updatedAt = userProfile.updatedAt
+                        )
 
-                // If token is expired (401), try to refresh and retry
-                if (response.code() == 401) {
-                    android.util.Log.d("AuthRepository", "Token expired, attempting refresh...")
-                    val refreshResult = refreshTokenIfNeeded()
-
-                    if (refreshResult.isSuccess) {
-                        val newToken = tokenManager.getAccessToken()
-                        android.util.Log.d("AuthRepository", "Token refreshed successfully!")
-                        android.util.Log.d("AuthRepository", "New token preview: ${newToken?.take(30)}...")
-                        android.util.Log.d("AuthRepository", "Retrying update profile with new token...")
-
-                        val retryResponse = apiService.updateUserProfile(request)
-                        android.util.Log.d("AuthRepository", "Retry response code: ${retryResponse.code()}")
-
-                        if (retryResponse.isSuccessful) {
-                            val userData = retryResponse.body()
-                            if (userData != null) {
-                                val userProfile = userData.toUserProfileModel()
-                                cachedUserProfile = userProfile
-                                android.util.Log.d("AuthRepository", "Profile updated successfully after retry")
-                                return Result.success(userProfile)
-                            }
-                        } else {
-                            val retryErrorBody = retryResponse.errorBody()?.string()
-                            android.util.Log.e("AuthRepository", "Retry failed: ${retryResponse.code()} - $retryErrorBody")
-                        }
+                        android.util.Log.d("AuthRepository", "Profile updated successfully")
+                        return Result.success(updateProfile)
                     } else {
-                        android.util.Log.e("AuthRepository", "Token refresh failed, user needs to login again")
+                        android.util.Log.e("AuthRepository", "Update profile response body is null")
+                        return Result.failure(Exception("Update profile response body is null"))
                     }
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    android.util.Log.e("AuthRepository", "Update profile failed: ${response.code()} - $errorBody")
+                    return Result.failure(Exception("Failed to update profile: ${response.code()} - $errorBody"))
                 }
-
-                Result.failure(Exception("Failed to update profile: ${response.code()} - $errorBody"))
             }
+
+            var result = callApi()
+
+            if (result.isFailure && (result.exceptionOrNull()?.message?.contains("401") == true)) {
+                android.util.Log.d("AuthRepository", "Token expired, attempting refresh...")
+                val refreshResult = refreshTokenIfNeeded()
+                if (refreshResult.isSuccess) {
+                    android.util.Log.d("AuthRepository", "Token refreshed successfully, retrying update profile...")
+                    result = callApi()
+                } else {
+                    android.util.Log.e("AuthRepository", "Token refresh failed, user needs to login again")
+                }
+            }
+
+            result
         } catch (e: Exception) {
             android.util.Log.e("AuthRepository", "Update profile exception", e)
             Result.failure(e)
         }
     }
+
 
     private suspend fun refreshTokenIfNeeded(): Result<String> {
         return try {
@@ -424,7 +433,7 @@ constructor(
             firstName = this.firstName ?: "",
             lastName = this.lastName ?: "",
             displayName = "${this.firstName ?: ""} ${this.lastName ?: ""}".trim(),
-            avatar = this.profileImageUrl,
+            avatar = this.avatar,
             bio = this.bio,
             age = this.dateOfBirth?.let { calculateAge(it) },
             gender = this.gender,

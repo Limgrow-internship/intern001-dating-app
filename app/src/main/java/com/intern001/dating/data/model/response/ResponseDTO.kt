@@ -25,23 +25,112 @@ data class UserBasicData(
 data class UserData(
     @SerializedName("id")
     val id: String? = null,
+
     @SerializedName("email")
     val email: String? = null,
+
     @SerializedName("firstName")
     val firstName: String? = null,
+
     @SerializedName("lastName")
     val lastName: String? = null,
+
     @SerializedName("dateOfBirth")
     val dateOfBirth: String? = null,
+
     @SerializedName("gender")
     val gender: String? = null,
+
     @SerializedName("profilePicture")
-    val profileImageUrl: String? = null,
+    val profilePicture: String? = null,
+
+    @SerializedName("avatar")
+    val avatar: String? = null,
+
+    @SerializedName("photos")
+    val photos: List<String>? = null,
+
     @SerializedName("mode")
     val mode: String? = null,
+
     @SerializedName("bio")
     val bio: String? = null,
+
+    @SerializedName("displayName")
+    val displayName: String? = null,
+
+    @SerializedName("interests")
+    val interests: List<String>? = null,
+
+    @SerializedName("location")
+    val location: LocationData? = null,
+
+    @SerializedName("city")
+    val city: String? = null,
+
+    @SerializedName("country")
+    val country: String? = null,
+
+    @SerializedName("age")
+    val age: Int? = null,
+
+    @SerializedName("verifiedAt")
+    val verifiedAt: String? = null,
+
+    @SerializedName("selfieImage")
+    val selfieImage: String? = null,
+
+    @SerializedName("verifiedBadge")
+    val verifiedBadge: Boolean? = null,
+
+    @SerializedName("occupation")
+    val occupation: String? = null,
+
+    @SerializedName("company")
+    val company: String? = null,
+
+    @SerializedName("education")
+    val education: String? = null,
+
+    @SerializedName("relationshipMode")
+    val relationshipMode: String? = null,
+
+    @SerializedName("height")
+    val height: Int? = null,
+
+    @SerializedName("weight")
+    val weight: Int? = null,
+
+    @SerializedName("zodiacSign")
+    val zodiacSign: String? = null,
+
+    @SerializedName("isVerified")
+    val isVerified: Boolean? = null,
+
+    @SerializedName("profileCompleteness")
+    val profileCompleteness: Int? = null,
+
+    @SerializedName("profileViews")
+    val profileViews: Int? = null,
+
+    @SerializedName("goals")
+    val goals: String? = null,
+
+    @SerializedName("job")
+    val job: String? = null,
+
+    @SerializedName("openQuestionAnswers")
+    val openQuestionAnswers: Map<String, String>? = null
 )
+
+data class LocationData(
+    @SerializedName("type")
+    val type: String? = "Point",
+
+    @SerializedName("coordinates")
+    val coordinates: List<Double>? = null
+)
+
 
 data class RefreshTokenRequest(
     @SerializedName("refreshToken")
