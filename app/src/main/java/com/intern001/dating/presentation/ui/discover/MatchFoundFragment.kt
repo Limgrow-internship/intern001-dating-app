@@ -11,10 +11,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.OvershootInterpolator
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.request.RequestOptions
 import com.intern001.dating.MainActivity
-import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentMatchFoundBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -98,7 +96,7 @@ class MatchFoundFragment : BaseFragment() {
             // Also apply RenderEffect for API 31+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 binding.ivBackgroundPhoto.setRenderEffect(
-                    RenderEffect.createBlurEffect(30f, 30f, Shader.TileMode.CLAMP)
+                    RenderEffect.createBlurEffect(30f, 30f, Shader.TileMode.CLAMP),
                 )
             }
         }
