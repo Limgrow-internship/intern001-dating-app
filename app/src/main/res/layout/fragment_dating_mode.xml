@@ -45,20 +45,31 @@
         app:tint="@color/orange_500" />
 
     <!-- Swipeable Card Container (top part - fixed height) -->
-    <FrameLayout
-        android:id="@+id/cardContainer"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardContainerWrapper"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="0dp"
         app:layout_constraintBottom_toTopOf="@id/detailScrollView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.55"
+        app:layout_constraintHeight_percent="0.70"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnBack"
         app:layout_constraintVertical_bias="0"
-        app:layout_constraintVertical_chainStyle="packed" />
+        app:layout_constraintVertical_chainStyle="packed">
+
+        <FrameLayout
+            android:id="@+id/cardContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipChildren="false"
+            android:clipToPadding="false" />
+
+    </androidx.cardview.widget.CardView>
 
     <!-- Detail Info Section (bottom part - scrollable) -->
     <androidx.core.widget.NestedScrollView
@@ -71,7 +82,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardContainer">
+        app:layout_constraintTop_toBottomOf="@id/cardContainerWrapper">
 
         <LinearLayout
             android:id="@+id/detailInfoContainer"

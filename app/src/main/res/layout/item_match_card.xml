@@ -5,18 +5,24 @@
     android:id="@+id/cardView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="24dp"
+    app:cardElevation="4dp"
+    android:clipChildren="true"
+    android:clipToPadding="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clipChildren="true"
+        android:clipToPadding="true">
 
         <!-- Image ViewPager for multiple photos -->
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPagerPhotos"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:clipToOutline="true"
+            android:background="@android:color/transparent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -178,6 +184,32 @@
             android:background="#80000000"
             android:clickable="true"
             android:focusable="true"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Swipe Like Overlay (Yellow Gradient) -->
+        <View
+            android:id="@+id/likeOverlay"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:alpha="0"
+            android:background="@drawable/bg_swipe_like_overlay"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Swipe Dislike Overlay (Gray) -->
+        <View
+            android:id="@+id/dislikeOverlay"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:alpha="0"
+            android:background="@drawable/bg_swipe_dislike_overlay"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

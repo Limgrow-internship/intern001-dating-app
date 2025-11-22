@@ -5,18 +5,25 @@
     android:id="@+id/cardView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="24dp"
+    app:cardElevation="4dp"
+    android:clipChildren="true"
+    android:clipToPadding="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_rounded_container"
+        android:clipChildren="true"
+        android:clipToPadding="true">
 
         <!-- Image ViewPager for multiple photos -->
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPagerPhotos"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:clipToOutline="true"
+            android:background="@drawable/bg_rounded_container"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -143,7 +150,7 @@
                     android:id="@+id/btnDislike"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
-                    android:layout_marginStart="35dp"
+                    android:layout_marginStart="20dp"
                     android:background="@drawable/ic_dislike_discover"
                     android:contentDescription="@string/dislike"
                     android:scaleType="centerInside" />
@@ -152,7 +159,7 @@
                     android:id="@+id/btnSuperLike"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
-                    android:layout_marginStart="35dp"
+                    android:layout_marginStart="20dp"
                     android:background="@drawable/ic_superlike_discover"
                     android:contentDescription="@string/super_like"
                     android:scaleType="centerInside" />
@@ -161,7 +168,7 @@
                     android:id="@+id/btnLike"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
-                    android:layout_marginStart="35dp"
+                    android:layout_marginStart="20dp"
                     android:background="@drawable/ic_match_discover"
                     android:contentDescription="@string/match"
                     android:scaleType="centerInside" />
@@ -169,6 +176,32 @@
             </LinearLayout>
 
         </LinearLayout>
+
+        <!-- Swipe Like Overlay (Yellow Gradient) -->
+        <View
+            android:id="@+id/likeOverlay"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:alpha="0"
+            android:background="@drawable/bg_swipe_like_overlay"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Swipe Dislike Overlay (Gray) -->
+        <View
+            android:id="@+id/dislikeOverlay"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:alpha="0"
+            android:background="@drawable/bg_swipe_dislike_overlay"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

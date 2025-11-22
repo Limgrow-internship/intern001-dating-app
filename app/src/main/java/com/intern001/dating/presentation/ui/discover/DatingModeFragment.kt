@@ -136,8 +136,11 @@ class DatingModeFragment : BaseFragment() {
     private fun showCurrentCard() {
         val currentCard = viewModel.getCurrentCard() ?: return
 
+        // Get the actual FrameLayout container inside CardView wrapper
+        val container = binding.cardContainer
+
         // Remove old card view
-        currentCardView?.let { binding.cardContainer.removeView(it) }
+        currentCardView?.let { container.removeView(it) }
 
         // Use next card if available, otherwise create new
         currentCardView = nextCardView ?: createCardView()
@@ -147,7 +150,7 @@ class DatingModeFragment : BaseFragment() {
             cardView.visibility = View.VISIBLE
 
             if (cardView.parent == null) {
-                binding.cardContainer.addView(cardView, 0)
+                container.addView(cardView, 0)
             }
 
             setupCardSwipeListener(cardView)
@@ -261,10 +264,11 @@ class DatingModeFragment : BaseFragment() {
         val nextIndex = viewModel.currentCardIndex.value + 1
 
         if (nextIndex < cards.size) {
+            val container = binding.cardContainer
             nextCardView = createCardView().apply {
                 bindCard(cards[nextIndex])
                 visibility = View.VISIBLE
-                binding.cardContainer.addView(this, 0)
+                container.addView(this, 0)
             }
         }
     }
