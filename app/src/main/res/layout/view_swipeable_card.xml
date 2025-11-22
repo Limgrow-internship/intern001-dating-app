@@ -17,7 +17,6 @@
         android:clipChildren="true"
         android:clipToPadding="true">
 
-        <!-- Image ViewPager for multiple photos -->
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPagerPhotos"
             android:layout_width="0dp"
@@ -29,7 +28,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Photo Indicators -->
         <LinearLayout
             android:id="@+id/photoIndicators"
             android:layout_width="0dp"
@@ -43,7 +41,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Location on top-left -->
         <LinearLayout
             android:id="@+id/locationBadge"
             android:layout_width="wrap_content"
@@ -77,7 +74,6 @@
 
         </LinearLayout>
 
-        <!-- Bottom Info Container with blur background -->
         <LinearLayout
             android:id="@+id/bottomInfoContainer"
             android:layout_width="match_parent"
@@ -92,7 +88,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
-            <!-- Name and Age -->
             <LinearLayout
                 android:id="@+id/nameAgeContainer"
                 android:layout_width="wrap_content"
@@ -119,7 +114,6 @@
 
             </LinearLayout>
 
-            <!-- Gender -->
             <TextView
                 android:id="@+id/tvGender"
                 android:layout_width="wrap_content"
@@ -129,7 +123,6 @@
                 android:textSize="14sp"
                 tools:text="Female" />
 
-            <!-- Action Buttons -->
             <LinearLayout
                 android:id="@+id/actionButtonsContainer"
                 android:layout_width="match_parent"
@@ -177,7 +170,6 @@
 
         </LinearLayout>
 
-        <!-- Swipe Like Overlay (Yellow Gradient) -->
         <View
             android:id="@+id/likeOverlay"
             android:layout_width="0dp"
@@ -190,7 +182,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Swipe Dislike Overlay (Gray) -->
         <View
             android:id="@+id/dislikeOverlay"
             android:layout_width="0dp"

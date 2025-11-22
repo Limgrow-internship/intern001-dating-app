@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-    <!-- Card Container - Full height (action buttons are inside the card now) -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cardContainerWrapper"
         android:layout_width="0dp"
@@ -31,7 +30,6 @@
 
     </androidx.cardview.widget.CardView>
 
-    <!-- Loading Indicator -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
@@ -43,7 +41,6 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:visibility="visible" />
 
-    <!-- No More Cards Message -->
     <LinearLayout
         android:id="@+id/noMoreCardsLayout"
         android:layout_width="wrap_content"

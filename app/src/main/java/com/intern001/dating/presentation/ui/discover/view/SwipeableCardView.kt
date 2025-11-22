@@ -40,7 +40,6 @@ class SwipeableCardView @JvmOverloads constructor(
     init {
         binding = ViewSwipeableCardBinding.inflate(LayoutInflater.from(context), this, true)
 
-        // Apply rounded corners to ViewPager (24dp to match ConstraintLayout)
         val cornerRadius = 24f * context.resources.displayMetrics.density
         binding.viewPagerPhotos.outlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View, outline: Outline) {
@@ -85,12 +84,9 @@ class SwipeableCardView @JvmOverloads constructor(
     }
 
     fun bindCard(card: MatchCard) {
-        // Setup photo viewpager
         val photoAdapter = PhotoPagerAdapter(card.photos)
         binding.viewPagerPhotos.adapter = photoAdapter
         setupPhotoIndicators(card.photos.size)
-
-        // Setup viewpager page change listener
         binding.viewPagerPhotos.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
@@ -98,17 +94,13 @@ class SwipeableCardView @JvmOverloads constructor(
             }
         })
 
-        // Bind basic data
         binding.tvName.text = card.firstName
 
-        // Calculate and display age
         val age = card.age
         binding.tvAge.text = if (age != null && age > 0) ", $age" else ""
 
-        // Gender
         binding.tvGender.text = card.gender?.replaceFirstChar { it.uppercase() } ?: ""
 
-        // Distance badge on top-left
         val distance = card.distance?.toInt() ?: 0
         binding.tvDistanceBadge.text = context.getString(R.string.km_format, distance)
     }
@@ -243,11 +235,9 @@ class SwipeableCardView @JvmOverloads constructor(
         val alpha = (kotlin.math.abs(deltaX) / swipeThreshold).coerceIn(0f, 1f)
 
         if (deltaX > 0) {
-            // Swiping right - like (yellow gradient)
             binding.likeOverlay.alpha = alpha
             binding.dislikeOverlay.alpha = 0f
         } else if (deltaX < 0) {
-            // Swiping left - dislike (gray)
             binding.dislikeOverlay.alpha = alpha
             binding.likeOverlay.alpha = 0f
         } else {

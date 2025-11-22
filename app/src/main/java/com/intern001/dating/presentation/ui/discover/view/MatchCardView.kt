@@ -40,7 +40,6 @@ class MatchCardView @JvmOverloads constructor(
     init {
         binding = ItemMatchCardBinding.inflate(LayoutInflater.from(context), this, true)
 
-        // Apply rounded corners to ViewPager (24dp to match CardView)
         val cornerRadius = 24f * context.resources.displayMetrics.density
         binding.viewPagerPhotos.outlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View, outline: Outline) {
@@ -53,13 +52,10 @@ class MatchCardView @JvmOverloads constructor(
             context,
             object : GestureDetector.SimpleOnGestureListener() {
                 override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                    // Check if dark overlay is visible
                     if (binding.darkOverlay.isVisible) {
-                        // Notify listener that overlay was tapped (for navigation to mode screen)
                         onOverlayTapListener?.onOverlayTap()
                         return true
                     }
-                    // Handle photo tap navigation
                     handlePhotoTap(e.x)
                     return true
                 }
@@ -70,15 +66,12 @@ class MatchCardView @JvmOverloads constructor(
             },
         )
 
-        // Setup overlay click listener
         binding.darkOverlay.setOnClickListener {
             onOverlayTapListener?.onOverlayTap()
         }
 
-        // Setup action button listeners
         setupActionButtons()
 
-        // Show overlay by default
         showDarkOverlay()
     }
 

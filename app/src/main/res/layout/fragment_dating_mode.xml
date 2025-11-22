@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-    <!-- Header -->
     <ImageView
         android:id="@+id/btnBack"
         android:layout_width="40dp"
@@ -44,7 +43,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/orange_500" />
 
-    <!-- Swipeable Card Container (top part - fixed height) -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cardContainerWrapper"
         android:layout_width="0dp"
@@ -71,7 +69,6 @@
 
     </androidx.cardview.widget.CardView>
 
-    <!-- Detail Info Section (bottom part - scrollable) -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/detailScrollView"
         android:layout_width="0dp"
@@ -92,7 +89,6 @@
             android:orientation="vertical"
             android:paddingBottom="32dp">
 
-            <!-- Bio Section -->
             <TextView
                 android:id="@+id/tvBio"
                 android:layout_width="match_parent"
@@ -106,7 +102,6 @@
                 tools:text="Just a coffee lover who enjoys deep talks and spontaneous trips."
                 tools:visibility="visible" />
 
-            <!-- Occupation Section -->
             <LinearLayout
                 android:id="@+id/occupationSection"
                 android:layout_width="match_parent"
@@ -135,7 +130,6 @@
 
             </LinearLayout>
 
-            <!-- Education Section -->
             <LinearLayout
                 android:id="@+id/educationSection"
                 android:layout_width="match_parent"
@@ -164,7 +158,6 @@
 
             </LinearLayout>
 
-            <!-- Location Section -->
             <LinearLayout
                 android:id="@+id/locationSection"
                 android:layout_width="match_parent"
@@ -193,7 +186,6 @@
 
             </LinearLayout>
 
-            <!-- Zodiac Section -->
             <LinearLayout
                 android:id="@+id/zodiacSection"
                 android:layout_width="match_parent"
@@ -222,7 +214,6 @@
 
             </LinearLayout>
 
-            <!-- Looking For Section -->
             <TextView
                 android:id="@+id/tvLookingForTitle"
                 android:layout_width="wrap_content"
@@ -248,7 +239,6 @@
                 app:singleLine="false"
                 tools:visibility="visible" />
 
-            <!-- Interests Section -->
             <TextView
                 android:id="@+id/tvInterestsTitle"
                 android:layout_width="wrap_content"
@@ -278,7 +268,6 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Loading Indicator -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
@@ -290,7 +279,6 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:visibility="visible" />
 
-    <!-- No More Cards Message -->
     <LinearLayout
         android:id="@+id/noMoreCardsLayout"
         android:layout_width="wrap_content"
