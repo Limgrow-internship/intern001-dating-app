@@ -94,7 +94,7 @@ class SwipeableCardView @JvmOverloads constructor(
             }
         })
 
-        binding.tvName.text = card.firstName
+        binding.tvName.text = card.displayName
 
         val age = card.age
         binding.tvAge.text = if (age != null && age > 0) ", $age" else ""

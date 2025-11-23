@@ -25,17 +25,39 @@ fun MatchCardResponse.toMatchCard(): MatchCard {
         userId = userId,
         firstName = firstName,
         lastName = lastName,
-        displayName = displayName ?: "$firstName $lastName",
+        displayName = displayName ?: "${firstName ?: ""} ${lastName ?: ""}".trim().takeIf { it.isNotEmpty() } ?: "Unknown",
         age = age,
         gender = gender,
         avatar = avatar,
         photos =
-        photos?.map { photoResponse ->
+        photos?.mapNotNull { photoResponse ->
+            // Get ID from either _id or id field (backend may use either)
+            val photoId = photoResponse.id ?: photoResponse.idAlt ?: "photo_${System.currentTimeMillis()}_${photoResponse.order ?: 0}"
             Photo(
+                id = photoId,
+                userId = photoResponse.userId,
                 url = photoResponse.url,
+                cloudinaryPublicId = photoResponse.cloudinaryPublicId,
+                type = photoResponse.type ?: "gallery",
+                source = photoResponse.source ?: "upload",
+                isPrimary = photoResponse.isPrimary ?: false,
                 order = photoResponse.order ?: 0,
-                uploadedAt =
-                photoResponse.uploadedAt?.let {
+                isVerified = photoResponse.isVerified ?: false,
+                width = photoResponse.width,
+                height = photoResponse.height,
+                fileSize = photoResponse.fileSize,
+                format = photoResponse.format,
+                isActive = photoResponse.isActive ?: true,
+                createdAt =
+                photoResponse.createdAt?.let {
+                    try {
+                        dateFormat.parse(it)
+                    } catch (e: Exception) {
+                        null
+                    }
+                },
+                updatedAt =
+                photoResponse.updatedAt?.let {
                     try {
                         dateFormat.parse(it)
                     } catch (e: Exception) {
@@ -68,17 +90,28 @@ fun MatchCardResponse.toMatchCard(): MatchCard {
 }
 
 fun UserProfileResponse.toUserProfile(): UserProfile {
+    // Get ID from either _id or id field (backend may use either)
+    val profileId = id ?: idAlt ?: userId
+
     return UserProfile(
-        id = id,
+        id = profileId,
         userId = userId,
         firstName = firstName,
         lastName = lastName,
-        displayName = displayName,
+        displayName = displayName ?: "${firstName ?: ""} ${lastName ?: ""}".trim().takeIf { it.isNotEmpty() } ?: "Unknown",
+        dateOfBirth = dateOfBirth?.let {
+            try {
+                dateFormat.parse(it)
+            } catch (e: Exception) {
+                null
+            }
+        },
         avatar = avatar,
         bio = bio,
         age = age,
         gender = gender,
         interests = interests ?: emptyList(),
+        mode = mode,
         relationshipMode = relationshipMode,
         height = height,
         weight = weight,
@@ -91,17 +124,50 @@ fun UserProfileResponse.toUserProfile(): UserProfile {
                 country = it.country,
             )
         },
+        city = city,
+        country = country,
         occupation = occupation,
         company = company,
         education = education,
         zodiacSign = zodiacSign,
+        verifiedAt = verifiedAt?.let {
+            try {
+                dateFormat.parse(it)
+            } catch (e: Exception) {
+                null
+            }
+        },
+        verifiedBadge = verifiedBadge ?: false,
+        isVerified = isVerified ?: false,
         photos =
-        photos?.map {
+        photos?.mapNotNull {
+            // Get ID from either _id or id field
+            val photoId = it.id ?: it.idAlt ?: "photo_${System.currentTimeMillis()}_${it.order ?: 0}"
             Photo(
+                id = photoId,
+                userId = it.userId,
                 url = it.url,
+                cloudinaryPublicId = it.cloudinaryPublicId,
+                type = it.type ?: "gallery",
+                source = it.source ?: "upload",
+                isPrimary = it.isPrimary ?: false,
                 order = it.order ?: 0,
-                uploadedAt =
-                it.uploadedAt?.let { dateStr ->
+                isVerified = it.isVerified ?: false,
+                width = it.width,
+                height = it.height,
+                fileSize = it.fileSize,
+                format = it.format,
+                isActive = it.isActive ?: true,
+                createdAt =
+                it.createdAt?.let { dateStr ->
+                    try {
+                        dateFormat.parse(dateStr)
+                    } catch (e: Exception) {
+                        null
+                    }
+                },
+                updatedAt =
+                it.updatedAt?.let { dateStr ->
                     try {
                         dateFormat.parse(dateStr)
                     } catch (e: Exception) {
@@ -113,6 +179,9 @@ fun UserProfileResponse.toUserProfile(): UserProfile {
             ?: emptyList(),
         profileCompleteness = profileCompleteness ?: 0,
         profileViews = profileViews ?: 0,
+        goals = goals,
+        job = job,
+        openQuestionAnswers = openQuestionAnswers,
         createdAt =
         try {
             dateFormat.parse(createdAt) ?: Date()

@@ -35,8 +35,10 @@ data class UserData(
     val dateOfBirth: String? = null,
     @SerializedName("gender")
     val gender: String? = null,
-    @SerializedName("profilePicture")
-    val profileImageUrl: String? = null,
+    @SerializedName("avatar")
+    val avatar: String? = null,
+    @SerializedName("photos")
+    val photos: List<PhotoResponse>? = null,
     @SerializedName("mode")
     val mode: String? = null,
     @SerializedName("bio")
@@ -129,4 +131,20 @@ data class ProfileData(
 data class VerifyFaceResponse(
     val verified: Boolean,
     val message: String,
+)
+
+// ============================================================
+// Photo Management Response DTOs - New Photo System
+// ============================================================
+
+data class PhotoListResponse(
+    @SerializedName("photos")
+    val photos: List<PhotoResponse>,
+    @SerializedName("count")
+    val count: Int? = null,
+)
+
+data class PhotoCountResponse(
+    @SerializedName("count")
+    val count: Int,
 )

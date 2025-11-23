@@ -5,8 +5,8 @@ import java.util.Date
 data class MatchCard(
     val id: String,
     val userId: String,
-    val firstName: String,
-    val lastName: String,
+    val firstName: String? = null,
+    val lastName: String? = null,
     val displayName: String,
     val age: Int?,
     val gender: String?,

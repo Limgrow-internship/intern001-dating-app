@@ -267,9 +267,14 @@ class LoginFragment : BaseFragment() {
                     is UiState.Success -> {
                         binding.progressBar.isVisible = false
                         binding.btnFacebook.isEnabled = true
+                        val displayName = state.data.profile.firstName?.let { firstName ->
+                            state.data.profile.lastName?.let { lastName ->
+                                "$firstName $lastName".trim()
+                            } ?: firstName
+                        } ?: state.data.profile.lastName ?: "Friend"
                         Snackbar.make(
                             binding.root,
-                            "Xin chào ${state.data.profile.firstName}",
+                            "Hello $displayName",
                             Snackbar.LENGTH_LONG,
                         ).show()
                         navController.navigate(R.id.action_login_to_home)

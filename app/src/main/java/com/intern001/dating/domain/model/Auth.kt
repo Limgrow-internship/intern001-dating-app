@@ -16,25 +16,35 @@ data class User(
 data class UserProfile(
     val id: String,
     val userId: String,
-    val firstName: String,
-    val lastName: String,
-    val displayName: String,
+    val firstName: String? = null,
+    val lastName: String? = null,
+    val displayName: String? = null,
+    val dateOfBirth: Date? = null,
     val avatar: String? = null,
     val bio: String? = null,
     val age: Int? = null,
-    val gender: String?,
+    val gender: String? = null, // 'male' | 'female' | 'other'
     val interests: List<String> = emptyList(),
-    val relationshipMode: String? = null,
-    val height: Int? = null,
-    val weight: Int? = null,
+    val mode: String? = null, // 'dating' | 'friend'
+    val relationshipMode: String? = null, // 'serious' | 'casual' | 'friendship'
+    val height: Int? = null, // in centimeters (120-220)
+    val weight: Int? = null, // in kilograms (30-300)
     val location: UserLocation? = null,
+    val city: String? = null,
+    val country: String? = null,
     val occupation: String? = null,
     val company: String? = null,
     val education: String? = null,
     val zodiacSign: String? = null,
+    val verifiedAt: Date? = null,
+    val verifiedBadge: Boolean = false,
+    val isVerified: Boolean = false,
     val photos: List<Photo> = emptyList(),
-    val profileCompleteness: Int = 0,
+    val profileCompleteness: Int = 0, // 0-100
     val profileViews: Int = 0,
+    val goals: String? = null,
+    val job: String? = null,
+    val openQuestionAnswers: Map<String, String>? = null,
     val createdAt: Date,
     val updatedAt: Date,
 )
@@ -47,9 +57,22 @@ data class UserLocation(
 )
 
 data class Photo(
+    val id: String,
+    val userId: String? = null, // Optional in domain model (usually from profile context)
     val url: String,
+    val cloudinaryPublicId: String? = null,
+    val type: String, // 'avatar' | 'gallery' | 'selfie'
+    val source: String, // 'upload' | 'google' | 'facebook' | 'apple'
+    val isPrimary: Boolean = false,
     val order: Int = 0,
-    val uploadedAt: Date? = null,
+    val isVerified: Boolean = false,
+    val width: Int? = null,
+    val height: Int? = null,
+    val fileSize: Int? = null, // in bytes
+    val format: String? = null, // 'jpg', 'png', etc.
+    val isActive: Boolean = true,
+    val createdAt: Date? = null,
+    val updatedAt: Date? = null,
 )
 
 data class UserPreferences(
