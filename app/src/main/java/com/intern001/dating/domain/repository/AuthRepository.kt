@@ -33,9 +33,9 @@ interface AuthRepository {
 
     suspend fun getCurrentUser(): Result<User>
 
-    suspend fun getUserProfile(): Result<UpdateProfile>
+    suspend fun getUserProfile(): Result<UserProfile>
 
-    suspend fun updateUserProfile(request: UpdateProfileRequest): Result<UpdateProfile>
+    suspend fun updateUserProfile(request: UpdateProfileRequest): Result<UserProfile>
 
     suspend fun uploadImage(imageUri: Uri): Result<String>
 

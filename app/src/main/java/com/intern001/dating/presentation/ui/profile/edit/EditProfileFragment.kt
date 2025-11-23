@@ -99,9 +99,10 @@ class EditProfileFragment : BaseFragment() {
 
         binding.includeAbout.etIntroduce.setText(profile.bio ?: "")
 
-        profile.photos?.forEachIndexed { index, url ->
+        // profile.photos is now List<Photo> (objects), not List<String>
+        profile.photos.forEachIndexed { index, photo ->
             if (index < 6) {
-                photoUrls[index] = url
+                photoUrls[index] = photo.url // Extract URL from Photo object
                 photoUris[index] = null
             }
         }
@@ -118,9 +119,23 @@ class EditProfileFragment : BaseFragment() {
             "Still figuring it out" to g.tvGoalFiguring
         )
 
-        profile.goals?.split(",")?.map { it.trim() }?.forEach { goal ->
+        // goals is now List<String>, not String - no need to split
+        profile.goals.forEach { goal ->
             goalMap[goal]?.let { toggleGoalSelection(it) }
         }
+        
+        // Store goals in selectedGoals for later use
+        selectedGoals.clear()
+        selectedGoals.addAll(profile.goals)
+
+        // Bind personal details
+        val details = binding.includeDetails
+        details.comboJob.setText(profile.job ?: profile.occupation ?: "", false)
+        details.comboEducation.setText(profile.education ?: "", false)
+        details.comboAddress.setText(profile.city ?: profile.location?.city ?: "", false)
+        details.etHeight.setText(profile.height?.toString() ?: "")
+        details.etWeight.setText(profile.weight?.toString() ?: "")
+        details.comboZodiac.setText(profile.zodiacSign ?: "", false)
     }
 
     private fun setupPhotoClick() {
@@ -211,12 +226,33 @@ class EditProfileFragment : BaseFragment() {
     private fun setupSaveButton() {
         binding.btnSave.setOnClickListener {
             val bio = binding.includeAbout.etIntroduce.text.toString().trim()
-            val finalPhotos = photoUrls.map { it ?: "" }
-
+            
+            // Get personal details
+            val details = binding.includeDetails
+            val job = details.comboJob.text.toString().trim().takeIf { it.isNotEmpty() }
+            val education = details.comboEducation.text.toString().trim().takeIf { it.isNotEmpty() }
+            val address = details.comboAddress.text.toString().trim().takeIf { it.isNotEmpty() }
+            val heightStr = details.etHeight.text.toString().trim()
+            val weightStr = details.etWeight.text.toString().trim()
+            val zodiac = details.comboZodiac.text.toString().trim().takeIf { it.isNotEmpty() }
+            
+            // Parse height and weight
+            val height = heightStr.toIntOrNull()
+            val weight = weightStr.toIntOrNull()
+            
+            // Note: Photos are managed separately via photo management API
+            // Do not include photos in UpdateProfileRequest
+            
             val request = UpdateProfileRequest(
-                photos = finalPhotos,
                 bio = bio,
-                goals = selectedGoals.joinToString(",")
+                goals = selectedGoals.toList(), // goals is now List<String>, not String
+                job = job,
+                occupation = job, // Also set occupation if job is provided
+                education = education,
+                city = address, // Address maps to city
+                zodiacSign = zodiac,
+                height = height,
+                weight = weight
             )
 
             viewModel.updateUserProfile(request)

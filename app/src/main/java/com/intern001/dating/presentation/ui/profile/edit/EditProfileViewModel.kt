@@ -46,16 +46,22 @@ class EditProfileViewModel @Inject constructor(
         viewModelScope.launch {
             _updateProfileState.value = UiState.Loading
             val result = updateProfileUseCase(request)
-            _updateProfileState.value = result.fold(
-                onSuccess = { UiState.Success(it) },
-                onFailure = { UiState.Error(it.message ?: "Failed to update profile") }
+            result.fold(
+                onSuccess = { updatedProfile ->
+                    // Update both states when profile is successfully updated
+                    _updateProfileState.value = UiState.Success(updatedProfile)
+                    _userProfileState.value = UiState.Success(updatedProfile)
+                },
+                onFailure = { error ->
+                    _updateProfileState.value = UiState.Error(error.message ?: "Failed to update profile")
+                }
             )
         }
     }
 
-    fun updateGoal(goal: String) {
+    fun updateGoal(goals: List<String>) {
         viewModelScope.launch {
-            val request = UpdateProfileRequest(goals = goal)
+            val request = UpdateProfileRequest(goals = goals)
             updateUserProfile(request)
         }
     }

@@ -83,7 +83,7 @@ data class UpdateProfileRequest(
     @SerializedName("zodiacSign")
     val zodiacSign: String? = null,
     @SerializedName("goals")
-    val goals: String? = null,
+    val goals: List<String>? = null,
     @SerializedName("job")
     val job: String? = null,
     @SerializedName("openQuestionAnswers")

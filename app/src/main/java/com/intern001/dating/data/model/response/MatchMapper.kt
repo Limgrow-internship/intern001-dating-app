@@ -7,7 +7,6 @@ import com.intern001.dating.domain.model.MatchResult
 import com.intern001.dating.domain.model.MatchStatus
 import com.intern001.dating.domain.model.Photo
 import com.intern001.dating.domain.model.Range
-import com.intern001.dating.domain.model.UpdateProfile
 import com.intern001.dating.domain.model.UserLocation
 import com.intern001.dating.domain.model.UserProfile
 import java.text.SimpleDateFormat
@@ -180,7 +179,7 @@ fun UserProfileResponse.toUserProfile(): UserProfile {
             ?: emptyList(),
         profileCompleteness = profileCompleteness ?: 0,
         profileViews = profileViews ?: 0,
-        goals = goals,
+        goals = goals ?: emptyList(),
         job = job,
         openQuestionAnswers = openQuestionAnswers,
         createdAt =
@@ -248,38 +247,3 @@ fun RecommendationCriteriaResponse.toMatchCriteria(): MatchCriteria {
     )
 }
 
-fun UserProfile.toUpdateProfile(): UpdateProfile {
-    return UpdateProfile(
-        id = id,
-        userId = userId,
-        firstName = firstName,
-        lastName = lastName,
-        displayName = displayName,
-        avatar = avatar,
-        bio = bio,
-        age = age,
-        gender = gender,
-        interests = interests,
-        relationshipMode = relationshipMode,
-        height = height,
-        weight = weight,
-        location = location,
-        occupation = occupation,
-        company = company,
-        education = education,
-        zodiacSign = zodiacSign,
-        photos = photos.map { it.url },
-        profileCompleteness = profileCompleteness,
-        profileViews = profileViews,
-        mode = mode,
-        verifiedAt = verifiedAt,
-        selfieImage = selfieImage,
-        verifiedBadge = verifiedBadge,
-        job = job,
-        goals = goals,
-        isVerified = isVerified,
-        openQuestionAnswers = openQuestionAnswers,
-        createdAt = createdAt,
-        updatedAt = updatedAt
-    )
-}

@@ -3,8 +3,8 @@ package com.intern001.dating.presentation.ui.profilesetup
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.intern001.dating.domain.usecase.photo.UploadPhotoUseCase
 import com.intern001.dating.domain.usecase.profile.UpdateProfileUseCase
-import com.intern001.dating.domain.usecase.profile.UploadImageUseCase
 import com.intern001.dating.presentation.common.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class ProfileSetupViewModel @Inject constructor(
     private val updateProfileUseCase: UpdateProfileUseCase,
-    private val uploadImageUseCase: UploadImageUseCase,
+    private val uploadPhotoUseCase: UploadPhotoUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<UiState<Unit>>(UiState.Idle)
@@ -60,22 +60,26 @@ class ProfileSetupViewModel @Inject constructor(
                     return@launch
                 }
 
-                // Upload images to Cloudinary if available
-                var uploadedPhoto1Url: String? = null
-                var uploadedPhoto2Url: String? = null
-                var uploadedPhoto3Url: String? = null
+                // Upload photos via photo management API if available
+                var uploadedPhoto1Id: String? = null
+                var uploadedPhoto2Id: String? = null
+                var uploadedPhoto3Id: String? = null
 
                 // Only upload if photos are selected
                 if (photo1Url != null || photo2Url != null || photo3Url != null) {
-                    android.util.Log.d("ProfileSetupViewModel", "Uploading photos to Cloudinary...")
+                    android.util.Log.d("ProfileSetupViewModel", "Uploading photos via photo management API...")
 
                     photo1Url?.let { uriString ->
                         android.util.Log.d("ProfileSetupViewModel", "Uploading photo 1: $uriString")
-                        val result = uploadImageUseCase(uriString.toUri())
+                        val result = uploadPhotoUseCase(uriString.toUri(), type = "gallery")
                         result.fold(
-                            onSuccess = { url ->
-                                uploadedPhoto1Url = url
-                                android.util.Log.d("ProfileSetupViewModel", "Photo 1 uploaded: $url")
+                            onSuccess = { photo ->
+                                uploadedPhoto1Id = photo.id
+                                android.util.Log.d("ProfileSetupViewModel", "Photo 1 uploaded: ${photo.url}, ID: ${photo.id}")
+                                // Set first photo as primary if it's the first one
+                                if (uploadedPhoto1Id != null && uploadedPhoto2Id == null && uploadedPhoto3Id == null) {
+                                    // Will be set as primary automatically by backend if it's the first photo
+                                }
                             },
                             onFailure = { error ->
                                 android.util.Log.e("ProfileSetupViewModel", "Failed to upload photo 1", error)
@@ -87,11 +91,11 @@ class ProfileSetupViewModel @Inject constructor(
 
                     photo2Url?.let { uriString ->
                         android.util.Log.d("ProfileSetupViewModel", "Uploading photo 2: $uriString")
-                        val result = uploadImageUseCase(uriString.toUri())
+                        val result = uploadPhotoUseCase(uriString.toUri(), type = "gallery")
                         result.fold(
-                            onSuccess = { url ->
-                                uploadedPhoto2Url = url
-                                android.util.Log.d("ProfileSetupViewModel", "Photo 2 uploaded: $url")
+                            onSuccess = { photo ->
+                                uploadedPhoto2Id = photo.id
+                                android.util.Log.d("ProfileSetupViewModel", "Photo 2 uploaded: ${photo.url}, ID: ${photo.id}")
                             },
                             onFailure = { error ->
                                 android.util.Log.e("ProfileSetupViewModel", "Failed to upload photo 2", error)
@@ -103,11 +107,11 @@ class ProfileSetupViewModel @Inject constructor(
 
                     photo3Url?.let { uriString ->
                         android.util.Log.d("ProfileSetupViewModel", "Uploading photo 3: $uriString")
-                        val result = uploadImageUseCase(uriString.toUri())
+                        val result = uploadPhotoUseCase(uriString.toUri(), type = "gallery")
                         result.fold(
-                            onSuccess = { url ->
-                                uploadedPhoto3Url = url
-                                android.util.Log.d("ProfileSetupViewModel", "Photo 3 uploaded: $url")
+                            onSuccess = { photo ->
+                                uploadedPhoto3Id = photo.id
+                                android.util.Log.d("ProfileSetupViewModel", "Photo 3 uploaded: ${photo.url}, ID: ${photo.id}")
                             },
                             onFailure = { error ->
                                 android.util.Log.e("ProfileSetupViewModel", "Failed to upload photo 3", error)
@@ -120,11 +124,6 @@ class ProfileSetupViewModel @Inject constructor(
                     android.util.Log.d("ProfileSetupViewModel", "No photos selected, skipping upload")
                 }
 
-                // Use the first uploaded photo as profile image
-                val profileImage = uploadedPhoto1Url ?: uploadedPhoto2Url ?: uploadedPhoto3Url
-
-                android.util.Log.d("ProfileSetupViewModel", "Profile image URL: $profileImage")
-
                 // Split name into first and last name
                 val nameParts = name.trim().split(" ", limit = 2)
                 val firstName = nameParts.getOrNull(0) ?: name
@@ -132,15 +131,15 @@ class ProfileSetupViewModel @Inject constructor(
 
                 android.util.Log.d("ProfileSetupViewModel", "First name: $firstName, Last name: $lastName")
 
-                // Update profile with uploaded image URLs
-                val result = updateProfileUseCase(
+                val request = com.intern001.dating.data.model.request.UpdateProfileRequest(
                     firstName = firstName,
                     lastName = lastName,
                     dateOfBirth = dateOfBirth,
                     gender = gender,
-                    profileImageUrl = profileImage,
                     mode = mode,
                 )
+
+                val result = updateProfileUseCase(request)
 
                 result.fold(
                     onSuccess = {

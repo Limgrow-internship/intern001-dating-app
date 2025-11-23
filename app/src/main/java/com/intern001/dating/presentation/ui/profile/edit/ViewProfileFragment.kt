@@ -44,12 +44,30 @@ class ViewProfileFragment : BaseFragment() {
         setupGoalsRecyclerView(emptyList())
         setupInterestsRecyclerView(emptyList())
 
+        observeUserProfileState()
+        observeProfileUpdates()
         loadUserProfile()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh profile when fragment becomes visible
+        if (isVisible) {
+            refreshProfile()
+        }
     }
 
     private fun loadUserProfile() {
         viewModel.getUserProfile()
+    }
 
+    private fun refreshProfile() {
+        // Force refresh by calling getUserProfile again
+        // The cache should be updated after profile update, so this will get fresh data
+        viewModel.getUserProfile()
+    }
+
+    private fun observeUserProfileState() {
         lifecycleScope.launch {
             viewModel.userProfileState.collectLatest { state ->
                 when (state) {
@@ -68,6 +86,23 @@ class ViewProfileFragment : BaseFragment() {
         }
     }
 
+    private fun observeProfileUpdates() {
+        // Refresh profile when update succeeds
+        lifecycleScope.launch {
+            viewModel.updateProfileState.collectLatest { state ->
+                when (state) {
+                    is EditProfileViewModel.UiState.Success<*> -> {
+                        // Profile was updated, refresh the view
+                        if (isVisible) {
+                            refreshProfile()
+                        }
+                    }
+                    else -> Unit
+                }
+            }
+        }
+    }
+
     private fun bindProfileData(profile: UpdateProfile) {
         binding.tvNameAge.text = "${profile.displayName}, ${profile.age ?: ""}"
         binding.tvGender.text = profile.gender ?: ""
@@ -77,12 +112,15 @@ class ViewProfileFragment : BaseFragment() {
         binding.tvLocation.text = profile.location?.city ?: ""
         binding.tvZodiac.text = profile.zodiacSign ?: ""
 
-        profile.photos?.takeIf { it.isNotEmpty() }?.let {
-            setupViewPager(it)
+        // profile.photos is now List<Photo> (objects), extract URLs
+        val photoUrls = profile.photos.map { it.url }
+        if (photoUrls.isNotEmpty()) {
+            setupViewPager(photoUrls)
         }
 
-        setupGoalsRecyclerView(profile.goals as? List<String> ?: emptyList())
-        setupInterestsRecyclerView(profile.interests as? List<String> ?: emptyList())
+        // goals is already List<String>, no need to cast
+        setupGoalsRecyclerView(profile.goals)
+        setupInterestsRecyclerView(profile.interests)
     }
 
 
