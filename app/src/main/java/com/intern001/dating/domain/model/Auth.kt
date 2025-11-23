@@ -42,7 +42,7 @@ data class UserProfile(
     val photos: List<Photo> = emptyList(),
     val profileCompleteness: Int = 0, // 0-100
     val profileViews: Int = 0,
-    val goals: String? = null,
+    val goals: List<String> = emptyList(),
     val job: String? = null,
     val openQuestionAnswers: Map<String, String>? = null,
     val createdAt: Date,
@@ -103,3 +103,7 @@ data class AuthState(
     val token: String? = null,
     val error: String? = null,
 )
+
+// Type alias for backward compatibility
+// UpdateProfile is the same as UserProfile
+typealias UpdateProfile = UserProfile

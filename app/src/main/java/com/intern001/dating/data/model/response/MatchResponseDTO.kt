@@ -176,7 +176,7 @@ data class UserProfileResponse(
     @SerializedName("profileViews")
     val profileViews: Int? = 0,
     @SerializedName("goals")
-    val goals: String? = null,
+    val goals: List<String>? = null,
     @SerializedName("job")
     val job: String? = null,
     @SerializedName("openQuestionAnswers")

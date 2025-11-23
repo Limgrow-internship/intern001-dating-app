@@ -13,6 +13,7 @@ import com.intern001.dating.data.model.response.FacebookLoginResponse
 import com.intern001.dating.data.model.response.GoogleLoginResponse
 import com.intern001.dating.data.model.response.UserData
 import com.intern001.dating.domain.model.User
+import com.intern001.dating.domain.model.UserLocation
 import com.intern001.dating.domain.model.UserProfile
 import com.intern001.dating.domain.repository.AuthRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -272,15 +273,7 @@ constructor(
         return cachedUser
     }
 
-    override suspend fun updateUserProfile(
-        firstName: String?,
-        lastName: String?,
-        dateOfBirth: String?,
-        gender: String?,
-        profileImageUrl: String?,
-        mode: String?,
-        bio: String?,
-    ): Result<UserProfile> {
+    override suspend fun updateUserProfile(request: UpdateProfileRequest): Result<UserProfile> {
         return try {
             val token = tokenManager.getAccessToken()
             android.util.Log.d("AuthRepository", "Update profile - Token exists: ${token != null}, Token: ${token?.take(20)}...")
@@ -289,18 +282,6 @@ constructor(
                 android.util.Log.e("AuthRepository", "No token found! User not logged in")
                 return Result.failure(Exception("User not logged in. Please login again."))
             }
-
-            // Note: profileImageUrl is deprecated, use photo upload API instead
-            // Keeping for backward compatibility but will be ignored by backend
-            val request = UpdateProfileRequest(
-                firstName = firstName,
-                lastName = lastName,
-                dateOfBirth = dateOfBirth,
-                gender = gender,
-                profileImageUrl = profileImageUrl, // Deprecated - backend will ignore this
-                mode = mode,
-                bio = bio,
-            )
 
             android.util.Log.d("AuthRepository", "Sending update profile request: $request")
 
@@ -477,26 +458,33 @@ constructor(
             bio = this.bio,
             age = this.dateOfBirth?.let { calculateAge(it) },
             gender = this.gender,
-            interests = emptyList(),
+            interests = this.interests ?: emptyList(),
             mode = this.mode,
             relationshipMode = null, // Not in UserData response
-            height = null,
-            weight = null,
-            location = null,
-            city = null,
-            country = null,
-            occupation = null,
-            company = null,
-            education = null,
-            zodiacSign = null,
+            height = this.height,
+            weight = this.weight,
+            location = this.location?.let {
+                UserLocation(
+                    latitude = it.latitude,
+                    longitude = it.longitude,
+                    city = it.city,
+                    country = it.country,
+                )
+            },
+            city = this.city,
+            country = this.country,
+            occupation = this.occupation,
+            company = this.company,
+            education = this.education,
+            zodiacSign = this.zodiacSign,
+            job = this.job,
             verifiedAt = null,
             verifiedBadge = false,
             isVerified = false,
             photos = photoList, // Use new photos array
             profileCompleteness = 0,
             profileViews = 0,
-            goals = null,
-            job = null,
+            goals = this.goals ?: emptyList(), // goals is now List<String>, not nullable
             openQuestionAnswers = null,
             createdAt = currentDate,
             updatedAt = currentDate,

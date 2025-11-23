@@ -1,8 +1,10 @@
 package com.intern001.dating.domain.repository
 
 import android.net.Uri
+import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.data.model.response.FacebookLoginResponse
 import com.intern001.dating.data.model.response.GoogleLoginResponse
+import com.intern001.dating.domain.model.UpdateProfile
 import com.intern001.dating.domain.model.User
 import com.intern001.dating.domain.model.UserProfile
 
@@ -33,15 +35,7 @@ interface AuthRepository {
 
     suspend fun getUserProfile(): Result<UserProfile>
 
-    suspend fun updateUserProfile(
-        firstName: String? = null,
-        lastName: String? = null,
-        dateOfBirth: String? = null,
-        gender: String? = null,
-        profileImageUrl: String? = null,
-        mode: String? = null,
-        bio: String? = null,
-    ): Result<UserProfile>
+    suspend fun updateUserProfile(request: UpdateProfileRequest): Result<UserProfile>
 
     suspend fun uploadImage(imageUri: Uri): Result<String>
 

@@ -179,7 +179,7 @@ fun UserProfileResponse.toUserProfile(): UserProfile {
             ?: emptyList(),
         profileCompleteness = profileCompleteness ?: 0,
         profileViews = profileViews ?: 0,
-        goals = goals,
+        goals = goals ?: emptyList(),
         job = job,
         openQuestionAnswers = openQuestionAnswers,
         createdAt =
@@ -246,3 +246,4 @@ fun RecommendationCriteriaResponse.toMatchCriteria(): MatchCriteria {
         heightRange = heightRange?.let { Range(min = it.min, max = it.max) },
     )
 }
+

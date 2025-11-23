@@ -1,5 +1,6 @@
 package com.intern001.dating.data.model.response
 
+import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
 
 data class AuthResponse(
@@ -38,11 +39,36 @@ data class UserData(
     @SerializedName("avatar")
     val avatar: String? = null,
     @SerializedName("photos")
+    @JsonAdapter(PhotoListDeserializer::class)
     val photos: List<PhotoResponse>? = null,
     @SerializedName("mode")
     val mode: String? = null,
     @SerializedName("bio")
     val bio: String? = null,
+    @SerializedName("goals")
+    val goals: List<String>? = null,
+    @SerializedName("interests")
+    val interests: List<String>? = null,
+    @SerializedName("occupation")
+    val occupation: String? = null,
+    @SerializedName("company")
+    val company: String? = null,
+    @SerializedName("education")
+    val education: String? = null,
+    @SerializedName("zodiacSign")
+    val zodiacSign: String? = null,
+    @SerializedName("city")
+    val city: String? = null,
+    @SerializedName("country")
+    val country: String? = null,
+    @SerializedName("location")
+    val location: LocationResponse? = null,
+    @SerializedName("height")
+    val height: Int? = null,
+    @SerializedName("weight")
+    val weight: Int? = null,
+    @SerializedName("job")
+    val job: String? = null,
 )
 
 data class RefreshTokenRequest(

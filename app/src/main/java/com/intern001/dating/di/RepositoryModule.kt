@@ -3,11 +3,13 @@ package com.intern001.dating.di
 import com.intern001.dating.data.repository.AuthRepositoryImpl
 import com.intern001.dating.data.repository.LanguageRepositoryImpl
 import com.intern001.dating.data.repository.MatchRepositoryImpl
+import com.intern001.dating.data.repository.PhotoRepositoryImpl
 import com.intern001.dating.data.repository.RecommendationRepositoryImpl
 import com.intern001.dating.data.repository.UserRepositoryImpl
 import com.intern001.dating.domain.repository.AuthRepository
 import com.intern001.dating.domain.repository.LanguageRepository
 import com.intern001.dating.domain.repository.MatchRepository
+import com.intern001.dating.domain.repository.PhotoRepository
 import com.intern001.dating.domain.repository.RecommendationRepository
 import com.intern001.dating.domain.repository.UserRepository
 import dagger.Binds
@@ -47,4 +49,10 @@ abstract class RepositoryModule {
     abstract fun bindRecommendationRepository(
         recommendationRepositoryImpl: RecommendationRepositoryImpl,
     ): RecommendationRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPhotoRepository(
+        photoRepositoryImpl: PhotoRepositoryImpl,
+    ): PhotoRepository
 }
