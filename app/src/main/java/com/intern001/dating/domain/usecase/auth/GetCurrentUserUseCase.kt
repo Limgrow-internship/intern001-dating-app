@@ -1,12 +1,11 @@
 package com.intern001.dating.domain.usecase.auth
 
 import com.intern001.dating.domain.model.UpdateProfile
-import com.intern001.dating.domain.model.UserProfile
 import com.intern001.dating.domain.repository.AuthRepository
 import javax.inject.Inject
 
 class GetCurrentUserUseCase @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
 
 ) {
 
@@ -23,4 +22,3 @@ class GetCurrentUserUseCase @Inject constructor(
         }
     }
 }
-

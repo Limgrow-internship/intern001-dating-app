@@ -12,18 +12,18 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.intern001.dating.R
+import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.data.repository.AuthRepositoryImpl
 import com.intern001.dating.databinding.FragmentEditProfileBinding
 import com.intern001.dating.databinding.ItemPhotoProfileBinding
-import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.domain.model.UpdateProfile
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import com.intern001.dating.R
 
 @AndroidEntryPoint
 class EditProfileFragment : BaseFragment() {
@@ -51,7 +51,7 @@ class EditProfileFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentEditProfileBinding.inflate(inflater, container, false)
 
@@ -61,7 +61,7 @@ class EditProfileFragment : BaseFragment() {
             binding.itemPhoto3,
             binding.itemPhoto4,
             binding.itemPhoto5,
-            binding.itemPhoto6
+            binding.itemPhoto6,
         )
 
         return binding.root
@@ -76,7 +76,6 @@ class EditProfileFragment : BaseFragment() {
         observeUpdateState()
         loadUserProfile()
     }
-
 
     private fun loadUserProfile() {
         viewModel.getUserProfile()
@@ -96,7 +95,6 @@ class EditProfileFragment : BaseFragment() {
     }
 
     private fun bindProfileData(profile: UpdateProfile) {
-
         binding.includeAbout.etIntroduce.setText(profile.bio ?: "")
 
         // profile.photos is now List<Photo> (objects), not List<String>
@@ -116,14 +114,14 @@ class EditProfileFragment : BaseFragment() {
             "Something casual" to g.tvGoalCasual,
             "Just vibing" to g.tvGoalVibing,
             "Open to anything" to g.tvGoalOpen,
-            "Still figuring it out" to g.tvGoalFiguring
+            "Still figuring it out" to g.tvGoalFiguring,
         )
 
         // goals is now List<String>, not String - no need to split
         profile.goals.forEach { goal ->
             goalMap[goal]?.let { toggleGoalSelection(it) }
         }
-        
+
         // Store goals in selectedGoals for later use
         selectedGoals.clear()
         selectedGoals.addAll(profile.goals)
@@ -201,7 +199,7 @@ class EditProfileFragment : BaseFragment() {
             g.tvGoalCasual,
             g.tvGoalVibing,
             g.tvGoalOpen,
-            g.tvGoalFiguring
+            g.tvGoalFiguring,
         )
 
         goalViews.forEach { goal ->
@@ -226,7 +224,7 @@ class EditProfileFragment : BaseFragment() {
     private fun setupSaveButton() {
         binding.btnSave.setOnClickListener {
             val bio = binding.includeAbout.etIntroduce.text.toString().trim()
-            
+
             // Get personal details
             val details = binding.includeDetails
             val job = details.comboJob.text.toString().trim().takeIf { it.isNotEmpty() }
@@ -235,14 +233,14 @@ class EditProfileFragment : BaseFragment() {
             val heightStr = details.etHeight.text.toString().trim()
             val weightStr = details.etWeight.text.toString().trim()
             val zodiac = details.comboZodiac.text.toString().trim().takeIf { it.isNotEmpty() }
-            
+
             // Parse height and weight
             val height = heightStr.toIntOrNull()
             val weight = weightStr.toIntOrNull()
-            
+
             // Note: Photos are managed separately via photo management API
             // Do not include photos in UpdateProfileRequest
-            
+
             val request = UpdateProfileRequest(
                 bio = bio,
                 goals = selectedGoals.toList(), // goals is now List<String>, not String
@@ -252,7 +250,7 @@ class EditProfileFragment : BaseFragment() {
                 city = address, // Address maps to city
                 zodiacSign = zodiac,
                 height = height,
-                weight = weight
+                weight = weight,
             )
 
             viewModel.updateUserProfile(request)

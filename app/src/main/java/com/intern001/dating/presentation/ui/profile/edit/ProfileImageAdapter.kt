@@ -10,7 +10,7 @@ import com.bumptech.glide.Glide
 import com.intern001.dating.R
 
 class ProfileImageAdapter(
-    private val images: List<String>
+    private val images: List<String>,
 ) : RecyclerView.Adapter<ProfileImageAdapter.ImageViewHolder>() {
 
     inner class ImageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -32,8 +32,8 @@ class ProfileImageAdapter(
         Glide.with(holder.img.context)
             .load(url)
             .centerCrop()
-            .placeholder(R.drawable.co4la) 
-            .error(R.drawable.ob2img) 
+            .placeholder(R.drawable.co4la)
+            .error(R.drawable.ob2img)
             .into(holder.img)
     }
 }
