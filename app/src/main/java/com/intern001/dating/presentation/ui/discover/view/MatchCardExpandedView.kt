@@ -3,59 +3,50 @@ package com.intern001.dating.presentation.ui.discover.view
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
-import android.graphics.Outline
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewOutlineProvider
 import androidx.cardview.widget.CardView
 import androidx.core.view.isVisible
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.chip.Chip
 import com.intern001.dating.R
-import com.intern001.dating.databinding.ItemMatchCardBinding
+import com.intern001.dating.databinding.ItemMatchCardExpandedBinding
 import com.intern001.dating.domain.model.MatchCard
 import com.intern001.dating.presentation.ui.discover.adapter.PhotoPagerAdapter
-class MatchCardView @JvmOverloads constructor(
+
+class MatchCardExpandedView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
 ) : CardView(context, attrs, defStyleAttr) {
 
-    private val binding: ItemMatchCardBinding
+    private val binding: ItemMatchCardExpandedBinding
 
     private var onSwipeListener: OnSwipeListener? = null
     private var onPhotoClickListener: OnPhotoClickListener? = null
-    private var onOverlayTapListener: OnOverlayTapListener? = null
     private var onActionClickListener: OnActionClickListener? = null
+    private var onOverlayTapListener: OnOverlayTapListener? = null
 
     private var initialX = 0f
     private var initialY = 0f
     private var dX = 0f
     private var dY = 0f
 
+    private var isScrolling = false
+    private val swipeThreshold = 50f
     private val gestureDetector: GestureDetector
 
     init {
-        binding = ItemMatchCardBinding.inflate(LayoutInflater.from(context), this, true)
-
-        val cornerRadius = 24f * context.resources.displayMetrics.density
-        binding.viewPagerPhotos.outlineProvider = object : ViewOutlineProvider() {
-            override fun getOutline(view: View, outline: Outline) {
-                outline.setRoundRect(0, 0, view.width, view.height, cornerRadius)
-            }
-        }
-        binding.viewPagerPhotos.clipToOutline = true
+        binding = ItemMatchCardExpandedBinding.inflate(LayoutInflater.from(context), this, true)
 
         gestureDetector = GestureDetector(
             context,
             object : GestureDetector.SimpleOnGestureListener() {
                 override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                    if (binding.darkOverlay.isVisible) {
-                        onOverlayTapListener?.onOverlayTap()
-                        return true
-                    }
+                    // Handle photo tap navigation
                     handlePhotoTap(e.x)
                     return true
                 }
@@ -65,14 +56,8 @@ class MatchCardView @JvmOverloads constructor(
                 }
             },
         )
-
-        binding.darkOverlay.setOnClickListener {
-            onOverlayTapListener?.onOverlayTap()
-        }
-
+        // Setup action button listeners
         setupActionButtons()
-
-        showDarkOverlay()
     }
 
     private fun setupActionButtons() {
@@ -93,20 +78,16 @@ class MatchCardView @JvmOverloads constructor(
         }
     }
 
-    private fun showDarkOverlay() {
-        binding.darkOverlay.visibility = View.VISIBLE
-        binding.tvTapToMeet.visibility = View.VISIBLE
+    private fun showDetailedInfo() {
+        // Show all detailed info sections
+        binding.detailInfoContainer.visibility = View.VISIBLE
     }
 
-    private fun hideDarkOverlay() {
-        binding.darkOverlay.animate()
-            .alpha(0f)
-            .setDuration(300)
-            .withEndAction {
-                binding.darkOverlay.visibility = View.GONE
-                binding.tvTapToMeet.visibility = View.GONE
-            }
-            .start()
+    fun hideDarkOverlayImmediate() {
+        binding.darkOverlay.visibility = View.GONE
+        binding.tvTapToMeet.visibility = View.GONE
+        binding.darkOverlay.alpha = 0f
+        showDetailedInfo()
     }
 
     fun bindCard(card: MatchCard) {
@@ -127,7 +108,7 @@ class MatchCardView @JvmOverloads constructor(
         binding.tvName.text = card.displayName
 
         // Calculate and display age
-        val age = card.age
+        val age = card.age ?: calculateAge(card)
         binding.tvAge.text = if (age != null && age > 0) ", $age" else ""
 
         // Gender
@@ -136,16 +117,123 @@ class MatchCardView @JvmOverloads constructor(
         // Distance badge on top-left
         val distance = card.distance?.toInt() ?: 0
         binding.tvDistanceBadge.text = context.getString(R.string.km_format, distance)
+
+        // Bio
+        if (!card.bio.isNullOrEmpty()) {
+            binding.tvBio.text = card.bio
+            binding.tvBio.visibility = View.VISIBLE
+        } else {
+            binding.tvBio.visibility = View.GONE
+        }
+
+        // Occupation
+        if (!card.occupation.isNullOrEmpty()) {
+            binding.tvOccupation.text = card.occupation
+            binding.occupationSection.visibility = View.VISIBLE
+        } else {
+            binding.occupationSection.visibility = View.GONE
+        }
+
+        // Education
+        if (!card.education.isNullOrEmpty()) {
+            binding.tvEducation.text = card.education
+            binding.educationSection.visibility = View.VISIBLE
+        } else {
+            binding.educationSection.visibility = View.GONE
+        }
+
+        // Location detail
+        card.location?.let { loc ->
+            if (!loc.city.isNullOrEmpty()) {
+                val locationText = buildString {
+                    append(loc.city)
+                    if (!loc.country.isNullOrEmpty()) {
+                        append(", ")
+                        append(loc.country)
+                    }
+                }
+                binding.tvLocationDetail.text = locationText
+                binding.locationSection.visibility = View.VISIBLE
+            } else {
+                binding.locationSection.visibility = View.GONE
+            }
+        } ?: run {
+            binding.locationSection.visibility = View.GONE
+        }
+
+        // Zodiac
+        if (!card.zodiacSign.isNullOrEmpty()) {
+            binding.tvZodiac.text = card.zodiacSign
+            binding.zodiacSection.visibility = View.VISIBLE
+        } else {
+            binding.zodiacSection.visibility = View.GONE
+        }
+
+        // More button visibility
+        val hasMoreInfo = !card.occupation.isNullOrEmpty() ||
+            !card.education.isNullOrEmpty() ||
+            card.location != null ||
+            !card.zodiacSign.isNullOrEmpty()
+        binding.tvMore.visibility = if (hasMoreInfo) View.VISIBLE else View.GONE
+
+        // Looking for chips
+        if (!card.relationshipMode.isNullOrEmpty()) {
+            binding.tvLookingForTitle.visibility = View.VISIBLE
+            binding.chipGroupLookingFor.visibility = View.VISIBLE
+            binding.chipGroupLookingFor.removeAllViews()
+
+            // Add relationship mode as chips
+            val lookingForItems = listOf(card.relationshipMode)
+            lookingForItems.forEach { item ->
+                val chip = createChip(item)
+                binding.chipGroupLookingFor.addView(chip)
+            }
+        } else {
+            binding.tvLookingForTitle.visibility = View.GONE
+            binding.chipGroupLookingFor.visibility = View.GONE
+        }
+
+        // Interests chips
+        if (card.interests.isNotEmpty()) {
+            binding.tvInterestsTitle.visibility = View.VISIBLE
+            binding.chipGroupInterests.visibility = View.VISIBLE
+            binding.chipGroupInterests.removeAllViews()
+
+            card.interests.forEach { interest ->
+                val chip = createChip(interest)
+                binding.chipGroupInterests.addView(chip)
+            }
+        } else {
+            binding.tvInterestsTitle.visibility = View.GONE
+            binding.chipGroupInterests.visibility = View.GONE
+        }
+    }
+
+    private fun calculateAge(card: MatchCard): Int? {
+        // If there's a birthDate field, calculate from it
+        // For now, return the age from the card
+        return card.age
+    }
+
+    private fun createChip(text: String): Chip {
+        return Chip(context).apply {
+            this.text = text
+            isClickable = false
+            isCheckable = false
+            setChipBackgroundColorResource(R.color.gray_100)
+            setTextColor(context.getColor(R.color.black))
+            chipStrokeWidth = 0f
+        }
     }
 
     private fun setupPhotoIndicators(count: Int) {
         binding.photoIndicators.removeAllViews()
         if (count <= 1) {
-            binding.photoIndicators.visibility = View.GONE
+            binding.photoIndicators.isVisible = false
             return
         }
 
-        binding.photoIndicators.visibility = View.VISIBLE
+        binding.photoIndicators.isVisible = true
         for (i in 0 until count) {
             val indicator = View(context).apply {
                 layoutParams = android.widget.LinearLayout.LayoutParams(
@@ -198,6 +286,42 @@ class MatchCardView @JvmOverloads constructor(
         }
     }
 
+    private fun isTouchInSwipeArea(ev: MotionEvent): Boolean {
+        // Swipe area is from top to bottom of action buttons container
+        val location = IntArray(2)
+        binding.bottomInfoContainer.getLocationOnScreen(location)
+        val bottomInfoBottom = location[1] + binding.bottomInfoContainer.height
+
+        // Get touch Y position on screen
+        return ev.rawY <= bottomInfoBottom
+    }
+
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+        // Only intercept if touch is in swipe area (image + bottom info)
+        if (!isTouchInSwipeArea(ev)) {
+            return false
+        }
+
+        when (ev.action) {
+            MotionEvent.ACTION_DOWN -> {
+                initialX = x
+                initialY = y
+                dX = x - ev.rawX
+                dY = y - ev.rawY
+                isScrolling = false
+            }
+            MotionEvent.ACTION_MOVE -> {
+                val deltaX = kotlin.math.abs(ev.rawX + dX - initialX)
+                val deltaY = kotlin.math.abs(ev.rawY + dY - initialY)
+                // Intercept horizontal swipes, let vertical scroll through
+                if (deltaX > swipeThreshold && deltaX > deltaY) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         gestureDetector.onTouchEvent(event)
 
@@ -212,32 +336,19 @@ class MatchCardView @JvmOverloads constructor(
 
             MotionEvent.ACTION_MOVE -> {
                 val newX = event.rawX + dX
-                val newY = event.rawY + dY
-
-                x = newX
-                y = newY
-
-                // Calculate swipe direction and rotation
                 val deltaX = newX - initialX
+
+                // Only move card horizontally for swipe
+                x = newX
                 val rotation = deltaX / 20f
-
                 this.rotation = rotation
-
-                // Update swipe overlay based on direction
-                updateSwipeOverlay(deltaX)
                 return true
             }
 
             MotionEvent.ACTION_UP -> {
                 val deltaX = x - initialX
-                val deltaY = y - initialY
 
                 when {
-                    deltaY < -300 -> {
-                        // Super like
-                        animateSwipeOut(SwipeDirection.UP)
-                        onSwipeListener?.onSuperLike()
-                    }
                     deltaX > 200 -> {
                         // Like
                         animateSwipeOut(SwipeDirection.RIGHT)
@@ -251,35 +362,12 @@ class MatchCardView @JvmOverloads constructor(
                     else -> {
                         // Return to original position
                         animateReturn()
-                        resetSwipeOverlay()
                     }
                 }
                 return true
             }
         }
         return super.onTouchEvent(event)
-    }
-
-    private fun updateSwipeOverlay(deltaX: Float) {
-        val swipeThreshold = 200f
-        val alpha = (kotlin.math.abs(deltaX) / swipeThreshold).coerceIn(0f, 1f)
-
-        if (deltaX > 0) {
-            // Swiping right - like (yellow gradient)
-            binding.likeOverlay.alpha = alpha
-            binding.dislikeOverlay.alpha = 0f
-        } else if (deltaX < 0) {
-            // Swiping left - dislike (gray)
-            binding.dislikeOverlay.alpha = alpha
-            binding.likeOverlay.alpha = 0f
-        } else {
-            resetSwipeOverlay()
-        }
-    }
-
-    private fun resetSwipeOverlay() {
-        binding.likeOverlay.alpha = 0f
-        binding.dislikeOverlay.alpha = 0f
     }
 
     fun animateSwipeOut(direction: SwipeDirection) {
@@ -329,12 +417,12 @@ class MatchCardView @JvmOverloads constructor(
         this.onPhotoClickListener = listener
     }
 
-    fun setOnOverlayTapListener(listener: OnOverlayTapListener) {
-        this.onOverlayTapListener = listener
-    }
-
     fun setOnActionClickListener(listener: OnActionClickListener) {
         this.onActionClickListener = listener
+    }
+
+    fun setOnOverlayTapListener(listener: OnOverlayTapListener) {
+        this.onOverlayTapListener = listener
     }
 
     interface OnSwipeListener {
@@ -347,12 +435,12 @@ class MatchCardView @JvmOverloads constructor(
         fun onLongPress()
     }
 
-    interface OnOverlayTapListener {
-        fun onOverlayTap()
-    }
-
     interface OnActionClickListener {
         fun onBackClick()
+    }
+
+    interface OnOverlayTapListener {
+        fun onOverlayTap()
     }
 
     enum class SwipeDirection {

@@ -47,21 +47,51 @@ data class VerifyOtpRequest(
     val otp: String,
 )
 
+/**
+ * UpdateProfileRequest - Matches backend Profile model fields
+ * Note: profilePicture is deprecated - use photo upload API instead
+ */
 data class UpdateProfileRequest(
     @SerializedName("firstName")
     val firstName: String? = null,
     @SerializedName("lastName")
     val lastName: String? = null,
+    @SerializedName("displayName")
+    val displayName: String? = null,
     @SerializedName("dateOfBirth")
     val dateOfBirth: String? = null,
     @SerializedName("gender")
-    val gender: String? = null,
-    @SerializedName("profilePicture")
-    val profileImageUrl: String? = null,
-    @SerializedName("mode")
-    val mode: String? = null,
+    val gender: String? = null, // 'male' | 'female' | 'other'
     @SerializedName("bio")
     val bio: String? = null,
+    @SerializedName("interests")
+    val interests: List<String>? = null,
+    @SerializedName("mode")
+    val mode: String? = null, // 'dating' | 'friend'
+    @SerializedName("relationshipMode")
+    val relationshipMode: String? = null, // 'serious' | 'casual' | 'friendship'
+    @SerializedName("height")
+    val height: Int? = null, // in centimeters (120-220)
+    @SerializedName("weight")
+    val weight: Int? = null, // in kilograms (30-300)
+    @SerializedName("city")
+    val city: String? = null,
+    @SerializedName("country")
+    val country: String? = null,
+    @SerializedName("occupation")
+    val occupation: String? = null,
+    @SerializedName("company")
+    val company: String? = null,
+    @SerializedName("education")
+    val education: String? = null,
+    @SerializedName("zodiacSign")
+    val zodiacSign: String? = null,
+    @SerializedName("goals")
+    val goals: String? = null,
+    @SerializedName("job")
+    val job: String? = null,
+    @SerializedName("openQuestionAnswers")
+    val openQuestionAnswers: Map<String, String>? = null,
 )
 
 data class ChangePasswordRequest(
@@ -81,4 +111,13 @@ data class ChangePasswordRequest(
 data class FacebookLoginRequest(
     @SerializedName("accessToken")
     val accessToken: String,
+)
+
+// ============================================================
+// Photo Management Request DTOs - New Photo System
+// ============================================================
+
+data class ReorderPhotosRequest(
+    @SerializedName("photoIds")
+    val photoIds: List<String>, // Ordered list of photo IDs
 )

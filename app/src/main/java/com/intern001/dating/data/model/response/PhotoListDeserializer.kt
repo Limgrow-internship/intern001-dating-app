@@ -6,9 +6,9 @@ import com.google.gson.JsonElement
 import java.lang.reflect.Type
 
 /**
- * Custom deserializer to handle photos field which can be:
- * 1. Array of strings: ["url1", "url2"]
- * 2. Array of objects: [{"url": "url1", "order": 0}, ...]
+ * Custom deserializer to handle photos field.
+ * Backend now returns array of photo objects with full metadata.
+ * For backward compatibility, still handles string URLs as fallback.
  */
 class PhotoListDeserializer : JsonDeserializer<List<PhotoResponse>> {
     override fun deserialize(
@@ -26,33 +26,47 @@ class PhotoListDeserializer : JsonDeserializer<List<PhotoResponse>> {
         jsonArray.forEachIndexed { index, element ->
             try {
                 when {
-                    // Case 1: Element is a string URL
+                    // Case 1: Element is a string URL (backward compatibility)
                     element.isJsonPrimitive && element.asJsonPrimitive.isString -> {
                         val url = element.asString
                         photos.add(
                             PhotoResponse(
+                                id = "legacy_$index",
                                 url = url,
+                                type = "gallery",
+                                source = "upload",
+                                isPrimary = index == 0,
                                 order = index,
-                                uploadedAt = null,
-                                id = null,
                             ),
                         )
                     }
-                    // Case 2: Element is an object
+                    // Case 2: Element is a photo object (new format)
                     element.isJsonObject -> {
                         val obj = element.asJsonObject
                         val url = obj.get("url")?.asString ?: ""
-                        val order = obj.get("order")?.asInt ?: index
-                        val uploadedAt = obj.get("uploadedAt")?.asString
-                        val id = obj.get("id")?.asString
 
                         if (url.isNotEmpty()) {
+                            // Get ID from either _id or id field (MongoDB may use _id)
+                            val id = obj.get("_id")?.asString ?: obj.get("id")?.asString ?: "photo_${System.currentTimeMillis()}_$index"
                             photos.add(
                                 PhotoResponse(
-                                    url = url,
-                                    order = order,
-                                    uploadedAt = uploadedAt,
                                     id = id,
+                                    idAlt = if (obj.get("_id") != null) id else null,
+                                    userId = obj.get("userId")?.asString,
+                                    url = url,
+                                    cloudinaryPublicId = obj.get("cloudinaryPublicId")?.asString,
+                                    type = obj.get("type")?.asString ?: "gallery",
+                                    source = obj.get("source")?.asString ?: "upload",
+                                    isPrimary = obj.get("isPrimary")?.asBoolean ?: false,
+                                    order = obj.get("order")?.asInt ?: index,
+                                    isVerified = obj.get("isVerified")?.asBoolean ?: false,
+                                    width = obj.get("width")?.asInt,
+                                    height = obj.get("height")?.asInt,
+                                    fileSize = obj.get("fileSize")?.asInt,
+                                    format = obj.get("format")?.asString,
+                                    isActive = obj.get("isActive")?.asBoolean ?: true,
+                                    createdAt = obj.get("createdAt")?.asString,
+                                    updatedAt = obj.get("updatedAt")?.asString,
                                 ),
                             )
                         }

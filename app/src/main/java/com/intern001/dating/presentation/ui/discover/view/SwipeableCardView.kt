@@ -11,23 +11,22 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewOutlineProvider
 import androidx.cardview.widget.CardView
-import androidx.core.view.isVisible
 import androidx.viewpager2.widget.ViewPager2
 import com.intern001.dating.R
-import com.intern001.dating.databinding.ItemMatchCardBinding
+import com.intern001.dating.databinding.ViewSwipeableCardBinding
 import com.intern001.dating.domain.model.MatchCard
 import com.intern001.dating.presentation.ui.discover.adapter.PhotoPagerAdapter
-class MatchCardView @JvmOverloads constructor(
+
+class SwipeableCardView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
 ) : CardView(context, attrs, defStyleAttr) {
 
-    private val binding: ItemMatchCardBinding
+    private val binding: ViewSwipeableCardBinding
 
     private var onSwipeListener: OnSwipeListener? = null
     private var onPhotoClickListener: OnPhotoClickListener? = null
-    private var onOverlayTapListener: OnOverlayTapListener? = null
     private var onActionClickListener: OnActionClickListener? = null
 
     private var initialX = 0f
@@ -35,10 +34,11 @@ class MatchCardView @JvmOverloads constructor(
     private var dX = 0f
     private var dY = 0f
 
+    private val swipeThreshold = 50f
     private val gestureDetector: GestureDetector
 
     init {
-        binding = ItemMatchCardBinding.inflate(LayoutInflater.from(context), this, true)
+        binding = ViewSwipeableCardBinding.inflate(LayoutInflater.from(context), this, true)
 
         val cornerRadius = 24f * context.resources.displayMetrics.density
         binding.viewPagerPhotos.outlineProvider = object : ViewOutlineProvider() {
@@ -52,10 +52,6 @@ class MatchCardView @JvmOverloads constructor(
             context,
             object : GestureDetector.SimpleOnGestureListener() {
                 override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                    if (binding.darkOverlay.isVisible) {
-                        onOverlayTapListener?.onOverlayTap()
-                        return true
-                    }
                     handlePhotoTap(e.x)
                     return true
                 }
@@ -66,13 +62,7 @@ class MatchCardView @JvmOverloads constructor(
             },
         )
 
-        binding.darkOverlay.setOnClickListener {
-            onOverlayTapListener?.onOverlayTap()
-        }
-
         setupActionButtons()
-
-        showDarkOverlay()
     }
 
     private fun setupActionButtons() {
@@ -93,29 +83,10 @@ class MatchCardView @JvmOverloads constructor(
         }
     }
 
-    private fun showDarkOverlay() {
-        binding.darkOverlay.visibility = View.VISIBLE
-        binding.tvTapToMeet.visibility = View.VISIBLE
-    }
-
-    private fun hideDarkOverlay() {
-        binding.darkOverlay.animate()
-            .alpha(0f)
-            .setDuration(300)
-            .withEndAction {
-                binding.darkOverlay.visibility = View.GONE
-                binding.tvTapToMeet.visibility = View.GONE
-            }
-            .start()
-    }
-
     fun bindCard(card: MatchCard) {
-        // Setup photo viewpager
         val photoAdapter = PhotoPagerAdapter(card.photos)
         binding.viewPagerPhotos.adapter = photoAdapter
         setupPhotoIndicators(card.photos.size)
-
-        // Setup viewpager page change listener
         binding.viewPagerPhotos.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
@@ -123,17 +94,13 @@ class MatchCardView @JvmOverloads constructor(
             }
         })
 
-        // Bind basic data
         binding.tvName.text = card.displayName
 
-        // Calculate and display age
         val age = card.age
         binding.tvAge.text = if (age != null && age > 0) ", $age" else ""
 
-        // Gender
         binding.tvGender.text = card.gender?.replaceFirstChar { it.uppercase() } ?: ""
 
-        // Distance badge on top-left
         val distance = card.distance?.toInt() ?: 0
         binding.tvDistanceBadge.text = context.getString(R.string.km_format, distance)
     }
@@ -183,19 +150,36 @@ class MatchCardView @JvmOverloads constructor(
     private fun handlePhotoTap(x: Float) {
         val width = binding.viewPagerPhotos.width
         if (x < width / 2) {
-            // Tap on left side - previous photo
             val currentItem = binding.viewPagerPhotos.currentItem
             if (currentItem > 0) {
                 binding.viewPagerPhotos.currentItem = currentItem - 1
             }
         } else {
-            // Tap on right side - next photo
             val currentItem = binding.viewPagerPhotos.currentItem
             val adapter = binding.viewPagerPhotos.adapter
             if (adapter != null && currentItem < adapter.itemCount - 1) {
                 binding.viewPagerPhotos.currentItem = currentItem + 1
             }
         }
+    }
+
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+        when (ev.action) {
+            MotionEvent.ACTION_DOWN -> {
+                initialX = x
+                initialY = y
+                dX = x - ev.rawX
+                dY = y - ev.rawY
+            }
+            MotionEvent.ACTION_MOVE -> {
+                val deltaX = kotlin.math.abs(ev.rawX + dX - initialX)
+                val deltaY = kotlin.math.abs(ev.rawY + dY - initialY)
+                if (deltaX > swipeThreshold && deltaX > deltaY) {
+                    return true
+                }
+            }
+        }
+        return false
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -212,15 +196,10 @@ class MatchCardView @JvmOverloads constructor(
 
             MotionEvent.ACTION_MOVE -> {
                 val newX = event.rawX + dX
-                val newY = event.rawY + dY
+                val deltaX = newX - initialX
 
                 x = newX
-                y = newY
-
-                // Calculate swipe direction and rotation
-                val deltaX = newX - initialX
                 val rotation = deltaX / 20f
-
                 this.rotation = rotation
 
                 // Update swipe overlay based on direction
@@ -230,26 +209,17 @@ class MatchCardView @JvmOverloads constructor(
 
             MotionEvent.ACTION_UP -> {
                 val deltaX = x - initialX
-                val deltaY = y - initialY
 
                 when {
-                    deltaY < -300 -> {
-                        // Super like
-                        animateSwipeOut(SwipeDirection.UP)
-                        onSwipeListener?.onSuperLike()
-                    }
                     deltaX > 200 -> {
-                        // Like
                         animateSwipeOut(SwipeDirection.RIGHT)
                         onSwipeListener?.onLike()
                     }
                     deltaX < -200 -> {
-                        // Dislike
                         animateSwipeOut(SwipeDirection.LEFT)
                         onSwipeListener?.onDislike()
                     }
                     else -> {
-                        // Return to original position
                         animateReturn()
                         resetSwipeOverlay()
                     }
@@ -265,11 +235,9 @@ class MatchCardView @JvmOverloads constructor(
         val alpha = (kotlin.math.abs(deltaX) / swipeThreshold).coerceIn(0f, 1f)
 
         if (deltaX > 0) {
-            // Swiping right - like (yellow gradient)
             binding.likeOverlay.alpha = alpha
             binding.dislikeOverlay.alpha = 0f
         } else if (deltaX < 0) {
-            // Swiping left - dislike (gray)
             binding.dislikeOverlay.alpha = alpha
             binding.likeOverlay.alpha = 0f
         } else {
@@ -329,10 +297,6 @@ class MatchCardView @JvmOverloads constructor(
         this.onPhotoClickListener = listener
     }
 
-    fun setOnOverlayTapListener(listener: OnOverlayTapListener) {
-        this.onOverlayTapListener = listener
-    }
-
     fun setOnActionClickListener(listener: OnActionClickListener) {
         this.onActionClickListener = listener
     }
@@ -345,10 +309,6 @@ class MatchCardView @JvmOverloads constructor(
 
     interface OnPhotoClickListener {
         fun onLongPress()
-    }
-
-    interface OnOverlayTapListener {
-        fun onOverlayTap()
     }
 
     interface OnActionClickListener {

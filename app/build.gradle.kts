@@ -123,6 +123,9 @@ dependencies {
     // Glide for image loading
     implementation(libs.glide)
     ksp(libs.glide.compiler)
+
+    // Glide transformations (blur, etc.)
+    implementation("jp.wasabeef:glide-transformations:4.3.0")
 }
 
 // KtLint configuration

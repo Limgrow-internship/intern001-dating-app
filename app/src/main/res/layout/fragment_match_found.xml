@@ -3,8 +3,30 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/gradient_match_background">
+    android:layout_height="match_parent">
+
+    <!-- Background Photo of Matched User (blurred) -->
+    <ImageView
+        android:id="@+id/ivBackgroundPhoto"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Yellow Gradient Overlay -->
+    <View
+        android:id="@+id/gradientOverlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/gradient_match_background"
+        android:alpha="0.85"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Match Animation Container -->
     <LinearLayout
@@ -19,23 +41,25 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.4">
 
-        <!-- Match Icon/Animation -->
+        <!-- Match Fire Heart Icon -->
         <ImageView
             android:id="@+id/ivMatchIcon"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:src="@drawable/ic_match_success"
+            android:layout_width="150dp"
+            android:layout_height="180dp"
+            android:src="@drawable/ic_match_fire_heart"
             android:contentDescription="@string/match_found" />
 
         <!-- Match Title -->
         <TextView
+            android:id="@+id/tvMatchTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="@string/its_a_match"
-            android:textColor="@color/white"
+            android:textColor="#FF6B35"
             android:textSize="32sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium" />
 
         <!-- Match Message -->
         <TextView
@@ -44,73 +68,40 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="@string/your_hearts_just_turned_on"
-            android:textColor="@color/white"
+            android:textColor="#FF6B35"
             android:textSize="16sp"
             android:gravity="center" />
 
-        <!-- User Photos -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <!-- Current User Photo -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="120dp"
-                android:layout_height="160dp"
-                android:layout_marginEnd="-30dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="8dp"
-                app:strokeWidth="3dp"
-                app:strokeColor="@color/white">
-
-                <ImageView
-                    android:id="@+id/ivCurrentUserPhoto"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    tools:src="@drawable/ic_launcher_background" />
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Matched User Photo -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="120dp"
-                android:layout_height="160dp"
-                android:layout_marginStart="-30dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="8dp"
-                app:strokeWidth="3dp"
-                app:strokeColor="@color/white">
-
-                <ImageView
-                    android:id="@+id/ivMatchedUserPhoto"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    tools:src="@drawable/ic_launcher_background" />
-
-            </com.google.android.material.card.MaterialCardView>
-
-        </LinearLayout>
-
-        <!-- Matched User Name -->
-        <TextView
-            android:id="@+id/tvMatchedUserName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:textColor="@color/white"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            tools:text="Thien Vi" />
-
     </LinearLayout>
+
+    <!-- Hidden views for compatibility -->
+    <ImageView
+        android:id="@+id/ivCurrentUserPhoto"
+        android:layout_width="1dp"
+        android:layout_height="1dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/ivMatchedUserPhoto"
+        android:layout_width="1dp"
+        android:layout_height="1dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvMatchedUserName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Action Buttons -->
     <LinearLayout
+        android:id="@+id/buttonsContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
@@ -132,7 +123,7 @@
             android:textStyle="bold"
             app:backgroundTint="@color/white"
             app:cornerRadius="28dp"
-            android:textColor="@color/bottom_nav_selected" />
+            android:textColor="#FF6B35" />
 
         <!-- Keep Swiping Button -->
         <com.google.android.material.button.MaterialButton

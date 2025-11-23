@@ -9,6 +9,7 @@ import com.intern001.dating.data.model.request.GoogleLoginRequest
 import com.intern001.dating.data.model.request.LoginRequest
 import com.intern001.dating.data.model.request.MatchActionRequest
 import com.intern001.dating.data.model.request.RecommendationCriteriaRequest
+import com.intern001.dating.data.model.request.ReorderPhotosRequest
 import com.intern001.dating.data.model.request.RequestOtpRequest
 import com.intern001.dating.data.model.request.SignupRequest
 import com.intern001.dating.data.model.request.UnmatchRequest
@@ -24,6 +25,9 @@ import com.intern001.dating.data.model.response.MatchResponse
 import com.intern001.dating.data.model.response.MatchResultResponse
 import com.intern001.dating.data.model.response.MatchesListResponse
 import com.intern001.dating.data.model.response.OtpResponse
+import com.intern001.dating.data.model.response.PhotoCountResponse
+import com.intern001.dating.data.model.response.PhotoListResponse
+import com.intern001.dating.data.model.response.PhotoResponse
 import com.intern001.dating.data.model.response.RecommendationCriteriaResponse
 import com.intern001.dating.data.model.response.RefreshTokenRequest
 import com.intern001.dating.data.model.response.UserData
@@ -63,6 +67,42 @@ interface DatingApiService {
 
     @PUT("api/profile")
     suspend fun updateUserProfile(@Body request: UpdateProfileRequest): Response<UserData>
+
+    // ============================================================
+    // Photo Management APIs
+    // ============================================================
+
+    // Get all photos for current user
+    @GET("api/photos")
+    suspend fun getPhotos(): Response<PhotoListResponse>
+
+    // Get primary photo (avatar)
+    @GET("api/photos/primary")
+    suspend fun getPrimaryPhoto(): Response<PhotoResponse>
+
+    // Get photo count
+    @GET("api/photos/count")
+    suspend fun getPhotoCount(): Response<PhotoCountResponse>
+
+    // Upload new photo
+    @Multipart
+    @POST("api/photos/upload")
+    suspend fun uploadPhoto(
+        @Part file: MultipartBody.Part,
+        @Part("type") type: MultipartBody.Part, // "avatar" | "gallery" | "selfie"
+    ): Response<PhotoResponse>
+
+    // Set photo as primary (avatar)
+    @PUT("api/photos/{photoId}/set-primary")
+    suspend fun setPhotoAsPrimary(@Path("photoId") photoId: String): Response<PhotoResponse>
+
+    // Delete photo
+    @DELETE("api/photos/{photoId}")
+    suspend fun deletePhoto(@Path("photoId") photoId: String): Response<Unit>
+
+    // Reorder photos
+    @PUT("api/photos/reorder")
+    suspend fun reorderPhotos(@Body request: ReorderPhotosRequest): Response<Unit>
 
     @POST("api/user/request-otp")
     suspend fun requestOtp(@Body request: RequestOtpRequest): Response<OtpResponse>
