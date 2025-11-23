@@ -124,7 +124,7 @@ class MatchCardView @JvmOverloads constructor(
         })
 
         // Bind basic data
-        binding.tvName.text = card.firstName
+        binding.tvName.text = card.displayName
 
         // Calculate and display age
         val age = card.age

@@ -290,12 +290,14 @@ constructor(
                 return Result.failure(Exception("User not logged in. Please login again."))
             }
 
+            // Note: profileImageUrl is deprecated, use photo upload API instead
+            // Keeping for backward compatibility but will be ignored by backend
             val request = UpdateProfileRequest(
                 firstName = firstName,
                 lastName = lastName,
                 dateOfBirth = dateOfBirth,
                 gender = gender,
-                profileImageUrl = profileImageUrl,
+                profileImageUrl = profileImageUrl, // Deprecated - backend will ignore this
                 mode = mode,
                 bio = bio,
             )
@@ -418,28 +420,84 @@ constructor(
         val currentDate = Date()
         val userId = this.id ?: ""
 
+        // Convert PhotoResponse list to Photo domain models
+        val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.US).apply {
+            timeZone = java.util.TimeZone.getTimeZone("UTC")
+        }
+
+        val photoList = this.photos?.mapNotNull { photoResponse ->
+            // Get ID from either _id or id field (backend may use either)
+            val photoId = photoResponse.id ?: photoResponse.idAlt ?: "photo_${System.currentTimeMillis()}_${photoResponse.order ?: 0}"
+            com.intern001.dating.domain.model.Photo(
+                id = photoId,
+                userId = photoResponse.userId,
+                url = photoResponse.url,
+                cloudinaryPublicId = photoResponse.cloudinaryPublicId,
+                type = photoResponse.type ?: "gallery",
+                source = photoResponse.source ?: "upload",
+                isPrimary = photoResponse.isPrimary ?: false,
+                order = photoResponse.order ?: 0,
+                isVerified = photoResponse.isVerified ?: false,
+                width = photoResponse.width,
+                height = photoResponse.height,
+                fileSize = photoResponse.fileSize,
+                format = photoResponse.format,
+                isActive = photoResponse.isActive ?: true,
+                createdAt = photoResponse.createdAt?.let {
+                    try {
+                        dateFormat.parse(it)
+                    } catch (e: Exception) {
+                        null
+                    }
+                },
+                updatedAt = photoResponse.updatedAt?.let {
+                    try {
+                        dateFormat.parse(it)
+                    } catch (e: Exception) {
+                        null
+                    }
+                },
+            )
+        } ?: emptyList()
+
         return UserProfile(
             id = userId, // Profile ID same as User ID for now
             userId = userId,
-            firstName = this.firstName ?: "",
-            lastName = this.lastName ?: "",
-            displayName = "${this.firstName ?: ""} ${this.lastName ?: ""}".trim(),
-            avatar = this.profileImageUrl,
+            firstName = this.firstName,
+            lastName = this.lastName,
+            displayName = this.firstName?.let { f -> this.lastName?.let { l -> "$f $l".trim() } } ?: this.firstName ?: this.lastName ?: "Unknown",
+            dateOfBirth = this.dateOfBirth?.let {
+                try {
+                    java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).parse(it)
+                } catch (e: Exception) {
+                    null
+                }
+            },
+            avatar = this.avatar, // Use new avatar field instead of profileImageUrl
             bio = this.bio,
             age = this.dateOfBirth?.let { calculateAge(it) },
             gender = this.gender,
             interests = emptyList(),
-            relationshipMode = this.mode,
+            mode = this.mode,
+            relationshipMode = null, // Not in UserData response
             height = null,
             weight = null,
             location = null,
+            city = null,
+            country = null,
             occupation = null,
             company = null,
             education = null,
             zodiacSign = null,
-            photos = emptyList(),
+            verifiedAt = null,
+            verifiedBadge = false,
+            isVerified = false,
+            photos = photoList, // Use new photos array
             profileCompleteness = 0,
             profileViews = 0,
+            goals = null,
+            job = null,
+            openQuestionAnswers = null,
             createdAt = currentDate,
             updatedAt = currentDate,
         )

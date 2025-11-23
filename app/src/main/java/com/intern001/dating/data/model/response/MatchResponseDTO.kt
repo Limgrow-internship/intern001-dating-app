@@ -8,9 +8,9 @@ data class MatchCardResponse(
     @SerializedName("userId")
     val userId: String,
     @SerializedName("firstName")
-    val firstName: String,
+    val firstName: String? = null,
     @SerializedName("lastName")
-    val lastName: String,
+    val lastName: String? = null,
     @SerializedName("displayName")
     val displayName: String? = null,
     @SerializedName("age")
@@ -42,25 +42,48 @@ data class MatchCardResponse(
     @SerializedName("zodiacSign")
     val zodiacSign: String? = null,
     @SerializedName("isVerified")
-    val isVerified: Boolean? = null,
+    val isVerified: Boolean? = false,
 )
 
 /**
- * PhotoResponse can handle both formats:
- * 1. String URL: "https://cloudinary.com/image.jpg"
- * 2. Object: { "url": "...", "order": 0, "uploadedAt": "..." }
- *
- * Note: Gson will deserialize String as PhotoResponse with just url field populated
+ * PhotoResponse - Matches backend Photo model from NestJS/MongoDB
+ * Backend returns full photo objects with metadata
  */
 data class PhotoResponse(
+    @SerializedName("_id")
+    val id: String? = null, // MongoDB _id field
+    @SerializedName("id")
+    val idAlt: String? = null, // Alternative id field (some endpoints may use this)
+    @SerializedName("userId")
+    val userId: String? = null,
     @SerializedName("url")
     val url: String,
+    @SerializedName("cloudinaryPublicId")
+    val cloudinaryPublicId: String? = null,
+    @SerializedName("type")
+    val type: String? = null, // 'avatar' | 'gallery' | 'selfie' - default 'gallery'
+    @SerializedName("source")
+    val source: String? = null, // 'upload' | 'google' | 'facebook' | 'apple' - default 'upload'
+    @SerializedName("isPrimary")
+    val isPrimary: Boolean? = false,
     @SerializedName("order")
-    val order: Int? = null,
-    @SerializedName("uploadedAt")
-    val uploadedAt: String? = null,
-    @SerializedName("id")
-    val id: String? = null,
+    val order: Int? = 0,
+    @SerializedName("isVerified")
+    val isVerified: Boolean? = false,
+    @SerializedName("width")
+    val width: Int? = null,
+    @SerializedName("height")
+    val height: Int? = null,
+    @SerializedName("fileSize")
+    val fileSize: Int? = null, // in bytes
+    @SerializedName("format")
+    val format: String? = null, // 'jpg', 'png', etc.
+    @SerializedName("isActive")
+    val isActive: Boolean? = true,
+    @SerializedName("createdAt")
+    val createdAt: String? = null,
+    @SerializedName("updatedAt")
+    val updatedAt: String? = null,
 )
 
 data class LocationResponse(
@@ -90,17 +113,24 @@ data class MatchResultResponse(
     val matchedUser: UserProfileResponse? = null,
 )
 
+/**
+ * UserProfileResponse - Matches backend Profile model from NestJS/MongoDB
+ */
 data class UserProfileResponse(
+    @SerializedName("_id")
+    val id: String? = null, // MongoDB _id field
     @SerializedName("id")
-    val id: String,
+    val idAlt: String? = null, // Alternative id field
     @SerializedName("userId")
     val userId: String,
     @SerializedName("firstName")
-    val firstName: String,
+    val firstName: String? = null,
     @SerializedName("lastName")
-    val lastName: String,
+    val lastName: String? = null,
     @SerializedName("displayName")
-    val displayName: String,
+    val displayName: String? = null,
+    @SerializedName("dateOfBirth")
+    val dateOfBirth: String? = null,
     @SerializedName("avatar")
     val avatar: String? = null,
     @SerializedName("bio")
@@ -108,17 +138,23 @@ data class UserProfileResponse(
     @SerializedName("age")
     val age: Int? = null,
     @SerializedName("gender")
-    val gender: String? = null,
+    val gender: String? = null, // 'male' | 'female' | 'other'
     @SerializedName("interests")
     val interests: List<String>? = null,
+    @SerializedName("mode")
+    val mode: String? = null, // 'dating' | 'friend'
     @SerializedName("relationshipMode")
-    val relationshipMode: String? = null,
+    val relationshipMode: String? = null, // 'serious' | 'casual' | 'friendship'
     @SerializedName("height")
-    val height: Int? = null,
+    val height: Int? = null, // in centimeters
     @SerializedName("weight")
-    val weight: Int? = null,
+    val weight: Int? = null, // in kilograms
     @SerializedName("location")
     val location: LocationResponse? = null,
+    @SerializedName("city")
+    val city: String? = null,
+    @SerializedName("country")
+    val country: String? = null,
     @SerializedName("occupation")
     val occupation: String? = null,
     @SerializedName("company")
@@ -127,12 +163,24 @@ data class UserProfileResponse(
     val education: String? = null,
     @SerializedName("zodiacSign")
     val zodiacSign: String? = null,
+    @SerializedName("verifiedAt")
+    val verifiedAt: String? = null,
+    @SerializedName("verifiedBadge")
+    val verifiedBadge: Boolean? = false,
+    @SerializedName("isVerified")
+    val isVerified: Boolean? = false,
     @SerializedName("photos")
     val photos: List<PhotoResponse>? = null,
     @SerializedName("profileCompleteness")
-    val profileCompleteness: Int? = null,
+    val profileCompleteness: Int? = 0, // 0-100
     @SerializedName("profileViews")
-    val profileViews: Int? = null,
+    val profileViews: Int? = 0,
+    @SerializedName("goals")
+    val goals: String? = null,
+    @SerializedName("job")
+    val job: String? = null,
+    @SerializedName("openQuestionAnswers")
+    val openQuestionAnswers: Map<String, String>? = null,
     @SerializedName("createdAt")
     val createdAt: String,
     @SerializedName("updatedAt")

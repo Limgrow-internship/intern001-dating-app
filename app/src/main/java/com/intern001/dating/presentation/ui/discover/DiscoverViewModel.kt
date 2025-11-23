@@ -63,7 +63,7 @@ class DiscoverViewModel @Inject constructor(
                 onSuccess = { cards ->
                     Log.d(TAG, "✅ Successfully loaded ${cards.size} match cards")
                     cards.forEachIndexed { index, card ->
-                        Log.d(TAG, "  Card $index: ${card.userId} - ${card.firstName} ${card.lastName}, age: ${card.age}, photos: ${card.photos.size}")
+                        Log.d(TAG, "  Card $index: ${card.userId} - ${card.displayName}, age: ${card.age}, photos: ${card.photos.size}")
                     }
                     _matchCards.value = cards
                     _currentCardIndex.value = 0
