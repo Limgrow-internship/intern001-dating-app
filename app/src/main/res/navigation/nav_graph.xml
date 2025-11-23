@@ -286,7 +286,16 @@
 
     <fragment
         android:id="@+id/editProfileFragment"
-        android:label="EditProfileFragment" />
+        android:name="com.intern001.dating.presentation.ui.profile.edit.EditProfileFragment"
+        android:label="EditProfileFragment">
+
+        <action
+            android:id="@+id/action_editProfileFragment_to_viewProfileFragment"
+            app:destination="@id/profileFragment"
+            app:popUpTo="@id/editProfileFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
+
 
     <fragment
         android:id="@+id/settingsFragment"

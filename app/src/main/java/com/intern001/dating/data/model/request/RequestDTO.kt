@@ -47,10 +47,6 @@ data class VerifyOtpRequest(
     val otp: String,
 )
 
-/**
- * UpdateProfileRequest - Matches backend Profile model fields
- * Note: profilePicture is deprecated - use photo upload API instead
- */
 data class UpdateProfileRequest(
     @SerializedName("firstName")
     val firstName: String? = null,
