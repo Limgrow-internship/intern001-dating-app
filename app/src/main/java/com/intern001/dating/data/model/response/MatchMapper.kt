@@ -246,4 +246,3 @@ fun RecommendationCriteriaResponse.toMatchCriteria(): MatchCriteria {
         heightRange = heightRange?.let { Range(min = it.min, max = it.max) },
     )
 }
-

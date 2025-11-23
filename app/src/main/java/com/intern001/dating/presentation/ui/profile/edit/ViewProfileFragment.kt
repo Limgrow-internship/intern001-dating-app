@@ -1,6 +1,5 @@
 package com.intern001.dating.presentation.ui.profile.edit
 
-import com.intern001.dating.presentation.ui.profile.edit.ProfileImageAdapter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,8 +15,8 @@ import com.google.android.flexbox.JustifyContent
 import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentViewProfileBinding
 import com.intern001.dating.domain.model.UpdateProfile
-import com.intern001.dating.domain.model.UserProfile
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
+import com.intern001.dating.presentation.ui.profile.edit.ProfileImageAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -123,7 +122,6 @@ class ViewProfileFragment : BaseFragment() {
         setupInterestsRecyclerView(profile.interests)
     }
 
-
     private fun setupViewPager(photoUrls: List<String>) {
         val adapter = ProfileImageAdapter(photoUrls)
         binding.viewPagerTop.adapter = adapter
@@ -158,7 +156,7 @@ class ViewProfileFragment : BaseFragment() {
         for (i in 0 until container.childCount) {
             val bar = container.getChildAt(i)
             bar.setBackgroundResource(
-                if (i == index) R.drawable.bar_selected else R.drawable.bar_unselected
+                if (i == index) R.drawable.bar_selected else R.drawable.bar_unselected,
             )
         }
     }
