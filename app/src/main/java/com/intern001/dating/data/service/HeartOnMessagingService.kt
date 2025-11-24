@@ -13,13 +13,25 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
+import com.intern001.dating.domain.model.Notification
+import com.intern001.dating.domain.usecase.notification.SaveNotificationUseCase
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import javax.inject.Inject
+import java.util.Date
 
 @AndroidEntryPoint
 class HeartOnMessagingService : FirebaseMessagingService() {
     @Inject
     lateinit var notificationService: NotificationService
+    
+    @Inject
+    lateinit var saveNotificationUseCase: SaveNotificationUseCase
+
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     companion object {
         private const val TAG = "HeartOnMessagingService"
@@ -89,6 +101,9 @@ class HeartOnMessagingService : FirebaseMessagingService() {
     ) {
         val type = data["type"]
 
+        // Save notification to local storage
+        saveNotificationToLocalStorage(title, message, data)
+
         // Determine channel ID based on notification type
         val channelId = when (type) {
             "like" -> CHANNEL_ID_LIKES
@@ -153,6 +168,76 @@ class HeartOnMessagingService : FirebaseMessagingService() {
             notificationManager.notify(notificationId, notificationBuilder.build())
         } catch (e: Exception) {
             Log.e(TAG, "Failed to send notification", e)
+        }
+    }
+
+    /**
+     * Save notification to local storage for display in notification screen
+     */
+    private fun saveNotificationToLocalStorage(
+        title: String?,
+        message: String?,
+        data: Map<String, String>,
+    ) {
+        serviceScope.launch {
+            try {
+                val type = data["type"]
+                val notificationType = when (type) {
+                    "like" -> Notification.NotificationType.LIKE
+                    "superlike" -> Notification.NotificationType.SUPERLIKE
+                    "match" -> Notification.NotificationType.MATCH
+                    "verification_success" -> Notification.NotificationType.VERIFICATION_SUCCESS
+                    "verification_failed" -> Notification.NotificationType.VERIFICATION_FAILED
+                    "premium_upgrade" -> Notification.NotificationType.PREMIUM_UPGRADE
+                    else -> Notification.NotificationType.OTHER
+                }
+
+                val iconType = when (notificationType) {
+                    Notification.NotificationType.LIKE,
+                    Notification.NotificationType.SUPERLIKE -> Notification.NotificationIconType.HEART
+                    Notification.NotificationType.MATCH -> Notification.NotificationIconType.MATCH
+                    else -> Notification.NotificationIconType.SETTINGS
+                }
+
+                val actionData = Notification.NotificationActionData(
+                    navigateTo = when (type) {
+                        "like", "superlike" -> data["navigate_to"] ?: "notification"
+                        "match" -> "chat"
+                        else -> null
+                    },
+                    userId = when (type) {
+                        "match" -> data["matchedUserId"] ?: data["userId"]
+                        else -> data["userId"]
+                    },
+                    matchId = data["matchId"],
+                    likerId = data["likerId"],
+                    extraData = data
+                )
+
+                // Generate unique notification ID using timestamp and type
+                val notificationId = "notif_${System.currentTimeMillis()}_${type ?: "other"}"
+                
+                val notification = Notification(
+                    id = notificationId,
+                    type = notificationType,
+                    title = title ?: "HeartOn",
+                    message = message ?: "",
+                    timestamp = Date(),
+                    isRead = false,
+                    iconType = iconType,
+                    actionData = actionData
+                )
+
+                saveNotificationUseCase(notification)
+                    .onSuccess {
+                        Log.d(TAG, "Notification saved: ${notification.id}")
+                    }
+                    .onFailure { error ->
+                        Log.e(TAG, "Failed to save notification: ${error.message}", error)
+                    }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to save notification to local storage", e)
+            }
         }
     }
 
