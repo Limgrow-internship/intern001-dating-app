@@ -22,7 +22,7 @@ class SignupUseCase(
         lastName: String,
         gender: String,
         dateOfBirth: String,
-        deviceToken: String? = null,
+        deviceId: String? = null,
     ): Result<AuthState> {
         return try {
             validateInputs(email, password, confirmPassword, firstName, lastName, gender, dateOfBirth)
@@ -35,7 +35,7 @@ class SignupUseCase(
                     lastName = lastName,
                     gender = gender,
                     dateOfBirth = dateOfBirth,
-                    deviceToken = deviceToken,
+                    deviceId = deviceId,
                 )
 
             if (signupResult.isFailure) {

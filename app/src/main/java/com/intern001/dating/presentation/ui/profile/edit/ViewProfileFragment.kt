@@ -91,7 +91,12 @@ class ViewProfileFragment : BaseFragment() {
             viewModel.updateProfileState.collectLatest { state ->
                 when (state) {
                     is EditProfileViewModel.UiState.Success<*> -> {
-                        // Profile was updated, refresh the view
+                        // Profile was updated, bind the updated data immediately
+                        val updatedProfile = state.data as? UpdateProfile
+                        if (updatedProfile != null) {
+                            bindProfileData(updatedProfile)
+                        }
+                        // Also refresh from server to ensure we have the latest data
                         if (isVisible) {
                             refreshProfile()
                         }
@@ -103,7 +108,13 @@ class ViewProfileFragment : BaseFragment() {
     }
 
     private fun bindProfileData(profile: UpdateProfile) {
-        binding.tvNameAge.text = "${profile.displayName}, ${profile.age ?: ""}"
+        val nameAgeText = when {
+            profile.displayName != null && profile.age != null -> "${profile.displayName}, ${profile.age}"
+            profile.displayName != null -> profile.displayName
+            profile.age != null -> "${profile.age}"
+            else -> ""
+        }
+        binding.tvNameAge.text = nameAgeText
         binding.tvGender.text = profile.gender ?: ""
         binding.tvDescription.text = profile.bio ?: ""
         binding.tvMajor.text = profile.occupation ?: ""

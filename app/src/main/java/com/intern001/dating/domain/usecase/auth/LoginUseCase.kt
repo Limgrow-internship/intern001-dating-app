@@ -14,7 +14,7 @@ class LoginUseCase(
     suspend operator fun invoke(
         email: String,
         password: String,
-        deviceToken: String? = null,
+        deviceId: String? = null,
     ): Result<AuthState> {
         return try {
             if (!emailValidator.isValid(email)) {
@@ -25,7 +25,7 @@ class LoginUseCase(
                 return Result.failure(ValidationException("Invalid password format"))
             }
 
-            val loginResult = authRepository.login(email, password, deviceToken)
+            val loginResult = authRepository.login(email, password, deviceId)
             if (loginResult.isFailure) {
                 return Result.failure(loginResult.exceptionOrNull()!!)
             }
