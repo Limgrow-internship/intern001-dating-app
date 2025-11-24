@@ -11,7 +11,7 @@ interface AuthRepository {
     suspend fun login(
         email: String,
         password: String,
-        deviceToken: String? = null,
+        deviceId: String? = null,
     ): Result<String>
 
     suspend fun facebookLogin(
@@ -25,7 +25,7 @@ interface AuthRepository {
         lastName: String,
         gender: String,
         dateOfBirth: String,
-        deviceToken: String? = null,
+        deviceId: String? = null,
     ): Result<String>
 
     suspend fun logout(): Result<Unit>

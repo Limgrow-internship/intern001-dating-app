@@ -12,6 +12,8 @@ import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.data.model.response.FacebookLoginResponse
 import com.intern001.dating.data.model.response.GoogleLoginResponse
 import com.intern001.dating.data.model.response.UserData
+import com.intern001.dating.data.service.FCMService
+import com.intern001.dating.data.service.NotificationService
 import com.intern001.dating.domain.model.User
 import com.intern001.dating.domain.model.UserLocation
 import com.intern001.dating.domain.model.UserProfile
@@ -26,7 +28,10 @@ import java.util.Date
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -41,8 +46,10 @@ class AuthRepositoryImpl
 constructor(
     @Named("datingApi") private val apiService: DatingApiService,
     private val tokenManager: TokenManager,
-    @ApplicationContext private val context: Context,
-) : AuthRepository {
+        @ApplicationContext private val context: Context,
+        private val notificationService: NotificationService,
+        private val fcmService: FCMService,
+    ) : AuthRepository {
     private var cachedUser: User? = null
     private var cachedUserProfile: UserProfile? = null
 
@@ -55,10 +62,28 @@ constructor(
     override suspend fun login(
         email: String,
         password: String,
-        deviceToken: String?,
+        deviceId: String?,
     ): Result<String> {
         return try {
-            val request = LoginRequest(email = email, password = password)
+            // Get FCM token to use as deviceToken (FCM token is saved to DB separately via updateFCMToken API)
+            // Try to get FCM token with retry (FCM might not be ready immediately)
+            var fcmToken: String? = null
+            try {
+                fcmToken = fcmService.getToken()
+            } catch (e: Exception) {
+                // Retry once after a short delay
+                try {
+                    kotlinx.coroutines.delay(500)
+                    fcmToken = fcmService.getToken()
+                } catch (e2: Exception) {
+                    android.util.Log.e("AuthRepository", "Failed to get FCM token after retry: ${e2.message}")
+                }
+            }
+            
+            // Use provided deviceId, or FCM token, or null
+            val finalDeviceId = deviceId ?: fcmToken
+            
+            val request = LoginRequest(email = email, password = password, deviceId = finalDeviceId)
             val response = apiService.login(request)
 
             if (response.isSuccessful) {
@@ -76,12 +101,19 @@ constructor(
                         )
                     }
 
+                    // Send FCM token to server after successful login
+                    CoroutineScope(Dispatchers.IO).launch {
+                        notificationService.initializeFCMToken()
+                    }
+
                     Result.success(authResponse.accessToken)
                 } else {
+                    android.util.Log.e("AuthRepository", "Login response body is null")
                     Result.failure(Exception("Login response body is null"))
                 }
             } else {
                 val errorBody = response.errorBody()?.string()
+                android.util.Log.e("AuthRepository", "Login failed: ${response.code()} - $errorBody")
                 Result.failure(Exception("Login failed: ${response.code()} - $errorBody"))
             }
         } catch (e: Exception) {
@@ -99,6 +131,10 @@ constructor(
                 userId = response.user.id,
                 userEmail = response.user.email,
             )
+            // Send FCM token to server after successful login (for social login, token is sent separately)
+            CoroutineScope(Dispatchers.IO).launch {
+                notificationService.initializeFCMToken()
+            }
             Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)
@@ -119,6 +155,11 @@ constructor(
                 userEmail = response.user.email,
             )
 
+            // Gửi FCM token lên server sau khi login thành công
+            CoroutineScope(Dispatchers.IO).launch {
+                notificationService.initializeFCMToken()
+            }
+
             Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)
@@ -132,9 +173,27 @@ constructor(
         lastName: String,
         gender: String,
         dateOfBirth: String,
-        deviceToken: String?,
+        deviceId: String?,
     ): Result<String> {
         return try {
+            // Get FCM token to use as deviceToken (FCM token is saved to DB separately via updateFCMToken API)
+            // Try to get FCM token with retry (FCM might not be ready immediately)
+            var fcmToken: String? = null
+            try {
+                fcmToken = fcmService.getToken()
+            } catch (e: Exception) {
+                // Retry once after a short delay
+                try {
+                    kotlinx.coroutines.delay(500)
+                    fcmToken = fcmService.getToken()
+                } catch (e2: Exception) {
+                    android.util.Log.e("AuthRepository", "Failed to get FCM token after retry: ${e2.message}")
+                }
+            }
+            
+            // Use provided deviceId, or FCM token, or null
+            val finalDeviceId = deviceId ?: fcmToken
+            
             val request =
                 SignupRequest(
                     email = email,
@@ -143,16 +202,13 @@ constructor(
                     lastName = lastName,
                     gender = gender,
                     dateOfBirth = dateOfBirth,
+                    deviceId = finalDeviceId,
                 )
             val response = apiService.signup(request)
 
             if (response.isSuccessful) {
                 val authResponse = response.body()
                 if (authResponse != null) {
-                    android.util.Log.d("AuthRepository", "Signup successful! Saving tokens...")
-                    android.util.Log.d("AuthRepository", "Access token: ${authResponse.accessToken.take(20)}...")
-                    android.util.Log.d("AuthRepository", "Refresh token: ${authResponse.refreshToken.take(20)}...")
-
                     tokenManager.saveTokens(
                         accessToken = authResponse.accessToken,
                         refreshToken = authResponse.refreshToken,
@@ -160,23 +216,25 @@ constructor(
 
                     // Also save user info if available
                     authResponse.user?.let { user ->
-                        android.util.Log.d("AuthRepository", "Saving user info: ${user.email}")
                         tokenManager.saveUserInfo(
                             userId = user.id,
                             userEmail = user.email,
                         )
                     }
 
-                    // Verify token was saved
-                    val savedToken = tokenManager.getAccessToken()
-                    android.util.Log.d("AuthRepository", "Token saved verification: ${savedToken != null}")
+                    // Send FCM token to server after successful signup
+                    CoroutineScope(Dispatchers.IO).launch {
+                        notificationService.initializeFCMToken()
+                    }
 
                     Result.success(authResponse.accessToken)
                 } else {
+                    android.util.Log.e("AuthRepository", "Signup response body is null")
                     Result.failure(Exception("Signup response body is null"))
                 }
             } else {
                 val errorBody = response.errorBody()?.string()
+                android.util.Log.e("AuthRepository", "Signup failed: ${response.code()} - $errorBody")
                 Result.failure(Exception("Signup failed: ${response.code()} - $errorBody"))
             }
         } catch (e: Exception) {
@@ -237,11 +295,13 @@ constructor(
 
     override suspend fun getUserProfile(): Result<UserProfile> {
         return try {
-            cachedUserProfile?.let {
-                return Result.success(it)
-            }
-
+            // Always fetch from server to get latest photos
+            // Cache is only used as fallback if API call fails
             if (tokenManager.getAccessToken() == null) {
+                // If no token, try cache as fallback
+                cachedUserProfile?.let {
+                    return Result.success(it)
+                }
                 return Result.failure(Exception("User not logged in"))
             }
 
@@ -254,13 +314,25 @@ constructor(
                     cachedUserProfile = userProfile
                     Result.success(userProfile)
                 } else {
+                    // If API fails, try cache as fallback
+                    cachedUserProfile?.let {
+                        return Result.success(it)
+                    }
                     Result.failure(Exception("User profile response body is null"))
                 }
             } else {
+                // If API fails, try cache as fallback
+                cachedUserProfile?.let {
+                    return Result.success(it)
+                }
                 val errorBody = response.errorBody()?.string()
                 Result.failure(Exception("Failed to fetch user profile: ${response.code()} - $errorBody"))
             }
         } catch (e: Exception) {
+            // If exception, try cache as fallback
+            cachedUserProfile?.let {
+                return Result.success(it)
+            }
             Result.failure(e)
         }
     }
@@ -446,7 +518,12 @@ constructor(
             userId = userId,
             firstName = this.firstName,
             lastName = this.lastName,
-            displayName = this.firstName?.let { f -> this.lastName?.let { l -> "$f $l".trim() } } ?: this.firstName ?: this.lastName ?: "Unknown",
+            displayName = when {
+                !this.firstName.isNullOrBlank() && !this.lastName.isNullOrBlank() -> "${this.firstName} ${this.lastName}".trim()
+                !this.firstName.isNullOrBlank() -> this.firstName
+                !this.lastName.isNullOrBlank() -> this.lastName
+                else -> "Unknown"
+            },
             dateOfBirth = this.dateOfBirth?.let {
                 try {
                     java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).parse(it)
@@ -456,7 +533,13 @@ constructor(
             },
             avatar = this.avatar, // Use new avatar field instead of profileImageUrl
             bio = this.bio,
-            age = this.dateOfBirth?.let { calculateAge(it) },
+            age = this.dateOfBirth?.let { dobString ->
+                try {
+                    calculateAge(dobString)
+                } catch (e: Exception) {
+                    null
+                }
+            },
             gender = this.gender,
             interests = this.interests ?: emptyList(),
             mode = this.mode,

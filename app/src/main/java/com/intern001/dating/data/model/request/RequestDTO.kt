@@ -7,7 +7,7 @@ data class LoginRequest(
     val email: String,
     @SerializedName("password")
     val password: String,
-    @SerializedName("deviceId")
+    @SerializedName("deviceToken")
     val deviceId: String? = null,
 )
 
@@ -29,7 +29,7 @@ data class SignupRequest(
     val dateOfBirth: String,
     @SerializedName("gender")
     val gender: String,
-    @SerializedName("deviceId")
+    @SerializedName("deviceToken")
     val deviceId: String? = null,
 )
 
@@ -116,4 +116,9 @@ data class FacebookLoginRequest(
 data class ReorderPhotosRequest(
     @SerializedName("photoIds")
     val photoIds: List<String>, // Ordered list of photo IDs
+)
+
+data class UpdateFCMTokenRequest(
+    @SerializedName("fcmToken")
+    val fcmToken: String,
 )
