@@ -13,4 +13,3 @@ constructor(
         return notificationRepository.getNotifications()
     }
 }
-

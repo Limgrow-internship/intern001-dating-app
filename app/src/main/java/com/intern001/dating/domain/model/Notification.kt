@@ -22,13 +22,13 @@ data class Notification(
         VERIFICATION_SUCCESS,
         VERIFICATION_FAILED,
         PREMIUM_UPGRADE,
-        OTHER
+        OTHER,
     }
 
     enum class NotificationIconType {
-        HEART,      // Orange heart for likes/superlikes
-        MATCH,      // Yellow chat bubble for matches
-        SETTINGS,   // Black gear for verification/system
+        HEART, // Orange heart for likes/superlikes
+        MATCH, // Yellow chat bubble for matches
+        SETTINGS, // Black gear for verification/system
     }
 
     data class NotificationActionData(
@@ -36,7 +36,6 @@ data class Notification(
         val userId: String? = null,
         val matchId: String? = null,
         val likerId: String? = null,
-        val extraData: Map<String, String> = emptyMap()
+        val extraData: Map<String, String> = emptyMap(),
     )
 }
-

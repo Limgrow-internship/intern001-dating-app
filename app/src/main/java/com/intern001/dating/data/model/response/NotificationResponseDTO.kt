@@ -36,7 +36,8 @@ data class NotificationResponseDTO(
 
         val iconType = when (notificationType) {
             Notification.NotificationType.LIKE,
-            Notification.NotificationType.SUPERLIKE -> Notification.NotificationIconType.HEART
+            Notification.NotificationType.SUPERLIKE,
+            -> Notification.NotificationIconType.HEART
             Notification.NotificationType.MATCH -> Notification.NotificationIconType.MATCH
             else -> Notification.NotificationIconType.SETTINGS
         }
@@ -72,7 +73,7 @@ data class NotificationActionDataDTO(
             userId = userId,
             matchId = matchId,
             likerId = likerId,
-            extraData = extraData ?: emptyMap()
+            extraData = extraData ?: emptyMap(),
         )
     }
 }
@@ -85,4 +86,3 @@ data class NotificationsListResponse(
     @SerializedName("unreadCount")
     val unreadCount: Int? = null,
 )
-

@@ -13,4 +13,3 @@ interface NotificationRepository {
     suspend fun saveNotification(notification: Notification): Result<Unit>
     fun getUnreadCount(): Int
 }
-

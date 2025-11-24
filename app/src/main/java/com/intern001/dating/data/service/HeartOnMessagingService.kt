@@ -16,18 +16,18 @@ import com.intern001.dating.R
 import com.intern001.dating.domain.model.Notification
 import com.intern001.dating.domain.usecase.notification.SaveNotificationUseCase
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.Date
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import java.util.Date
 
 @AndroidEntryPoint
 class HeartOnMessagingService : FirebaseMessagingService() {
     @Inject
     lateinit var notificationService: NotificationService
-    
+
     @Inject
     lateinit var saveNotificationUseCase: SaveNotificationUseCase
 
@@ -194,7 +194,8 @@ class HeartOnMessagingService : FirebaseMessagingService() {
 
                 val iconType = when (notificationType) {
                     Notification.NotificationType.LIKE,
-                    Notification.NotificationType.SUPERLIKE -> Notification.NotificationIconType.HEART
+                    Notification.NotificationType.SUPERLIKE,
+                    -> Notification.NotificationIconType.HEART
                     Notification.NotificationType.MATCH -> Notification.NotificationIconType.MATCH
                     else -> Notification.NotificationIconType.SETTINGS
                 }
@@ -211,12 +212,12 @@ class HeartOnMessagingService : FirebaseMessagingService() {
                     },
                     matchId = data["matchId"],
                     likerId = data["likerId"],
-                    extraData = data
+                    extraData = data,
                 )
 
                 // Generate unique notification ID using timestamp and type
                 val notificationId = "notif_${System.currentTimeMillis()}_${type ?: "other"}"
-                
+
                 val notification = Notification(
                     id = notificationId,
                     type = notificationType,
@@ -225,7 +226,7 @@ class HeartOnMessagingService : FirebaseMessagingService() {
                     timestamp = Date(),
                     isRead = false,
                     iconType = iconType,
-                    actionData = actionData
+                    actionData = actionData,
                 )
 
                 saveNotificationUseCase(notification)

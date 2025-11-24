@@ -12,4 +12,3 @@ constructor(
         return notificationRepository.markAllAsRead()
     }
 }
-

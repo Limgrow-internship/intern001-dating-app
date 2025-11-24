@@ -15,4 +15,3 @@ constructor(
         return notificationRepository.deleteNotification(notificationId)
     }
 }
-

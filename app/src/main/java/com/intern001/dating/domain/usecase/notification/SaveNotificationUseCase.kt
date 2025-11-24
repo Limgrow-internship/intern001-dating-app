@@ -19,4 +19,3 @@ constructor(
         return notificationRepository.saveNotification(notification)
     }
 }
-

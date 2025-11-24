@@ -12,6 +12,7 @@ import com.intern001.dating.domain.usecase.notification.MarkAllNotificationsAsRe
 import com.intern001.dating.domain.usecase.notification.MarkNotificationAsReadUseCase
 import com.intern001.dating.presentation.common.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,7 +20,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class NotificationViewModel @Inject constructor(
@@ -92,7 +92,7 @@ class NotificationViewModel @Inject constructor(
     fun markAsRead(notificationId: String) {
         viewModelScope.launch {
             markNotificationAsReadUseCase(notificationId)
-                // No need to reload - Flow will automatically update
+            // No need to reload - Flow will automatically update
         }
     }
 
@@ -128,4 +128,3 @@ class NotificationViewModel @Inject constructor(
         }
     }
 }
-

@@ -6,13 +6,11 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.intern001.dating.domain.model.Notification
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class NotificationLocalStorage @Inject constructor(
@@ -26,7 +24,7 @@ class NotificationLocalStorage @Inject constructor(
     }
 
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    
+
     // Flow to observe notification changes
     val notificationsFlow: Flow<List<Notification>> = callbackFlow {
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
@@ -35,10 +33,10 @@ class NotificationLocalStorage @Inject constructor(
             }
         }
         prefs.registerOnSharedPreferenceChangeListener(listener)
-        
+
         // Emit initial value
         trySend(getAllNotifications())
-        
+
         awaitClose {
             prefs.unregisterOnSharedPreferenceChangeListener(listener)
         }
@@ -127,4 +125,3 @@ class NotificationLocalStorage @Inject constructor(
         // Flow will automatically emit new value via SharedPreferences listener
     }
 }
-

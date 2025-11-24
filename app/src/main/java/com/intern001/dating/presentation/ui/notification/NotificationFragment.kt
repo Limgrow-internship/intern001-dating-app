@@ -9,7 +9,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.intern001.dating.MainActivity
-import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentNotificationBinding
 import com.intern001.dating.domain.model.Notification
 import com.intern001.dating.presentation.common.state.UiState
@@ -132,7 +131,7 @@ class NotificationFragment : BaseFragment() {
         binding.emptyStateLayout.isVisible = false
         binding.rvNotifications.isVisible = true
         binding.errorLayout.isVisible = false
-        
+
         // Update adapter with new list (DiffUtil will handle updates efficiently)
         notificationAdapter.submitList(notifications) {
             // Mark all as read after list is displayed (only once when first viewing)
@@ -166,7 +165,8 @@ class NotificationFragment : BaseFragment() {
                 // If no userId, just mark as read (already done above)
             }
             Notification.NotificationType.LIKE,
-            Notification.NotificationType.SUPERLIKE -> {
+            Notification.NotificationType.SUPERLIKE,
+            -> {
                 // Navigate to premium or profile
                 actionData?.navigateTo?.let { navigateTo ->
                     when (navigateTo) {
@@ -182,7 +182,8 @@ class NotificationFragment : BaseFragment() {
                 }
             }
             Notification.NotificationType.VERIFICATION_SUCCESS,
-            Notification.NotificationType.VERIFICATION_FAILED -> {
+            Notification.NotificationType.VERIFICATION_FAILED,
+            -> {
                 // TODO: Navigate to verification screen if needed
             }
             Notification.NotificationType.PREMIUM_UPGRADE -> {
