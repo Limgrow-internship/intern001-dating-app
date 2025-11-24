@@ -46,10 +46,10 @@ class AuthRepositoryImpl
 constructor(
     @Named("datingApi") private val apiService: DatingApiService,
     private val tokenManager: TokenManager,
-        @ApplicationContext private val context: Context,
-        private val notificationService: NotificationService,
-        private val fcmService: FCMService,
-    ) : AuthRepository {
+    @ApplicationContext private val context: Context,
+    private val notificationService: NotificationService,
+    private val fcmService: FCMService,
+) : AuthRepository {
     private var cachedUser: User? = null
     private var cachedUserProfile: UserProfile? = null
 
@@ -79,10 +79,10 @@ constructor(
                     android.util.Log.e("AuthRepository", "Failed to get FCM token after retry: ${e2.message}")
                 }
             }
-            
+
             // Use provided deviceId, or FCM token, or null
             val finalDeviceId = deviceId ?: fcmToken
-            
+
             val request = LoginRequest(email = email, password = password, deviceId = finalDeviceId)
             val response = apiService.login(request)
 
@@ -190,10 +190,10 @@ constructor(
                     android.util.Log.e("AuthRepository", "Failed to get FCM token after retry: ${e2.message}")
                 }
             }
-            
+
             // Use provided deviceId, or FCM token, or null
             val finalDeviceId = deviceId ?: fcmToken
-            
+
             val request =
                 SignupRequest(
                     email = email,

@@ -56,7 +56,7 @@ class HeartOnMessagingService : FirebaseMessagingService() {
 
     private fun handleDataMessage(data: Map<String, String>) {
         val type = data["type"]
-        
+
         when (type) {
             "like" -> {
                 val likerName = data["likerName"] ?: "Someone"
@@ -88,19 +88,19 @@ class HeartOnMessagingService : FirebaseMessagingService() {
         data: Map<String, String> = emptyMap(),
     ) {
         val type = data["type"]
-        
+
         // Determine channel ID based on notification type
         val channelId = when (type) {
             "like" -> CHANNEL_ID_LIKES
             "match" -> CHANNEL_ID_MATCHES
             else -> CHANNEL_ID_DEFAULT
         }
-        
+
         // Create intent based on notification type
         val intent = Intent(this, MainActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             putExtra("notification_type", type ?: "")
-            
+
             when (type) {
                 "like" -> {
                     data["likerId"]?.let { putExtra("likerId", it) }
@@ -112,7 +112,7 @@ class HeartOnMessagingService : FirebaseMessagingService() {
                     putExtra("navigate_to", "chat") // Navigate to chat with matched user
                 }
             }
-            
+
             // Add all data for reference
             data.forEach { (key, value) ->
                 putExtra(key, value)
@@ -155,7 +155,7 @@ class HeartOnMessagingService : FirebaseMessagingService() {
             Log.e(TAG, "Failed to send notification", e)
         }
     }
-    
+
     /**
      * Get unique notification ID based on notification type and ID
      * This ensures same notification (same liker/match) replaces previous one
@@ -164,7 +164,7 @@ class HeartOnMessagingService : FirebaseMessagingService() {
         return when (type) {
             "like" -> {
                 // Use likerId hash to ensure same liker replaces previous notification
-                data["likerId"]?.hashCode()?.let { 
+                data["likerId"]?.hashCode()?.let {
                     // Ensure positive integer
                     if (it < 0) -it else it
                 } ?: System.currentTimeMillis().toInt()
@@ -182,7 +182,7 @@ class HeartOnMessagingService : FirebaseMessagingService() {
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager = getSystemService(NotificationManager::class.java)
-            
+
             // Likes channel
             val likesChannel = NotificationChannel(
                 CHANNEL_ID_LIKES,
@@ -194,7 +194,7 @@ class HeartOnMessagingService : FirebaseMessagingService() {
                 enableLights(true)
                 vibrationPattern = longArrayOf(0, 250, 250, 250)
             }
-            
+
             // Matches channel
             val matchesChannel = NotificationChannel(
                 CHANNEL_ID_MATCHES,
@@ -206,7 +206,7 @@ class HeartOnMessagingService : FirebaseMessagingService() {
                 enableLights(true)
                 vibrationPattern = longArrayOf(0, 250, 250, 250)
             }
-            
+
             // Default channel
             val defaultChannel = NotificationChannel(
                 CHANNEL_ID_DEFAULT,
@@ -217,7 +217,7 @@ class HeartOnMessagingService : FirebaseMessagingService() {
                 enableVibration(true)
                 vibrationPattern = longArrayOf(0, 250, 250, 250)
             }
-            
+
             try {
                 notificationManager.createNotificationChannel(likesChannel)
                 notificationManager.createNotificationChannel(matchesChannel)
@@ -228,4 +228,3 @@ class HeartOnMessagingService : FirebaseMessagingService() {
         }
     }
 }
-

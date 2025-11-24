@@ -27,10 +27,10 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        
+
         // Request notification permission for Android 13+
         requestNotificationPermission()
-        
+
         setupNavigation()
         setupBottomNavigation()
         setupDestinationListener()
@@ -44,7 +44,7 @@ class MainActivity : BaseActivity() {
                 .commit()
         }
     }
-    
+
     /**
      * Request notification permission for Android 13+ (API 33+)
      */
@@ -53,20 +53,20 @@ class MainActivity : BaseActivity() {
             when {
                 ContextCompat.checkSelfPermission(
                     this,
-                    Manifest.permission.POST_NOTIFICATIONS
+                    Manifest.permission.POST_NOTIFICATIONS,
                 ) == PackageManager.PERMISSION_GRANTED -> {
                     Log.d("MainActivity", "✅ Notification permission already granted")
                 }
                 ActivityCompat.shouldShowRequestPermissionRationale(
                     this,
-                    Manifest.permission.POST_NOTIFICATIONS
+                    Manifest.permission.POST_NOTIFICATIONS,
                 ) -> {
                     // Show explanation dialog if needed
                     Log.d("MainActivity", "Should show rationale for notification permission")
                     ActivityCompat.requestPermissions(
                         this,
                         arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                        1001
+                        1001,
                     )
                 }
                 else -> {
@@ -75,7 +75,7 @@ class MainActivity : BaseActivity() {
                     ActivityCompat.requestPermissions(
                         this,
                         arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                        1001
+                        1001,
                     )
                 }
             }
@@ -83,11 +83,11 @@ class MainActivity : BaseActivity() {
             Log.d("MainActivity", "Android version < 13, notification permission not required")
         }
     }
-    
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
-        grantResults: IntArray
+        grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {

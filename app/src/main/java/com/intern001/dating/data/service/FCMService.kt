@@ -2,9 +2,9 @@ package com.intern001.dating.data.service
 
 import android.util.Log
 import com.google.firebase.messaging.FirebaseMessaging
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.tasks.await
 
 @Singleton
 class FCMService @Inject constructor() {
@@ -46,4 +46,3 @@ class FCMService @Inject constructor() {
         }
     }
 }
-

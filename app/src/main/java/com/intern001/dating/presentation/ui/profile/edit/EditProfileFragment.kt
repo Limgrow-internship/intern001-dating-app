@@ -43,7 +43,7 @@ class EditProfileFragment : BaseFragment() {
     private var currentPhotoIndex = 0
 
     private val selectedGoals = mutableSetOf<String>()
-    
+
     // Store profile data to preserve firstName, lastName, dateOfBirth, gender when updating
     private var currentProfile: UpdateProfile? = null
 
@@ -101,7 +101,7 @@ class EditProfileFragment : BaseFragment() {
     private fun bindProfileData(profile: UpdateProfile) {
         // Store current profile to preserve firstName, lastName, dateOfBirth, gender when updating
         currentProfile = profile
-        
+
         binding.includeAbout.etIntroduce.setText(profile.bio ?: "")
 
         // profile.photos is now List<Photo> (objects), not List<String>
@@ -175,7 +175,7 @@ class EditProfileFragment : BaseFragment() {
                     // Update photo view immediately
                     updatePhotoViews()
                     Toast.makeText(requireContext(), "Photo ${index + 1} uploaded successfully", Toast.LENGTH_SHORT).show()
-                    
+
                     // Reload profile to get updated photos from server
                     viewModel.getUserProfile()
                 }.onFailure { e ->
@@ -256,7 +256,7 @@ class EditProfileFragment : BaseFragment() {
 
             // Note: Photos are managed separately via photo management API
             // Do not include photos in UpdateProfileRequest
-            
+
             // Preserve firstName, lastName, dateOfBirth, gender from current profile
             // These fields are not editable in EditProfileFragment but should be preserved
             val profile = currentProfile
