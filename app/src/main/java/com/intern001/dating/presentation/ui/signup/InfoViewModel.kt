@@ -6,15 +6,19 @@ import com.intern001.dating.data.api.DatingApiService
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.data.model.request.RequestOtpRequest
 import com.intern001.dating.data.model.request.VerifyOtpRequest
+import com.intern001.dating.data.service.NotificationService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import javax.inject.Named
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class InfoViewModel @Inject constructor(
     @Named("datingApi") private val apiService: DatingApiService,
     private val tokenManager: TokenManager,
+    private val notificationService: NotificationService,
 ) : ViewModel() {
 
     fun sendOtp(email: String, password: String, onResult: (String) -> Unit) {
@@ -40,8 +44,6 @@ class InfoViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
-                android.util.Log.d("InfoViewModel", "Step 1: Verifying OTP...")
-
                 // Step 1: Verify OTP
                 val verifyRequest = VerifyOtpRequest(email, otp)
                 val verifyResponse = apiService.verifyOtp(verifyRequest)
@@ -54,15 +56,12 @@ class InfoViewModel @Inject constructor(
                 }
 
                 val responseBody = verifyResponse.body()
-                android.util.Log.d("InfoViewModel", "OTP verified! Response: $responseBody")
 
                 // Check if backend returned tokens in response body
                 val accessToken = responseBody?.accessToken
                 val refreshToken = responseBody?.refreshToken
 
                 if (accessToken != null && refreshToken != null) {
-                    android.util.Log.d("InfoViewModel", "Tokens received from verify response! Saving...")
-
                     // Save tokens
                     tokenManager.saveTokens(
                         accessToken = accessToken,
@@ -77,12 +76,14 @@ class InfoViewModel @Inject constructor(
                         )
                     }
 
-                    android.util.Log.d("InfoViewModel", "Tokens saved successfully!")
+                    // Send FCM token to server after successful verification
+                    CoroutineScope(Dispatchers.IO).launch {
+                        notificationService.initializeFCMToken()
+                    }
+
                     onResult(true, "Verification successful! Please complete your profile")
                 } else {
                     // No tokens in verify response, need to login
-                    android.util.Log.d("InfoViewModel", "No tokens in verify response. Step 2: Logging in...")
-
                     val loginRequest = com.intern001.dating.data.model.request.LoginRequest(
                         email = email,
                         password = password,
@@ -98,8 +99,6 @@ class InfoViewModel @Inject constructor(
 
                     val authResponse = loginResponse.body()
                     if (authResponse != null) {
-                        android.util.Log.d("InfoViewModel", "Login successful! Saving tokens...")
-
                         // Save tokens from login response
                         tokenManager.saveTokens(
                             accessToken = authResponse.accessToken,
@@ -114,7 +113,11 @@ class InfoViewModel @Inject constructor(
                             )
                         }
 
-                        android.util.Log.d("InfoViewModel", "Login tokens saved successfully!")
+                        // Send FCM token to server after successful login
+                        CoroutineScope(Dispatchers.IO).launch {
+                            notificationService.initializeFCMToken()
+                        }
+
                         onResult(true, "Verification and login successful! Please complete your profile")
                     } else {
                         android.util.Log.e("InfoViewModel", "Login response body is null")

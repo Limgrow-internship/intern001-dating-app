@@ -10,7 +10,9 @@ class UpdateProfileUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(request: UpdateProfileRequest): Result<UpdateProfile> {
         return try {
-            authRepository.updateUserProfile(request)
+            // UpdateProfile is a typealias of UserProfile, so we can directly use the result
+            val result = authRepository.updateUserProfile(request)
+            result.map { it as UpdateProfile }
         } catch (e: Exception) {
             Result.failure(e)
         }
