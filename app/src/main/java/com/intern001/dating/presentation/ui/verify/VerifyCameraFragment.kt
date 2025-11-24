@@ -3,6 +3,7 @@ package com.intern001.dating.presentation.ui.verify
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -78,7 +79,6 @@ class VerifyCameraFragment : BaseFragment() {
 
         return binding.root
     }
-
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
         cameraProviderFuture.addListener({
@@ -87,9 +87,29 @@ class VerifyCameraFragment : BaseFragment() {
                 setSurfaceProvider(binding.previewView.surfaceProvider)
             }
             imageCapture = ImageCapture.Builder().build()
-            val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
-            cameraProvider.unbindAll()
-            cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
+            val availableCameraInfos = cameraProvider.availableCameraInfos
+            availableCameraInfos.forEachIndexed { idx, info ->
+                Log.d("CameraDebug", "Camera $idx: $info")
+            }
+            val selectors = listOf(
+                CameraSelector.DEFAULT_FRONT_CAMERA,
+                CameraSelector.DEFAULT_BACK_CAMERA,
+            )
+            var bound = false
+            for (selector in selectors) {
+                try {
+                    cameraProvider.unbindAll()
+                    cameraProvider.bindToLifecycle(this, selector, preview, imageCapture)
+                    Log.d("CameraDebug", "Bound with selector $selector")
+                    bound = true
+                    break
+                } catch (e: Exception) {
+                    Log.e("CameraDebug", "Could not bind to camera: ${e.message}")
+                }
+            }
+            if (!bound) {
+                Toast.makeText(requireContext(), "No camera available!", Toast.LENGTH_LONG).show()
+            }
         }, ContextCompat.getMainExecutor(requireContext()))
     }
 
@@ -102,7 +122,12 @@ class VerifyCameraFragment : BaseFragment() {
             ContextCompat.getMainExecutor(requireContext()),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                    val file = File(requireContext().cacheDir, "selfie.jpg")
                     val byteArray = outputFile.readBytes()
+
+                    android.util.Log.d("VerifyCamera", "Selfie bytes size: ${byteArray.size}")
+
+                    android.util.Log.d("VerifyCamera", "Selfie path: ${file.absolutePath}")
                     verifyViewModel.verifyFace(byteArray)
                 }
 
