@@ -1,0 +1,98 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_top_radius"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/btnCancel"
+        android:layout_width="37dp"
+        android:layout_height="20dp"
+        android:layout_gravity="center"
+        android:background="@drawable/ic_handle"
+        android:layout_marginBottom="20dp"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.motion.widget.MotionLayout
+            android:id="@+id/motionNav"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="10dp"
+            app:layoutDescription="@xml/motion_filter_tabs"
+            app:currentState="@id/start"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <View
+                android:id="@+id/bg"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_gray_border"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <View
+                android:id="@+id/slider"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_orange_round"
+                app:layout_constraintTop_toTopOf="@id/bg"
+                app:layout_constraintBottom_toBottomOf="@id/bg"
+                app:layout_constraintStart_toStartOf="@id/btnDating"
+                app:layout_constraintEnd_toEndOf="@id/btnDating" />
+
+            <TextView
+                android:id="@+id/btnDating"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:text="Dating Mode"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:textColor="#FFFFFF"
+                app:layout_constraintTop_toTopOf="@id/bg"
+                app:layout_constraintBottom_toBottomOf="@id/bg"
+                app:layout_constraintStart_toStartOf="@id/bg"
+                app:layout_constraintEnd_toStartOf="@id/btnFriend"
+                app:layout_constraintHorizontal_weight="1" />
+
+            <TextView
+                android:id="@+id/btnFriend"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:text="Friend Mode"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:textColor="#C5C5C5"
+                app:layout_constraintTop_toTopOf="@id/bg"
+                app:layout_constraintBottom_toBottomOf="@id/bg"
+                app:layout_constraintStart_toEndOf="@id/btnDating"
+                app:layout_constraintEnd_toEndOf="@id/bg"
+                app:layout_constraintHorizontal_weight="1" />
+        </androidx.constraintlayout.motion.widget.MotionLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Filter"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="10dp"
+        android:textSize="24sp"/>
+
+    <FrameLayout
+        android:id="@+id/filterFragmentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp" />
+
+</LinearLayout>

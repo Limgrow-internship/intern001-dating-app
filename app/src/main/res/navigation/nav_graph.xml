@@ -171,6 +171,10 @@
             app:destination="@id/chatDetailFragment"
             app:enterAnim="@android:anim/slide_in_left"
             app:exitAnim="@android:anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_homeFragment_to_filterFragment"
+            app:destination="@id/filterFragment"/>
     </fragment>
 
     <fragment
@@ -307,4 +311,18 @@
             app:popUpToInclusive="true" />
     </fragment>
 
+    <fragment
+        android:id="@+id/datingModeFragment"
+        android:name="com.intern001.dating.presentation.ui.discover.DatingModeFragment"
+        android:label="Dating Mode" >
+
+        <action
+            android:id="@+id/action_datingModeFragment_to_filterFragment"
+            app:destination="@id/filterFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/filterFragment"
+        android:name="com.intern001.dating.presentation.ui.discover.filter.FilterFragment"
+        android:label="Filter" />
 </navigation>

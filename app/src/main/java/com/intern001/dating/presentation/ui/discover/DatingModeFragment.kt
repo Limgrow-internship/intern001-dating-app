@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.chip.Chip
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
@@ -16,6 +17,7 @@ import com.intern001.dating.databinding.FragmentDatingModeBinding
 import com.intern001.dating.domain.model.MatchCard
 import com.intern001.dating.presentation.common.state.UiState
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
+import com.intern001.dating.presentation.ui.discover.filter.FilterBottomSheet
 import com.intern001.dating.presentation.ui.discover.view.SwipeableCardView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -69,7 +71,7 @@ class DatingModeFragment : BaseFragment() {
         }
 
         binding.btnFilter.setOnClickListener {
-            // TODO: Open filter screen
+            FilterBottomSheet().show(parentFragmentManager, "FilterBottomSheet")
         }
     }
 
