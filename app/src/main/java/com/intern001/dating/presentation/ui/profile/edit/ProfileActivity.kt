@@ -2,11 +2,14 @@ package com.intern001.dating.presentation.ui.profile.edit
 
 import android.graphics.Color
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.intern001.dating.R
 import com.intern001.dating.databinding.ActivityProfileBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlin.getValue
 
 @AndroidEntryPoint
 class ProfileActivity : BaseActivity() {
@@ -17,6 +20,7 @@ class ProfileActivity : BaseActivity() {
 
     private lateinit var editFragment: EditProfileFragment
     private lateinit var viewFragment: ViewProfileFragment
+    private val viewModel: EditProfileViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +57,7 @@ class ProfileActivity : BaseActivity() {
             binding.btnEdit.setTextColor(Color.WHITE)
             binding.btnView.setTextColor(Color.GRAY)
             showFragment(editFragment, viewFragment)
+            editFragment.loadUserProfile()
         }
 
         binding.btnView.setOnClickListener {
@@ -60,8 +65,14 @@ class ProfileActivity : BaseActivity() {
             binding.btnView.setTextColor(Color.WHITE)
             binding.btnEdit.setTextColor(Color.GRAY)
             showFragment(viewFragment, editFragment)
+            viewFragment.refreshProfile()
+        }
+
+        binding.btnBack.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
         }
     }
+
 
     private fun showFragment(show: Fragment, hide: Fragment) {
         supportFragmentManager.beginTransaction()

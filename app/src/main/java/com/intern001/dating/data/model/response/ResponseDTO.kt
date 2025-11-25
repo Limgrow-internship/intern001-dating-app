@@ -69,6 +69,8 @@ data class UserData(
     val weight: Int? = null,
     @SerializedName("job")
     val job: String? = null,
+    @SerializedName("openQuestionAnswers")
+    val openQuestionAnswers: Map<String, String>? = null
 )
 
 data class RefreshTokenRequest(

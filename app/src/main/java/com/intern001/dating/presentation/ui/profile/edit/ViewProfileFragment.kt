@@ -60,7 +60,8 @@ class ViewProfileFragment : BaseFragment() {
         viewModel.getUserProfile()
     }
 
-    private fun refreshProfile() {
+
+    fun refreshProfile() {
         // Force refresh by calling getUserProfile again
         // The cache should be updated after profile update, so this will get fresh data
         viewModel.getUserProfile()

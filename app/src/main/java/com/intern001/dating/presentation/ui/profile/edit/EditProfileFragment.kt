@@ -1,11 +1,15 @@
 package com.intern001.dating.presentation.ui.profile.edit
 
+import android.app.AlertDialog
+import android.app.DatePickerDialog
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,6 +24,9 @@ import com.intern001.dating.domain.model.UpdateProfile
 import com.intern001.dating.domain.usecase.photo.UploadPhotoUseCase
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -84,13 +91,14 @@ class EditProfileFragment : BaseFragment() {
         loadUserProfile()
     }
 
-    private fun loadUserProfile() {
+     fun loadUserProfile() {
         viewModel.getUserProfile()
 
         lifecycleScope.launch {
             viewModel.userProfileState.collect { state ->
                 when (state) {
-                    is EditProfileViewModel.UiState.Success -> bindProfileData(state.data)
+                    is EditProfileViewModel.UiState.Success ->
+                        bindProfileData(state.data)
 
                     is EditProfileViewModel.UiState.Error ->
                         Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
@@ -116,6 +124,47 @@ class EditProfileFragment : BaseFragment() {
             }
         }
         updatePhotoViews()
+
+        val info = binding.includeInfo
+
+        val fullName = listOfNotNull(profile.firstName, profile.lastName).joinToString(" ")
+        info.etName.setText(fullName)
+
+        profile.dateOfBirth?.let { date ->
+            val formatted = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
+            info.etBirthday.setText(formatted)
+        } ?: info.etBirthday.setText("")
+
+        info.etBirthday.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            profile.dateOfBirth?.let { calendar.time = it }
+
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+            DatePickerDialog(requireContext(), { _, selectedYear, selectedMonth, selectedDay ->
+                val dateString = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
+                info.etBirthday.setText(dateString)
+            }, year, month, day).show()
+        }
+
+
+        val genders = arrayOf("male", "female", "other")
+        if (profile.gender != null && genders.contains(profile.gender)) {
+            info.etGender.setText(profile.gender)
+        } else {
+            info.etGender.setText("")
+        }
+
+        info.etGender.setOnClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Select Gender")
+                .setItems(genders) { _, which ->
+                    info.etGender.setText(genders[which])
+                }
+                .show()
+        }
 
         val g = binding.includeGoals
 
@@ -159,12 +208,87 @@ class EditProfileFragment : BaseFragment() {
 
         // Bind personal details
         val details = binding.includeDetails
-        details.comboJob.setText(profile.job ?: profile.occupation ?: "", false)
         details.comboEducation.setText(profile.education ?: "", false)
         details.comboAddress.setText(profile.city ?: profile.location?.city ?: "", false)
         details.etHeight.setText(profile.height?.toString() ?: "")
         details.etWeight.setText(profile.weight?.toString() ?: "")
         details.comboZodiac.setText(profile.zodiac ?: "", false)
+
+        val jobs = resources.getStringArray(R.array.job_list).toList()
+        val adapter = ArrayAdapter(requireContext(), R.layout.dropdown_item, jobs)
+        details.comboJob.setAdapter(adapter)
+
+        val currentJob = profile.job ?: profile.occupation ?: ""
+        details.comboJob.setText(currentJob, false)
+
+        details.comboJob.setOnClickListener {
+            details.comboJob.showDropDown()
+        }
+
+        val educations = resources.getStringArray(R.array.university_list_vietnam).toList()
+        val adapterEdu = ArrayAdapter(requireContext(), R.layout.dropdown_item, educations)
+        details.comboEducation.setAdapter(adapterEdu)
+
+        val currentEducation = profile.education ?: ""
+        details.comboEducation.setText(currentEducation, false)
+
+        details.comboEducation.setOnClickListener {
+            details.comboEducation.showDropDown()
+        }
+
+        val zodiacs = resources.getStringArray(R.array.zodiac_list).toList()
+        val adapterZodiacs = ArrayAdapter(requireContext(), R.layout.dropdown_item, zodiacs)
+        details.comboZodiac.setAdapter(adapterZodiacs)
+
+        val currentZodiac = profile.zodiac ?: ""
+        details.comboZodiac.setText(currentZodiac, false)
+
+        details.comboZodiac.setOnClickListener {
+            details.comboZodiac.showDropDown()
+        }
+
+        val question = binding.includeQuestions
+        val questionAnswers = profile.openQuestionAnswers ?: emptyMap()
+
+        val whatQuestions = resources.getStringArray(R.array.open_question_list_what).toList()
+        val whatAdapter = ArrayAdapter(requireContext(), R.layout.dropdown_item, whatQuestions)
+
+        question.comboWhat.setAdapter(whatAdapter)
+
+        val currentWhatKey = questionAnswers.keys.firstOrNull { key -> whatQuestions.contains(key) }
+
+        currentWhatKey?.let { key ->
+            question.comboWhat.post {
+                question.comboWhat.setText(key, false)
+            }
+            question.etWhat.setText(questionAnswers[key])
+        }
+
+        question.comboWhat.setOnClickListener {
+            question.comboWhat.showDropDown()
+        }
+
+        val idealQuestions = resources.getStringArray(R.array.open_question_list_ideal).toList()
+        val idealAdapter = ArrayAdapter(requireContext(), R.layout.dropdown_item, idealQuestions)
+
+        question.comboWeekend.setAdapter(idealAdapter)
+
+        val currentIdealKey = questionAnswers.keys.firstOrNull { key -> idealQuestions.contains(key) }
+
+        currentIdealKey?.let { key ->
+            question.comboWeekend.post {
+                question.comboWeekend.setText(key, false)
+            }
+            question.etWeekend.setText(questionAnswers[key])
+        }
+
+        question.comboWeekend.setOnClickListener {
+            question.comboWeekend.showDropDown()
+        }
+
+        Log.d("QA", "Server keys = ${questionAnswers.keys}")
+        whatQuestions.forEach { Log.d("QA", "WHAT item = '$it'") }
+        idealQuestions.forEach { Log.d("QA", "IDEAL item = '$it'") }
     }
 
     private fun setupPhotoClick() {
@@ -222,9 +346,6 @@ class EditProfileFragment : BaseFragment() {
                         .load(serverUrl)
                         .centerCrop()
                         .into(item.ivPhoto)
-
-                else ->
-                    item.ivPhoto.setImageResource(R.drawable.co4la)
             }
         }
     }
@@ -306,6 +427,12 @@ class EditProfileFragment : BaseFragment() {
             val weightStr = details.etWeight.text.toString().trim()
             val zodiac = details.comboZodiac.text.toString().trim().takeIf { it.isNotEmpty() }
 
+
+            val info = binding.includeInfo
+            val name = info.etName.text.toString().trim()
+            val birthday = info.etBirthday.text.toString().trim()
+            val gender = info.etGender.text.toString().trim()
+
             // Parse height and weight
             val height = heightStr.toIntOrNull()
             val weight = weightStr.toIntOrNull()
@@ -316,15 +443,28 @@ class EditProfileFragment : BaseFragment() {
             // Preserve firstName, lastName, dateOfBirth, gender from current profile
             // These fields are not editable in EditProfileFragment but should be preserved
             val profile = currentProfile
-            val dateOfBirthString = profile?.dateOfBirth?.let {
-                java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(it)
+
+            val question = binding.includeQuestions
+            val openQuestionMap = mutableMapOf<String, String>()
+
+            val selectedWhat = question.comboWhat.text.toString()
+            val answerWhat = question.etWhat.text.toString().trim()
+            if (selectedWhat.isNotEmpty() && answerWhat.isNotEmpty()) {
+                openQuestionMap[selectedWhat] = answerWhat
             }
+
+            val selectedIdeal = question.comboWeekend.text.toString()
+            val answerIdeal = question.etWeekend.text.toString().trim()
+            if (selectedIdeal.isNotEmpty() && answerIdeal.isNotEmpty()) {
+                openQuestionMap[selectedIdeal] = answerIdeal
+            }
+
 
             val request = UpdateProfileRequest(
                 firstName = profile?.firstName, // Preserve firstName
                 lastName = profile?.lastName, // Preserve lastName
-                dateOfBirth = dateOfBirthString, // Preserve dateOfBirth (convert Date to String)
-                gender = profile?.gender, // Preserve gender
+                dateOfBirth = birthday, // Preserve dateOfBirth (convert Date to String)
+                gender = gender, // Preserve gender
                 bio = bio,
                 goals = selectedGoals.toList(), // goals is now List<String>, not String
                 interests = selectedInterests.toList(),
@@ -336,7 +476,8 @@ class EditProfileFragment : BaseFragment() {
                 height = height,
                 weight = weight,
                 displayName = profile?.displayName,
-                relationshipMode = profile?.relationshipMode
+                relationshipMode = profile?.relationshipMode,
+                openQuestionAnswers = if (openQuestionMap.isEmpty()) null else openQuestionMap
             )
 
             viewModel.updateUserProfile(request)
