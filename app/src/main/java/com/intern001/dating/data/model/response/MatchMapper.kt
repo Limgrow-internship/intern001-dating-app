@@ -84,7 +84,7 @@ fun MatchCardResponse.toMatchCard(): MatchCard {
         interests = interests ?: emptyList(),
         relationshipMode = relationshipMode,
         height = height,
-        zodiacSign = zodiacSign,
+        zodiac = zodiac,
         isVerified = isVerified ?: false,
     )
 }
@@ -129,7 +129,7 @@ fun UserProfileResponse.toUserProfile(): UserProfile {
         occupation = occupation,
         company = company,
         education = education,
-        zodiacSign = zodiacSign,
+        zodiac = zodiac,
         verifiedAt = verifiedAt?.let {
             try {
                 dateFormat.parse(it)

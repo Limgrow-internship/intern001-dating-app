@@ -35,7 +35,7 @@ data class UserProfile(
     val occupation: String? = null,
     val company: String? = null,
     val education: String? = null,
-    val zodiacSign: String? = null,
+    val zodiac: String? = null,
     val verifiedAt: Date? = null,
     val verifiedBadge: Boolean = false,
     val isVerified: Boolean = false,

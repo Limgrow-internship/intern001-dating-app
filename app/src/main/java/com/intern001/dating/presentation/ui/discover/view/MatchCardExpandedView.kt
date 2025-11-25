@@ -162,8 +162,8 @@ class MatchCardExpandedView @JvmOverloads constructor(
         }
 
         // Zodiac
-        if (!card.zodiacSign.isNullOrEmpty()) {
-            binding.tvZodiac.text = card.zodiacSign
+        if (!card.zodiac.isNullOrEmpty()) {
+            binding.tvZodiac.text = card.zodiac
             binding.zodiacSection.visibility = View.VISIBLE
         } else {
             binding.zodiacSection.visibility = View.GONE
@@ -173,7 +173,7 @@ class MatchCardExpandedView @JvmOverloads constructor(
         val hasMoreInfo = !card.occupation.isNullOrEmpty() ||
             !card.education.isNullOrEmpty() ||
             card.location != null ||
-            !card.zodiacSign.isNullOrEmpty()
+            !card.zodiac.isNullOrEmpty()
         binding.tvMore.visibility = if (hasMoreInfo) View.VISIBLE else View.GONE
 
         // Looking for chips

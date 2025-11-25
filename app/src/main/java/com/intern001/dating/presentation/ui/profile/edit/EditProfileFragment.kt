@@ -43,6 +43,8 @@ class EditProfileFragment : BaseFragment() {
     private var currentPhotoIndex = 0
 
     private val selectedGoals = mutableSetOf<String>()
+    private val selectedInterests = mutableSetOf<String>()
+
 
     // Store profile data to preserve firstName, lastName, dateOfBirth, gender when updating
     private var currentProfile: UpdateProfile? = null
@@ -76,6 +78,7 @@ class EditProfileFragment : BaseFragment() {
 
         setupPhotoClick()
         setupGoalClick()
+        setupInterestClick()
         setupSaveButton()
         observeUpdateState()
         loadUserProfile()
@@ -134,6 +137,26 @@ class EditProfileFragment : BaseFragment() {
         selectedGoals.clear()
         selectedGoals.addAll(profile.goals)
 
+        val i = binding.includeInterests
+
+        val interestMap = mapOf(
+            "Music" to i.tvInterestMusic,
+            "Photography" to i.tvInterestPhotography,
+            "Travel" to i.tvInterestTravel,
+            "Deep talks" to i.tvInterestDeepTalks,
+            "Read book" to i.tvInterestReadBook,
+            "Walking" to i.tvInterestWalking,
+            "Pets / Animal lover" to i.tvInterestPets,
+            "Cooking" to i.tvInterestCooking,
+        )
+
+        profile.interests.forEach { interest ->
+            interestMap[interest]?.let { toggleInterestSelection(it) }
+        }
+
+        selectedInterests.clear()
+        selectedInterests.addAll(profile.interests)
+
         // Bind personal details
         val details = binding.includeDetails
         details.comboJob.setText(profile.job ?: profile.occupation ?: "", false)
@@ -141,7 +164,7 @@ class EditProfileFragment : BaseFragment() {
         details.comboAddress.setText(profile.city ?: profile.location?.city ?: "", false)
         details.etHeight.setText(profile.height?.toString() ?: "")
         details.etWeight.setText(profile.weight?.toString() ?: "")
-        details.comboZodiac.setText(profile.zodiacSign ?: "", false)
+        details.comboZodiac.setText(profile.zodiac ?: "", false)
     }
 
     private fun setupPhotoClick() {
@@ -237,6 +260,39 @@ class EditProfileFragment : BaseFragment() {
         }
     }
 
+    private fun setupInterestClick() {
+        val i = binding.includeInterests
+
+        val interestViews = listOf(
+            i.tvInterestMusic,
+            i.tvInterestPhotography,
+            i.tvInterestTravel,
+            i.tvInterestDeepTalks,
+            i.tvInterestReadBook,
+            i.tvInterestWalking,
+            i.tvInterestPets,
+            i.tvInterestCooking,
+        )
+
+        interestViews.forEach { interest ->
+            interest.setOnClickListener { toggleInterestSelection(interest) }
+        }
+    }
+
+    private fun toggleInterestSelection(interest: TextView) {
+        val text = interest.text.toString()
+
+        if (selectedInterests.contains(text)) {
+            selectedInterests.remove(text)
+            interest.setBackgroundResource(R.drawable.chip_unselected)
+            interest.setTextColor(Color.BLACK)
+        } else {
+            selectedInterests.add(text)
+            interest.setBackgroundResource(R.drawable.chip_selected)
+            interest.setTextColor(Color.WHITE)
+        }
+    }
+
     private fun setupSaveButton() {
         binding.btnSave.setOnClickListener {
             val bio = binding.includeAbout.etIntroduce.text.toString().trim()
@@ -271,13 +327,16 @@ class EditProfileFragment : BaseFragment() {
                 gender = profile?.gender, // Preserve gender
                 bio = bio,
                 goals = selectedGoals.toList(), // goals is now List<String>, not String
+                interests = selectedInterests.toList(),
                 job = job,
                 occupation = job, // Also set occupation if job is provided
                 education = education,
                 city = address, // Address maps to city
-                zodiacSign = zodiac,
+                zodiac = zodiac,
                 height = height,
                 weight = weight,
+                displayName = profile?.displayName,
+                relationshipMode = profile?.relationshipMode
             )
 
             viewModel.updateUserProfile(request)

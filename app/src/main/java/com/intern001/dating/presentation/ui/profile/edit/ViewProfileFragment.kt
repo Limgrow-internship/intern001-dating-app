@@ -120,7 +120,7 @@ class ViewProfileFragment : BaseFragment() {
         binding.tvMajor.text = profile.occupation ?: ""
         binding.tvEducation.text = profile.education ?: ""
         binding.tvLocation.text = profile.location?.city ?: ""
-        binding.tvZodiac.text = profile.zodiacSign ?: ""
+        binding.tvZodiac.text = profile.zodiac ?: ""
 
         // profile.photos is now List<Photo> (objects), extract URLs
         val photoUrls = profile.photos.map { it.url }

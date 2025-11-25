@@ -559,7 +559,7 @@ constructor(
             occupation = this.occupation,
             company = this.company,
             education = this.education,
-            zodiacSign = this.zodiacSign,
+            zodiac = this.zodiac,
             job = this.job,
             verifiedAt = null,
             verifiedBadge = false,

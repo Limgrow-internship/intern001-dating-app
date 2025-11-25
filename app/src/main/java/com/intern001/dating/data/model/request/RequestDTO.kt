@@ -80,14 +80,14 @@ data class UpdateProfileRequest(
     val company: String? = null,
     @SerializedName("education")
     val education: String? = null,
-    @SerializedName("zodiacSign")
-    val zodiacSign: String? = null,
+    @SerializedName("zodiac")
+    val zodiac: String? = null,
     @SerializedName("goals")
     val goals: List<String>? = null,
     @SerializedName("job")
     val job: String? = null,
     @SerializedName("openQuestionAnswers")
-    val openQuestionAnswers: Map<String, String>? = null,
+    val openQuestionAnswers: Map<String, String>? = null
 )
 
 data class ChangePasswordRequest(
