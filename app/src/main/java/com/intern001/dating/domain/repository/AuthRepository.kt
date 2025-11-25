@@ -4,7 +4,6 @@ import android.net.Uri
 import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.data.model.response.FacebookLoginResponse
 import com.intern001.dating.data.model.response.GoogleLoginResponse
-import com.intern001.dating.domain.model.UpdateProfile
 import com.intern001.dating.domain.model.User
 import com.intern001.dating.domain.model.UserProfile
 
@@ -12,7 +11,7 @@ interface AuthRepository {
     suspend fun login(
         email: String,
         password: String,
-        deviceToken: String? = null,
+        deviceId: String? = null,
     ): Result<String>
 
     suspend fun facebookLogin(
@@ -26,7 +25,7 @@ interface AuthRepository {
         lastName: String,
         gender: String,
         dateOfBirth: String,
-        deviceToken: String? = null,
+        deviceId: String? = null,
     ): Result<String>
 
     suspend fun logout(): Result<Unit>

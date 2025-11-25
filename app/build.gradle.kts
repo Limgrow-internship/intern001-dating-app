@@ -104,6 +104,7 @@ dependencies {
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-messaging")
 
     // play billing
     implementation(libs.billing.ktx)
@@ -127,6 +128,9 @@ dependencies {
 
     // Glide transformations (blur, etc.)
     implementation("jp.wasabeef:glide-transformations:4.3.0")
+
+    // Material Components
+    implementation("com.google.android.material:material:1.12.0")
 }
 
 // KtLint configuration

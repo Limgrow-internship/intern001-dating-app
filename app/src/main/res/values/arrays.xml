@@ -1,0 +1,21 @@
+<resources>
+    <array name="default_age">
+        <item>18</item>
+        <item>25</item>
+    </array>
+
+    <array name="default_height">
+        <item>140</item>
+        <item>170</item>
+    </array>
+
+    <array name="default_weight">
+        <item>45</item>
+        <item>60</item>
+    </array>
+
+    <array name="default_distance">
+        <item>5</item>
+        <item>10</item>
+    </array>
+</resources>

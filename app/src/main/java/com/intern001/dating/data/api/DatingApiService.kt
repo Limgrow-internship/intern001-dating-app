@@ -13,6 +13,7 @@ import com.intern001.dating.data.model.request.ReorderPhotosRequest
 import com.intern001.dating.data.model.request.RequestOtpRequest
 import com.intern001.dating.data.model.request.SignupRequest
 import com.intern001.dating.data.model.request.UnmatchRequest
+import com.intern001.dating.data.model.request.UpdateFCMTokenRequest
 import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.data.model.request.VerifyOtpRequest
 import com.intern001.dating.data.model.response.AuthResponse
@@ -89,7 +90,7 @@ interface DatingApiService {
     @POST("api/photos/upload")
     suspend fun uploadPhoto(
         @Part file: MultipartBody.Part,
-        @Part("type") type: MultipartBody.Part, // "avatar" | "gallery" | "selfie"
+        @Part type: MultipartBody.Part, // "avatar" | "gallery" | "selfie"
     ): Response<PhotoResponse>
 
     // Set photo as primary (avatar)
@@ -213,4 +214,8 @@ interface DatingApiService {
     suspend fun verifyFace(
         @Part selfie: MultipartBody.Part,
     ): Response<VerifyFaceResponse>
+
+    // FCM Token Management
+    @PUT("api/user/fcm-token")
+    suspend fun updateFCMToken(@Body request: UpdateFCMTokenRequest): Response<Unit>
 }

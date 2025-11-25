@@ -1,6 +1,5 @@
 package com.intern001.dating.presentation.ui.profile.edit
 
-import com.intern001.dating.presentation.ui.profile.edit.ProfileImageAdapter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,8 +15,8 @@ import com.google.android.flexbox.JustifyContent
 import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentViewProfileBinding
 import com.intern001.dating.domain.model.UpdateProfile
-import com.intern001.dating.domain.model.UserProfile
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
+import com.intern001.dating.presentation.ui.profile.edit.ProfileImageAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -92,7 +91,12 @@ class ViewProfileFragment : BaseFragment() {
             viewModel.updateProfileState.collectLatest { state ->
                 when (state) {
                     is EditProfileViewModel.UiState.Success<*> -> {
-                        // Profile was updated, refresh the view
+                        // Profile was updated, bind the updated data immediately
+                        val updatedProfile = state.data as? UpdateProfile
+                        if (updatedProfile != null) {
+                            bindProfileData(updatedProfile)
+                        }
+                        // Also refresh from server to ensure we have the latest data
                         if (isVisible) {
                             refreshProfile()
                         }
@@ -104,7 +108,13 @@ class ViewProfileFragment : BaseFragment() {
     }
 
     private fun bindProfileData(profile: UpdateProfile) {
-        binding.tvNameAge.text = "${profile.displayName}, ${profile.age ?: ""}"
+        val nameAgeText = when {
+            profile.displayName != null && profile.age != null -> "${profile.displayName}, ${profile.age}"
+            profile.displayName != null -> profile.displayName
+            profile.age != null -> "${profile.age}"
+            else -> ""
+        }
+        binding.tvNameAge.text = nameAgeText
         binding.tvGender.text = profile.gender ?: ""
         binding.tvDescription.text = profile.bio ?: ""
         binding.tvMajor.text = profile.occupation ?: ""
@@ -122,7 +132,6 @@ class ViewProfileFragment : BaseFragment() {
         setupGoalsRecyclerView(profile.goals)
         setupInterestsRecyclerView(profile.interests)
     }
-
 
     private fun setupViewPager(photoUrls: List<String>) {
         val adapter = ProfileImageAdapter(photoUrls)
@@ -158,7 +167,7 @@ class ViewProfileFragment : BaseFragment() {
         for (i in 0 until container.childCount) {
             val bar = container.getChildAt(i)
             bar.setBackgroundResource(
-                if (i == index) R.drawable.bar_selected else R.drawable.bar_unselected
+                if (i == index) R.drawable.bar_selected else R.drawable.bar_unselected,
             )
         }
     }

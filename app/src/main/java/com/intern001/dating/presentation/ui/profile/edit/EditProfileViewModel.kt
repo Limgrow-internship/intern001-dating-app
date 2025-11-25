@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class EditProfileViewModel @Inject constructor(
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
-    private val updateProfileUseCase: UpdateProfileUseCase
+    private val updateProfileUseCase: UpdateProfileUseCase,
 ) : ViewModel() {
 
     sealed class UiState<out T> {
@@ -37,7 +37,7 @@ class EditProfileViewModel @Inject constructor(
             val result = getCurrentUserUseCase()
             _userProfileState.value = result.fold(
                 onSuccess = { UiState.Success(it) },
-                onFailure = { UiState.Error(it.message ?: "Unknown error") }
+                onFailure = { UiState.Error(it.message ?: "Unknown error") },
             )
         }
     }
@@ -54,7 +54,7 @@ class EditProfileViewModel @Inject constructor(
                 },
                 onFailure = { error ->
                     _updateProfileState.value = UiState.Error(error.message ?: "Failed to update profile")
-                }
+                },
             )
         }
     }

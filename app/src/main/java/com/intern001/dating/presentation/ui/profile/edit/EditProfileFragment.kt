@@ -12,18 +12,18 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
-import com.intern001.dating.data.repository.AuthRepositoryImpl
+import com.intern001.dating.R
+import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.databinding.FragmentEditProfileBinding
 import com.intern001.dating.databinding.ItemPhotoProfileBinding
-import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.domain.model.UpdateProfile
+import com.intern001.dating.domain.usecase.photo.UploadPhotoUseCase
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import com.intern001.dating.R
 
 @AndroidEntryPoint
 class EditProfileFragment : BaseFragment() {
@@ -32,16 +32,20 @@ class EditProfileFragment : BaseFragment() {
     private val binding get() = _binding!!
 
     @Inject
-    lateinit var authRepository: AuthRepositoryImpl
+    lateinit var uploadPhotoUseCase: UploadPhotoUseCase
 
     private val viewModel: EditProfileViewModel by viewModels()
 
     private lateinit var photos: List<ItemPhotoProfileBinding>
     private val photoUris = MutableList<Uri?>(6) { null }
     private val photoUrls = MutableList<String?>(6) { null }
+    private val photoIds = MutableList<String?>(6) { null } // Store photo IDs from server
     private var currentPhotoIndex = 0
 
     private val selectedGoals = mutableSetOf<String>()
+
+    // Store profile data to preserve firstName, lastName, dateOfBirth, gender when updating
+    private var currentProfile: UpdateProfile? = null
 
     private val pickImageLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -51,7 +55,7 @@ class EditProfileFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentEditProfileBinding.inflate(inflater, container, false)
 
@@ -61,7 +65,7 @@ class EditProfileFragment : BaseFragment() {
             binding.itemPhoto3,
             binding.itemPhoto4,
             binding.itemPhoto5,
-            binding.itemPhoto6
+            binding.itemPhoto6,
         )
 
         return binding.root
@@ -76,7 +80,6 @@ class EditProfileFragment : BaseFragment() {
         observeUpdateState()
         loadUserProfile()
     }
-
 
     private fun loadUserProfile() {
         viewModel.getUserProfile()
@@ -96,6 +99,8 @@ class EditProfileFragment : BaseFragment() {
     }
 
     private fun bindProfileData(profile: UpdateProfile) {
+        // Store current profile to preserve firstName, lastName, dateOfBirth, gender when updating
+        currentProfile = profile
 
         binding.includeAbout.etIntroduce.setText(profile.bio ?: "")
 
@@ -103,6 +108,7 @@ class EditProfileFragment : BaseFragment() {
         profile.photos.forEachIndexed { index, photo ->
             if (index < 6) {
                 photoUrls[index] = photo.url // Extract URL from Photo object
+                photoIds[index] = photo.id // Store photo ID
                 photoUris[index] = null
             }
         }
@@ -116,14 +122,14 @@ class EditProfileFragment : BaseFragment() {
             "Something casual" to g.tvGoalCasual,
             "Just vibing" to g.tvGoalVibing,
             "Open to anything" to g.tvGoalOpen,
-            "Still figuring it out" to g.tvGoalFiguring
+            "Still figuring it out" to g.tvGoalFiguring,
         )
 
         // goals is now List<String>, not String - no need to split
         profile.goals.forEach { goal ->
             goalMap[goal]?.let { toggleGoalSelection(it) }
         }
-        
+
         // Store goals in selectedGoals for later use
         selectedGoals.clear()
         selectedGoals.addAll(profile.goals)
@@ -158,14 +164,22 @@ class EditProfileFragment : BaseFragment() {
 
     private suspend fun uploadPhoto(uri: Uri, index: Int) {
         withContext(Dispatchers.IO) {
-            val result = authRepository.uploadImage(uri)
+            // Upload photo via Photo Management API (not just Cloudinary)
+            val result = uploadPhotoUseCase(uri, type = "gallery")
 
             withContext(Dispatchers.Main) {
-                result.onSuccess { url ->
-                    photoUrls[index] = url
-                    Toast.makeText(requireContext(), "Ảnh ${index + 1} đã upload", Toast.LENGTH_SHORT).show()
+                result.onSuccess { photo ->
+                    // Store both URL and ID
+                    photoUrls[index] = photo.url
+                    photoIds[index] = photo.id
+                    // Update photo view immediately
+                    updatePhotoViews()
+                    Toast.makeText(requireContext(), "Photo ${index + 1} uploaded successfully", Toast.LENGTH_SHORT).show()
+
+                    // Reload profile to get updated photos from server
+                    viewModel.getUserProfile()
                 }.onFailure { e ->
-                    Toast.makeText(requireContext(), "Upload thất bại: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -201,7 +215,7 @@ class EditProfileFragment : BaseFragment() {
             g.tvGoalCasual,
             g.tvGoalVibing,
             g.tvGoalOpen,
-            g.tvGoalFiguring
+            g.tvGoalFiguring,
         )
 
         goalViews.forEach { goal ->
@@ -226,7 +240,7 @@ class EditProfileFragment : BaseFragment() {
     private fun setupSaveButton() {
         binding.btnSave.setOnClickListener {
             val bio = binding.includeAbout.etIntroduce.text.toString().trim()
-            
+
             // Get personal details
             val details = binding.includeDetails
             val job = details.comboJob.text.toString().trim().takeIf { it.isNotEmpty() }
@@ -235,15 +249,26 @@ class EditProfileFragment : BaseFragment() {
             val heightStr = details.etHeight.text.toString().trim()
             val weightStr = details.etWeight.text.toString().trim()
             val zodiac = details.comboZodiac.text.toString().trim().takeIf { it.isNotEmpty() }
-            
+
             // Parse height and weight
             val height = heightStr.toIntOrNull()
             val weight = weightStr.toIntOrNull()
-            
+
             // Note: Photos are managed separately via photo management API
             // Do not include photos in UpdateProfileRequest
-            
+
+            // Preserve firstName, lastName, dateOfBirth, gender from current profile
+            // These fields are not editable in EditProfileFragment but should be preserved
+            val profile = currentProfile
+            val dateOfBirthString = profile?.dateOfBirth?.let {
+                java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(it)
+            }
+
             val request = UpdateProfileRequest(
+                firstName = profile?.firstName, // Preserve firstName
+                lastName = profile?.lastName, // Preserve lastName
+                dateOfBirth = dateOfBirthString, // Preserve dateOfBirth (convert Date to String)
+                gender = profile?.gender, // Preserve gender
                 bio = bio,
                 goals = selectedGoals.toList(), // goals is now List<String>, not String
                 job = job,
@@ -252,7 +277,7 @@ class EditProfileFragment : BaseFragment() {
                 city = address, // Address maps to city
                 zodiacSign = zodiac,
                 height = height,
-                weight = weight
+                weight = weight,
             )
 
             viewModel.updateUserProfile(request)
@@ -263,8 +288,11 @@ class EditProfileFragment : BaseFragment() {
         lifecycleScope.launch {
             viewModel.updateProfileState.collect { state ->
                 when (state) {
-                    is EditProfileViewModel.UiState.Success<*> ->
+                    is EditProfileViewModel.UiState.Success<*> -> {
                         Toast.makeText(requireContext(), "Cập nhật thành công!", Toast.LENGTH_SHORT).show()
+                        // Reload profile to get updated data including photos
+                        viewModel.getUserProfile()
+                    }
 
                     is EditProfileViewModel.UiState.Error ->
                         Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
