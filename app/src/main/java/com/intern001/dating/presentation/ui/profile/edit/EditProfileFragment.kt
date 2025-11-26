@@ -89,6 +89,8 @@ class EditProfileFragment : BaseFragment() {
         setupSaveButton()
         observeUpdateState()
         loadUserProfile()
+
+
     }
 
      fun loadUserProfile() {
@@ -169,12 +171,12 @@ class EditProfileFragment : BaseFragment() {
         val g = binding.includeGoals
 
         val goalMap = mapOf(
-            "Serious relationship" to g.tvGoalSerious,
-            "New friends" to g.tvGoalFriends,
-            "Something casual" to g.tvGoalCasual,
-            "Just vibing" to g.tvGoalVibing,
-            "Open to anything" to g.tvGoalOpen,
-            "Still figuring it out" to g.tvGoalFiguring,
+            g.tvGoalSerious.text.toString() to g.tvGoalSerious,
+            g.tvGoalFriends.text.toString() to g.tvGoalFriends,
+            g.tvGoalCasual.text.toString() to g.tvGoalCasual,
+            g.tvGoalVibing.text.toString() to g.tvGoalVibing,
+            g.tvGoalOpen.text.toString() to g.tvGoalOpen,
+            g.tvGoalFiguring.text.toString() to g.tvGoalFiguring
         )
 
         // goals is now List<String>, not String - no need to split
@@ -189,14 +191,14 @@ class EditProfileFragment : BaseFragment() {
         val i = binding.includeInterests
 
         val interestMap = mapOf(
-            "Music" to i.tvInterestMusic,
-            "Photography" to i.tvInterestPhotography,
-            "Travel" to i.tvInterestTravel,
-            "Deep talks" to i.tvInterestDeepTalks,
-            "Read book" to i.tvInterestReadBook,
-            "Walking" to i.tvInterestWalking,
-            "Pets / Animal lover" to i.tvInterestPets,
-            "Cooking" to i.tvInterestCooking,
+            i.tvInterestMusic.text.toString() to i.tvInterestMusic,
+            i.tvInterestPhotography.text.toString() to i.tvInterestPhotography,
+            i.tvInterestTravel.text.toString() to i.tvInterestTravel,
+            i.tvInterestDeepTalks.text.toString() to i.tvInterestDeepTalks,
+            i.tvInterestReadBook.text.toString() to i.tvInterestReadBook,
+            i.tvInterestWalking.text.toString() to i.tvInterestWalking,
+            i.tvInterestPets.text.toString() to i.tvInterestPets,
+            i.tvInterestCooking.text.toString() to i.tvInterestCooking
         )
 
         profile.interests.forEach { interest ->

@@ -40,6 +40,16 @@ class ViewProfileFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.llMore.setOnClickListener {
+            if (binding.layoutMoreInfo.visibility == View.GONE) {
+                binding.layoutMoreInfo.visibility = View.VISIBLE
+                binding.tvMore.text = "Less"
+            } else {
+                binding.layoutMoreInfo.visibility = View.GONE
+                binding.tvMore.text = "More"
+            }
+        }
+
         setupGoalsRecyclerView(emptyList())
         setupInterestsRecyclerView(emptyList())
 
@@ -117,11 +127,16 @@ class ViewProfileFragment : BaseFragment() {
         }
         binding.tvNameAge.text = nameAgeText
         binding.tvGender.text = profile.gender ?: ""
-        binding.tvDescription.text = profile.bio ?: ""
-        binding.tvMajor.text = profile.occupation ?: ""
-        binding.tvEducation.text = profile.education ?: ""
-        binding.tvLocation.text = profile.location?.city ?: ""
-        binding.tvZodiac.text = profile.zodiac ?: ""
+        binding.tvDescription.text = profile.bio ?: "Chưa cập nhật bio"
+        binding.tvMajor.text = profile.occupation ?: "Chưa cập nhật nghê nghiệp"
+        binding.tvEducation.text = profile.education ?: "Chưa cập nhật trường học"
+        binding.tvLocation.text = profile.location?.city ?: "Chưa cập nhật thành phố"
+        binding.tvZodiac.text = profile.zodiac ?: "Chưa cập nhật cung hoàng đạo"
+        binding.tvHeight.text =
+            profile.height?.let { "Chiều cao: $it" } ?: "Chiều cao: "
+        binding.tvWeight.text =
+            profile.weight?.let { "Cân nặng: $it" } ?: "Cân nặng: "
+
 
         // profile.photos is now List<Photo> (objects), extract URLs
         val photoUrls = profile.photos.map { it.url }
@@ -132,6 +147,18 @@ class ViewProfileFragment : BaseFragment() {
         // goals is already List<String>, no need to cast
         setupGoalsRecyclerView(profile.goals)
         setupInterestsRecyclerView(profile.interests)
+
+        val questionMap = profile.openQuestionAnswers
+        if (!questionMap.isNullOrEmpty()) {
+            val firstQuestion = questionMap.keys.first()
+            val firstAnswer = questionMap[firstQuestion] ?: ""
+
+            binding.tvQuestion.text = firstQuestion
+            binding.tvAnswer.text = firstAnswer
+        } else {
+            binding.tvQuestion.visibility = View.GONE
+            binding.tvAnswer.visibility = View.GONE
+        }
     }
 
     private fun setupViewPager(photoUrls: List<String>) {

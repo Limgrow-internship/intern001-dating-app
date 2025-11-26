@@ -57,7 +57,7 @@ class ProfileActivity : BaseActivity() {
             binding.btnEdit.setTextColor(Color.WHITE)
             binding.btnView.setTextColor(Color.GRAY)
             showFragment(editFragment, viewFragment)
-            editFragment.loadUserProfile()
+//            editFragment.loadUserProfile()
         }
 
         binding.btnView.setOnClickListener {
