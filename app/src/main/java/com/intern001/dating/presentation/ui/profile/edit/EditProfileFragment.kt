@@ -28,6 +28,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.text.get
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -146,7 +147,8 @@ class EditProfileFragment : BaseFragment() {
             val day = calendar.get(Calendar.DAY_OF_MONTH)
 
             DatePickerDialog(requireContext(), { _, selectedYear, selectedMonth, selectedDay ->
-                val dateString = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
+                val dateString =
+                    String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
                 info.etBirthday.setText(dateString)
             }, year, month, day).show()
         }
@@ -214,7 +216,7 @@ class EditProfileFragment : BaseFragment() {
         details.comboAddress.setText(profile.city ?: profile.location?.city ?: "", false)
         details.etHeight.setText(profile.height?.toString() ?: "")
         details.etWeight.setText(profile.weight?.toString() ?: "")
-        details.comboZodiac.setText(profile.zodiac ?: "", false)
+        details.comboZodiac.setText(profile.zodiacSign ?: "", false)
 
         val jobs = resources.getStringArray(R.array.job_list).toList()
         val adapter = ArrayAdapter(requireContext(), R.layout.dropdown_item, jobs)
@@ -242,55 +244,70 @@ class EditProfileFragment : BaseFragment() {
         val adapterZodiacs = ArrayAdapter(requireContext(), R.layout.dropdown_item, zodiacs)
         details.comboZodiac.setAdapter(adapterZodiacs)
 
-        val currentZodiac = profile.zodiac ?: ""
+        val currentZodiac = profile.zodiacSign ?: ""
         details.comboZodiac.setText(currentZodiac, false)
 
         details.comboZodiac.setOnClickListener {
             details.comboZodiac.showDropDown()
         }
 
+
+
         val question = binding.includeQuestions
-        val questionAnswers = profile.openQuestionAnswers ?: emptyMap()
+        val answers = profile.openQuestionAnswers ?: emptyMap()
+        Log.d("QA_DEBUG", "🔹 Server answers = $answers")
+        answers.keys.forEach { Log.d("QA_DEBUG", "🔸 Server key = '$it'") }
 
         val whatQuestions = resources.getStringArray(R.array.open_question_list_what).toList()
-        val whatAdapter = ArrayAdapter(requireContext(), R.layout.dropdown_item, whatQuestions)
-
-        question.comboWhat.setAdapter(whatAdapter)
-
-        val currentWhatKey = questionAnswers.keys.firstOrNull { key -> whatQuestions.contains(key) }
-
-        currentWhatKey?.let { key ->
-            question.comboWhat.post {
-                question.comboWhat.setText(key, false)
-            }
-            question.etWhat.setText(questionAnswers[key])
-        }
-
-        question.comboWhat.setOnClickListener {
-            question.comboWhat.showDropDown()
-        }
-
         val idealQuestions = resources.getStringArray(R.array.open_question_list_ideal).toList()
-        val idealAdapter = ArrayAdapter(requireContext(), R.layout.dropdown_item, idealQuestions)
 
-        question.comboWeekend.setAdapter(idealAdapter)
+        question.comboWhat.setAdapter(
+            ArrayAdapter(requireContext(), R.layout.dropdown_item, whatQuestions)
+        )
+        question.comboWeekend.setAdapter(
+            ArrayAdapter(requireContext(), R.layout.dropdown_item, idealQuestions)
+        )
 
-        val currentIdealKey = questionAnswers.keys.firstOrNull { key -> idealQuestions.contains(key) }
+        val whatMatch = finxldExactKeyFromServer(answers.keys, whatQuestions)
+        if (whatMatch != null) {
+            val (displayQ, serverQ) = whatMatch
+            question.comboWhat.setText(displayQ, false)
+            question.etWhat.setText(answers[serverQ])
+        } else {
+            question.comboWhat.setText("", false)
+            question.etWhat.setText("")
+        }
 
-        currentIdealKey?.let { key ->
-            question.comboWeekend.post {
-                question.comboWeekend.setText(key, false)
+        val idealMatch = finxldExactKeyFromServer(answers.keys, idealQuestions)
+        if (idealMatch != null) {
+            val (displayQ, serverQ) = idealMatch
+            question.comboWeekend.setText(displayQ, false)
+            question.etWeekend.setText(answers[serverQ])
+        } else {
+            question.comboWeekend.setText("", false)
+            question.etWeekend.setText("")
+        }
+
+        question.comboWhat.setOnClickListener { question.comboWhat.showDropDown() }
+        question.comboWeekend.setOnClickListener { question.comboWeekend.showDropDown() }
+
+        whatQuestions.forEach { Log.d("QA_DEBUG", "WHAT item = '$it'") }
+        idealQuestions.forEach { Log.d("QA_DEBUG", "IDEAL item = '$it'") }
+    }
+
+    private fun finxldExactKeyFromServer(
+        serverKeys: Set<String>,
+        questionList: List<String>
+    ): Pair<String, String>? {
+        for (serverKey in serverKeys) {
+            for (q in questionList) {
+                if (serverKey == q) {
+                    Log.d("QA_DEBUG", "MATCH FOUND: server='$serverKey' xml='$q'")
+                    return q to serverKey
+                }
             }
-            question.etWeekend.setText(questionAnswers[key])
         }
-
-        question.comboWeekend.setOnClickListener {
-            question.comboWeekend.showDropDown()
-        }
-
-        Log.d("QA", "Server keys = ${questionAnswers.keys}")
-        whatQuestions.forEach { Log.d("QA", "WHAT item = '$it'") }
-        idealQuestions.forEach { Log.d("QA", "IDEAL item = '$it'") }
+        return null
     }
 
     private fun setupPhotoClick() {
@@ -427,7 +444,7 @@ class EditProfileFragment : BaseFragment() {
             val address = details.comboAddress.text.toString().trim().takeIf { it.isNotEmpty() }
             val heightStr = details.etHeight.text.toString().trim()
             val weightStr = details.etWeight.text.toString().trim()
-            val zodiac = details.comboZodiac.text.toString().trim().takeIf { it.isNotEmpty() }
+            val zodiacSign = details.comboZodiac.text.toString().trim().takeIf { it.isNotEmpty() }
 
 
             val info = binding.includeInfo
@@ -474,7 +491,7 @@ class EditProfileFragment : BaseFragment() {
                 occupation = job, // Also set occupation if job is provided
                 education = education,
                 city = address, // Address maps to city
-                zodiac = zodiac,
+                zodiacSign = zodiacSign,
                 height = height,
                 weight = weight,
                 displayName = profile?.displayName,

@@ -21,7 +21,7 @@ data class MatchCard(
     val interests: List<String> = emptyList(),
     val relationshipMode: String?,
     val height: Int?,
-    val zodiac: String?,
+    val zodiacSign: String?,
     val isVerified: Boolean = false,
 )
 

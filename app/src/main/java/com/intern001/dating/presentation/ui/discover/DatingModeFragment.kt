@@ -202,8 +202,8 @@ class DatingModeFragment : BaseFragment() {
             binding.locationSection.visibility = View.GONE
         }
 
-        if (!card.zodiac.isNullOrEmpty()) {
-            binding.tvZodiac.text = card.zodiac
+        if (!card.zodiacSign.isNullOrEmpty()) {
+            binding.tvZodiac.text = card.zodiacSign
             binding.zodiacSection.visibility = View.VISIBLE
         } else {
             binding.zodiacSection.visibility = View.GONE

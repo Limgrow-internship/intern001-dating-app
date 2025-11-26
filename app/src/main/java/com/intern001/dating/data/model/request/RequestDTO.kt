@@ -80,8 +80,8 @@ data class UpdateProfileRequest(
     val company: String? = null,
     @SerializedName("education")
     val education: String? = null,
-    @SerializedName("zodiac")
-    val zodiac: String? = null,
+    @SerializedName("zodiacSign")
+    val zodiacSign: String? = null,
     @SerializedName("goals")
     val goals: List<String>? = null,
     @SerializedName("job")

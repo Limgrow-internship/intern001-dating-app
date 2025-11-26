@@ -206,16 +206,16 @@
     </string-array>
 
     <string-array name="open_question_list_what">
-        <item>What\'s something that always makes you smile?</item>
-        <item>What\'s something that always improves your day?</item>
-        <item>What\'s something that always surprises people about you?</item>
-        <item>What\'s something that always brings you peace?</item>
-        <item>What\'s something that always motivates you?</item>
-        <item>What\'s something that always makes you laugh?</item>
-        <item>What\'s something that always impresses you?</item>
-        <item>What\'s something that always inspires you?</item>
-        <item>What\'s something that always relaxes you?</item>
-        <item>What\'s something that always reminds you of home?</item>
+        <item>What is something that always makes you smile?</item>
+        <item>What is something that always improves your day?</item>
+        <item>What is something that always surprises people about you?</item>
+        <item>What is something that always brings you peace?</item>
+        <item>What is something that always motivates you?</item>
+        <item>What is something that always makes you laugh?</item>
+        <item>What is something that always impresses you?</item>
+        <item>What is something that always inspires you?</item>
+        <item>What is something that always relaxes you?</item>
+        <item>What is something that always reminds you of home?</item>
     </string-array>
 
     <string-array name="open_question_list_ideal">

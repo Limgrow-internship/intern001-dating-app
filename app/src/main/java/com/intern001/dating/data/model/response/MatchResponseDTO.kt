@@ -39,8 +39,8 @@ data class MatchCardResponse(
     val relationshipMode: String? = null,
     @SerializedName("height")
     val height: Int? = null,
-    @SerializedName("zodiac")
-    val zodiac: String? = null,
+    @SerializedName("zodiacSign")
+    val zodiacSign: String? = null,
     @SerializedName("isVerified")
     val isVerified: Boolean? = false,
 )
@@ -161,8 +161,8 @@ data class UserProfileResponse(
     val company: String? = null,
     @SerializedName("education")
     val education: String? = null,
-    @SerializedName("zodiac")
-    val zodiac: String? = null,
+    @SerializedName("zodiacSign")
+    val zodiacSign: String? = null,
     @SerializedName("verifiedAt")
     val verifiedAt: String? = null,
     @SerializedName("verifiedBadge")
