@@ -20,8 +20,8 @@ import com.intern001.dating.presentation.ui.discover.filter.FilterBottomSheet
 import com.intern001.dating.presentation.ui.discover.view.SwipeableCardView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -59,9 +59,9 @@ class DatingModeFragment : BaseFragment() {
                 val cards = viewModel.matchCards
                     .filter { it.isNotEmpty() }
                     .first()
-                
+
                 val likerIndex = cards.indexOfFirst { it.userId == likerId }
-                
+
                 viewModel.fetchAndAddProfileCard(likerId).fold(
                     onSuccess = {
                         delay(200)

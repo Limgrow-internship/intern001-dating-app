@@ -10,14 +10,14 @@ import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.intern001.dating.databinding.ActivityMainBinding
-import com.intern001.dating.presentation.common.viewmodel.BaseActivity
-import com.intern001.dating.presentation.navigation.navigateToChatDetail
-import com.intern001.dating.presentation.navigation.navigateToNotification
-import com.intern001.dating.presentation.navigation.navigateToProfileDetail
-import com.intern001.dating.presentation.navigation.navigateToDatingMode
-import com.intern001.dating.presentation.ui.home.HomeFragment
 import com.intern001.dating.domain.model.Notification
 import com.intern001.dating.domain.usecase.notification.SaveNotificationUseCase
+import com.intern001.dating.presentation.common.viewmodel.BaseActivity
+import com.intern001.dating.presentation.navigation.navigateToChatDetail
+import com.intern001.dating.presentation.navigation.navigateToDatingMode
+import com.intern001.dating.presentation.navigation.navigateToNotification
+import com.intern001.dating.presentation.navigation.navigateToProfileDetail
+import com.intern001.dating.presentation.ui.home.HomeFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Date
 import javax.inject.Inject
@@ -242,56 +242,56 @@ class MainActivity : BaseActivity() {
         try {
             when (notificationType) {
                 "like", "superlike" -> {
-                val likerId = intent?.getStringExtra("likerId")
-                when (navigateTo) {
-                    "dating_mode" -> {
-                        navController.navigateToDatingMode(likerId)
-                    }
-                    "profile" -> {
-                        likerId?.let {
-                            navController.navigateToProfileDetail(it)
-                        } ?: run {
+                    val likerId = intent?.getStringExtra("likerId")
+                    when (navigateTo) {
+                        "dating_mode" -> {
+                            navController.navigateToDatingMode(likerId)
+                        }
+                        "profile" -> {
+                            likerId?.let {
+                                navController.navigateToProfileDetail(it)
+                            } ?: run {
+                                navController.navigateToNotification()
+                            }
+                        }
+                        "notification" -> {
                             navController.navigateToNotification()
                         }
-                    }
-                    "notification" -> {
-                        navController.navigateToNotification()
-                    }
-                    else -> {
-                        likerId?.let {
-                            navController.navigateToProfileDetail(it)
-                        } ?: run {
-                            navController.navigateToNotification()
+                        else -> {
+                            likerId?.let {
+                                navController.navigateToProfileDetail(it)
+                            } ?: run {
+                                navController.navigateToNotification()
+                            }
                         }
                     }
                 }
-            }
-            "match" -> {
-                val matchId = intent?.getStringExtra("matchId")
-                val matchedUserId = intent?.getStringExtra("matchedUserId")
-                when (navigateTo) {
-                    "chat" -> {
-                        matchedUserId?.let {
-                            navController.navigateToChatDetail(it)
-                        } ?: run {
-                            navController.navigate(R.id.chatListFragment)
+                "match" -> {
+                    val matchId = intent?.getStringExtra("matchId")
+                    val matchedUserId = intent?.getStringExtra("matchedUserId")
+                    when (navigateTo) {
+                        "chat" -> {
+                            matchedUserId?.let {
+                                navController.navigateToChatDetail(it)
+                            } ?: run {
+                                navController.navigate(R.id.chatListFragment)
+                            }
+                        }
+                        "match_detail" -> {
+                            matchedUserId?.let {
+                                navController.navigateToChatDetail(it)
+                            } ?: run {
+                                navController.navigate(R.id.chatListFragment)
+                            }
+                        }
+                        else -> {
+                            matchedUserId?.let {
+                                navController.navigateToChatDetail(it)
+                            } ?: run {
+                                navController.navigate(R.id.chatListFragment)
+                            }
                         }
                     }
-                    "match_detail" -> {
-                        matchedUserId?.let {
-                            navController.navigateToChatDetail(it)
-                        } ?: run {
-                            navController.navigate(R.id.chatListFragment)
-                        }
-                    }
-                    else -> {
-                        matchedUserId?.let {
-                            navController.navigateToChatDetail(it)
-                        } ?: run {
-                            navController.navigate(R.id.chatListFragment)
-                        }
-                    }
-                }
                 }
             }
         } catch (e: Exception) {
@@ -309,7 +309,7 @@ class MainActivity : BaseActivity() {
         val notificationType = intent?.getStringExtra("notification_type") ?: return
         val title = intent?.getStringExtra("title")
         val message = intent?.getStringExtra("message")
-        
+
         val data = mutableMapOf<String, String>()
         intent?.extras?.keySet()?.forEach { key ->
             intent.getStringExtra(key)?.let { value ->

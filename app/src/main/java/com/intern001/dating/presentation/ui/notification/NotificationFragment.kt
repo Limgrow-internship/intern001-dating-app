@@ -14,8 +14,8 @@ import com.intern001.dating.domain.model.Notification
 import com.intern001.dating.presentation.common.state.UiState
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.navigation.navigateToChatDetail
-import com.intern001.dating.presentation.navigation.navigateToProfileDetail
 import com.intern001.dating.presentation.navigation.navigateToDatingMode
+import com.intern001.dating.presentation.navigation.navigateToProfileDetail
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 

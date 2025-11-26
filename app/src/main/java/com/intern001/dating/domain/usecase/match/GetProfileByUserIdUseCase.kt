@@ -11,4 +11,3 @@ class GetProfileByUserIdUseCase @Inject constructor(
         return matchRepository.getProfileByUserId(userId)
     }
 }
-

@@ -1,6 +1,5 @@
 package com.intern001.dating.presentation.ui.discover
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.intern001.dating.domain.model.MatchCard
 import com.intern001.dating.domain.model.MatchResult
@@ -161,7 +160,7 @@ class DiscoverViewModel @Inject constructor(
                 onSuccess = { card ->
                     val currentCards = _matchCards.value.toMutableList()
                     val existingIndex = currentCards.indexOfFirst { it.userId == userId }
-                    
+
                     if (existingIndex >= 0) {
                         currentCards.removeAt(existingIndex)
                         currentCards.add(0, card)

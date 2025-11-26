@@ -2,7 +2,6 @@ package com.intern001.dating.presentation.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import com.intern001.dating.R
 
 object NavGraph {
     const val ROUTE_HOME = "home"
