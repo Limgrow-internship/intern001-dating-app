@@ -11,6 +11,7 @@ import com.intern001.dating.domain.usecase.notification.GetUnreadNotificationCou
 import com.intern001.dating.domain.usecase.notification.MarkAllNotificationsAsReadUseCase
 import com.intern001.dating.domain.usecase.notification.MarkNotificationAsReadUseCase
 import com.intern001.dating.presentation.common.state.UiState
+import com.intern001.dating.data.local.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,6 +31,7 @@ class NotificationViewModel @Inject constructor(
     private val deleteNotificationUseCase: DeleteNotificationUseCase,
     private val deleteAllNotificationsUseCase: DeleteAllNotificationsUseCase,
     private val getUnreadNotificationCountUseCase: GetUnreadNotificationCountUseCase,
+    private val tokenManager: TokenManager,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<UiState<List<Notification>>>(UiState.Idle)
@@ -54,8 +56,10 @@ class NotificationViewModel @Inject constructor(
                 _uiState.value = UiState.Loading
                 getNotificationsUseCase()
                     .onSuccess { notifications ->
-                        _uiState.value = UiState.Success(notifications)
-                        _unreadCount.value = getUnreadNotificationCountUseCase()
+                        // Filter notifications by current user
+                        val filteredNotifications = filterNotificationsByCurrentUser(notifications)
+                        _uiState.value = UiState.Success(filteredNotifications)
+                        _unreadCount.value = filteredNotifications.count { !it.isRead }
                         isInitialLoad = false
                     }
                     .onFailure { error ->
@@ -73,11 +77,14 @@ class NotificationViewModel @Inject constructor(
     private fun observeNotificationsFlow() {
         getNotificationsFlowUseCase()
             .onEach { notifications ->
+                // Filter notifications by current user
+                val filteredNotifications = filterNotificationsByCurrentUser(notifications)
+                
                 // Update UI state without showing loading
                 val currentState = _uiState.value
                 if (currentState !is UiState.Loading || !isInitialLoad) {
-                    _uiState.value = UiState.Success(notifications)
-                    _unreadCount.value = getUnreadNotificationCountUseCase()
+                    _uiState.value = UiState.Success(filteredNotifications)
+                    _unreadCount.value = filteredNotifications.count { !it.isRead }
                 }
             }
             .catch { error ->
@@ -87,6 +94,36 @@ class NotificationViewModel @Inject constructor(
                 }
             }
             .launchIn(viewModelScope)
+    }
+
+    /**
+     * Filter notifications to only show those meant for current logged-in user
+     * This prevents showing notifications from other users on the same device
+     */
+    private fun filterNotificationsByCurrentUser(notifications: List<Notification>): List<Notification> {
+        val currentUserId = tokenManager.getUserId() ?: return emptyList()
+        
+        return notifications.filter { notification ->
+            val targetUserId = notification.actionData?.extraData?.get("targetUserId")
+            
+            // If targetUserId is present, only show if it matches current user
+            if (!targetUserId.isNullOrBlank()) {
+                targetUserId.trim() == currentUserId.trim()
+            } else {
+                // Fallback: for match notifications, check matchedUserId
+                // For other types without targetUserId, show them (backward compatibility)
+                when (notification.type) {
+                    Notification.NotificationType.MATCH -> {
+                        val matchedUserId = notification.actionData?.userId
+                        matchedUserId == currentUserId || matchedUserId.isNullOrBlank()
+                    }
+                    else -> {
+                        // Show notifications without targetUserId (backward compatibility)
+                        true
+                    }
+                }
+            }
+        }
     }
 
     fun markAsRead(notificationId: String) {
@@ -122,8 +159,10 @@ class NotificationViewModel @Inject constructor(
             // Refresh by loading once and then continue observing flow
             getNotificationsUseCase()
                 .onSuccess { notifications ->
-                    _uiState.value = UiState.Success(notifications)
-                    _unreadCount.value = getUnreadNotificationCountUseCase()
+                    // Filter notifications by current user
+                    val filteredNotifications = filterNotificationsByCurrentUser(notifications)
+                    _uiState.value = UiState.Success(filteredNotifications)
+                    _unreadCount.value = filteredNotifications.count { !it.isRead }
                 }
         }
     }
