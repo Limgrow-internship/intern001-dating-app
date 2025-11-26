@@ -4,7 +4,6 @@ import android.graphics.Color
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.OvalShape
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,7 +14,7 @@ import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentFriendFilterBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 
-class FriendFilterFragment: BaseFragment() {
+class FriendFilterFragment : BaseFragment() {
     private var _binding: FragmentFriendFilterBinding? = null
     private val binding get() = _binding!!
     private val genderViews = mutableListOf<TextView>()
@@ -25,7 +24,7 @@ class FriendFilterFragment: BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentFriendFilterBinding.inflate(inflater, container, false)
         return binding.root
@@ -70,7 +69,6 @@ class FriendFilterFragment: BaseFragment() {
         }
     }
 
-
     private fun setupGenderChips() {
         genderViews.clear()
         genderViews.add(binding.llGenders.findViewById(R.id.tvMale))
@@ -101,7 +99,7 @@ class FriendFilterFragment: BaseFragment() {
             g.tvGoalCasual,
             g.tvGoalVibing,
             g.tvGoalOpen,
-            g.tvGoalFiguring
+            g.tvGoalFiguring,
         )
 
         goalViews.forEach { chip ->
@@ -119,7 +117,7 @@ class FriendFilterFragment: BaseFragment() {
             i.tvInterestReadBook,
             i.tvInterestWalking,
             i.tvInterestPets,
-            i.tvInterestCooking
+            i.tvInterestCooking,
         )
 
         interestViews.forEach { chip ->

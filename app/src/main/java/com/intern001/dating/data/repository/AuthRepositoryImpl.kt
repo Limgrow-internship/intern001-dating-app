@@ -49,6 +49,7 @@ constructor(
     @ApplicationContext private val context: Context,
     private val notificationService: NotificationService,
     private val fcmService: FCMService,
+    private val notificationRepository: com.intern001.dating.domain.repository.NotificationRepository,
 ) : AuthRepository {
     private var cachedUser: User? = null
     private var cachedUserProfile: UserProfile? = null
@@ -166,6 +167,11 @@ constructor(
         }
     }
 
+    override suspend fun clearUserCache() {
+        cachedUser = null
+        cachedUserProfile = null
+    }
+
     override suspend fun signup(
         email: String,
         password: String,
@@ -222,8 +228,9 @@ constructor(
                         )
                     }
 
-                    // Send FCM token to server after successful signup
+                    // Clear all notifications for new account
                     CoroutineScope(Dispatchers.IO).launch {
+                        notificationRepository.deleteAllNotifications()
                         notificationService.initializeFCMToken()
                     }
 
