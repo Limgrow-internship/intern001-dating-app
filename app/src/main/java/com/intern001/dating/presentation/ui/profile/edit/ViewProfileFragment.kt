@@ -70,7 +70,6 @@ class ViewProfileFragment : BaseFragment() {
         viewModel.getUserProfile()
     }
 
-
     fun refreshProfile() {
         // Force refresh by calling getUserProfile again
         // The cache should be updated after profile update, so this will get fresh data
@@ -136,7 +135,6 @@ class ViewProfileFragment : BaseFragment() {
             profile.height?.let { "Chiều cao: $it" } ?: "Chiều cao: "
         binding.tvWeight.text =
             profile.weight?.let { "Cân nặng: $it" } ?: "Cân nặng: "
-
 
         // profile.photos is now List<Photo> (objects), extract URLs
         val photoUrls = profile.photos.map { it.url }

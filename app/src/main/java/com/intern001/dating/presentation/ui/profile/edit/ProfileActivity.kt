@@ -73,7 +73,6 @@ class ProfileActivity : BaseActivity() {
         }
     }
 
-
     private fun showFragment(show: Fragment, hide: Fragment) {
         supportFragmentManager.beginTransaction()
             .hide(hide)

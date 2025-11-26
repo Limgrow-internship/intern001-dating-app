@@ -70,7 +70,7 @@ data class UserData(
     @SerializedName("job")
     val job: String? = null,
     @SerializedName("openQuestionAnswers")
-    val openQuestionAnswers: Map<String, String>? = null
+    val openQuestionAnswers: Map<String, String>? = null,
 )
 
 data class RefreshTokenRequest(

@@ -87,7 +87,7 @@ data class UpdateProfileRequest(
     @SerializedName("job")
     val job: String? = null,
     @SerializedName("openQuestionAnswers")
-    val openQuestionAnswers: Map<String, String>? = null
+    val openQuestionAnswers: Map<String, String>? = null,
 )
 
 data class ChangePasswordRequest(

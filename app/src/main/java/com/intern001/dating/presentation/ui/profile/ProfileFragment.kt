@@ -28,9 +28,8 @@ import com.intern001.dating.presentation.ui.profile.edit.EditProfileViewModel
 import com.intern001.dating.presentation.ui.profile.edit.ProfileActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.collectLatest
-
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ProfileFragment : BaseFragment() {
@@ -39,7 +38,6 @@ class ProfileFragment : BaseFragment() {
     private val binding get() = _binding!!
     private val viewModel: ProfileViewModel by viewModels()
     private val viewModel1: EditProfileViewModel by viewModels()
-
 
     @Inject
     lateinit var tokenManager: TokenManager

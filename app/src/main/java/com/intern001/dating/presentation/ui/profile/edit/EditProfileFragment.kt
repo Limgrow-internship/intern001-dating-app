@@ -53,7 +53,6 @@ class EditProfileFragment : BaseFragment() {
     private val selectedGoals = mutableSetOf<String>()
     private val selectedInterests = mutableSetOf<String>()
 
-
     // Store profile data to preserve firstName, lastName, dateOfBirth, gender when updating
     private var currentProfile: UpdateProfile? = null
 
@@ -90,11 +89,9 @@ class EditProfileFragment : BaseFragment() {
         setupSaveButton()
         observeUpdateState()
         loadUserProfile()
-
-
     }
 
-     fun loadUserProfile() {
+    fun loadUserProfile() {
         viewModel.getUserProfile()
 
         lifecycleScope.launch {
@@ -153,7 +150,6 @@ class EditProfileFragment : BaseFragment() {
             }, year, month, day).show()
         }
 
-
         val genders = arrayOf("male", "female", "other")
         if (profile.gender != null && genders.contains(profile.gender)) {
             info.etGender.setText(profile.gender)
@@ -178,7 +174,7 @@ class EditProfileFragment : BaseFragment() {
             g.tvGoalCasual.text.toString() to g.tvGoalCasual,
             g.tvGoalVibing.text.toString() to g.tvGoalVibing,
             g.tvGoalOpen.text.toString() to g.tvGoalOpen,
-            g.tvGoalFiguring.text.toString() to g.tvGoalFiguring
+            g.tvGoalFiguring.text.toString() to g.tvGoalFiguring,
         )
 
         // goals is now List<String>, not String - no need to split
@@ -200,7 +196,7 @@ class EditProfileFragment : BaseFragment() {
             i.tvInterestReadBook.text.toString() to i.tvInterestReadBook,
             i.tvInterestWalking.text.toString() to i.tvInterestWalking,
             i.tvInterestPets.text.toString() to i.tvInterestPets,
-            i.tvInterestCooking.text.toString() to i.tvInterestCooking
+            i.tvInterestCooking.text.toString() to i.tvInterestCooking,
         )
 
         profile.interests.forEach { interest ->
@@ -251,8 +247,6 @@ class EditProfileFragment : BaseFragment() {
             details.comboZodiac.showDropDown()
         }
 
-
-
         val question = binding.includeQuestions
         val answers = profile.openQuestionAnswers ?: emptyMap()
         Log.d("QA_DEBUG", "🔹 Server answers = $answers")
@@ -262,10 +256,10 @@ class EditProfileFragment : BaseFragment() {
         val idealQuestions = resources.getStringArray(R.array.open_question_list_ideal).toList()
 
         question.comboWhat.setAdapter(
-            ArrayAdapter(requireContext(), R.layout.dropdown_item, whatQuestions)
+            ArrayAdapter(requireContext(), R.layout.dropdown_item, whatQuestions),
         )
         question.comboWeekend.setAdapter(
-            ArrayAdapter(requireContext(), R.layout.dropdown_item, idealQuestions)
+            ArrayAdapter(requireContext(), R.layout.dropdown_item, idealQuestions),
         )
 
         val whatMatch = finxldExactKeyFromServer(answers.keys, whatQuestions)
@@ -297,7 +291,7 @@ class EditProfileFragment : BaseFragment() {
 
     private fun finxldExactKeyFromServer(
         serverKeys: Set<String>,
-        questionList: List<String>
+        questionList: List<String>,
     ): Pair<String, String>? {
         for (serverKey in serverKeys) {
             for (q in questionList) {
@@ -446,7 +440,6 @@ class EditProfileFragment : BaseFragment() {
             val weightStr = details.etWeight.text.toString().trim()
             val zodiacSign = details.comboZodiac.text.toString().trim().takeIf { it.isNotEmpty() }
 
-
             val info = binding.includeInfo
             val name = info.etName.text.toString().trim()
             val birthday = info.etBirthday.text.toString().trim()
@@ -478,7 +471,6 @@ class EditProfileFragment : BaseFragment() {
                 openQuestionMap[selectedIdeal] = answerIdeal
             }
 
-
             val request = UpdateProfileRequest(
                 firstName = profile?.firstName, // Preserve firstName
                 lastName = profile?.lastName, // Preserve lastName
@@ -496,7 +488,7 @@ class EditProfileFragment : BaseFragment() {
                 weight = weight,
                 displayName = profile?.displayName,
                 relationshipMode = profile?.relationshipMode,
-                openQuestionAnswers = if (openQuestionMap.isEmpty()) null else openQuestionMap
+                openQuestionAnswers = if (openQuestionMap.isEmpty()) null else openQuestionMap,
             )
 
             viewModel.updateUserProfile(request)

@@ -67,6 +67,9 @@ interface DatingApiService {
     @GET("api/profile")
     suspend fun getCurrentUserProfile(): Response<UserData>
 
+    @GET("api/profile/{userId}")
+    suspend fun getProfileByUserId(@Path("userId") userId: String): Response<MatchCardResponse>
+
     @PUT("api/profile")
     suspend fun updateUserProfile(@Body request: UpdateProfileRequest): Response<UserData>
 

@@ -314,7 +314,12 @@
     <fragment
         android:id="@+id/datingModeFragment"
         android:name="com.intern001.dating.presentation.ui.discover.DatingModeFragment"
-        android:label="Dating Mode" >
+        android:label="Dating Mode"
+        app:route="dating_mode?likerId={likerId}">
+        <argument
+            android:name="likerId"
+            app:argType="string"
+            android:defaultValue="@null" />
 
         <action
             android:id="@+id/action_datingModeFragment_to_filterFragment"
@@ -323,6 +328,6 @@
 
     <fragment
         android:id="@+id/filterFragment"
-        android:name="com.intern001.dating.presentation.ui.discover.filter.FilterFragment"
+        android:name="com.intern001.dating.presentation.ui.discover.filter.DatingFilterFragment"
         android:label="Filter" />
 </navigation>
