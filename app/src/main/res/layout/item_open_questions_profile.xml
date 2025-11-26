@@ -39,7 +39,10 @@
                 android:padding="16dp"
                 android:textColor="#333333"
                 android:textSize="18sp"
-                android:background="@android:color/transparent" />
+                android:background="@android:color/transparent"
+                android:focusable="true"
+                android:focusableInTouchMode="false"
+                android:inputType="none" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <ImageView
@@ -95,7 +98,10 @@
                 android:padding="16dp"
                 android:textColor="#333333"
                 android:textSize="18sp"
-                android:background="@android:color/transparent" />
+                android:background="@android:color/transparent"
+                android:focusable="true"
+                android:focusableInTouchMode="false"
+                android:inputType="none" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <ImageView
