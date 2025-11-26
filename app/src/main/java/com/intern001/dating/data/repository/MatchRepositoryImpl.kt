@@ -8,9 +8,11 @@ import com.intern001.dating.data.model.request.MatchActionRequest
 import com.intern001.dating.data.model.request.UnmatchRequest
 import com.intern001.dating.data.model.response.toMatch
 import com.intern001.dating.data.model.response.toMatchCard
+import com.intern001.dating.data.model.response.toMatchList
 import com.intern001.dating.data.model.response.toMatchResult
 import com.intern001.dating.domain.model.Match
 import com.intern001.dating.domain.model.MatchCard
+import com.intern001.dating.domain.model.MatchList
 import com.intern001.dating.domain.model.MatchResult
 import com.intern001.dating.domain.repository.MatchRepository
 import javax.inject.Inject
@@ -221,4 +223,5 @@ constructor(
             Result.failure(e)
         }
     }
+    override suspend fun getMatchedUsers(token: String): List<MatchList> = apiService.getMatchedUsers("Bearer $token").map { it.toMatchList() }
 }

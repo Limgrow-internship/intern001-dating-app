@@ -3,12 +3,14 @@ package com.intern001.dating.data.model.response
 import com.intern001.dating.domain.model.Match
 import com.intern001.dating.domain.model.MatchCard
 import com.intern001.dating.domain.model.MatchCriteria
+import com.intern001.dating.domain.model.MatchList
 import com.intern001.dating.domain.model.MatchResult
 import com.intern001.dating.domain.model.MatchStatus
 import com.intern001.dating.domain.model.Photo
 import com.intern001.dating.domain.model.Range
 import com.intern001.dating.domain.model.UserLocation
 import com.intern001.dating.domain.model.UserProfile
+import com.intern001.dating.domain.model.UserProfileMatch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -246,3 +248,16 @@ fun RecommendationCriteriaResponse.toMatchCriteria(): MatchCriteria {
         heightRange = heightRange?.let { Range(min = it.min, max = it.max) },
     )
 }
+
+fun MatchResponseDTO.toMatchList(): MatchList = MatchList(
+    conversationId = this.conversationId,
+    matchId = this.matchId,
+    lastActivityAt = this.lastActivityAt,
+    matchedUser = UserProfileMatch(
+        userId = this.matchedUser.userId,
+        name = "${this.matchedUser.firstName} ${this.matchedUser.lastName}".trim(),
+        avatarUrl = this.matchedUser.url,
+        age = this.matchedUser.age,
+        city = this.matchedUser.city,
+    ),
+)

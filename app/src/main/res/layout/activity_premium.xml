@@ -108,7 +108,7 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_check"
+                    android:src="@drawable/ic_check_password"
                     android:tint="#FF6A00" />
 
                 <TextView
@@ -131,7 +131,7 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_check"
+                    android:src="@drawable/ic_check_password"
                     android:tint="#FF6A00" />
 
                 <TextView
@@ -154,7 +154,7 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_check"
+                    android:src="@drawable/ic_check_password"
                     android:tint="#FF6A00" />
 
                 <TextView
@@ -177,7 +177,7 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_check"
+                    android:src="@drawable/ic_check_password"
                     android:tint="#FF6A00" />
 
                 <TextView
@@ -199,7 +199,7 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_check"
+                    android:src="@drawable/ic_check_password"
                     android:tint="#FF6A00" />
 
                 <TextView
