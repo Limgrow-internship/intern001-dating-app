@@ -2,6 +2,7 @@ package com.intern001.dating.presentation.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import com.intern001.dating.R
 
 object NavGraph {
     const val ROUTE_HOME = "home"
@@ -17,6 +18,7 @@ object NavGraph {
     const val ROUTE_CHAT_DETAIL = "chat_detail"
     const val ROUTE_EDIT_PROFILE = "edit_profile"
     const val ROUTE_SETTINGS = "settings"
+    const val ROUTE_DATING_MODE = "dating_mode"
 
     const val ROUTE_SPLASH = "splash"
     const val ROUTE_LOGIN = "login"
@@ -75,6 +77,15 @@ fun NavController.navigateToProfileDetail(userId: String) {
 
 fun NavController.navigateToChatDetail(userId: String) {
     val route = "${NavGraph.ROUTE_CHAT_DETAIL}/$userId"
+    navigate(route)
+}
+
+fun NavController.navigateToDatingMode(likerId: String? = null) {
+    val route = if (likerId != null) {
+        "${NavGraph.ROUTE_DATING_MODE}?likerId=$likerId"
+    } else {
+        NavGraph.ROUTE_DATING_MODE
+    }
     navigate(route)
 }
 

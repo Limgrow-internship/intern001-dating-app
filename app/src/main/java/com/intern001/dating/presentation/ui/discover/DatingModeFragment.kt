@@ -19,6 +19,9 @@ import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.ui.discover.filter.FilterBottomSheet
 import com.intern001.dating.presentation.ui.discover.view.SwipeableCardView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -50,9 +53,35 @@ class DatingModeFragment : BaseFragment() {
         setupListeners()
         observeViewModel()
 
-        // Show current card if data already loaded
-        if (viewModel.matchCards.value.isNotEmpty() && viewModel.hasMoreCards()) {
-            showCurrentCard()
+        val likerId = arguments?.getString("likerId")
+        if (!likerId.isNullOrBlank()) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                val cards = viewModel.matchCards
+                    .filter { it.isNotEmpty() }
+                    .first()
+                
+                val likerIndex = cards.indexOfFirst { it.userId == likerId }
+                
+                viewModel.fetchAndAddProfileCard(likerId).fold(
+                    onSuccess = {
+                        delay(200)
+                        showCurrentCard()
+                    },
+                    onFailure = {
+                        if (likerIndex >= 0) {
+                            viewModel.setCurrentCardIndex(likerIndex)
+                            delay(200)
+                            showCurrentCard()
+                        } else if (viewModel.hasMoreCards()) {
+                            showCurrentCard()
+                        }
+                    },
+                )
+            }
+        } else {
+            if (viewModel.matchCards.value.isNotEmpty() && viewModel.hasMoreCards()) {
+                showCurrentCard()
+            }
         }
     }
 
@@ -126,10 +155,14 @@ class DatingModeFragment : BaseFragment() {
             }
         }
 
-        // Observe card index changes to update UI
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.currentCardIndex.collect {
-                showNextCard()
+        val hasLikerId = !arguments?.getString("likerId").isNullOrBlank()
+        if (!hasLikerId) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.currentCardIndex.collect {
+                    if (viewModel.matchCards.value.isNotEmpty()) {
+                        showCurrentCard()
+                    }
+                }
             }
         }
     }

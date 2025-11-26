@@ -15,6 +15,7 @@ import com.intern001.dating.presentation.common.state.UiState
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.navigation.navigateToChatDetail
 import com.intern001.dating.presentation.navigation.navigateToProfileDetail
+import com.intern001.dating.presentation.navigation.navigateToDatingMode
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -40,7 +41,6 @@ class NotificationFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Show bottom navigation when in NotificationFragment
         (activity as? MainActivity)?.hideBottomNavigation(false)
 
         setupRecyclerView()
@@ -55,8 +55,6 @@ class NotificationFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        // Notifications will auto-update via Flow
-        // Reset flag when user returns to screen to mark as read again if needed
         hasMarkedAllAsReadOnView = false
     }
 
@@ -77,7 +75,6 @@ class NotificationFragment : BaseFragment() {
         }
 
         binding.ivFilter.setOnClickListener {
-            // TODO: Implement filter/settings functionality
         }
     }
 
@@ -132,9 +129,7 @@ class NotificationFragment : BaseFragment() {
         binding.rvNotifications.isVisible = true
         binding.errorLayout.isVisible = false
 
-        // Update adapter with new list (DiffUtil will handle updates efficiently)
         notificationAdapter.submitList(notifications) {
-            // Mark all as read after list is displayed (only once when first viewing)
             if (!hasMarkedAllAsReadOnView && notifications.isNotEmpty()) {
                 hasMarkedAllAsReadOnView = true
                 viewModel.markAllAsRead()
@@ -150,34 +145,43 @@ class NotificationFragment : BaseFragment() {
     }
 
     private fun handleNotificationClick(notification: Notification) {
-        // Mark as read
         if (!notification.isRead) {
             viewModel.markAsRead(notification.id)
         }
 
-        // Handle navigation based on notification type and action data
         val actionData = notification.actionData
         when (notification.type) {
             Notification.NotificationType.MATCH -> {
                 actionData?.userId?.let { userId ->
                     navController.navigateToChatDetail(userId)
                 }
-                // If no userId, just mark as read (already done above)
             }
             Notification.NotificationType.LIKE,
             Notification.NotificationType.SUPERLIKE,
             -> {
-                // Navigate to premium or profile
+                val likerId = actionData?.likerId
                 actionData?.navigateTo?.let { navigateTo ->
                     when (navigateTo) {
-                        "premium" -> {
-                            // TODO: Navigate to premium screen
+                        "dating_mode" -> {
+                            navController.navigateToDatingMode(likerId)
                         }
                         "profile" -> {
-                            actionData.likerId?.let { userId ->
+                            likerId?.let { userId ->
                                 navController.navigateToProfileDetail(userId)
                             }
                         }
+                        "premium" -> {
+                            // TODO: Navigate to premium screen
+                        }
+                        else -> {
+                            likerId?.let {
+                                navController.navigateToDatingMode(it)
+                            }
+                        }
+                    }
+                } ?: run {
+                    likerId?.let {
+                        navController.navigateToDatingMode(it)
                     }
                 }
             }
@@ -190,7 +194,6 @@ class NotificationFragment : BaseFragment() {
                 // TODO: Navigate to premium screen
             }
             Notification.NotificationType.OTHER -> {
-                // Handle other notification types
             }
         }
     }
