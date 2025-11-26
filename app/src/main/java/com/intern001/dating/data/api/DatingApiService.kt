@@ -69,6 +69,11 @@ interface DatingApiService {
     @PUT("api/profile")
     suspend fun updateUserProfile(@Body request: UpdateProfileRequest): Response<UserData>
 
+    @DELETE("api/profile")
+    suspend fun deleteProfile(
+        @Header("Authorization") token: String,
+    ): Response<Unit>
+
     // ============================================================
     // Photo Management APIs
     // ============================================================
