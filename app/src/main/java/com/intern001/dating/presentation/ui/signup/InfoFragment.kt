@@ -78,7 +78,6 @@ class InfoFragment : BaseFragment() {
         }
     }
 
-    /** Real-time validation email & password */
     private fun setupValidation() {
         val passwordPattern = Regex("^(?=.*[A-Za-z])(?=.*\\d).{8,}$")
 
@@ -94,7 +93,6 @@ class InfoFragment : BaseFragment() {
             btnSignUp.isEnabled = emailValid && passwordValid
         }
 
-        // Email validation
         etEmail.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun afterTextChanged(s: Editable?) {}
@@ -114,24 +112,20 @@ class InfoFragment : BaseFragment() {
             }
         })
 
-        // Password validation
         etPassword.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun afterTextChanged(s: Editable?) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val password = s.toString()
 
-                // Điều kiện 1: >= 8 ký tự
                 if (password.length >= 8) tvPassHintLength.setTextColor(Color.GREEN)
                 else tvPassHintLength.setTextColor(Color.GRAY)
 
-                // Điều kiện 2: ít nhất 1 chữ + 1 số
                 val hasLetter = password.any { it.isLetter() }
                 val hasDigit = password.any { it.isDigit() }
                 if (hasLetter && hasDigit) tvPassHintChar.setTextColor(Color.GREEN)
                 else tvPassHintChar.setTextColor(Color.GRAY)
 
-                // Update border và tick
                 if (passwordPattern.matches(password)) {
                     etPassword.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_edittext_correct)
                     etPassword.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_check_password, 0)
@@ -145,7 +139,6 @@ class InfoFragment : BaseFragment() {
         })
     }
 
-    /** Nút Sign Up chỉ enable khi hợp lệ */
     private fun setupSignInButton() {
         binding.btnSignIn.setOnClickListener {
             val email = binding.etEmail.text.toString().trim()
