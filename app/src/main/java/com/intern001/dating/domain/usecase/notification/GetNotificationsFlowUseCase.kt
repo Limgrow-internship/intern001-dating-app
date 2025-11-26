@@ -14,4 +14,3 @@ constructor(
         return notificationRepository.getNotificationsFlow()
     }
 }
-

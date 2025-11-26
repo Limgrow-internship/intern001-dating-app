@@ -118,13 +118,19 @@ class InfoFragment : BaseFragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val password = s.toString()
 
-                if (password.length >= 8) tvPassHintLength.setTextColor(Color.GREEN)
-                else tvPassHintLength.setTextColor(Color.GRAY)
+                if (password.length >= 8) {
+                    tvPassHintLength.setTextColor(Color.GREEN)
+                } else {
+                    tvPassHintLength.setTextColor(Color.GRAY)
+                }
 
                 val hasLetter = password.any { it.isLetter() }
                 val hasDigit = password.any { it.isDigit() }
-                if (hasLetter && hasDigit) tvPassHintChar.setTextColor(Color.GREEN)
-                else tvPassHintChar.setTextColor(Color.GRAY)
+                if (hasLetter && hasDigit) {
+                    tvPassHintChar.setTextColor(Color.GREEN)
+                } else {
+                    tvPassHintChar.setTextColor(Color.GRAY)
+                }
 
                 if (passwordPattern.matches(password)) {
                     etPassword.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_edittext_correct)
