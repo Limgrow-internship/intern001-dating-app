@@ -28,14 +28,14 @@ class UserRepositoryImpl @Inject constructor(
                 // If deleteProfile endpoint doesn't exist or fails, continue with account deletion
                 // The account deletion might already delete the profile
             }
-            
+
             // Then delete account on server
             val deleteAccountResponse = api.deleteAccount("Bearer $token")
-            
+
             // Always clear all user data regardless of API response
             // This ensures local data is deleted even if server deletion fails
             clearAllUserData()
-            
+
             if (deleteAccountResponse.isSuccessful) {
                 Result.success(Unit)
             } else {

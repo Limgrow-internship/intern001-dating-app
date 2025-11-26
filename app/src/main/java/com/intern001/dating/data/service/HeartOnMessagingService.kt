@@ -53,7 +53,7 @@ class HeartOnMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         if (remoteMessage.data.isNotEmpty()) {
             val shouldShow = shouldShowNotification(remoteMessage.data)
-            
+
             if (shouldShow) {
                 handleDataMessage(remoteMessage.data)
             } else {
@@ -273,18 +273,18 @@ class HeartOnMessagingService : FirebaseMessagingService() {
     private fun shouldShowNotification(data: Map<String, String>): Boolean {
         val currentUserId = tokenManager.getUserId()
         val type = data["type"]
-        
+
         if (currentUserId.isNullOrBlank()) {
             return false
         }
 
         val targetUserId = data["targetUserId"]
-        
+
         if (targetUserId.isNullOrBlank()) {
             when (type) {
                 "match" -> {
                     val matchedUserId = data["matchedUserId"] ?: data["userId"]
-                    return matchedUserId == currentUserId || matchedUserId.isNullOrBlank()
+                    return matchedUserId.isNullOrBlank() || matchedUserId == currentUserId
                 }
                 else -> return true
             }
@@ -292,7 +292,7 @@ class HeartOnMessagingService : FirebaseMessagingService() {
 
         val normalizedTargetUserId = targetUserId.trim()
         val normalizedCurrentUserId = currentUserId.trim()
-        
+
         return normalizedTargetUserId == normalizedCurrentUserId
     }
 

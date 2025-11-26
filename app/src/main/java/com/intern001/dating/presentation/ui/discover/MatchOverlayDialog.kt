@@ -74,7 +74,7 @@ class MatchOverlayDialog : DialogFragment() {
 
         loadMatchData()
         startMatchAnimation()
-        
+
         // Auto dismiss after 3 seconds
         dismissHandler.postDelayed({
             if (isAdded && dialog != null && dialog!!.isShowing) {

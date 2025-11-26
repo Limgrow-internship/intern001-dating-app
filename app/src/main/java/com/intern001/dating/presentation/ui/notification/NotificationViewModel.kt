@@ -2,6 +2,7 @@ package com.intern001.dating.presentation.ui.notification
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.domain.model.Notification
 import com.intern001.dating.domain.usecase.notification.DeleteAllNotificationsUseCase
 import com.intern001.dating.domain.usecase.notification.DeleteNotificationUseCase
@@ -11,7 +12,6 @@ import com.intern001.dating.domain.usecase.notification.GetUnreadNotificationCou
 import com.intern001.dating.domain.usecase.notification.MarkAllNotificationsAsReadUseCase
 import com.intern001.dating.domain.usecase.notification.MarkNotificationAsReadUseCase
 import com.intern001.dating.presentation.common.state.UiState
-import com.intern001.dating.data.local.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -79,7 +79,7 @@ class NotificationViewModel @Inject constructor(
             .onEach { notifications ->
                 // Filter notifications by current user
                 val filteredNotifications = filterNotificationsByCurrentUser(notifications)
-                
+
                 // Update UI state without showing loading
                 val currentState = _uiState.value
                 if (currentState !is UiState.Loading || !isInitialLoad) {
@@ -102,10 +102,10 @@ class NotificationViewModel @Inject constructor(
      */
     private fun filterNotificationsByCurrentUser(notifications: List<Notification>): List<Notification> {
         val currentUserId = tokenManager.getUserId() ?: return emptyList()
-        
+
         return notifications.filter { notification ->
             val targetUserId = notification.actionData?.extraData?.get("targetUserId")
-            
+
             // If targetUserId is present, only show if it matches current user
             if (!targetUserId.isNullOrBlank()) {
                 targetUserId.trim() == currentUserId.trim()

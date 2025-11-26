@@ -9,10 +9,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import com.google.android.material.slider.RangeSlider
 import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentDatingFilterBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
-import com.google.android.material.slider.RangeSlider
 
 class DatingFilterFragment : BaseFragment() {
 
@@ -26,7 +26,7 @@ class DatingFilterFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentDatingFilterBinding.inflate(inflater, container, false)
         return binding.root
@@ -71,7 +71,6 @@ class DatingFilterFragment : BaseFragment() {
         }
     }
 
-
     private fun setupGenderChips() {
         genderViews.clear()
         genderViews.add(binding.llGenders.findViewById(R.id.tvMale))
@@ -102,7 +101,7 @@ class DatingFilterFragment : BaseFragment() {
             g.tvGoalCasual,
             g.tvGoalVibing,
             g.tvGoalOpen,
-            g.tvGoalFiguring
+            g.tvGoalFiguring,
         )
 
         goalViews.forEach { chip ->
@@ -120,7 +119,7 @@ class DatingFilterFragment : BaseFragment() {
             i.tvInterestReadBook,
             i.tvInterestWalking,
             i.tvInterestPets,
-            i.tvInterestCooking
+            i.tvInterestCooking,
         )
 
         interestViews.forEach { chip ->
