@@ -156,7 +156,6 @@ constructor(
                 userEmail = response.user.email,
             )
 
-            // Gửi FCM token lên server sau khi login thành công
             CoroutineScope(Dispatchers.IO).launch {
                 notificationService.initializeFCMToken()
             }

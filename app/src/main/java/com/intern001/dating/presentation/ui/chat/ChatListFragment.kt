@@ -48,7 +48,7 @@ class ChatListFragment : BaseFragment() {
 
         // MatchList
         binding.rvMatches.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        matchAdapter = MatchAdapter() // Có thể truyền lambda click nếu muốn
+        matchAdapter = MatchAdapter()
         binding.rvMatches.adapter = matchAdapter
 
         // Conversation list

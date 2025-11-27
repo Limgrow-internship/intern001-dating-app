@@ -17,9 +17,9 @@ import com.intern001.dating.domain.model.LocationPermissionState
 import com.intern001.dating.domain.model.LocationSource
 import com.intern001.dating.domain.model.UserLocation
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.tasks.await
 
 @Singleton
 class LocationService @Inject constructor(
@@ -27,8 +27,8 @@ class LocationService @Inject constructor(
 ) {
     companion object {
         private const val TAG = "LocationService"
-        private const val CACHE_DURATION_MS = 5 * 60 * 1000L // 5 phút
-        private const val MAX_LOCATION_AGE_MS = 30 * 60 * 1000L // 30 phút
+        private const val CACHE_DURATION_MS = 5 * 60 * 1000L
+        private const val MAX_LOCATION_AGE_MS = 30 * 60 * 1000L
     }
 
     private val fusedLocationClient: FusedLocationProviderClient =
@@ -40,49 +40,37 @@ class LocationService @Inject constructor(
     // Cache location data
     private var cachedLocationData: LocationData? = null
 
-    /**
-     * Kiểm tra trạng thái quyền GPS
-     */
     fun checkPermissionState(): LocationPermissionState {
         val hasFineLocation = ActivityCompat.checkSelfPermission(
             context,
-            Manifest.permission.ACCESS_FINE_LOCATION
+            Manifest.permission.ACCESS_FINE_LOCATION,
         ) == PackageManager.PERMISSION_GRANTED
 
         val hasCoarseLocation = ActivityCompat.checkSelfPermission(
             context,
-            Manifest.permission.ACCESS_COARSE_LOCATION
+            Manifest.permission.ACCESS_COARSE_LOCATION,
         ) == PackageManager.PERMISSION_GRANTED
 
         return when {
             hasFineLocation || hasCoarseLocation -> LocationPermissionState.Granted
-            else -> LocationPermissionState.Denied // Presentation layer sẽ phân biệt Denied vs PermanentlyDenied
+            else -> LocationPermissionState.Denied
         }
     }
 
-    /**
-     * Kiểm tra GPS có bật không
-     */
     fun isLocationEnabled(): Boolean {
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
             locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
-    /**
-     * Lấy location data với chiến lược fallback
-     * Priority: GPS -> Cache -> Last Known Location
-     */
     suspend fun getLocationData(): LocationData {
-        // 1. Kiểm tra quyền trước
         if (checkPermissionState() != LocationPermissionState.Granted) {
             Log.w(TAG, "Location permission not granted")
             return LocationData(
                 location = null,
-                source = LocationSource.NONE
+                source = LocationSource.NONE,
             )
         }
 
-        // 2. Kiểm tra cache còn hợp lệ không
         cachedLocationData?.let { cached ->
             val age = System.currentTimeMillis() - cached.timestamp
             if (age < CACHE_DURATION_MS) {
@@ -91,7 +79,6 @@ class LocationService @Inject constructor(
             }
         }
 
-        // 3. Thử lấy GPS location mới
         val gpsLocation = getCurrentLocationFromGPS()
         if (gpsLocation != null) {
             val locationData = LocationData(
@@ -99,18 +86,17 @@ class LocationService @Inject constructor(
                     latitude = gpsLocation.latitude,
                     longitude = gpsLocation.longitude,
                     city = null,
-                    country = null
+                    country = null,
                 ),
                 source = LocationSource.GPS,
                 accuracy = gpsLocation.accuracy,
-                timestamp = System.currentTimeMillis()
+                timestamp = System.currentTimeMillis(),
             )
             cachedLocationData = locationData
             Log.d(TAG, "Got fresh GPS location: ${gpsLocation.latitude}, ${gpsLocation.longitude}")
             return locationData
         }
 
-        // 4. Fallback: Thử last known location
         val lastKnown = getLastKnownLocation()
         if (lastKnown != null) {
             val locationData = LocationData(
@@ -118,28 +104,24 @@ class LocationService @Inject constructor(
                     latitude = lastKnown.latitude,
                     longitude = lastKnown.longitude,
                     city = null,
-                    country = null
+                    country = null,
                 ),
                 source = LocationSource.LAST_KNOWN,
                 accuracy = lastKnown.accuracy,
-                timestamp = lastKnown.time
+                timestamp = lastKnown.time,
             )
             cachedLocationData = locationData
             Log.d(TAG, "Using last known location: ${lastKnown.latitude}, ${lastKnown.longitude}")
             return locationData
         }
 
-        // 5. Không có location nào khả dụng
         Log.w(TAG, "No location available from any source")
         return LocationData(
             location = null,
-            source = LocationSource.NONE
+            source = LocationSource.NONE,
         )
     }
 
-    /**
-     * Lấy vị trí GPS hiện tại
-     */
     @SuppressLint("MissingPermission")
     private suspend fun getCurrentLocationFromGPS(): Location? {
         return try {
@@ -160,15 +142,11 @@ class LocationService @Inject constructor(
         }
     }
 
-    /**
-     * Lấy last known location từ hệ thống
-     */
     @SuppressLint("MissingPermission")
     private suspend fun getLastKnownLocation(): Location? {
         return try {
             val lastLocation = fusedLocationClient.lastLocation.await()
 
-            // Chỉ dùng last known location nếu không quá cũ
             if (lastLocation != null) {
                 val age = System.currentTimeMillis() - lastLocation.time
                 if (age < MAX_LOCATION_AGE_MS) {
@@ -186,37 +164,25 @@ class LocationService @Inject constructor(
         }
     }
 
-    /**
-     * Xóa cache location (khi cần force refresh)
-     */
     fun clearCache() {
         cachedLocationData = null
         Log.d(TAG, "Location cache cleared")
     }
 
-    /**
-     * Lưu manual location (do user nhập thủ công)
-     */
     fun setManualLocation(latitude: Double, longitude: Double, city: String?, country: String?) {
         cachedLocationData = LocationData(
             location = UserLocation(
                 latitude = latitude,
                 longitude = longitude,
                 city = city,
-                country = country
+                country = country,
             ),
             source = LocationSource.MANUAL,
-            timestamp = System.currentTimeMillis()
+            timestamp = System.currentTimeMillis(),
         )
         Log.d(TAG, "Manual location set: $latitude, $longitude")
     }
 
-    // ===== Backward compatibility methods =====
-
-    /**
-     * Lấy vị trí GPS hiện tại (deprecated - dùng getLocationData() thay thế)
-     * @return Location object chứa latitude và longitude, hoặc null nếu không lấy được
-     */
     @Deprecated("Use getLocationData() for better fallback handling")
     suspend fun getCurrentLocation(): Location? {
         val locationData = getLocationData()
@@ -228,14 +194,9 @@ class LocationService @Inject constructor(
         }
     }
 
-    /**
-     * Lấy latitude và longitude dạng Pair (deprecated - dùng getLocationData() thay thế)
-     * @return Pair<Double, Double>? với first = latitude, second = longitude
-     */
     @Deprecated("Use getLocationData() for better fallback handling")
     suspend fun getCurrentLocationCoordinates(): Pair<Double, Double>? {
         val locationData = getLocationData()
         return locationData.location?.let { Pair(it.latitude, it.longitude) }
     }
 }
-
