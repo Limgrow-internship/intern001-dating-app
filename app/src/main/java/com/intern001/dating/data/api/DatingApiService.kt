@@ -2,6 +2,7 @@ package com.intern001.dating.data.api
 
 import com.intern001.dating.data.model.CountryResponse
 import com.intern001.dating.data.model.LanguageResponse
+import com.intern001.dating.data.model.MessageModel
 import com.intern001.dating.data.model.request.BlockUserRequest
 import com.intern001.dating.data.model.request.ChangePasswordRequest
 import com.intern001.dating.data.model.request.FacebookLoginRequest
@@ -20,6 +21,7 @@ import com.intern001.dating.data.model.response.AuthResponse
 import com.intern001.dating.data.model.response.ChangePasswordResponse
 import com.intern001.dating.data.model.response.FacebookLoginResponse
 import com.intern001.dating.data.model.response.GoogleLoginResponse
+import com.intern001.dating.data.model.response.LastMessageResponse
 import com.intern001.dating.data.model.response.MatchCardResponse
 import com.intern001.dating.data.model.response.MatchCardsListResponse
 import com.intern001.dating.data.model.response.MatchResponse
@@ -237,4 +239,13 @@ interface DatingApiService {
     suspend fun getMatchedUsers(
         @Header("Authorization") token: String,
     ): List<MatchResponseDTO>
+
+    @POST("api/chat/send")
+    suspend fun sendMessage(@Body message: MessageModel): MessageModel
+
+    @GET("api/chat/history/{matchId}")
+    suspend fun getHistory(@Path("matchId") matchId: String): List<MessageModel>
+
+    @GET("api/chat/rooms/{matchId}/last-message")
+    suspend fun getLastMessage(@Path("matchId") matchId: String): LastMessageResponse
 }
