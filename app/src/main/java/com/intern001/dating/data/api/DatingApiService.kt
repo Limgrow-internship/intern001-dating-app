@@ -147,12 +147,17 @@ interface DatingApiService {
 
     // Get next match card (single)
     @GET("api/discovery/next")
-    suspend fun getNextMatchCard(): Response<MatchCardResponse>
+    suspend fun getNextMatchCard(
+        @Query("latitude") latitude: Double? = null,
+        @Query("longitude") longitude: Double? = null,
+    ): Response<MatchCardResponse>
 
     // Get batch of match cards
     @GET("api/discovery/cards")
     suspend fun getMatchCards(
         @Query("limit") limit: Int = 10,
+        @Query("latitude") latitude: Double? = null,
+        @Query("longitude") longitude: Double? = null,
     ): Response<MatchCardsListResponse>
 
     // Like/Swipe right (simple, no quota)

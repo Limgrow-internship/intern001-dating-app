@@ -14,6 +14,7 @@ import com.intern001.dating.domain.model.Match
 import com.intern001.dating.domain.model.MatchCard
 import com.intern001.dating.domain.model.MatchList
 import com.intern001.dating.domain.model.MatchResult
+import com.intern001.dating.domain.repository.LocationRepository
 import com.intern001.dating.domain.repository.MatchRepository
 import javax.inject.Inject
 import javax.inject.Named
@@ -25,6 +26,7 @@ class MatchRepositoryImpl
 constructor(
     @Named("datingApi") private val apiService: DatingApiService,
     private val tokenManager: TokenManager,
+    private val locationRepository: LocationRepository,
 ) : MatchRepository {
     companion object {
         private const val TAG = "MatchRepositoryImpl"
@@ -32,7 +34,13 @@ constructor(
 
     override suspend fun getNextMatchCard(): Result<MatchCard?> {
         return try {
-            val response = apiService.getNextMatchCard()
+            // Get location before API call (using LocationRepository instead of LocationService)
+            val location = locationRepository.getUserLocation()
+
+            val response = apiService.getNextMatchCard(
+                latitude = location?.latitude,
+                longitude = location?.longitude,
+            )
             if (response.isSuccessful) {
                 val matchCard = response.body()?.toMatchCard()
                 Result.success(matchCard)
@@ -49,7 +57,14 @@ constructor(
 
     override suspend fun getMatchCards(limit: Int): Result<List<MatchCard>> {
         return try {
-            val response = apiService.getMatchCards(limit)
+            // Get location before API call (using LocationRepository instead of LocationService)
+            val location = locationRepository.getUserLocation()
+
+            val response = apiService.getMatchCards(
+                limit = limit,
+                latitude = location?.latitude,
+                longitude = location?.longitude,
+            )
             if (response.isSuccessful) {
                 val cards = response.body()?.cards?.map { it.toMatchCard() } ?: emptyList()
                 Result.success(cards)

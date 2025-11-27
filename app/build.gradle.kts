@@ -101,6 +101,9 @@ dependencies {
     // Google Sign-In
     implementation(libs.google.login)
 
+    // Google Play Services Location
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
     implementation("com.google.firebase:firebase-analytics")
