@@ -32,7 +32,7 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="0dp"
-        android:layout_height="44dp"
+        android:layout_height="50dp"
         android:layout_weight="1"
         android:gravity="center_vertical">
 
@@ -45,12 +45,14 @@
             android:layout_height="wrap_content"
             android:text="Minh Hang"
             />
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="5dp"/>
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical">
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/tvLastMessage"

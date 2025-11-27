@@ -186,6 +186,27 @@ constructor(
         }
     }
 
+    override suspend fun getProfileByUserId(userId: String): Result<MatchCard> {
+        return try {
+            val response = apiService.getProfileByUserId(userId)
+            if (response.isSuccessful) {
+                val matchCard = response.body()?.toMatchCard()
+                if (matchCard != null) {
+                    Result.success(matchCard)
+                } else {
+                    Result.failure(Exception("Profile response body is null"))
+                }
+            } else {
+                val errorMessage = response.errorBody()?.string() ?: "Failed to get profile"
+                Log.e(TAG, "getProfileByUserId error: ${response.code()} - $errorMessage")
+                Result.failure(Exception("Failed to get profile: ${response.code()} - $errorMessage"))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "getProfileByUserId exception", e)
+            Result.failure(e)
+        }
+    }
+
     override suspend fun unmatch(matchId: String): Result<Unit> {
         return try {
             val request = UnmatchRequest(matchId = matchId)

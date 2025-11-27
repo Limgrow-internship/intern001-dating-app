@@ -24,5 +24,7 @@ interface MatchRepository {
 
     suspend fun unmatch(matchId: String): Result<Unit>
 
+    suspend fun getProfileByUserId(userId: String): Result<MatchCard>
+
     suspend fun getMatchedUsers(token: String): List<MatchList>
 }

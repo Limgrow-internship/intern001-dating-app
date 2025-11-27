@@ -250,7 +250,6 @@ fun RecommendationCriteriaResponse.toMatchCriteria(): MatchCriteria {
 }
 
 fun MatchResponseDTO.toMatchList(): MatchList = MatchList(
-    conversationId = this.conversationId,
     matchId = this.matchId,
     lastActivityAt = this.lastActivityAt,
     matchedUser = UserProfileMatch(

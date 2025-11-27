@@ -120,14 +120,16 @@ class HeartOnMessagingService : FirebaseMessagingService() {
             putExtra("notification_type", type ?: "")
 
             when (type) {
-                "like" -> {
+                "like", "superlike" -> {
                     data["likerId"]?.let { putExtra("likerId", it) }
-                    putExtra("navigate_to", "notification")
+                    // Use navigate_to from backend, fallback to "notification" if not provided
+                    putExtra("navigate_to", data["navigate_to"] ?: "notification")
                 }
                 "match" -> {
                     data["matchId"]?.let { putExtra("matchId", it) }
                     data["matchedUserId"]?.let { putExtra("matchedUserId", it) }
-                    putExtra("navigate_to", "chat")
+                    // Use navigate_to from backend, fallback to "chat" if not provided
+                    putExtra("navigate_to", data["navigate_to"] ?: "chat")
                 }
             }
 
