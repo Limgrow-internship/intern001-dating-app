@@ -5,7 +5,7 @@ import com.intern001.dating.domain.repository.ChatRepository
 import javax.inject.Inject
 
 class GetLastMessageUseCase @Inject constructor(private val repo: ChatRepository) {
-    suspend operator fun invoke(roomId: String): LastMessageEntity {
-        return repo.getLastMessage(roomId)
+    suspend operator fun invoke(matchId: String): LastMessageEntity {
+        return repo.getLastMessage(matchId)
     }
 }

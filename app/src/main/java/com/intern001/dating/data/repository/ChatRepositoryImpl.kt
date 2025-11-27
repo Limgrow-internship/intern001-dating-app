@@ -13,10 +13,10 @@ class ChatRepositoryImpl @Inject constructor(
 ) : ChatRepository {
     override suspend fun sendMessage(message: MessageModel): MessageModel = api.sendMessage(message)
 
-    override suspend fun getHistory(roomId: String): List<MessageModel> = api.getHistory(roomId)
+    override suspend fun getHistory(matchId: String): List<MessageModel> = api.getHistory(matchId)
 
-    override suspend fun getLastMessage(roomId: String): LastMessageEntity {
-        val resp = api.getLastMessage(roomId)
+    override suspend fun getLastMessage(matchId: String): LastMessageEntity {
+        val resp = api.getLastMessage(matchId)
         return resp.toEntity()
     }
 }

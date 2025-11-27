@@ -238,9 +238,9 @@ interface DatingApiService {
     @POST("api/chat/send")
     suspend fun sendMessage(@Body message: MessageModel): MessageModel
 
-    @GET("api/chat/history/{roomId}")
-    suspend fun getHistory(@Path("roomId") roomId: String): List<MessageModel>
+    @GET("api/chat/history/{matchId}")
+    suspend fun getHistory(@Path("matchId") matchId: String): List<MessageModel>
 
-    @GET("api/chat/rooms/{roomId}/last-message")
-    suspend fun getLastMessage(@Path("roomId") roomId: String): LastMessageResponse
+    @GET("api/chat/rooms/{matchId}/last-message")
+    suspend fun getLastMessage(@Path("matchId") matchId: String): LastMessageResponse
 }

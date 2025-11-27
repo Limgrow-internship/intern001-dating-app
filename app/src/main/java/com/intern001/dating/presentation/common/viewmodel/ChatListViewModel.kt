@@ -24,10 +24,10 @@ class ChatListViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
 ) : ViewModel() {
 
-    suspend fun getLastMessage(roomId: String): LastMessageEntity? {
+    suspend fun getLastMessage(matchId: String): LastMessageEntity? {
         return withContext(Dispatchers.IO) {
             try {
-                getLastMessageUseCase(roomId)
+                getLastMessageUseCase(matchId)
             } catch (e: Exception) {
                 null
             }

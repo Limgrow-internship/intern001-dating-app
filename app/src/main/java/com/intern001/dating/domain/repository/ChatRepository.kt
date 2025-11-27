@@ -5,7 +5,7 @@ import com.intern001.dating.domain.entity.LastMessageEntity
 
 interface ChatRepository {
     suspend fun sendMessage(message: MessageModel): MessageModel
-    suspend fun getHistory(roomId: String): List<MessageModel>
+    suspend fun getHistory(matchId: String): List<MessageModel>
 
-    suspend fun getLastMessage(roomId: String): LastMessageEntity
+    suspend fun getLastMessage(matchId: String): LastMessageEntity
 }
