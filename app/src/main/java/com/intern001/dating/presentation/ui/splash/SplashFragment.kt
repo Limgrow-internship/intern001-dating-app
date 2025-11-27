@@ -41,9 +41,13 @@ class SplashFragment : BaseFragment() {
         (activity as? MainActivity)?.hideBottomNavigation(true)
 
         AdManager.preloadNativeAds(requireContext()) {
-            viewLifecycleOwner.lifecycleScope.launch {
+            // Use lifecycleScope instead of viewLifecycleOwner to avoid crash when view is destroyed
+            lifecycleScope.launch {
                 delay(1500)
-                navigateToNextScreen()
+                // Check if fragment is still attached and view exists before navigation
+                if (isAdded && view != null) {
+                    navigateToNextScreen()
+                }
             }
         }
     }

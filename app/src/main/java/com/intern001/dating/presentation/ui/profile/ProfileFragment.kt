@@ -12,19 +12,23 @@ import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.databinding.FragmentProfileBinding
+import com.intern001.dating.domain.model.UpdateProfile
 import com.intern001.dating.presentation.common.ads.AdManager
 import com.intern001.dating.presentation.common.ads.NativeAdHelper
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.common.viewmodel.ProfileViewModel
 import com.intern001.dating.presentation.ui.premium.PremiumActivity
+import com.intern001.dating.presentation.ui.profile.edit.EditProfileViewModel
 import com.intern001.dating.presentation.ui.profile.edit.ProfileActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -33,6 +37,7 @@ class ProfileFragment : BaseFragment() {
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
     private val viewModel: ProfileViewModel by viewModels()
+    private val viewModel1: EditProfileViewModel by viewModels()
 
     @Inject
     lateinit var tokenManager: TokenManager
@@ -45,6 +50,10 @@ class ProfileFragment : BaseFragment() {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val view = binding.root
         val adContainer = binding.grayBox
+
+        observeUserProfile()
+        observeProfileUpdates()
+        loadUserProfile()
 
         // Only show ads if user hasn't purchased "no ads"
         if (!viewModel.hasActiveSubscription()) {
@@ -91,6 +100,60 @@ class ProfileFragment : BaseFragment() {
         }
 
         return view
+    }
+
+    private fun loadUserProfile() {
+        viewModel1.getUserProfile()
+    }
+
+    private fun observeUserProfile() {
+        lifecycleScope.launch {
+            viewModel1.userProfileState.collectLatest { state ->
+                when (state) {
+                    is EditProfileViewModel.UiState.Loading -> {
+                        // TODO: show loading indicator
+                    }
+                    is EditProfileViewModel.UiState.Success<*> -> {
+                        bindProfileData(state.data as UpdateProfile)
+                    }
+                    is EditProfileViewModel.UiState.Error -> {
+                        Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+                    }
+                    else -> Unit
+                }
+            }
+        }
+    }
+
+    private fun observeProfileUpdates() {
+        lifecycleScope.launch {
+            viewModel1.updateProfileState.collectLatest { state ->
+                if (state is EditProfileViewModel.UiState.Success<*>) {
+                    val updatedProfile = state.data as? UpdateProfile
+                    updatedProfile?.let { bindProfileData(it) }
+                    loadUserProfile()
+                }
+            }
+        }
+    }
+
+    private fun bindProfileData(profile: UpdateProfile) {
+        val fullName = listOfNotNull(profile.firstName, profile.lastName).joinToString(" ")
+        binding.tvName.setText(fullName)
+        binding.tvGender.text = profile.gender ?: "Chưa cập nhật"
+        binding.tvMode.text = profile.mode ?: "Dating"
+
+        val avatarUrl = profile.avatar
+        if (!avatarUrl.isNullOrEmpty()) {
+            Glide.with(binding.avatarImageView.context)
+                .load(avatarUrl)
+                .placeholder(R.drawable.ic_person)
+                .error(R.drawable.ic_person)
+                .circleCrop()
+                .into(binding.avatarImageView)
+        } else {
+            binding.avatarImageView.setImageResource(R.drawable.ic_person)
+        }
     }
 
     private fun showLogOutBottomSheet() {
