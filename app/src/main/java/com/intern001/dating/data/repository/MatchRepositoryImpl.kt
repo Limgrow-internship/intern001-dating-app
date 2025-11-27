@@ -10,6 +10,7 @@ import com.intern001.dating.data.model.response.toMatch
 import com.intern001.dating.data.model.response.toMatchCard
 import com.intern001.dating.data.model.response.toMatchList
 import com.intern001.dating.data.model.response.toMatchResult
+import com.intern001.dating.data.service.LocationService
 import com.intern001.dating.domain.model.Match
 import com.intern001.dating.domain.model.MatchCard
 import com.intern001.dating.domain.model.MatchList
@@ -25,6 +26,7 @@ class MatchRepositoryImpl
 constructor(
     @Named("datingApi") private val apiService: DatingApiService,
     private val tokenManager: TokenManager,
+    private val locationService: LocationService,
 ) : MatchRepository {
     companion object {
         private const val TAG = "MatchRepositoryImpl"
@@ -32,7 +34,13 @@ constructor(
 
     override suspend fun getNextMatchCard(): Result<MatchCard?> {
         return try {
-            val response = apiService.getNextMatchCard()
+            // Lấy location trước khi gọi API
+            val location = locationService.getCurrentLocationCoordinates()
+
+            val response = apiService.getNextMatchCard(
+                latitude = location?.first,
+                longitude = location?.second,
+            )
             if (response.isSuccessful) {
                 val matchCard = response.body()?.toMatchCard()
                 Result.success(matchCard)
@@ -49,7 +57,14 @@ constructor(
 
     override suspend fun getMatchCards(limit: Int): Result<List<MatchCard>> {
         return try {
-            val response = apiService.getMatchCards(limit)
+            // Lấy location trước khi gọi API
+            val location = locationService.getCurrentLocationCoordinates()
+
+            val response = apiService.getMatchCards(
+                limit = limit,
+                latitude = location?.first,
+                longitude = location?.second,
+            )
             if (response.isSuccessful) {
                 val cards = response.body()?.cards?.map { it.toMatchCard() } ?: emptyList()
                 Result.success(cards)
