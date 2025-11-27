@@ -8,10 +8,13 @@ import com.intern001.dating.data.model.request.MatchActionRequest
 import com.intern001.dating.data.model.request.UnmatchRequest
 import com.intern001.dating.data.model.response.toMatch
 import com.intern001.dating.data.model.response.toMatchCard
+import com.intern001.dating.data.model.response.toMatchList
 import com.intern001.dating.data.model.response.toMatchResult
 import com.intern001.dating.domain.model.Match
 import com.intern001.dating.domain.model.MatchCard
+import com.intern001.dating.domain.model.MatchList
 import com.intern001.dating.domain.model.MatchResult
+import com.intern001.dating.domain.repository.LocationRepository
 import com.intern001.dating.domain.repository.MatchRepository
 import javax.inject.Inject
 import javax.inject.Named
@@ -23,6 +26,7 @@ class MatchRepositoryImpl
 constructor(
     @Named("datingApi") private val apiService: DatingApiService,
     private val tokenManager: TokenManager,
+    private val locationRepository: LocationRepository,
 ) : MatchRepository {
     companion object {
         private const val TAG = "MatchRepositoryImpl"
@@ -30,7 +34,13 @@ constructor(
 
     override suspend fun getNextMatchCard(): Result<MatchCard?> {
         return try {
-            val response = apiService.getNextMatchCard()
+            // Get location before API call (using LocationRepository instead of LocationService)
+            val location = locationRepository.getUserLocation()
+
+            val response = apiService.getNextMatchCard(
+                latitude = location?.latitude,
+                longitude = location?.longitude,
+            )
             if (response.isSuccessful) {
                 val matchCard = response.body()?.toMatchCard()
                 Result.success(matchCard)
@@ -47,7 +57,14 @@ constructor(
 
     override suspend fun getMatchCards(limit: Int): Result<List<MatchCard>> {
         return try {
-            val response = apiService.getMatchCards(limit)
+            // Get location before API call (using LocationRepository instead of LocationService)
+            val location = locationRepository.getUserLocation()
+
+            val response = apiService.getMatchCards(
+                limit = limit,
+                latitude = location?.latitude,
+                longitude = location?.longitude,
+            )
             if (response.isSuccessful) {
                 val cards = response.body()?.cards?.map { it.toMatchCard() } ?: emptyList()
                 Result.success(cards)
@@ -184,6 +201,27 @@ constructor(
         }
     }
 
+    override suspend fun getProfileByUserId(userId: String): Result<MatchCard> {
+        return try {
+            val response = apiService.getProfileByUserId(userId)
+            if (response.isSuccessful) {
+                val matchCard = response.body()?.toMatchCard()
+                if (matchCard != null) {
+                    Result.success(matchCard)
+                } else {
+                    Result.failure(Exception("Profile response body is null"))
+                }
+            } else {
+                val errorMessage = response.errorBody()?.string() ?: "Failed to get profile"
+                Log.e(TAG, "getProfileByUserId error: ${response.code()} - $errorMessage")
+                Result.failure(Exception("Failed to get profile: ${response.code()} - $errorMessage"))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "getProfileByUserId exception", e)
+            Result.failure(e)
+        }
+    }
+
     override suspend fun unmatch(matchId: String): Result<Unit> {
         return try {
             val request = UnmatchRequest(matchId = matchId)
@@ -200,4 +238,5 @@ constructor(
             Result.failure(e)
         }
     }
+    override suspend fun getMatchedUsers(token: String): List<MatchList> = apiService.getMatchedUsers("Bearer $token").map { it.toMatchList() }
 }

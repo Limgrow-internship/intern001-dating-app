@@ -8,8 +8,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.intern001.dating.databinding.FilterBottomSheetBinding
 import com.intern001.dating.R
+import com.intern001.dating.databinding.FilterBottomSheetBinding
 
 class FilterBottomSheet : BottomSheetDialogFragment() {
 
@@ -18,7 +18,7 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = FilterBottomSheetBinding.inflate(inflater, container, false)
 
@@ -45,7 +45,6 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
-
     private fun setupModeSwitch() {
         binding.btnDating.setOnClickListener {
             binding.motionNav.transitionToStart()
@@ -68,5 +67,3 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
             .commit()
     }
 }
-
-

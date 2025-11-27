@@ -9,7 +9,6 @@ import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import com.google.android.material.chip.Chip
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
@@ -20,6 +19,9 @@ import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.ui.discover.filter.FilterBottomSheet
 import com.intern001.dating.presentation.ui.discover.view.SwipeableCardView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -51,9 +53,35 @@ class DatingModeFragment : BaseFragment() {
         setupListeners()
         observeViewModel()
 
-        // Show current card if data already loaded
-        if (viewModel.matchCards.value.isNotEmpty() && viewModel.hasMoreCards()) {
-            showCurrentCard()
+        val likerId = arguments?.getString("likerId")
+        if (!likerId.isNullOrBlank()) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                val cards = viewModel.matchCards
+                    .filter { it.isNotEmpty() }
+                    .first()
+
+                val likerIndex = cards.indexOfFirst { it.userId == likerId }
+
+                viewModel.fetchAndAddProfileCard(likerId).fold(
+                    onSuccess = {
+                        delay(200)
+                        showCurrentCard()
+                    },
+                    onFailure = {
+                        if (likerIndex >= 0) {
+                            viewModel.setCurrentCardIndex(likerIndex)
+                            delay(200)
+                            showCurrentCard()
+                        } else if (viewModel.hasMoreCards()) {
+                            showCurrentCard()
+                        }
+                    },
+                )
+            }
+        } else {
+            if (viewModel.matchCards.value.isNotEmpty() && viewModel.hasMoreCards()) {
+                showCurrentCard()
+            }
         }
     }
 
@@ -120,17 +148,21 @@ class DatingModeFragment : BaseFragment() {
                 if (result?.isMatch == true) {
                     result.matchedUser?.let { matchedUser ->
                         result.matchId?.let { matchId ->
-                            navigateToMatchFound(matchId, matchedUser.userId)
+                            showMatchOverlay(matchId, matchedUser.userId)
                         }
                     }
                 }
             }
         }
 
-        // Observe card index changes to update UI
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.currentCardIndex.collect {
-                showNextCard()
+        val hasLikerId = !arguments?.getString("likerId").isNullOrBlank()
+        if (!hasLikerId) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.currentCardIndex.collect {
+                    if (viewModel.matchCards.value.isNotEmpty()) {
+                        showCurrentCard()
+                    }
+                }
             }
         }
     }
@@ -318,21 +350,23 @@ class DatingModeFragment : BaseFragment() {
         })
     }
 
-    private fun navigateToMatchFound(matchId: String, matchedUserId: String) {
+    private fun showMatchOverlay(matchId: String, matchedUserId: String) {
+        // Check if dialog is already showing
+        val existingDialog = parentFragmentManager.findFragmentByTag("MatchOverlayDialog")
+        if (existingDialog != null && existingDialog.isAdded) {
+            return
+        }
+
         val matchResult = viewModel.matchResult.replayCache.lastOrNull()
         val matchedUser = matchResult?.matchedUser
 
-        val fragment = MatchFoundFragment.newInstance(
-            matchId = matchId,
+        val dialog = MatchOverlayDialog.newInstance(
             matchedUserId = matchedUserId,
-            matchedUserName = matchedUser?.firstName ?: "",
             matchedUserPhotoUrl = matchedUser?.photos?.firstOrNull()?.url,
-            currentUserPhotoUrl = null,
         )
 
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.homeContainer, fragment)
-            .addToBackStack(null)
-            .commit()
+        if (isAdded && parentFragmentManager != null) {
+            dialog.show(parentFragmentManager, "MatchOverlayDialog")
+        }
     }
 }

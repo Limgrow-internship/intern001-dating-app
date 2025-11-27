@@ -23,6 +23,7 @@ import com.intern001.dating.data.model.response.GoogleLoginResponse
 import com.intern001.dating.data.model.response.MatchCardResponse
 import com.intern001.dating.data.model.response.MatchCardsListResponse
 import com.intern001.dating.data.model.response.MatchResponse
+import com.intern001.dating.data.model.response.MatchResponseDTO
 import com.intern001.dating.data.model.response.MatchResultResponse
 import com.intern001.dating.data.model.response.MatchesListResponse
 import com.intern001.dating.data.model.response.OtpResponse
@@ -66,8 +67,16 @@ interface DatingApiService {
     @GET("api/profile")
     suspend fun getCurrentUserProfile(): Response<UserData>
 
+    @GET("api/profile/{userId}")
+    suspend fun getProfileByUserId(@Path("userId") userId: String): Response<MatchCardResponse>
+
     @PUT("api/profile")
     suspend fun updateUserProfile(@Body request: UpdateProfileRequest): Response<UserData>
+
+    @DELETE("api/profile")
+    suspend fun deleteProfile(
+        @Header("Authorization") token: String,
+    ): Response<Unit>
 
     // ============================================================
     // Photo Management APIs
@@ -138,12 +147,17 @@ interface DatingApiService {
 
     // Get next match card (single)
     @GET("api/discovery/next")
-    suspend fun getNextMatchCard(): Response<MatchCardResponse>
+    suspend fun getNextMatchCard(
+        @Query("latitude") latitude: Double? = null,
+        @Query("longitude") longitude: Double? = null,
+    ): Response<MatchCardResponse>
 
     // Get batch of match cards
     @GET("api/discovery/cards")
     suspend fun getMatchCards(
         @Query("limit") limit: Int = 10,
+        @Query("latitude") latitude: Double? = null,
+        @Query("longitude") longitude: Double? = null,
     ): Response<MatchCardsListResponse>
 
     // Like/Swipe right (simple, no quota)
@@ -218,4 +232,9 @@ interface DatingApiService {
     // FCM Token Management
     @PUT("api/user/fcm-token")
     suspend fun updateFCMToken(@Body request: UpdateFCMTokenRequest): Response<Unit>
+
+    @GET("api/conversations/matched-users")
+    suspend fun getMatchedUsers(
+        @Header("Authorization") token: String,
+    ): List<MatchResponseDTO>
 }

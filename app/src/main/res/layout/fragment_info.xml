@@ -47,7 +47,7 @@
                 android:background="@drawable/bg_edittext"
                 android:paddingHorizontal="12dp"
                 android:textColorHint="#A9A9A9"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="16dp"/>
 
             <EditText
                 android:id="@+id/etPassword"
@@ -59,7 +59,47 @@
                 android:paddingHorizontal="12dp"
                 android:textColorHint="#A9A9A9"
                 android:drawableEnd="@drawable/ic_eye_off"
-                android:layout_marginBottom="24dp"/>
+                android:layout_marginBottom="8dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:backgroundTint="#000000"
+                    android:src="@drawable/ic_check_password"/>
+
+                <TextView
+                    android:id="@+id/tvPasswordHint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Mật khẩu tối thiểu 8 ký tự"
+                    android:textSize="14sp"
+                    android:textColor="#A9A9A9"
+                    android:layout_marginBottom="4dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:backgroundTint="#000000"
+                    android:src="@drawable/ic_check_password"/>
+
+                <TextView
+                    android:id="@+id/tvPasswordHint1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Gồm ít nhất 1 ký tự chữ và 1 ký tự số"
+                    android:textSize="14sp"
+                    android:textColor="#A9A9A9"
+                    android:layout_marginBottom="16dp"/>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tvError"
@@ -132,5 +172,4 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:visibility="gone"/>
-
 </FrameLayout>

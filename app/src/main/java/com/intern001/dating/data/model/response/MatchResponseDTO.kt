@@ -238,3 +238,19 @@ data class RangeResponse(
     @SerializedName("max")
     val max: Int,
 )
+
+data class MatchResponseDTO(
+    val conversationId: String,
+    val matchId: String,
+    val lastActivityAt: String,
+    val matchedUser: MatchedUserDTO,
+)
+
+data class MatchedUserDTO(
+    val userId: String,
+    val firstName: String,
+    val lastName: String,
+    val url: String?,
+    val age: Int?,
+    val city: String?,
+)

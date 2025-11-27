@@ -58,11 +58,4 @@ class EditProfileViewModel @Inject constructor(
             )
         }
     }
-
-    fun updateGoal(goals: List<String>) {
-        viewModelScope.launch {
-            val request = UpdateProfileRequest(goals = goals)
-            updateUserProfile(request)
-        }
-    }
 }

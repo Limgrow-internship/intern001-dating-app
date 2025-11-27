@@ -84,7 +84,7 @@
                         android:id="@+id/tvDistance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="0 km"
+                        android:text="Gần đây"
                         android:textColor="#FFFFFF"
                         android:textSize="18sp"
                         android:layout_marginStart="4dp"/>
@@ -295,6 +295,31 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/layout_more_info"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="16dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/tv_weight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Weight: 65kg"
+                        android:textSize="18dp"/>
+
+                    <TextView
+                        android:id="@+id/tv_height"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Height: 170cm"
+                        android:layout_marginTop="16dp"
+                        android:textSize="18dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_more"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
