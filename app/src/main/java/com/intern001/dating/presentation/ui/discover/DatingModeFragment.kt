@@ -298,7 +298,7 @@ class DatingModeFragment : BaseFragment() {
     private fun showNextCard() {
         if (!viewModel.hasMoreCards()) {
             binding.noMoreCardsLayout.isVisible = true
-            binding.detailScrollView.visibility = View.GONE
+            binding.detailInfoContainer.visibility = View.GONE
             return
         }
         showCurrentCard()
@@ -308,7 +308,7 @@ class DatingModeFragment : BaseFragment() {
         if (!viewModel.hasMoreCards()) {
             binding.noMoreCardsLayout.isVisible = false
         }
-        binding.detailScrollView.visibility = View.VISIBLE
+        binding.detailInfoContainer.visibility = View.VISIBLE
         showCurrentCard()
     }
 
