@@ -6,10 +6,14 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
+import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.intern001.dating.domain.model.LocationData
@@ -19,6 +23,10 @@ import com.intern001.dating.domain.model.UserLocation
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.tasks.await
 
 @Singleton
@@ -29,6 +37,8 @@ class LocationService @Inject constructor(
         private const val TAG = "LocationService"
         private const val CACHE_DURATION_MS = 5 * 60 * 1000L
         private const val MAX_LOCATION_AGE_MS = 30 * 60 * 1000L
+        private const val MIN_UPDATE_DISTANCE_METERS = 10f
+        private const val REALTIME_LOCATION_INTERVAL_MS = 30_000L
     }
 
     private val fusedLocationClient: FusedLocationProviderClient =
@@ -198,5 +208,76 @@ class LocationService @Inject constructor(
     suspend fun getCurrentLocationCoordinates(): Pair<Double, Double>? {
         val locationData = getLocationData()
         return locationData.location?.let { Pair(it.latitude, it.longitude) }
+    }
+
+    fun observeLocationUpdates(intervalMs: Long = REALTIME_LOCATION_INTERVAL_MS): Flow<LocationData> = callbackFlow {
+        if (checkPermissionState() != LocationPermissionState.Granted) {
+            trySend(LocationData(location = null, source = LocationSource.NONE))
+            close()
+            return@callbackFlow
+        }
+
+        if (!isLocationEnabled()) {
+            trySend(LocationData(location = null, source = LocationSource.NONE))
+            close()
+            return@callbackFlow
+        }
+
+        cachedLocationData?.let { cached ->
+            trySend(cached)
+        }
+
+        val request = LocationRequest.Builder(Priority.PRIORITY_BALANCED_POWER_ACCURACY, intervalMs)
+            .setMinUpdateDistanceMeters(MIN_UPDATE_DISTANCE_METERS)
+            .build()
+
+        val callback = object : LocationCallback() {
+            override fun onLocationResult(result: LocationResult) {
+                val lastLocation = result.lastLocation ?: return
+                val locationData = lastLocation.toLocationData()
+                cachedLocationData = locationData
+                trySend(locationData).isSuccess
+            }
+        }
+
+        try {
+            fusedLocationClient.requestLocationUpdates(
+                request,
+                callback,
+                Looper.getMainLooper(),
+            )
+        } catch (e: SecurityException) {
+            Log.e(TAG, "Missing location permission for updates", e)
+            trySend(LocationData(location = null, source = LocationSource.NONE))
+            close(e)
+            return@callbackFlow
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to request location updates", e)
+            trySend(LocationData(location = null, source = LocationSource.NONE))
+            close(e)
+            return@callbackFlow
+        }
+
+        awaitClose {
+            fusedLocationClient.removeLocationUpdates(callback)
+        }
+    }.conflate()
+
+    private fun Location.toLocationData(): LocationData {
+        val source = when (provider) {
+            LocationManager.GPS_PROVIDER -> LocationSource.GPS
+            else -> LocationSource.LAST_KNOWN
+        }
+        return LocationData(
+            location = UserLocation(
+                latitude = latitude,
+                longitude = longitude,
+                city = null,
+                country = null,
+            ),
+            source = source,
+            accuracy = accuracy,
+            timestamp = if (time > 0) time else System.currentTimeMillis(),
+        )
     }
 }

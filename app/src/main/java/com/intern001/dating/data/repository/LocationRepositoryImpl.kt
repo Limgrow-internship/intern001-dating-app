@@ -5,6 +5,7 @@ import com.intern001.dating.domain.model.LocationData
 import com.intern001.dating.domain.model.LocationPermissionState
 import com.intern001.dating.domain.model.UserLocation
 import com.intern001.dating.domain.repository.LocationRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -45,5 +46,9 @@ class LocationRepositoryImpl @Inject constructor(
         country: String?,
     ) {
         locationService.setManualLocation(latitude, longitude, city, country)
+    }
+
+    override fun observeLocationUpdates(intervalMs: Long): Flow<LocationData> {
+        return locationService.observeLocationUpdates(intervalMs)
     }
 }

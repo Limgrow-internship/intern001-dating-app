@@ -132,12 +132,11 @@ class SwipeableCardView @JvmOverloads constructor(
 
         binding.tvGender.text = card.gender?.replaceFirstChar { it.uppercase() } ?: ""
 
-        card.distance?.let { dist ->
-            binding.tvDistanceBadge.text = context.getString(R.string.km_format, dist.toInt())
-            binding.locationBadge.visibility = View.VISIBLE
-        } ?: run {
-            binding.locationBadge.visibility = View.GONE
-        }
+        bindDistanceBadge(card.distance)
+    }
+
+    fun updateDistance(distanceKm: Double?) {
+        bindDistanceBadge(distanceKm)
     }
 
     private fun setupPhotoIndicators(count: Int) {
@@ -383,5 +382,40 @@ class SwipeableCardView @JvmOverloads constructor(
         LEFT,
         RIGHT,
         UP,
+    }
+
+    private fun bindDistanceBadge(distanceKm: Double?) {
+        val (visible, text) = formatDistance(distanceKm)
+        if (visible) {
+            binding.locationBadge.visibility = View.VISIBLE
+            binding.tvDistanceBadge.text = text
+        } else {
+            binding.locationBadge.visibility = View.GONE
+        }
+    }
+
+    private fun formatDistance(distanceKm: Double?): Pair<Boolean, String> {
+        if (distanceKm == null) {
+            return false to ""
+        }
+        val meters = distanceKm * 1000
+        return when {
+            distanceKm < 0.0005 -> true to context.getString(R.string.distance_nearby)
+            distanceKm < 1 -> {
+                val meterText = context.getString(
+                    R.string.distance_meter_format,
+                    meters.toInt().coerceAtLeast(1),
+                )
+                true to meterText
+            }
+            else -> {
+                val kmText = if (distanceKm < 10) {
+                    context.getString(R.string.distance_km_one_decimal, distanceKm)
+                } else {
+                    context.getString(R.string.distance_km_format, distanceKm.toInt())
+                }
+                true to kmText
+            }
+        }
     }
 }
