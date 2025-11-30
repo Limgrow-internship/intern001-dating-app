@@ -52,6 +52,11 @@ class DiscoverFragment : BaseFragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.refreshDistancesWithLatestLocation()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -96,6 +101,13 @@ class DiscoverFragment : BaseFragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.matchCards.collect { cards ->
                 if (cards.isNotEmpty()) {
+                    viewModel.getCurrentCard()?.let { currentCard ->
+                        currentCardView?.updateDistance(currentCard.distance)
+                    }
+                    val nextIndex = viewModel.currentCardIndex.value + 1
+                    if (nextIndex < cards.size) {
+                        nextCardView?.updateDistance(cards[nextIndex].distance)
+                    }
                     prepareNextCard()
                 }
             }
@@ -104,10 +116,9 @@ class DiscoverFragment : BaseFragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.matchResult.collect { result ->
                 if (result?.isMatch == true) {
-                    // Navigate to Match Found Screen
                     result.matchedUser?.let { matchedUser ->
                         result.matchId?.let { matchId ->
-                            navigateToMatchFound(matchId, matchedUser.userId)
+                            showMatchOverlay(matchId, matchedUser.userId)
                         }
                     }
                 }
@@ -236,21 +247,23 @@ class DiscoverFragment : BaseFragment() {
             .commit()
     }
 
-    private fun navigateToMatchFound(matchId: String, matchedUserId: String) {
+    private fun showMatchOverlay(matchId: String, matchedUserId: String) {
+        // Check if dialog is already showing
+        val existingDialog = parentFragmentManager.findFragmentByTag("MatchOverlayDialog")
+        if (existingDialog != null && existingDialog.isAdded) {
+            return
+        }
+
         val matchResult = viewModel.matchResult.replayCache.lastOrNull()
         val matchedUser = matchResult?.matchedUser
 
-        val fragment = MatchFoundFragment.newInstance(
-            matchId = matchId,
+        val dialog = MatchOverlayDialog.newInstance(
             matchedUserId = matchedUserId,
-            matchedUserName = matchedUser?.firstName ?: "",
             matchedUserPhotoUrl = matchedUser?.photos?.firstOrNull()?.url,
-            currentUserPhotoUrl = null,
         )
 
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.homeContainer, fragment)
-            .addToBackStack(null)
-            .commit()
+        if (isAdded && parentFragmentManager != null) {
+            dialog.show(parentFragmentManager, "MatchOverlayDialog")
+        }
     }
 }

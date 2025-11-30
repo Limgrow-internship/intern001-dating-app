@@ -45,4 +45,6 @@ interface AuthRepository {
     suspend fun googleLogin(
         accessToken: String,
     ): Result<GoogleLoginResponse>
+
+    suspend fun clearUserCache()
 }

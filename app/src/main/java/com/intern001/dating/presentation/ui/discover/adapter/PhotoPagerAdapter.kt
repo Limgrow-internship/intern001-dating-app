@@ -32,7 +32,7 @@ class PhotoPagerAdapter(
             Glide.with(itemView.context)
                 .load(photo.url)
                 .centerCrop()
-                .placeholder(R.drawable.ic_launcher_background)
+                .placeholder(R.drawable.bg_photo_frame)
                 .into(imageView)
         }
     }

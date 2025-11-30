@@ -8,7 +8,6 @@
 
     <!-- Background full screen -->
     <ImageView
-
         android:id="@+id/bgImage"
         android:fitsSystemWindows="true"
         android:layout_width="match_parent"

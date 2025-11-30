@@ -1,68 +1,125 @@
+// ChatListFragment.kt
 package com.intern001.dating.presentation.ui.chat
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.intern001.dating.R
+import com.intern001.dating.databinding.FragmentChatListBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
+import com.intern001.dating.presentation.common.viewmodel.ChatListViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ChatListFragment : BaseFragment() {
 
-    data class Match(val name: String, val age: Int, val location: String, val avatarRes: Int)
     data class Conversation(
+        val matchId: String,
+        val avatarUrl: String?,
         val userName: String,
-        val lastMessage: String,
-        val timestamp: String,
-        val avatarRes: Int,
-        val isOnline: Boolean,
+        val lastMessage: String?,
+        val timestamp: String?,
+        val isOnline: Boolean?,
     )
+
+    private var _binding: FragmentChatListBinding? = null
+    private val binding get() = _binding!!
+
+    private val vm: ChatListViewModel by viewModels()
+    private lateinit var matchAdapter: MatchAdapter
+    private lateinit var conversationAdapter: ConversationAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
-        return inflater.inflate(R.layout.fragment_chat_list, container, false)
+    ): View {
+        _binding = FragmentChatListBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        val matches = listOf(
-//            Match("Minh Hang", 21, "DaNang", R.drawable.avt_match),
-//            Match("Bich Phuong", 22, "HaNoi", R.drawable.avt_match),
-//            Match("Ngoc", 20, "SaiGon", R.drawable.avt_match),
-//                Match("Bich Phuong", 22, "HaNoi", R.drawable.avt_match),
-//        Match("Ngoc", 20, "SaiGon", R.drawable.avt_match)
-//        )
-//
-//        val conversations = listOf(
-//            Conversation("Minh Hang", "Nice to meet you", "12:00", R.drawable.avt_match, true),
-//            Conversation("Nha Y", "Coffee or tea person?", "13:00", R.drawable.avt_match, false),
-//            Conversation("Ngoc", "Just seeing where things go — maybe...", "9:00", R.drawable.avt_match, true)
-//        )
+        // RecyclerView setup cho danh sách match
+        binding.rvMatches.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        matchAdapter = MatchAdapter()
+        binding.rvMatches.adapter = matchAdapter
 
-        // empty matches:
-        val matches = emptyList<Match>()
+        // RecyclerView setup cho conversation
+        binding.rvConversations.layoutManager = LinearLayoutManager(requireContext())
+        conversationAdapter = ConversationAdapter(listOf()) { conversation ->
+            findNavController().navigate(
+                R.id.action_chatList_to_chatDetail,
+                bundleOf(
+                    "matchId" to conversation.matchId,
+                    "matchedUserName" to conversation.userName,
+                    "matchedUserAvatar" to conversation.avatarUrl,
+                ),
+            )
+        }
+        binding.rvConversations.adapter = conversationAdapter
 
-        // empty conversations:
-        val conversations = emptyList<Conversation>()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                vm.isLoading.combine(vm.matches) { isLoading, matches ->
+                    Pair(isLoading, matches)
+                }.collect { (isLoading, matches) ->
+                    if (isLoading) {
+                        binding.matchPlaceholder.isVisible = true
+                        binding.rvMatches.isVisible = false
+                        binding.noMatchesCard?.isVisible = false
+                        binding.rvConversations.isVisible = false
+                        binding.noChatsLayout.isVisible = false
+                        return@collect
+                    }
 
-        val rvMatches = view.findViewById<RecyclerView>(R.id.rvMatches)
-        rvMatches.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        rvMatches.adapter = MatchesAdapter(matches)
-        rvMatches.visibility = if (matches.isNotEmpty()) View.VISIBLE else View.GONE
-        view.findViewById<View>(R.id.noMatchesCard).visibility = if (matches.isEmpty()) View.VISIBLE else View.GONE
+                    val hasMatches = matches.isNotEmpty()
+                    binding.rvMatches.isVisible = hasMatches
+                    binding.matchPlaceholder.isVisible = false
+                    binding.noMatchesCard?.isVisible = !hasMatches
+                    matchAdapter.submitList(matches)
 
-        val rvConversations = view.findViewById<RecyclerView>(R.id.rvConversations)
-        rvConversations.layoutManager = LinearLayoutManager(context)
-        rvConversations.adapter = ConversationAdapter(conversations)
-        rvConversations.visibility = if (conversations.isNotEmpty()) View.VISIBLE else View.GONE
-        view.findViewById<View>(R.id.noChatsLayout).visibility = if (conversations.isEmpty()) View.VISIBLE else View.GONE
+                    // Build conversation list (lấy message/timestamp từng phòng)
+                    val conversations = matches.map { match ->
+                        async {
+                            val lastMsg = vm.getLastMessage(match.matchId)
+                            Conversation(
+                                matchId = match.matchId,
+                                avatarUrl = match.matchedUser.avatarUrl,
+                                userName = match.matchedUser.name,
+                                lastMessage = lastMsg?.message,
+                                timestamp = lastMsg?.timestamp,
+                                isOnline = null,
+                            )
+                        }
+                    }.awaitAll()
+                    conversationAdapter.setData(conversations)
+                    binding.rvConversations.isVisible = conversations.isNotEmpty()
+                    binding.noChatsLayout.isVisible = conversations.isEmpty()
+                }
+            }
+        }
+
+        val token = "YourTokenHere"
+        vm.fetchMatches(token)
     }
 }

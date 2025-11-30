@@ -88,6 +88,23 @@ data class UpdateProfileRequest(
     val job: String? = null,
     @SerializedName("openQuestionAnswers")
     val openQuestionAnswers: Map<String, String>? = null,
+    @SerializedName("location")
+    val location: LocationRequest? = null,
+)
+
+data class LocationRequest(
+    @SerializedName("type")
+    val type: String? = "Point",
+    @SerializedName("coordinates")
+    val coordinates: List<Double> = emptyList(),
+    @SerializedName("latitude")
+    val latitude: Double? = null,
+    @SerializedName("longitude")
+    val longitude: Double? = null,
+    @SerializedName("city")
+    val city: String? = null,
+    @SerializedName("country")
+    val country: String? = null,
 )
 
 data class ChangePasswordRequest(

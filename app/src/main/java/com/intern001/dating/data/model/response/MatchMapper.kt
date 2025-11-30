@@ -3,6 +3,7 @@ package com.intern001.dating.data.model.response
 import com.intern001.dating.domain.model.Match
 import com.intern001.dating.domain.model.MatchCard
 import com.intern001.dating.domain.model.MatchCriteria
+import com.intern001.dating.domain.model.MatchList
 import com.intern001.dating.domain.model.MatchResult
 import com.intern001.dating.domain.model.MatchStatus
 import com.intern001.dating.domain.model.MatchStatusGet
@@ -11,6 +12,7 @@ import com.intern001.dating.domain.model.Range
 import com.intern001.dating.domain.model.TargetProfile
 import com.intern001.dating.domain.model.UserLocation
 import com.intern001.dating.domain.model.UserProfile
+import com.intern001.dating.domain.model.UserProfileMatch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -271,3 +273,15 @@ fun TargetProfileResponse.toDomain(): TargetProfile {
         height = height
     )
 }
+
+fun MatchResponseDTO.toMatchList(): MatchList = MatchList(
+    matchId = this.matchId,
+    lastActivityAt = this.lastActivityAt,
+    matchedUser = UserProfileMatch(
+        userId = this.matchedUser.userId,
+        name = "${this.matchedUser.firstName} ${this.matchedUser.lastName}".trim(),
+        avatarUrl = this.matchedUser.url,
+        age = this.matchedUser.age,
+        city = this.matchedUser.city,
+    ),
+)

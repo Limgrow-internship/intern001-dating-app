@@ -8,8 +8,7 @@
         android:id="@+id/imvAvatar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        android:background="@drawable/bg_avatar_round"/>
+        android:scaleType="centerCrop" />
 
     <TextView
         android:id="@+id/tvNameAge"

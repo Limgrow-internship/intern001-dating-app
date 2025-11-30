@@ -70,3 +70,17 @@ data class MatchResult(
     val matchId: String?,
     val matchedUser: UserProfile?,
 )
+
+data class MatchList(
+    val matchId: String,
+    val lastActivityAt: String,
+    val matchedUser: UserProfileMatch,
+)
+
+data class UserProfileMatch(
+    val userId: String,
+    val name: String,
+    val avatarUrl: String?,
+    val age: Int?,
+    val city: String?,
+)

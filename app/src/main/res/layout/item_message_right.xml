@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="end"
+    android:paddingTop="10dp"
+    android:paddingBottom="2dp"
+    android:paddingStart="32dp"
+    android:paddingEnd="8dp">
+
+    <TextView
+        android:id="@+id/tvContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_bubble_right"
+    android:padding="12dp"
+    android:textColor="#404040"
+    android:textSize="17sp"
+    android:elevation="2dp"
+    android:maxWidth="320dp"
+    android:text="Tin nhắn bên phải"/>
+</LinearLayout>
