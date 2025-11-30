@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.intern001.dating.R
 import com.intern001.dating.data.model.MessageModel
 
@@ -27,7 +28,11 @@ class MessageAdapter(private val myUserId: String) : RecyclerView.Adapter<Recycl
     private var currentMsgPos: Int = -1
 
     fun setMessages(list: List<MessageModel>) {
-        messages = list
+        messages = list.filter {
+            it.message?.isNotBlank() == true ||
+                !it.imgChat.isNullOrBlank() ||
+                it.audioPath != null
+        }
         notifyDataSetChanged()
     }
 
@@ -73,10 +78,24 @@ class MessageAdapter(private val myUserId: String) : RecyclerView.Adapter<Recycl
         val msg = messages[position]
         when (holder) {
             is RightMessageVH -> {
-                holder.tvContent.text = msg.message
+                holder.tvContent.text = msg.message ?: ""
+                holder.tvContent.visibility = if (!msg.message.isNullOrBlank()) View.VISIBLE else View.GONE
+                if (!msg.imgChat.isNullOrEmpty()) {
+                    holder.imgChat.visibility = View.VISIBLE
+                    Glide.with(holder.imgChat).load(msg.imgChat).into(holder.imgChat)
+                } else {
+                    holder.imgChat.visibility = View.GONE
+                }
             }
             is LeftMessageVH -> {
-                holder.tvContent.text = msg.message
+                holder.tvContent.text = msg.message ?: ""
+                holder.tvContent.visibility = if (!msg.message.isNullOrBlank()) View.VISIBLE else View.GONE
+                if (!msg.imgChat.isNullOrEmpty()) {
+                    holder.imgChat.visibility = View.VISIBLE
+                    Glide.with(holder.imgChat).load(msg.imgChat).into(holder.imgChat)
+                } else {
+                    holder.imgChat.visibility = View.GONE
+                }
             }
             is AudioRightViewHolder -> {
                 bindAudioViewHolder(holder, msg, position)
@@ -104,9 +123,11 @@ class MessageAdapter(private val myUserId: String) : RecyclerView.Adapter<Recycl
     // -- ViewHolders --
     inner class LeftMessageVH(view: View) : RecyclerView.ViewHolder(view) {
         val tvContent: TextView = view.findViewById(R.id.tvContent)
+        val imgChat: ImageView = view.findViewById(R.id.imgChat)
     }
     inner class RightMessageVH(view: View) : RecyclerView.ViewHolder(view) {
         val tvContent: TextView = view.findViewById(R.id.tvContent)
+        val imgChat: ImageView = view.findViewById(R.id.imgChat)
     }
     open class AudioViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val btnTogglePlay: ImageButton = itemView.findViewById(R.id.btnTogglePlay)
