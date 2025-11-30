@@ -52,6 +52,11 @@ class DiscoverFragment : BaseFragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.refreshDistancesWithLatestLocation()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -96,6 +101,13 @@ class DiscoverFragment : BaseFragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.matchCards.collect { cards ->
                 if (cards.isNotEmpty()) {
+                    viewModel.getCurrentCard()?.let { currentCard ->
+                        currentCardView?.updateDistance(currentCard.distance)
+                    }
+                    val nextIndex = viewModel.currentCardIndex.value + 1
+                    if (nextIndex < cards.size) {
+                        nextCardView?.updateDistance(cards[nextIndex].distance)
+                    }
                     prepareNextCard()
                 }
             }

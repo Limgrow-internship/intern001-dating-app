@@ -6,6 +6,7 @@ import com.intern001.dating.domain.model.LocationResult
 import com.intern001.dating.domain.model.LocationSource
 import com.intern001.dating.domain.repository.LocationRepository
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
 
 class GetLocationUseCase @Inject constructor(
     private val locationRepository: LocationRepository,
@@ -87,5 +88,15 @@ class RefreshLocationUseCase @Inject constructor(
     suspend operator fun invoke(): LocationData {
         locationRepository.clearCache()
         return locationRepository.getLocationData()
+    }
+}
+
+class ObserveLocationUpdatesUseCase @Inject constructor(
+    private val locationRepository: LocationRepository,
+) {
+    operator fun invoke(
+        intervalMs: Long = LocationRepository.DEFAULT_LOCATION_INTERVAL_MS,
+    ): Flow<LocationData> {
+        return locationRepository.observeLocationUpdates(intervalMs)
     }
 }

@@ -5,10 +5,12 @@
     android:id="@+id/cardView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clipChildren="true"
+    android:clipToPadding="true"
+    android:clipToOutline="true"
     app:cardCornerRadius="24dp"
     app:cardElevation="4dp"
-    android:clipChildren="true"
-    android:clipToPadding="true">
+    app:cardPreventCornerOverlap="false">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -123,50 +125,57 @@
                 android:textSize="14sp"
                 tools:text="Female" />
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/actionButtonsContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:gravity="center"
-                android:orientation="horizontal">
+                android:layout_marginTop="12dp">
+
+                <androidx.constraintlayout.helper.widget.Flow
+                    android:id="@+id/actionButtonsFlow"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:constraint_referenced_ids="btnBack,btnDislike,btnSuperLike,btnLike"
+                    app:flow_horizontalBias="0.5"
+                    app:flow_horizontalGap="16dp"
+                    app:flow_wrapMode="none"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageButton
                     android:id="@+id/btnBack"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
+                    android:layout_width="58dp"
+                    android:layout_height="58dp"
                     android:background="@drawable/ic_back_discover"
                     android:contentDescription="@string/back"
                     android:scaleType="centerInside" />
 
                 <ImageButton
                     android:id="@+id/btnDislike"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:layout_marginStart="20dp"
+                    android:layout_width="58dp"
+                    android:layout_height="58dp"
                     android:background="@drawable/ic_dislike_discover"
                     android:contentDescription="@string/dislike"
                     android:scaleType="centerInside" />
 
                 <ImageButton
                     android:id="@+id/btnSuperLike"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:layout_marginStart="20dp"
+                    android:layout_width="58dp"
+                    android:layout_height="58dp"
                     android:background="@drawable/ic_superlike_discover"
                     android:contentDescription="@string/super_like"
                     android:scaleType="centerInside" />
 
                 <ImageButton
                     android:id="@+id/btnLike"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:layout_marginStart="20dp"
+                    android:layout_width="58dp"
+                    android:layout_height="58dp"
                     android:background="@drawable/ic_match_discover"
                     android:contentDescription="@string/match"
                     android:scaleType="centerInside" />
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
 

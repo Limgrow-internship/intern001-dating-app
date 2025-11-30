@@ -93,6 +93,11 @@ class DatingModeFragment : BaseFragment() {
         _binding = null
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.refreshDistancesWithLatestLocation()
+    }
+
     private fun setupListeners() {
         binding.btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
@@ -138,6 +143,13 @@ class DatingModeFragment : BaseFragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.matchCards.collect { cards ->
                 if (cards.isNotEmpty()) {
+                    viewModel.getCurrentCard()?.let { currentCard ->
+                        currentCardView?.updateDistance(currentCard.distance)
+                    }
+                    val nextIndex = viewModel.currentCardIndex.value + 1
+                    if (nextIndex < cards.size) {
+                        nextCardView?.updateDistance(cards[nextIndex].distance)
+                    }
                     prepareNextCard()
                 }
             }
@@ -298,7 +310,7 @@ class DatingModeFragment : BaseFragment() {
     private fun showNextCard() {
         if (!viewModel.hasMoreCards()) {
             binding.noMoreCardsLayout.isVisible = true
-            binding.detailScrollView.visibility = View.GONE
+            binding.detailInfoContainer.visibility = View.GONE
             return
         }
         showCurrentCard()
@@ -308,7 +320,7 @@ class DatingModeFragment : BaseFragment() {
         if (!viewModel.hasMoreCards()) {
             binding.noMoreCardsLayout.isVisible = false
         }
-        binding.detailScrollView.visibility = View.VISIBLE
+        binding.detailInfoContainer.visibility = View.VISIBLE
         showCurrentCard()
     }
 

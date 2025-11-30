@@ -53,7 +53,6 @@
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <data android:scheme="fb1141510008153900" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
@@ -63,6 +62,12 @@
                 <data
                     android:scheme="datingapp"
                     android:host="dating" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="fb1141510008153900" />
             </intent-filter>
             <!-- Handle FCM notification click actions -->
             <intent-filter>
