@@ -5,8 +5,10 @@ import com.intern001.dating.domain.model.MatchCard
 import com.intern001.dating.domain.model.MatchCriteria
 import com.intern001.dating.domain.model.MatchResult
 import com.intern001.dating.domain.model.MatchStatus
+import com.intern001.dating.domain.model.MatchStatusGet
 import com.intern001.dating.domain.model.Photo
 import com.intern001.dating.domain.model.Range
+import com.intern001.dating.domain.model.TargetProfile
 import com.intern001.dating.domain.model.UserLocation
 import com.intern001.dating.domain.model.UserProfile
 import java.text.SimpleDateFormat
@@ -244,5 +246,28 @@ fun RecommendationCriteriaResponse.toMatchCriteria(): MatchCriteria {
         interests = interests ?: emptyList(),
         relationshipModes = relationshipModes ?: emptyList(),
         heightRange = heightRange?.let { Range(min = it.min, max = it.max) },
+    )
+}
+
+
+fun MatchStatusResponse.toDomain(): MatchStatusGet {
+    return MatchStatusGet(
+        matched = matched,
+        userLiked = userLiked,
+        targetLiked = targetLiked,
+        targetProfile = targetProfile?.toDomain()
+    )
+}
+
+fun TargetProfileResponse.toDomain(): TargetProfile {
+    return TargetProfile(
+        displayName = displayName,
+        age = age,
+        gender = gender,
+        bio = bio,
+        interests = interests,
+        city = city,
+        occupation = occupation,
+        height = height
     )
 }

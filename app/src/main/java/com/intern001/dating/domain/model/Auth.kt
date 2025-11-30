@@ -104,6 +104,24 @@ data class AuthState(
     val error: String? = null,
 )
 
+data class MatchStatusGet(
+    val matched: Boolean,
+    val userLiked: Boolean,
+    val targetLiked: Boolean,
+    val targetProfile: TargetProfile?
+)
+
+data class TargetProfile(
+    val displayName: String?,
+    val age: Int?,
+    val gender: String?,
+    val bio: String?,
+    val interests: List<String>,
+    val city: String?,
+    val occupation: String?,
+    val height: Int?
+)
+
 // Type alias for backward compatibility
 // UpdateProfile is the same as UserProfile
 typealias UpdateProfile = UserProfile

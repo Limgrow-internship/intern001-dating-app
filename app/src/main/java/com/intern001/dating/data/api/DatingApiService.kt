@@ -24,6 +24,7 @@ import com.intern001.dating.data.model.response.MatchCardResponse
 import com.intern001.dating.data.model.response.MatchCardsListResponse
 import com.intern001.dating.data.model.response.MatchResponse
 import com.intern001.dating.data.model.response.MatchResultResponse
+import com.intern001.dating.data.model.response.MatchStatusResponse
 import com.intern001.dating.data.model.response.MatchesListResponse
 import com.intern001.dating.data.model.response.OtpResponse
 import com.intern001.dating.data.model.response.PhotoCountResponse
@@ -218,4 +219,9 @@ interface DatingApiService {
     // FCM Token Management
     @PUT("api/user/fcm-token")
     suspend fun updateFCMToken(@Body request: UpdateFCMTokenRequest): Response<Unit>
+
+    @GET("match/status/{targetUserId}")
+    suspend fun getMatchStatus(
+        @Path("targetUserId") targetUserId: String
+    ): MatchStatusResponse
 }
