@@ -176,3 +176,40 @@ data class PhotoCountResponse(
     @SerializedName("count")
     val count: Int,
 )
+
+data class MatchStatusResponse(
+    val matched: Boolean,
+    val userLiked: Boolean,
+    val targetLiked: Boolean,
+    val targetProfile: TargetProfileResponse?
+)
+
+data class TargetProfileResponse(
+    val firstName: String?,
+    val lastName: String?,
+    val displayName: String?,
+    val age: Int?,
+    val gender: String?,
+    val bio: String?,
+    val interests: List<String>,
+    val city: String?,
+    val occupation: String?,
+    val height: Int?
+)
+
+data class LikedYouResponseDto(
+    @SerializedName("userId")
+    val userId: String,
+    @SerializedName("firstName")
+    val firstName: String?,
+    @SerializedName("lastName")
+    val lastName: String?,
+    @SerializedName("avatar")
+    val avatar: String?,
+    @SerializedName("city")
+    val city: String?,
+    @SerializedName("age")
+    val age: Int?
+)
+
+

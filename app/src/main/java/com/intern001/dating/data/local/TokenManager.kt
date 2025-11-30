@@ -192,4 +192,9 @@ constructor(
             preferences.remove(AVATAR_KEY)
         }
     }
+    suspend fun getUserIdAsync(): String? {
+        return context.dataStore.data.map { preferences ->
+            preferences[USER_ID_KEY]
+        }.first()
+    }
 }

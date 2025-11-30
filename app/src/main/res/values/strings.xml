@@ -290,4 +290,14 @@
         <item>My ideal date is...</item>
         <item>My ideal night out includes...</item>
     </string-array>
+    <string name="location_warning_title">Bật vị trí để nhận gợi ý tốt hơn</string>
+    <string name="location_warning_message">Khi tắt vị trí, bạn sẽ nhận được ít gợi ý phù hợp hơn. Hãy bật GPS để khám phá những người gần bạn.</string>
+    <string name="location_permission_message">Hãy cấp quyền truy cập vị trí để chúng tôi đề xuất chính xác hơn.</string>
+    <string name="action_enable_location">Bật vị trí</string>
+    <string name="profile_gender_placeholder">Nam/Nữ</string>
+    <string name="distance_nearby">Gần đây</string>
+    <string name="distance_meter_format">%dm</string>
+    <string name="distance_km_one_decimal">%.1f km</string>
+    <string name="distance_km_format">%d km</string>
+
 </resources>

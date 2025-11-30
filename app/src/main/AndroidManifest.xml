@@ -16,6 +16,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <queries>
         <package android:name="com.facebook.katana" />
@@ -48,11 +50,11 @@
 
         <activity
             android:name="com.intern001.dating.MainActivity"
+            android:windowSoftInputMode="adjustResize"
             android:exported="true"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <data android:scheme="fb1141510008153900" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
@@ -62,6 +64,12 @@
                 <data
                     android:scheme="datingapp"
                     android:host="dating" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="fb1141510008153900" />
             </intent-filter>
             <!-- Handle FCM notification click actions -->
             <intent-filter>

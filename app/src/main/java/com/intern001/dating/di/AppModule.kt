@@ -5,6 +5,9 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import com.intern001.dating.data.repository.ChatRepositoryImpl
+import com.intern001.dating.domain.repository.ChatRepository
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -33,4 +36,13 @@ object AppModule {
     fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
         return context.userPreferencesDataStore
     }
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class ChatModule {
+    @Binds
+    abstract fun bindChatRepository(
+        impl: ChatRepositoryImpl,
+    ): ChatRepository
 }

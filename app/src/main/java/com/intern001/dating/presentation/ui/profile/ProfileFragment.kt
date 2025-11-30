@@ -155,21 +155,22 @@ class ProfileFragment : BaseFragment() {
 
 
     private fun bindProfileData(profile: UpdateProfile) {
+        val currentBinding = _binding ?: return
         val fullName = listOfNotNull(profile.firstName, profile.lastName).joinToString(" ")
-        binding.tvName.setText(fullName)
-        binding.tvGender.text = profile.gender ?: "Chưa cập nhật"
-        binding.tvMode.text = profile.mode ?: "Dating"
+        currentBinding.tvName.text = fullName
+        currentBinding.tvGender.text = profile.gender ?: getString(R.string.profile_gender_placeholder)
+        currentBinding.tvMode.text = profile.mode ?: getString(R.string.dating)
 
         val avatarUrl = profile.avatar
         if (!avatarUrl.isNullOrEmpty()) {
-            Glide.with(binding.avatarImageView.context)
+            Glide.with(currentBinding.avatarImageView.context)
                 .load(avatarUrl)
                 .placeholder(R.drawable.ic_person)
                 .error(R.drawable.ic_person)
                 .circleCrop()
-                .into(binding.avatarImageView)
+                .into(currentBinding.avatarImageView)
         } else {
-            binding.avatarImageView.setImageResource(R.drawable.ic_person)
+            currentBinding.avatarImageView.setImageResource(R.drawable.ic_person)
         }
     }
 

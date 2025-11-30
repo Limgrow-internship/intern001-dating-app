@@ -6,11 +6,13 @@ import com.intern001.dating.data.api.DatingApiService
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.data.model.request.FacebookLoginRequest
 import com.intern001.dating.data.model.request.GoogleLoginRequest
+import com.intern001.dating.data.model.request.LocationRequest
 import com.intern001.dating.data.model.request.LoginRequest
 import com.intern001.dating.data.model.request.SignupRequest
 import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.data.model.response.FacebookLoginResponse
 import com.intern001.dating.data.model.response.GoogleLoginResponse
+import com.intern001.dating.data.model.response.LocationResponse
 import com.intern001.dating.data.model.response.UserData
 import com.intern001.dating.data.service.FCMService
 import com.intern001.dating.data.service.NotificationService
@@ -362,6 +364,12 @@ constructor(
             }
 
             android.util.Log.d("AuthRepository", "Sending update profile request: $request")
+            request.location?.let { loc ->
+                android.util.Log.d(
+                    "AuthRepository",
+                    "Update profile location payload -> lat=${loc.latitude}, lng=${loc.longitude}, city=${loc.city}, country=${loc.country}, coords=${loc.coordinates}",
+                )
+            } ?: android.util.Log.d("AuthRepository", "Update profile without explicit location payload")
 
             val response = apiService.updateUserProfile(request)
 
@@ -370,8 +378,15 @@ constructor(
             if (response.isSuccessful) {
                 val userData = response.body()
                 if (userData != null) {
-                    val userProfile = userData.toUserProfileModel()
+                    val finalUserData = resolveLocationAfterUpdate(userData, request)
+                    val userProfile = finalUserData.toUserProfileModel()
                     cachedUserProfile = userProfile
+                    finalUserData.location?.let { loc ->
+                        android.util.Log.d(
+                            "AuthRepository",
+                            "Server profile location -> lat=${loc.latitude}, lng=${loc.longitude}, city=${loc.city}, country=${loc.country}",
+                        )
+                    } ?: android.util.Log.d("AuthRepository", "Server profile returned without location payload")
                     android.util.Log.d("AuthRepository", "Profile updated successfully")
                     Result.success(userProfile)
                 } else {
@@ -399,8 +414,15 @@ constructor(
                         if (retryResponse.isSuccessful) {
                             val userData = retryResponse.body()
                             if (userData != null) {
-                                val userProfile = userData.toUserProfileModel()
+                                val finalUserData = resolveLocationAfterUpdate(userData, request)
+                                val userProfile = finalUserData.toUserProfileModel()
                                 cachedUserProfile = userProfile
+                                finalUserData.location?.let { loc ->
+                                    android.util.Log.d(
+                                        "AuthRepository",
+                                        "Server profile location after retry -> lat=${loc.latitude}, lng=${loc.longitude}, city=${loc.city}, country=${loc.country}",
+                                    )
+                                } ?: android.util.Log.d("AuthRepository", "Server retry profile returned without location payload")
                                 android.util.Log.d("AuthRepository", "Profile updated successfully after retry")
                                 return Result.success(userProfile)
                             }
@@ -419,6 +441,59 @@ constructor(
             android.util.Log.e("AuthRepository", "Update profile exception", e)
             Result.failure(e)
         }
+    }
+
+    private suspend fun resolveLocationAfterUpdate(
+        responseData: UserData,
+        request: UpdateProfileRequest,
+    ): UserData {
+        val hasValidLocation =
+            responseData.location?.let { loc ->
+                !loc.latitude.isNaN() && !loc.longitude.isNaN()
+            } ?: false
+
+        if (hasValidLocation) return responseData
+
+        val requestLocationPayload = request.location?.takeIf { it.hasUsableLocationPayload() }?.toLocationResponse()
+        if (requestLocationPayload != null) {
+            return responseData.copy(location = requestLocationPayload)
+        }
+
+        return fetchProfileDataOrFallback(responseData)
+    }
+
+    private suspend fun fetchProfileDataOrFallback(fallback: UserData): UserData {
+        return try {
+            val profileResponse = apiService.getCurrentUserProfile()
+            if (profileResponse.isSuccessful) {
+                profileResponse.body() ?: fallback
+            } else {
+                fallback
+            }
+        } catch (_: Exception) {
+            fallback
+        }
+    }
+
+    private fun LocationRequest.hasUsableLocationPayload(): Boolean {
+        val coordsUsable = coordinates.size >= 2 && coordinates.none { it.isNaN() }
+        val latLngUsable = latitude != null && longitude != null
+        return coordsUsable || latLngUsable
+    }
+
+    private fun LocationRequest.toLocationResponse(): LocationResponse {
+        val coords = coordinates.takeIf { it.size >= 2 && it.none(Double::isNaN) }
+        val finalLat = latitude ?: coords?.getOrNull(1)
+        val finalLng = longitude ?: coords?.getOrNull(0)
+
+        require(finalLat != null && finalLng != null) { "Invalid location payload" }
+
+        return LocationResponse(
+            latitude = finalLat,
+            longitude = finalLng,
+            city = city,
+            country = country,
+        )
     }
 
     private suspend fun refreshTokenIfNeeded(): Result<String> {

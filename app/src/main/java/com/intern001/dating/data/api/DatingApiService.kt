@@ -2,6 +2,7 @@ package com.intern001.dating.data.api
 
 import com.intern001.dating.data.model.CountryResponse
 import com.intern001.dating.data.model.LanguageResponse
+import com.intern001.dating.data.model.MessageModel
 import com.intern001.dating.data.model.request.BlockUserRequest
 import com.intern001.dating.data.model.request.ChangePasswordRequest
 import com.intern001.dating.data.model.request.FacebookLoginRequest
@@ -20,11 +21,14 @@ import com.intern001.dating.data.model.response.AuthResponse
 import com.intern001.dating.data.model.response.ChangePasswordResponse
 import com.intern001.dating.data.model.response.FacebookLoginResponse
 import com.intern001.dating.data.model.response.GoogleLoginResponse
+import com.intern001.dating.data.model.response.LastMessageResponse
+import com.intern001.dating.data.model.response.LikedYouResponseDto
 import com.intern001.dating.data.model.response.MatchCardResponse
 import com.intern001.dating.data.model.response.MatchCardsListResponse
 import com.intern001.dating.data.model.response.MatchResponse
 import com.intern001.dating.data.model.response.MatchResponseDTO
 import com.intern001.dating.data.model.response.MatchResultResponse
+import com.intern001.dating.data.model.response.MatchStatusResponse
 import com.intern001.dating.data.model.response.MatchesListResponse
 import com.intern001.dating.data.model.response.OtpResponse
 import com.intern001.dating.data.model.response.PhotoCountResponse
@@ -32,6 +36,7 @@ import com.intern001.dating.data.model.response.PhotoListResponse
 import com.intern001.dating.data.model.response.PhotoResponse
 import com.intern001.dating.data.model.response.RecommendationCriteriaResponse
 import com.intern001.dating.data.model.response.RefreshTokenRequest
+import com.intern001.dating.data.model.response.UploadAudioResponse
 import com.intern001.dating.data.model.response.UserData
 import com.intern001.dating.data.model.response.VerifyFaceResponse
 import com.intern001.dating.data.model.response.VerifyOtpResponse
@@ -233,8 +238,33 @@ interface DatingApiService {
     @PUT("api/user/fcm-token")
     suspend fun updateFCMToken(@Body request: UpdateFCMTokenRequest): Response<Unit>
 
+    // Match liked you
+    @GET("api/match/status/{targetUserId}")
+    suspend fun getMatchStatus(
+        @Path("targetUserId") targetUserId: String
+    ): MatchStatusResponse
+
+    @GET("api/matches/liked-you")
+    suspend fun getUsersWhoLikedYou(): List<LikedYouResponseDto>
+
+
     @GET("api/conversations/matched-users")
     suspend fun getMatchedUsers(
         @Header("Authorization") token: String,
     ): List<MatchResponseDTO>
+
+    @POST("api/chat/send")
+    suspend fun sendMessage(@Body message: MessageModel): MessageModel
+
+    @GET("api/chat/history/{matchId}")
+    suspend fun getHistory(@Path("matchId") matchId: String): List<MessageModel>
+
+    @GET("api/chat/rooms/{matchId}/last-message")
+    suspend fun getLastMessage(@Path("matchId") matchId: String): LastMessageResponse
+
+    @Multipart
+    @POST("api/upload/audio")
+    suspend fun uploadAudio(
+        @Part audio: MultipartBody.Part,
+    ): Response<UploadAudioResponse>
 }

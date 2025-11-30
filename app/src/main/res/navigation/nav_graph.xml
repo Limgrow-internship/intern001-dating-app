@@ -184,8 +184,10 @@
         <action
             android:id="@+id/action_chatList_to_chatDetail"
             app:destination="@id/chatDetailFragment"
-            app:enterAnim="@android:anim/slide_in_left"
-            app:exitAnim="@android:anim/slide_out_right" />
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
         <action
             android:id="@+id/action_chatList_to_profileDetail"
             app:destination="@id/profileDetailFragment" />
@@ -193,10 +195,19 @@
 
     <fragment
         android:id="@+id/chatDetailFragment"
+        android:name="com.intern001.dating.presentation.ui.chat.ChatDetailFragment"
         android:label="ChatDetailFragment">
         <argument
-            android:name="userId"
+            android:name="matchId"
             app:argType="string" />
+        <argument
+            android:name="matchedUserName"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="matchedUserAvatar"
+            app:argType="string"
+            android:defaultValue="" />
         <action
             android:id="@+id/action_chatDetail_to_profileDetail"
             app:destination="@id/profileDetailFragment"
@@ -284,8 +295,8 @@
         <action
             android:id="@+id/action_profileDetail_to_chatDetail"
             app:destination="@id/chatDetailFragment"
-            app:enterAnim="@android:anim/slide_in_left"
-            app:exitAnim="@android:anim/slide_out_right" />
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left" />
     </fragment>
 
     <fragment

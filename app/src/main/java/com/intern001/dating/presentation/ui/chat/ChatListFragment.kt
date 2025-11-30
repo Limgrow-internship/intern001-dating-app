@@ -1,27 +1,40 @@
+// ChatListFragment.kt
 package com.intern001.dating.presentation.ui.chat
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentChatListBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.common.viewmodel.ChatListViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ChatListFragment : BaseFragment() {
 
     data class Conversation(
+        val matchId: String,
         val avatarUrl: String?,
         val userName: String,
         val lastMessage: String?,
         val timestamp: String?,
         val isOnline: Boolean?,
     )
+
     private var _binding: FragmentChatListBinding? = null
     private val binding get() = _binding!!
 
@@ -46,40 +59,64 @@ class ChatListFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // MatchList
+        // RecyclerView setup cho danh sách match
         binding.rvMatches.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         matchAdapter = MatchAdapter()
         binding.rvMatches.adapter = matchAdapter
 
-        // Conversation list
+        // RecyclerView setup cho conversation
         binding.rvConversations.layoutManager = LinearLayoutManager(requireContext())
-        conversationAdapter = ConversationAdapter(listOf())
+        conversationAdapter = ConversationAdapter(listOf()) { conversation ->
+            findNavController().navigate(
+                R.id.action_chatList_to_chatDetail,
+                bundleOf(
+                    "matchId" to conversation.matchId,
+                    "matchedUserName" to conversation.userName,
+                    "matchedUserAvatar" to conversation.avatarUrl,
+                ),
+            )
+        }
         binding.rvConversations.adapter = conversationAdapter
 
-        vm.matches.observe(viewLifecycleOwner) { matches ->
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                vm.isLoading.combine(vm.matches) { isLoading, matches ->
+                    Pair(isLoading, matches)
+                }.collect { (isLoading, matches) ->
+                    if (isLoading) {
+                        binding.matchPlaceholder.isVisible = true
+                        binding.rvMatches.isVisible = false
+                        binding.noMatchesCard?.isVisible = false
+                        binding.rvConversations.isVisible = false
+                        binding.noChatsLayout.isVisible = false
+                        return@collect
+                    }
 
-            val hasMatches = !matches.isNullOrEmpty()
-            binding.matchPlaceholder.isVisible = !hasMatches
-            binding.rvMatches.isVisible = hasMatches
+                    val hasMatches = matches.isNotEmpty()
+                    binding.rvMatches.isVisible = hasMatches
+                    binding.matchPlaceholder.isVisible = false
+                    binding.noMatchesCard?.isVisible = !hasMatches
+                    matchAdapter.submitList(matches)
 
-            matchAdapter.submitList(matches)
-            binding.noMatchesCard?.isVisible = matches.isNullOrEmpty()
-
-            val conversations = matches?.map { match ->
-                Conversation(
-                    avatarUrl = match.matchedUser.avatarUrl,
-                    userName = match.matchedUser.name,
-                    lastMessage = null,
-                    timestamp = null,
-                    isOnline = null,
-                )
-            } ?: emptyList()
-            conversationAdapter = ConversationAdapter(conversations)
-            binding.rvConversations.adapter = conversationAdapter
-
-            val hasChat = conversations.isNotEmpty()
-            binding.rvConversations.isVisible = hasChat
-            binding.noChatsLayout.isVisible = !hasChat
+                    // Build conversation list (lấy message/timestamp từng phòng)
+                    val conversations = matches.map { match ->
+                        async {
+                            val lastMsg = vm.getLastMessage(match.matchId)
+                            Conversation(
+                                matchId = match.matchId,
+                                avatarUrl = match.matchedUser.avatarUrl,
+                                userName = match.matchedUser.name,
+                                lastMessage = lastMsg?.message,
+                                timestamp = lastMsg?.timestamp,
+                                isOnline = null,
+                            )
+                        }
+                    }.awaitAll()
+                    conversationAdapter.setData(conversations)
+                    binding.rvConversations.isVisible = conversations.isNotEmpty()
+                    binding.noChatsLayout.isVisible = conversations.isEmpty()
+                }
+            }
         }
 
         val token = "YourTokenHere"
