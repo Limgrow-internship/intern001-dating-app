@@ -70,6 +70,21 @@
         android:padding="4dp"
         android:overScrollMode="always" />
 
+    <TextView
+        android:id="@+id/tvRecording"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Đang ghi âm..."
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:background="@drawable/bg_recording"
+        android:padding="10dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/messageInputLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="8dp" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/messageInputLayout"
         android:layout_width="0dp"
@@ -78,8 +93,8 @@
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:paddingTop="10dp"
-        android:paddingBottom="40dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:paddingBottom="25dp"
+        app:layout_constraintBottom_toTopOf="@id/emojiContainer"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -152,4 +167,13 @@
             app:layout_constraintBottom_toBottomOf="@id/edtMessage"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <FrameLayout
+        android:id="@+id/emojiContainer"
+        android:layout_width="match_parent"
+        android:layout_height="260dp"
+        android:background="#FFF"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
