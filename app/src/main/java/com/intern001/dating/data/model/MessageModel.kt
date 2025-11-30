@@ -5,4 +5,6 @@ data class MessageModel(
     val matchId: String,
     val message: String,
     val timestamp: String? = null,
+    val audioPath: String? = null,
+    val duration: Int? = null,
 )

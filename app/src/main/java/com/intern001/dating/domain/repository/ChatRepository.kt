@@ -8,4 +8,5 @@ interface ChatRepository {
     suspend fun getHistory(matchId: String): List<MessageModel>
 
     suspend fun getLastMessage(matchId: String): LastMessageEntity
+    suspend fun uploadAudio(localPath: String): String?
 }
