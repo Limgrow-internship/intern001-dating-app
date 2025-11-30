@@ -1,5 +1,6 @@
 package com.intern001.dating.data.model.response
 
+import com.intern001.dating.domain.model.LikedYouUser
 import com.intern001.dating.domain.model.Match
 import com.intern001.dating.domain.model.MatchCard
 import com.intern001.dating.domain.model.MatchCriteria
@@ -285,3 +286,26 @@ fun MatchResponseDTO.toMatchList(): MatchList = MatchList(
         city = this.matchedUser.city,
     ),
 )
+
+fun LikedYouResponseDto.toDomain(): LikedYouUser {
+    val finalName = when {
+        !firstName.isNullOrBlank() && !lastName.isNullOrBlank() -> "$firstName $lastName"
+        !firstName.isNullOrBlank() -> firstName
+        !lastName.isNullOrBlank() -> lastName
+        else -> "Unknown"
+    }
+
+    return LikedYouUser(
+        userId = userId,
+        displayName = finalName,
+        age = age,
+        avatar = avatar,
+        city = city
+    )
+}
+
+
+
+
+
+

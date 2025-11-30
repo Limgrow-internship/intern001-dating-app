@@ -197,3 +197,19 @@ data class TargetProfileResponse(
     val height: Int?
 )
 
+data class LikedYouResponseDto(
+    @SerializedName("userId")
+    val userId: String,
+    @SerializedName("firstName")
+    val firstName: String?,
+    @SerializedName("lastName")
+    val lastName: String?,
+    @SerializedName("avatar")
+    val avatar: String?,
+    @SerializedName("city")
+    val city: String?,
+    @SerializedName("age")
+    val age: Int?
+)
+
+

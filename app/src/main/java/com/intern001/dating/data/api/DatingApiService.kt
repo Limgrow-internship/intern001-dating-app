@@ -22,6 +22,7 @@ import com.intern001.dating.data.model.response.ChangePasswordResponse
 import com.intern001.dating.data.model.response.FacebookLoginResponse
 import com.intern001.dating.data.model.response.GoogleLoginResponse
 import com.intern001.dating.data.model.response.LastMessageResponse
+import com.intern001.dating.data.model.response.LikedYouResponseDto
 import com.intern001.dating.data.model.response.MatchCardResponse
 import com.intern001.dating.data.model.response.MatchCardsListResponse
 import com.intern001.dating.data.model.response.MatchResponse
@@ -237,11 +238,16 @@ interface DatingApiService {
     @PUT("api/user/fcm-token")
     suspend fun updateFCMToken(@Body request: UpdateFCMTokenRequest): Response<Unit>
 
-    @GET("match/status/{targetUserId}")
+    // Match liked you
+    @GET("api/match/status/{targetUserId}")
     suspend fun getMatchStatus(
         @Path("targetUserId") targetUserId: String
     ): MatchStatusResponse
-    
+
+    @GET("api/matches/liked-you")
+    suspend fun getUsersWhoLikedYou(): List<LikedYouResponseDto>
+
+
     @GET("api/conversations/matched-users")
     suspend fun getMatchedUsers(
         @Header("Authorization") token: String,

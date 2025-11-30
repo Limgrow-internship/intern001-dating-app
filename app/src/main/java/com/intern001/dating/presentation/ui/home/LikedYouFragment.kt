@@ -1,25 +1,35 @@
 package com.intern001.dating.presentation.ui.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.intern001.dating.databinding.FragmentLikedYouBinding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.intern001.dating.databinding.FragmentLikedYouBinding
+import com.intern001.dating.presentation.common.viewmodel.BaseFragment
+import com.intern001.dating.presentation.ui.home.LikedYouViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
-class LikedYouFragment : Fragment() {
+@AndroidEntryPoint
+class LikedYouFragment : BaseFragment() {
 
     private var _binding: FragmentLikedYouBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: MatchStatusViewModel by viewModels()
+    private val viewModel: LikedYouViewModel by viewModels()
+
+    private lateinit var adapter: LikedYouAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?,
+        savedInstanceState: Bundle?
     ): View {
         _binding = FragmentLikedYouBinding.inflate(inflater, container, false)
         return binding.root
@@ -27,19 +37,46 @@ class LikedYouFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupRecycler()
+        observeViewModel()
+        viewModel.loadUsersWhoLikedMe()
+    }
 
-        val fakeTargetUserId = "67ae123abca123"
+    private fun setupRecycler() {
+        adapter = LikedYouAdapter()
 
-        viewModel.loadMatchStatus(fakeTargetUserId)
+        binding.rvLikedYou.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = this@LikedYouFragment.adapter
+        }
 
-        viewModel.status.observe(viewLifecycleOwner) { status ->
-            if (status != null) {
+        binding.rvLikedYou.layoutManager = GridLayoutManager(requireContext(), 2)
+    }
 
-                // bạn update UI ở đây
-                println("Matched: ${status.matched}")
-                println("User liked: ${status.userLiked}")
-                println("Target liked: ${status.targetLiked}")
-                println("Name: ${status.targetProfile?.displayName}")
+    private fun observeViewModel() {
+        lifecycleScope.launch {
+            viewModel.likedYouState.collect { state ->
+                when (state) {
+
+                    is LikedYouViewModel.UiState.Idle -> {
+                        Log.d("LikedYouFragment", "UI State: Idle")
+                    }
+
+                    is LikedYouViewModel.UiState.Loading -> {
+                        binding.progressBar.visibility = View.VISIBLE
+                    }
+
+                    is LikedYouViewModel.UiState.Success -> {
+                        binding.progressBar.visibility = View.GONE
+                        adapter.updateData(state.data)
+                    }
+
+                    is LikedYouViewModel.UiState.Error -> {
+                        binding.progressBar.visibility = View.GONE
+                        binding.txtError.text = state.message
+                        binding.txtError.visibility = View.VISIBLE
+                    }
+                }
             }
         }
     }

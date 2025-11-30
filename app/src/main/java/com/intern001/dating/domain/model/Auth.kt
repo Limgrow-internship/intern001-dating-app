@@ -104,6 +104,15 @@ data class AuthState(
     val error: String? = null,
 )
 
+data class LikedYouUser(
+    val userId: String,
+    val displayName: String,
+    val age: Int?,
+    val avatar: String?,
+    val city: String?
+)
+
+
 data class MatchStatusGet(
     val matched: Boolean,
     val userLiked: Boolean,
