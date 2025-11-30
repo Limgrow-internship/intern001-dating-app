@@ -34,6 +34,7 @@ import com.intern001.dating.data.model.response.PhotoListResponse
 import com.intern001.dating.data.model.response.PhotoResponse
 import com.intern001.dating.data.model.response.RecommendationCriteriaResponse
 import com.intern001.dating.data.model.response.RefreshTokenRequest
+import com.intern001.dating.data.model.response.UploadAudioResponse
 import com.intern001.dating.data.model.response.UserData
 import com.intern001.dating.data.model.response.VerifyFaceResponse
 import com.intern001.dating.data.model.response.VerifyOtpResponse
@@ -248,4 +249,10 @@ interface DatingApiService {
 
     @GET("api/chat/rooms/{matchId}/last-message")
     suspend fun getLastMessage(@Path("matchId") matchId: String): LastMessageResponse
+
+    @Multipart
+    @POST("api/upload/audio")
+    suspend fun uploadAudio(
+        @Part audio: MultipartBody.Part,
+    ): Response<UploadAudioResponse>
 }
