@@ -23,12 +23,12 @@ data class UserProfile(
     val avatar: String? = null,
     val bio: String? = null,
     val age: Int? = null,
-    val gender: String? = null, // 'male' | 'female' | 'other'
+    val gender: String? = null,
     val interests: List<String> = emptyList(),
-    val mode: String? = null, // 'dating' | 'friend'
-    val relationshipMode: String? = null, // 'serious' | 'casual' | 'friendship'
-    val height: Int? = null, // in centimeters (120-220)
-    val weight: Int? = null, // in kilograms (30-300)
+    val mode: String? = null,
+    val relationshipMode: String? = null,
+    val height: Int? = null,
+    val weight: Int? = null,
     val location: UserLocation? = null,
     val city: String? = null,
     val country: String? = null,
@@ -40,14 +40,38 @@ data class UserProfile(
     val verifiedBadge: Boolean = false,
     val isVerified: Boolean = false,
     val photos: List<Photo> = emptyList(),
-    val profileCompleteness: Int = 0, // 0-100
+    val profileCompleteness: Int = 0,
     val profileViews: Int = 0,
     val goals: List<String> = emptyList(),
     val job: String? = null,
     val openQuestionAnswers: Map<String, String>? = null,
     val createdAt: Date,
-    val updatedAt: Date,
-)
+    val updatedAt: Date
+) {
+    companion object {
+        fun fromLocal(
+            firstName: String?,
+            lastName: String?,
+            gender: String?,
+            mode: String?,
+            avatar: String?
+        ): UpdateProfile {
+            val now = Date()
+            return UpdateProfile(
+                id = "",
+                userId = "",
+                firstName = firstName,
+                lastName = lastName,
+                gender = gender,
+                mode = mode,
+                avatar = avatar,
+                createdAt = now,
+                updatedAt = now
+            )
+        }
+    }
+}
+
 
 data class UserLocation(
     val latitude: Double,
@@ -102,6 +126,33 @@ data class AuthState(
     val user: User? = null,
     val token: String? = null,
     val error: String? = null,
+)
+
+data class LikedYouUser(
+    val userId: String,
+    val displayName: String,
+    val age: Int?,
+    val avatar: String?,
+    val city: String?
+)
+
+
+data class MatchStatusGet(
+    val matched: Boolean,
+    val userLiked: Boolean,
+    val targetLiked: Boolean,
+    val targetProfile: TargetProfile?
+)
+
+data class TargetProfile(
+    val displayName: String?,
+    val age: Int?,
+    val gender: String?,
+    val bio: String?,
+    val interests: List<String>,
+    val city: String?,
+    val occupation: String?,
+    val height: Int?
 )
 
 // Type alias for backward compatibility

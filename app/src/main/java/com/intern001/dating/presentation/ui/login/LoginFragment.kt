@@ -92,7 +92,6 @@ class LoginFragment : BaseFragment() {
             Snackbar.make(binding.root, "Navigate to Forgot Password", Snackbar.LENGTH_SHORT).show()
         }
 
-        // ĐẶT LẠI LISTENER CHO FACEBOOK TẠI ĐÂY (thay vì trong onActivityResult!!)
         binding.btnFacebook.setOnClickListener {
             binding.progressBar.isVisible = true
             LoginManager.getInstance().logInWithReadPermissions(
@@ -129,7 +128,6 @@ class LoginFragment : BaseFragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        // Facebook callbackManager nhận sự kiện login Facebook tại đây!
         callbackManager.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == GOOGLE_SIGN_IN_REQUEST_CODE) {

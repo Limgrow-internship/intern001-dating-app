@@ -2,6 +2,7 @@ package com.intern001.dating.data.api
 
 import com.intern001.dating.data.model.CountryResponse
 import com.intern001.dating.data.model.LanguageResponse
+import com.intern001.dating.data.model.MessageModel
 import com.intern001.dating.data.model.request.BlockUserRequest
 import com.intern001.dating.data.model.request.ChangePasswordRequest
 import com.intern001.dating.data.model.request.FacebookLoginRequest
@@ -20,10 +21,14 @@ import com.intern001.dating.data.model.response.AuthResponse
 import com.intern001.dating.data.model.response.ChangePasswordResponse
 import com.intern001.dating.data.model.response.FacebookLoginResponse
 import com.intern001.dating.data.model.response.GoogleLoginResponse
+import com.intern001.dating.data.model.response.LastMessageResponse
+import com.intern001.dating.data.model.response.LikedYouResponseDto
 import com.intern001.dating.data.model.response.MatchCardResponse
 import com.intern001.dating.data.model.response.MatchCardsListResponse
 import com.intern001.dating.data.model.response.MatchResponse
+import com.intern001.dating.data.model.response.MatchResponseDTO
 import com.intern001.dating.data.model.response.MatchResultResponse
+import com.intern001.dating.data.model.response.MatchStatusResponse
 import com.intern001.dating.data.model.response.MatchesListResponse
 import com.intern001.dating.data.model.response.OtpResponse
 import com.intern001.dating.data.model.response.PhotoCountResponse
@@ -31,6 +36,8 @@ import com.intern001.dating.data.model.response.PhotoListResponse
 import com.intern001.dating.data.model.response.PhotoResponse
 import com.intern001.dating.data.model.response.RecommendationCriteriaResponse
 import com.intern001.dating.data.model.response.RefreshTokenRequest
+import com.intern001.dating.data.model.response.UploadAudioResponse
+import com.intern001.dating.data.model.response.UploadImageResponse
 import com.intern001.dating.data.model.response.UserData
 import com.intern001.dating.data.model.response.VerifyFaceResponse
 import com.intern001.dating.data.model.response.VerifyOtpResponse
@@ -66,8 +73,16 @@ interface DatingApiService {
     @GET("api/profile")
     suspend fun getCurrentUserProfile(): Response<UserData>
 
+    @GET("api/profile/{userId}")
+    suspend fun getProfileByUserId(@Path("userId") userId: String): Response<MatchCardResponse>
+
     @PUT("api/profile")
     suspend fun updateUserProfile(@Body request: UpdateProfileRequest): Response<UserData>
+
+    @DELETE("api/profile")
+    suspend fun deleteProfile(
+        @Header("Authorization") token: String,
+    ): Response<Unit>
 
     // ============================================================
     // Photo Management APIs
@@ -138,12 +153,17 @@ interface DatingApiService {
 
     // Get next match card (single)
     @GET("api/discovery/next")
-    suspend fun getNextMatchCard(): Response<MatchCardResponse>
+    suspend fun getNextMatchCard(
+        @Query("latitude") latitude: Double? = null,
+        @Query("longitude") longitude: Double? = null,
+    ): Response<MatchCardResponse>
 
     // Get batch of match cards
     @GET("api/discovery/cards")
     suspend fun getMatchCards(
         @Query("limit") limit: Int = 10,
+        @Query("latitude") latitude: Double? = null,
+        @Query("longitude") longitude: Double? = null,
     ): Response<MatchCardsListResponse>
 
     // Like/Swipe right (simple, no quota)
@@ -218,4 +238,40 @@ interface DatingApiService {
     // FCM Token Management
     @PUT("api/user/fcm-token")
     suspend fun updateFCMToken(@Body request: UpdateFCMTokenRequest): Response<Unit>
+
+    // Match liked you
+    @GET("api/match/status/{targetUserId}")
+    suspend fun getMatchStatus(
+        @Path("targetUserId") targetUserId: String
+    ): MatchStatusResponse
+
+    @GET("api/matches/liked-you")
+    suspend fun getUsersWhoLikedYou(): List<LikedYouResponseDto>
+
+
+    @GET("api/conversations/matched-users")
+    suspend fun getMatchedUsers(
+        @Header("Authorization") token: String,
+    ): List<MatchResponseDTO>
+
+    @POST("api/chat/send")
+    suspend fun sendMessage(@Body message: MessageModel): MessageModel
+
+    @GET("api/chat/history/{matchId}")
+    suspend fun getHistory(@Path("matchId") matchId: String): List<MessageModel>
+
+    @GET("api/chat/rooms/{matchId}/last-message")
+    suspend fun getLastMessage(@Path("matchId") matchId: String): LastMessageResponse
+
+    @Multipart
+    @POST("api/upload/audio")
+    suspend fun uploadAudio(
+        @Part audio: MultipartBody.Part,
+    ): Response<UploadAudioResponse>
+
+    @Multipart
+    @POST("api/media/image")
+    suspend fun uploadChatImage(
+        @Part file: MultipartBody.Part,
+    ): Response<UploadImageResponse>
 }

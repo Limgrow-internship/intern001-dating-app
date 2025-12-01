@@ -2,6 +2,7 @@ package com.intern001.dating.domain.repository
 
 import com.intern001.dating.domain.model.Match
 import com.intern001.dating.domain.model.MatchCard
+import com.intern001.dating.domain.model.MatchList
 import com.intern001.dating.domain.model.MatchResult
 
 interface MatchRepository {
@@ -22,4 +23,8 @@ interface MatchRepository {
     suspend fun getMatchById(matchId: String): Result<Match>
 
     suspend fun unmatch(matchId: String): Result<Unit>
+
+    suspend fun getProfileByUserId(userId: String): Result<MatchCard>
+
+    suspend fun getMatchedUsers(token: String): List<MatchList>
 }

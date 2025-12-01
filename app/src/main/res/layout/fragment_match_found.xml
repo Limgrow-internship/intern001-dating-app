@@ -45,8 +45,8 @@
         <ImageView
             android:id="@+id/ivMatchIcon"
             android:layout_width="150dp"
-            android:layout_height="180dp"
-            android:src="@drawable/ic_match_fire_heart"
+            android:layout_height="220dp"
+            android:src="@drawable/ic_fire_match"
             android:contentDescription="@string/match_found" />
 
         <!-- Match Title -->

@@ -110,6 +110,7 @@ object NetworkModule {
     @Singleton
     fun provideGson(): Gson {
         return GsonBuilder()
+            .serializeNulls()
             .registerTypeAdapter(
                 object : TypeToken<List<PhotoResponse>>() {}.type,
                 PhotoListDeserializer(),

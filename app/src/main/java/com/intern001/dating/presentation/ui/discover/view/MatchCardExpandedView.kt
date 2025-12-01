@@ -115,8 +115,7 @@ class MatchCardExpandedView @JvmOverloads constructor(
         binding.tvGender.text = card.gender?.replaceFirstChar { it.uppercase() } ?: ""
 
         // Distance badge on top-left
-        val distance = card.distance?.toInt() ?: 0
-        binding.tvDistanceBadge.text = context.getString(R.string.km_format, distance)
+        bindDistanceBadge(card.distance)
 
         // Bio
         if (!card.bio.isNullOrEmpty()) {
@@ -209,6 +208,10 @@ class MatchCardExpandedView @JvmOverloads constructor(
         }
     }
 
+    fun updateDistance(distanceKm: Double?) {
+        bindDistanceBadge(distanceKm)
+    }
+
     private fun calculateAge(card: MatchCard): Int? {
         // If there's a birthDate field, calculate from it
         // For now, return the age from the card
@@ -266,6 +269,37 @@ class MatchCardExpandedView @JvmOverloads constructor(
                 },
             )
         }
+    }
+
+    private fun bindDistanceBadge(distanceKm: Double?) {
+        val (visible, text) = formatDistance(distanceKm)
+        binding.locationBadge.isVisible = visible
+        if (visible) {
+            binding.tvDistanceBadge.text = text
+        }
+    }
+
+    private fun formatDistance(distanceKm: Double?): Pair<Boolean, String> {
+        if (distanceKm == null) {
+            return false to ""
+        }
+        val meters = distanceKm * 1000
+        val distanceText = when {
+            distanceKm < 0.0005 -> context.getString(R.string.distance_nearby)
+            distanceKm < 1 -> {
+                context.getString(
+                    R.string.distance_meter_format,
+                    meters.toInt().coerceAtLeast(1),
+                )
+            }
+            distanceKm < 10 -> {
+                context.getString(R.string.distance_km_one_decimal, distanceKm)
+            }
+            else -> {
+                context.getString(R.string.distance_km_format, distanceKm.toInt())
+            }
+        }
+        return true to distanceText
     }
 
     private fun handlePhotoTap(x: Float) {

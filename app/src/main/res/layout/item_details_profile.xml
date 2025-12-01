@@ -27,11 +27,14 @@
         <AutoCompleteTextView
             android:id="@+id/comboJob"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:padding="16dp"
             android:textColor="#333333"
             android:textSize="18sp"
-            android:background="@android:color/transparent"/>
+            android:background="@android:color/transparent"
+            android:inputType="none"
+            android:focusable="false"
+            android:clickable="true"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -52,7 +55,10 @@
             android:padding="16dp"
             android:textColor="#333333"
             android:textSize="18sp"
-            android:background="@android:color/transparent"/>
+            android:background="@android:color/transparent"
+            android:inputType="none"
+            android:focusable="false"
+            android:clickable="true"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -73,7 +79,10 @@
             android:padding="16dp"
             android:textColor="#333333"
             android:textSize="18sp"
-            android:background="@android:color/transparent"/>
+            android:background="@android:color/transparent"
+            android:inputType="none"
+            android:focusable="false"
+            android:clickable="true"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <View
@@ -137,7 +146,10 @@
             android:padding="16dp"
             android:textColor="#333333"
             android:textSize="18sp"
-            android:background="@android:color/transparent"/>
+            android:background="@android:color/transparent"
+            android:inputType="none"
+            android:focusable="false"
+            android:clickable="true"/>
     </com.google.android.material.textfield.TextInputLayout>
 
 </LinearLayout>

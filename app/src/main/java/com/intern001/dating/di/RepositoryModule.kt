@@ -2,14 +2,20 @@ package com.intern001.dating.di
 
 import com.intern001.dating.data.repository.AuthRepositoryImpl
 import com.intern001.dating.data.repository.LanguageRepositoryImpl
+import com.intern001.dating.data.repository.LikedYouRepositoryImpl
+import com.intern001.dating.data.repository.LocationRepositoryImpl
 import com.intern001.dating.data.repository.MatchRepositoryImpl
+import com.intern001.dating.data.repository.MatchStatusRepositoryImpl
 import com.intern001.dating.data.repository.NotificationRepositoryImpl
 import com.intern001.dating.data.repository.PhotoRepositoryImpl
 import com.intern001.dating.data.repository.RecommendationRepositoryImpl
 import com.intern001.dating.data.repository.UserRepositoryImpl
 import com.intern001.dating.domain.repository.AuthRepository
 import com.intern001.dating.domain.repository.LanguageRepository
+import com.intern001.dating.domain.repository.LikedYouRepository
+import com.intern001.dating.domain.repository.LocationRepository
 import com.intern001.dating.domain.repository.MatchRepository
+import com.intern001.dating.domain.repository.MatchStatusRepository
 import com.intern001.dating.domain.repository.NotificationRepository
 import com.intern001.dating.domain.repository.PhotoRepository
 import com.intern001.dating.domain.repository.RecommendationRepository
@@ -63,4 +69,22 @@ abstract class RepositoryModule {
     abstract fun bindNotificationRepository(
         notificationRepositoryImpl: NotificationRepositoryImpl,
     ): NotificationRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindLocationRepository(
+        locationRepositoryImpl: LocationRepositoryImpl,
+    ): LocationRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindMatchStatusRepository(
+        impl: MatchStatusRepositoryImpl
+    ): MatchStatusRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindLikedYouRepository(
+        impl: LikedYouRepositoryImpl
+    ): LikedYouRepository
 }

@@ -36,6 +36,9 @@ class MatchCardView @JvmOverloads constructor(
     private var dY = 0f
 
     private val gestureDetector: GestureDetector
+    private val swipeThreshold = 50f
+    private var parentDisallowIntercept = false
+    private var isCardGesture = false
 
     init {
         binding = ItemMatchCardBinding.inflate(LayoutInflater.from(context), this, true)
@@ -47,6 +50,7 @@ class MatchCardView @JvmOverloads constructor(
             }
         }
         binding.viewPagerPhotos.clipToOutline = true
+        binding.viewPagerPhotos.isUserInputEnabled = false
 
         gestureDetector = GestureDetector(
             context,
@@ -66,6 +70,7 @@ class MatchCardView @JvmOverloads constructor(
             },
         )
 
+        binding.darkOverlay.isClickable = true
         binding.darkOverlay.setOnClickListener {
             onOverlayTapListener?.onOverlayTap()
         }
@@ -134,8 +139,11 @@ class MatchCardView @JvmOverloads constructor(
         binding.tvGender.text = card.gender?.replaceFirstChar { it.uppercase() } ?: ""
 
         // Distance badge on top-left
-        val distance = card.distance?.toInt() ?: 0
-        binding.tvDistanceBadge.text = context.getString(R.string.km_format, distance)
+        bindDistanceBadge(card.distance)
+    }
+
+    fun updateDistance(distanceKm: Double?) {
+        bindDistanceBadge(distanceKm)
     }
 
     private fun setupPhotoIndicators(count: Int) {
@@ -201,6 +209,10 @@ class MatchCardView @JvmOverloads constructor(
     override fun onTouchEvent(event: MotionEvent): Boolean {
         gestureDetector.onTouchEvent(event)
 
+        if (!isCardGesture) {
+            return super.onTouchEvent(event)
+        }
+
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 initialX = x
@@ -254,6 +266,15 @@ class MatchCardView @JvmOverloads constructor(
                         resetSwipeOverlay()
                     }
                 }
+                updateParentIntercept(false)
+                isCardGesture = false
+                return true
+            }
+            MotionEvent.ACTION_CANCEL -> {
+                animateReturn()
+                resetSwipeOverlay()
+                updateParentIntercept(false)
+                isCardGesture = false
                 return true
             }
         }
@@ -280,6 +301,49 @@ class MatchCardView @JvmOverloads constructor(
     private fun resetSwipeOverlay() {
         binding.likeOverlay.alpha = 0f
         binding.dislikeOverlay.alpha = 0f
+    }
+
+    private fun updateParentIntercept(disallow: Boolean) {
+        if (parentDisallowIntercept == disallow) return
+        parent?.requestDisallowInterceptTouchEvent(disallow)
+        parentDisallowIntercept = disallow
+    }
+
+    private fun isTouchInPhotoSwipeZone(@Suppress("UNUSED_PARAMETER") event: MotionEvent): Boolean = false
+
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+        when (ev.action) {
+            MotionEvent.ACTION_DOWN -> {
+                isCardGesture = !isTouchInPhotoSwipeZone(ev)
+                initialX = x
+                initialY = y
+                dX = x - ev.rawX
+                dY = y - ev.rawY
+                updateParentIntercept(false)
+                if (!isCardGesture) {
+                    return false
+                }
+            }
+            MotionEvent.ACTION_MOVE -> {
+                if (!isCardGesture) {
+                    return false
+                }
+                val deltaX = kotlin.math.abs(ev.rawX + dX - initialX)
+                val deltaY = kotlin.math.abs(ev.rawY + dY - initialY)
+                if (deltaX > swipeThreshold && deltaX > deltaY) {
+                    updateParentIntercept(true)
+                    return true
+                }
+                if (deltaY > deltaX) {
+                    updateParentIntercept(false)
+                }
+            }
+            MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
+                isCardGesture = false
+                updateParentIntercept(false)
+            }
+        }
+        return false
     }
 
     fun animateSwipeOut(direction: SwipeDirection) {
@@ -353,6 +417,41 @@ class MatchCardView @JvmOverloads constructor(
 
     interface OnActionClickListener {
         fun onBackClick()
+    }
+
+    private fun bindDistanceBadge(distanceKm: Double?) {
+        val (visible, text) = formatDistance(distanceKm)
+        if (visible) {
+            binding.locationBadge.visibility = View.VISIBLE
+            binding.tvDistanceBadge.text = text
+        } else {
+            binding.locationBadge.visibility = View.GONE
+        }
+    }
+
+    private fun formatDistance(distanceKm: Double?): Pair<Boolean, String> {
+        if (distanceKm == null) {
+            return false to ""
+        }
+        val meters = distanceKm * 1000
+        return when {
+            distanceKm < 0.0005 -> true to context.getString(R.string.distance_nearby)
+            distanceKm < 1 -> {
+                val meterText = context.getString(
+                    R.string.distance_meter_format,
+                    meters.toInt().coerceAtLeast(1),
+                )
+                true to meterText
+            }
+            else -> {
+                val kmText = if (distanceKm < 10) {
+                    context.getString(R.string.distance_km_one_decimal, distanceKm)
+                } else {
+                    context.getString(R.string.distance_km_format, distanceKm.toInt())
+                }
+                true to kmText
+            }
+        }
     }
 
     enum class SwipeDirection {
