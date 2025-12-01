@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.domain.model.UpdateProfile
+import com.intern001.dating.domain.cache.InitialDataCache
 import com.intern001.dating.domain.usecase.auth.GetCurrentUserUseCase
 import com.intern001.dating.domain.usecase.profile.UpdateProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,6 +17,7 @@ import kotlinx.coroutines.launch
 class EditProfileViewModel @Inject constructor(
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val updateProfileUseCase: UpdateProfileUseCase,
+    private val initialDataCache: InitialDataCache,
 ) : ViewModel() {
 
     sealed class UiState<out T> {
@@ -31,15 +33,15 @@ class EditProfileViewModel @Inject constructor(
     private val _updateProfileState = MutableStateFlow<UiState<UpdateProfile>>(UiState.Idle)
     val updateProfileState: StateFlow<UiState<UpdateProfile>> = _updateProfileState
 
-    fun getUserProfile() {
-        viewModelScope.launch {
-            _userProfileState.value = UiState.Loading
-            val result = getCurrentUserUseCase()
-            _userProfileState.value = result.fold(
-                onSuccess = { UiState.Success(it) },
-                onFailure = { UiState.Error(it.message ?: "Unknown error") },
-            )
+    fun getUserProfile(forceRefresh: Boolean = false) {
+        if (!forceRefresh) {
+            initialDataCache.consumeUserProfile()?.let { cachedProfile ->
+                _userProfileState.value = UiState.Success(cachedProfile)
+                fetchUserProfile(silent = true)
+                return
+            }
         }
+        fetchUserProfile(silent = false)
     }
 
     fun updateUserProfile(request: UpdateProfileRequest) {
@@ -48,6 +50,7 @@ class EditProfileViewModel @Inject constructor(
             val result = updateProfileUseCase(request)
             result.fold(
                 onSuccess = { updatedProfile ->
+                    initialDataCache.storeUserProfile(updatedProfile)
                     // Update both states when profile is successfully updated
                     _updateProfileState.value = UiState.Success(updatedProfile)
                     _userProfileState.value = UiState.Success(updatedProfile)
@@ -56,6 +59,23 @@ class EditProfileViewModel @Inject constructor(
                     _updateProfileState.value = UiState.Error(error.message ?: "Failed to update profile")
                 },
             )
+        }
+    }
+
+    private fun fetchUserProfile(silent: Boolean) {
+        viewModelScope.launch {
+            if (!silent) {
+                _userProfileState.value = UiState.Loading
+            }
+            val result = getCurrentUserUseCase()
+            _userProfileState.value =
+                result.fold(
+                    onSuccess = {
+                        initialDataCache.storeUserProfile(it)
+                        UiState.Success(it)
+                    },
+                    onFailure = { UiState.Error(it.message ?: "Unknown error") },
+                )
         }
     }
 }
