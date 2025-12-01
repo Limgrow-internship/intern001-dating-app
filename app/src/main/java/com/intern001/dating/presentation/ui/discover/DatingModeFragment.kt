@@ -46,7 +46,6 @@ class DatingModeFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Hide bottom navigation and tab bar in Dating Mode screen
         (activity as? MainActivity)?.hideBottomNavigation(true)
         (parentFragment as? com.intern001.dating.presentation.ui.home.HomeFragment)?.hideTabBar(true)
 
@@ -54,73 +53,67 @@ class DatingModeFragment : BaseFragment() {
         observeViewModel()
 
         val targetUserId = arguments?.getString("targetUserId")
+        val likerId = arguments?.getString("likerId")
 
         if (!targetUserId.isNullOrBlank()) {
             viewLifecycleOwner.lifecycleScope.launch {
-
                 val result = viewModel.fetchAndAddProfileCard(targetUserId)
-
                 result.fold(
                     onSuccess = { card ->
-                        val indexOfCard = viewModel.matchCards.value.indexOfFirst { it.userId == card.userId }
+                        val index = viewModel.matchCards.value.indexOfFirst { it.userId == card.userId }
 
-                        if (indexOfCard >= 0) {
-                            viewModel.setCurrentCardIndex(indexOfCard)
-                            delay(150)
-                            showCurrentCard()
-                        }
-                    },
-                    onFailure = {
-                        val idx = viewModel.matchCards.value.indexOfFirst { it.userId == targetUserId }
-                        if (idx >= 0) {
-                            viewModel.setCurrentCardIndex(idx)
+                        if (index >= 0) {
+                            viewModel.setCurrentCardIndex(index)
                             delay(150)
                             showCurrentCard()
                         } else {
-                            // fallback cuối
-                            if (viewModel.matchCards.value.isNotEmpty()) {
-                                showCurrentCard()
-                            }
+                            if (viewModel.hasMoreCards()) showCurrentCard()
+                        }
+                    },
+                    onFailure = {
+                        val index = viewModel.matchCards.value.indexOfFirst { it.userId == targetUserId }
+                        if (index >= 0) {
+                            viewModel.setCurrentCardIndex(index)
+                            delay(150)
+                            showCurrentCard()
+                        } else {
+                            if (viewModel.hasMoreCards()) showCurrentCard()
                         }
                     }
                 )
             }
+            return
+        }
+        if (!likerId.isNullOrBlank()) {
+            viewLifecycleOwner.lifecycleScope.launch {
 
-        } else {
-            // 👉 CASE 2: Không có targetUserId – chạy logic CŨ 100%
-            val likerId = arguments?.getString("likerId")
-            if (!likerId.isNullOrBlank()) {
-                viewLifecycleOwner.lifecycleScope.launch {
-                    val cards = viewModel.matchCards
-                        .filter { it.isNotEmpty() }
-                        .first()
+                val cards = viewModel.matchCards.filter { it.isNotEmpty() }.first()
 
-                    val likerIndex = cards.indexOfFirst { it.userId == likerId }
+                val likerIndex = cards.indexOfFirst { it.userId == likerId }
 
-                    viewModel.fetchAndAddProfileCard(likerId).fold(
-                        onSuccess = {
+                viewModel.fetchAndAddProfileCard(likerId).fold(
+                    onSuccess = {
+                        delay(200)
+                        showCurrentCard()
+                    },
+                    onFailure = {
+                        if (likerIndex >= 0) {
+                            viewModel.setCurrentCardIndex(likerIndex)
                             delay(200)
                             showCurrentCard()
-                        },
-                        onFailure = {
-                            if (likerIndex >= 0) {
-                                viewModel.setCurrentCardIndex(likerIndex)
-                                delay(200)
-                                showCurrentCard()
-                            } else if (viewModel.hasMoreCards()) {
-                                showCurrentCard()
-                            }
-                        },
-                    )
-                }
-            } else {
-                if (viewModel.matchCards.value.isNotEmpty() && viewModel.hasMoreCards()) {
-                    showCurrentCard()
-                }
+                        } else if (viewModel.hasMoreCards()) {
+                            showCurrentCard()
+                        }
+                    }
+                )
             }
+            return
         }
-
+        if (viewModel.matchCards.value.isNotEmpty() && viewModel.hasMoreCards()) {
+            showCurrentCard()
+        }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
