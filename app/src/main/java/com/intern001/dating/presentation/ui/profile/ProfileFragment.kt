@@ -52,7 +52,6 @@ class ProfileFragment : BaseFragment() {
         val adContainer = binding.grayBox
 
         observeUserProfile()
-        observeProfileUpdates()
         loadUserProfile()
 
         // Only show ads if user hasn't purchased "no ads"
@@ -103,39 +102,57 @@ class ProfileFragment : BaseFragment() {
     }
 
     private fun loadUserProfile() {
+        val firstName = tokenManager.getFirstName()
+        val lastName = tokenManager.getLastName()
+        val gender = tokenManager.getGender()
+        val mode = tokenManager.getMode()
+        val avatar = tokenManager.getAvatar()
+
+        if (firstName != null || lastName != null || gender != null || mode != null) {
+            val profile = UpdateProfile.fromLocal(
+                firstName = firstName,
+                lastName = lastName,
+                gender = gender,
+                mode = mode,
+                avatar = avatar
+            )
+            bindProfileData(profile)
+        }
+
         viewModel1.getUserProfile()
     }
+
 
     private fun observeUserProfile() {
         lifecycleScope.launch {
             viewModel1.userProfileState.collectLatest { state ->
                 when (state) {
-                    is EditProfileViewModel.UiState.Loading -> {
-                        // TODO: show loading indicator
-                    }
+                    is EditProfileViewModel.UiState.Loading -> Unit
+
                     is EditProfileViewModel.UiState.Success<*> -> {
-                        bindProfileData(state.data as UpdateProfile)
+                        val profile = state.data as UpdateProfile
+                        bindProfileData(profile)
+
+                        tokenManager.saveUserProfile(
+                            firstName = profile.firstName ?: "",
+                            lastName = profile.lastName ?: "",
+                            gender = profile.gender ?: "",
+                            mode = profile.mode ?: "",
+                            avatar = profile.avatar ?: ""
+                        )
                     }
+
                     is EditProfileViewModel.UiState.Error -> {
                         Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
                     }
+
                     else -> Unit
                 }
             }
         }
     }
 
-    private fun observeProfileUpdates() {
-        lifecycleScope.launch {
-            viewModel1.updateProfileState.collectLatest { state ->
-                if (state is EditProfileViewModel.UiState.Success<*>) {
-                    val updatedProfile = state.data as? UpdateProfile
-                    updatedProfile?.let { bindProfileData(it) }
-                    loadUserProfile()
-                }
-            }
-        }
-    }
+
 
     private fun bindProfileData(profile: UpdateProfile) {
         val currentBinding = _binding ?: return

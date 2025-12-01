@@ -79,7 +79,10 @@
             android:padding="16dp"
             android:textColor="#333333"
             android:textSize="18sp"
-            android:background="@android:color/transparent" />
+            android:background="@android:color/transparent"
+            android:inputType="none"
+            android:focusable="false"
+            android:clickable="true"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <View

@@ -247,6 +247,27 @@ class EditProfileFragment : BaseFragment() {
             details.comboZodiac.showDropDown()
         }
 
+        val addressList = resources.getStringArray(R.array.vietnam_provinces_cities).toList()
+        val adapterAddress = ArrayAdapter(requireContext(), R.layout.dropdown_item, addressList)
+        details.comboAddress.setAdapter(adapterAddress)
+
+        val currentAddress = profile.city ?: ""
+        details.comboAddress.setText(currentAddress, false)
+
+        details.comboAddress.setOnClickListener {
+            details.comboAddress.showDropDown()
+        }
+
+        details.comboAddress.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                val input = details.comboAddress.text.toString()
+                if (!addressList.contains(input)) {
+                    details.comboAddress.setText("")
+                    Toast.makeText(requireContext(), "Vui lòng chọn tỉnh/thành phố hợp lệ", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
         val question = binding.includeQuestions
         val answers = profile.openQuestionAnswers ?: emptyMap()
         Log.d("QA_DEBUG", "🔹 Server answers = $answers")

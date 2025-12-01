@@ -30,6 +30,11 @@ constructor(
         private val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
         private val USER_ID_KEY = stringPreferencesKey("user_id")
         private val USER_EMAIL_KEY = stringPreferencesKey("user_email")
+        private val FIRST_NAME_KEY = stringPreferencesKey("first_name")
+        private val LAST_NAME_KEY = stringPreferencesKey("last_name")
+        private val GENDER_KEY = stringPreferencesKey("gender")
+        private val MODE_KEY = stringPreferencesKey("mode")
+        private val AVATAR_KEY = stringPreferencesKey("avatar")
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -46,6 +51,22 @@ constructor(
     @Volatile
     private var cachedUserEmail: String? = null
 
+    @Volatile
+    private var cachedFirstName: String? = null
+
+    @Volatile
+    private var cachedLastName: String? = null
+
+    @Volatile
+    private var cachedGender: String? = null
+
+    @Volatile
+    private var cachedMode: String? = null
+
+    @Volatile
+    private var cachedAvatar: String? = null
+
+
     init {
         scope.launch {
             context.dataStore.data.collect { preferences ->
@@ -53,6 +74,12 @@ constructor(
                 cachedRefreshToken = preferences[REFRESH_TOKEN_KEY]
                 cachedUserId = preferences[USER_ID_KEY]
                 cachedUserEmail = preferences[USER_EMAIL_KEY]
+
+                cachedFirstName = preferences[FIRST_NAME_KEY]
+                cachedLastName = preferences[LAST_NAME_KEY]
+                cachedGender = preferences[GENDER_KEY]
+                cachedMode = preferences[MODE_KEY]
+                cachedAvatar = preferences[AVATAR_KEY]
             }
         }
     }
@@ -82,6 +109,39 @@ constructor(
             preferences[USER_EMAIL_KEY] = userEmail
         }
     }
+
+    suspend fun saveUserProfile(
+        firstName: String,
+        lastName: String,
+        gender: String,
+        mode: String,
+        avatar: String
+    ) {
+        cachedFirstName = firstName
+        cachedLastName = lastName
+        cachedGender = gender
+        cachedMode = mode
+        cachedAvatar = avatar
+
+        context.dataStore.edit { pref ->
+            pref[FIRST_NAME_KEY] = firstName
+            pref[LAST_NAME_KEY] = lastName
+            pref[GENDER_KEY] = gender
+            pref[MODE_KEY] = mode
+            pref[AVATAR_KEY] = avatar
+        }
+    }
+
+
+    fun getFirstName(): String? = cachedFirstName
+
+    fun getLastName(): String? = cachedLastName
+
+    fun getGender(): String? = cachedGender
+
+    fun getMode(): String? = cachedMode
+
+    fun getAvatar(): String? = cachedAvatar
 
     fun getUserId(): String? = cachedUserId
 
@@ -124,6 +184,12 @@ constructor(
             preferences.remove(REFRESH_TOKEN_KEY)
             preferences.remove(USER_ID_KEY)
             preferences.remove(USER_EMAIL_KEY)
+
+            preferences.remove(FIRST_NAME_KEY)
+            preferences.remove(LAST_NAME_KEY)
+            preferences.remove(GENDER_KEY)
+            preferences.remove(MODE_KEY)
+            preferences.remove(AVATAR_KEY)
         }
     }
     suspend fun getUserIdAsync(): String? {
