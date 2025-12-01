@@ -2,6 +2,7 @@ package com.intern001.dating.data.repository
 
 import com.intern001.dating.data.api.DatingApiService
 import com.intern001.dating.data.model.MessageModel
+import com.intern001.dating.data.model.response.UploadImageResponse
 import com.intern001.dating.data.model.response.toEntity
 import com.intern001.dating.domain.entity.LastMessageEntity
 import com.intern001.dating.domain.repository.ChatRepository
@@ -32,5 +33,9 @@ class ChatRepositoryImpl @Inject constructor(
             return uploadRes.body()?.url
         }
         return null
+    }
+    override suspend fun uploadImage(file: MultipartBody.Part): UploadImageResponse? {
+        val res = api.uploadChatImage(file)
+        return if (res.isSuccessful) res.body() else null
     }
 }

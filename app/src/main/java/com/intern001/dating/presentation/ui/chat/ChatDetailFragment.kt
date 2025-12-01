@@ -4,21 +4,24 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
+import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.data.model.MessageModel
 import com.intern001.dating.databinding.FragmentChatScreenBinding
@@ -28,6 +31,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 
 @AndroidEntryPoint
 class ChatDetailFragment : BaseFragment() {
@@ -51,6 +57,20 @@ class ChatDetailFragment : BaseFragment() {
     private var audioFilePath: String = ""
     private var isRecording = false
     private var recordStartTime: Long = 0
+
+    private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let { handlePickedImage(it) }
+    }
+
+    private var cameraImageUri: Uri? = null
+    private val takePictureLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { success: Boolean ->
+            if (success) {
+                cameraImageUri?.let { showPreviewImage(it) }
+            } else {
+                cameraImageUri = null
+            }
+        }
 
     private suspend fun getMyUserIdAsync(): String {
         return tokenManager.getUserIdAsync() ?: ""
@@ -77,12 +97,51 @@ class ChatDetailFragment : BaseFragment() {
             matchId = it.getString("matchId", "")
             matchedUserName = it.getString("matchedUserName")
         }
+        viewModel.fetchHistory(matchId)
+        lifecycleScope.launch {
+            val myUserId = getMyUserIdAsync()
+            adapter = MessageAdapter(myUserId)
+            binding.rvMessages.layoutManager = LinearLayoutManager(requireContext())
+            binding.rvMessages.adapter = adapter
+
+            viewModel.messages.collectLatest { msgs ->
+                adapter.setMessages(msgs)
+                if (msgs.isNotEmpty()) binding.rvMessages.scrollToPosition(msgs.size - 1)
+            }
+        }
 
         binding.btnBack.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
         binding.tvUserName.text = matchedUserName ?: "Chat"
 
+        binding.btnImage.setOnClickListener {
+            pickImage.launch("image/*")
+        }
+        binding.btnCamera.setOnClickListener {
+            val photoFile = File(requireContext().cacheDir, "photo_${System.currentTimeMillis()}.jpg")
+            cameraImageUri = FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.provider",
+                photoFile,
+            )
+            takePictureLauncher.launch(cameraImageUri)
+        }
+        binding.btnSend.setOnClickListener {
+            val content = binding.edtMessage.text.toString().trim()
+            if (content.isNotEmpty()) {
+                lifecycleScope.launch {
+                    val confirmedUserId = getMyUserIdAsync()
+                    val message = MessageModel(
+                        senderId = confirmedUserId,
+                        matchId = matchId,
+                        message = content,
+                    )
+                    viewModel.sendMessage(message)
+                    binding.edtMessage.setText("")
+                }
+            }
+        }
         val emojiRecycler = RecyclerView(requireContext()).apply {
             layoutManager = GridLayoutManager(requireContext(), 8)
             adapter = EmojiAdapter(emojiList) { emoji ->
@@ -114,7 +173,6 @@ class ChatDetailFragment : BaseFragment() {
             if (hasFocus) binding.emojiContainer.visibility = View.GONE
         }
 
-        // ===== Voice Recording & gửi message voice =====
         binding.btnVoice.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -152,37 +210,8 @@ class ChatDetailFragment : BaseFragment() {
                 else -> false
             }
         }
-        lifecycleScope.launch {
-            val myUserId = getMyUserIdAsync()
-            adapter = MessageAdapter(myUserId)
-            binding.rvMessages.layoutManager = LinearLayoutManager(requireContext())
-            binding.rvMessages.adapter = adapter
-
-            binding.btnSend.setOnClickListener {
-                val content = binding.edtMessage.text.toString().trim()
-                if (content.isNotEmpty()) {
-                    lifecycleScope.launch {
-                        val confirmedUserId = getMyUserIdAsync()
-                        val message = MessageModel(
-                            senderId = confirmedUserId,
-                            matchId = matchId,
-                            message = content,
-                        )
-                        viewModel.sendMessage(message)
-                        binding.edtMessage.setText("")
-                    }
-                }
-            }
-
-            lifecycleScope.launch {
-                viewModel.messages.collectLatest { msgs ->
-                    adapter.setMessages(msgs)
-                    binding.rvMessages.scrollToPosition(msgs.size - 1)
-                }
-            }
-            viewModel.fetchHistory(matchId)
-        }
     }
+
     private fun setRecordingUI(isRecording: Boolean) {
         binding.tvRecording.visibility = if (isRecording) View.VISIBLE else View.GONE
     }
@@ -248,6 +277,7 @@ class ChatDetailFragment : BaseFragment() {
             setRecordingUI(started)
         }
     }
+
     private fun getAudioDurationSeconds(path: String?): Int {
         if (path == null || !File(path).exists()) return 0
         try {
@@ -259,5 +289,49 @@ class ChatDetailFragment : BaseFragment() {
             return durationMs / 1000
         } catch (_: Exception) {}
         return 0
+    }
+    private fun handlePickedImage(uri: Uri) {
+        lifecycleScope.launch {
+            try {
+                val file = uriToFile(uri)
+                val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+                val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
+                val imageUrl = viewModel.uploadChatImage(body)
+                if (!imageUrl.isNullOrEmpty()) {
+                    val myUserId = getMyUserIdAsync()
+                    viewModel.sendImageMessage(imageUrl, matchId, myUserId)
+                } else {
+                    Toast.makeText(context, "Upload ảnh lỗi!", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(context, "Không chọn được file ảnh!", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun uriToFile(uri: Uri): File {
+        val inputStream = requireContext().contentResolver.openInputStream(uri)
+        val file = File(requireContext().cacheDir, "img_${System.currentTimeMillis()}.jpg")
+        val outputStream = file.outputStream()
+        inputStream?.copyTo(outputStream)
+        inputStream?.close()
+        outputStream.close()
+        return file
+    }
+    private fun showPreviewImage(uri: Uri) {
+        binding.photoPreviewLayout.visibility = View.VISIBLE
+        Glide.with(this).load(uri).into(binding.previewImage)
+
+        binding.btnSendPhoto.setOnClickListener {
+            binding.photoPreviewLayout.visibility = View.GONE
+            handlePickedImage(uri)
+            cameraImageUri = null
+        }
+
+        binding.btnRetake.setOnClickListener {
+            binding.photoPreviewLayout.visibility = View.GONE
+            cameraImageUri = null
+            binding.btnCamera.performClick()
+        }
     }
 }
