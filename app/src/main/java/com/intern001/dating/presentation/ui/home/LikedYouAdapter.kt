@@ -7,15 +7,18 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DecodeFormat
 import com.intern001.dating.databinding.ItemLikedYouBinding
 import com.intern001.dating.domain.model.LikedYouUser
+
 class LikedYouAdapter(
-    private var items: List<LikedYouUser> = emptyList()
+    private var items: List<LikedYouUser> = emptyList(),
+    private val onItemClick: (LikedYouUser) -> Unit
 ) : RecyclerView.Adapter<LikedYouAdapter.ViewHolder>() {
 
     inner class ViewHolder(val binding: ItemLikedYouBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: LikedYouUser) = with(binding) {
-            txtNameAge.text = "${item.displayName ?: "Chưa cập nhật"}"
+
+            txtNameAge.text = item.displayName ?: "Chưa cập nhật"
             txtLocation.text = item.city ?: "Chưa cập nhật"
 
             val hdUrl = "${item.avatar}?q_auto:best&f_auto&c_fill&w=900&h=900"
@@ -27,6 +30,9 @@ class LikedYouAdapter(
                 .centerCrop()
                 .into(imgAvatar)
 
+            root.setOnClickListener {
+                onItemClick(item)
+            }
         }
     }
 
@@ -40,11 +46,11 @@ class LikedYouAdapter(
         )
     }
 
-    override fun getItemCount(): Int = items.size
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(items[position])
     }
+
+    override fun getItemCount(): Int = items.size
 
     fun updateData(newItems: List<LikedYouUser>) {
         items = newItems

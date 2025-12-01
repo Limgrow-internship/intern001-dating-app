@@ -175,6 +175,13 @@
         <action
             android:id="@+id/action_homeFragment_to_filterFragment"
             app:destination="@id/filterFragment"/>
+
+        <action
+            android:id="@+id/action_home_to_datingMode"
+            app:destination="@id/datingModeFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            />
     </fragment>
 
     <fragment
@@ -332,9 +339,29 @@
             app:argType="string"
             android:defaultValue="@null" />
 
+        <argument
+            android:name="targetUserId"
+            app:argType="string"
+            android:defaultValue="@null" />
+
         <action
             android:id="@+id/action_datingModeFragment_to_filterFragment"
             app:destination="@id/filterFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/likedYouFragment"
+        android:name="com.intern001.dating.presentation.ui.home.LikedYouFragment"
+        android:label="LikedYouFragment">
+
+        <action
+            android:id="@+id/action_likedYou_to_datingMode"
+            app:destination="@id/datingModeFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
     </fragment>
 
     <fragment
