@@ -129,7 +129,7 @@ class ViewProfileFragment : BaseFragment() {
         binding.tvDescription.text = profile.bio ?: "Chưa cập nhật bio"
         binding.tvMajor.text = profile.occupation ?: "Chưa cập nhật nghê nghiệp"
         binding.tvEducation.text = profile.education ?: "Chưa cập nhật trường học"
-        binding.tvLocation.text = profile.location?.city ?: "Chưa cập nhật thành phố"
+        binding.tvLocation.text = profile.city ?: "Chưa cập nhật thành phố"
         binding.tvZodiac.text = profile.zodiacSign ?: "Chưa cập nhật cung hoàng đạo"
         binding.tvHeight.text =
             profile.height?.let { "Chiều cao: $it" } ?: "Chiều cao: "

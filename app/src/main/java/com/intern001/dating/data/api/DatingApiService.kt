@@ -37,6 +37,7 @@ import com.intern001.dating.data.model.response.PhotoResponse
 import com.intern001.dating.data.model.response.RecommendationCriteriaResponse
 import com.intern001.dating.data.model.response.RefreshTokenRequest
 import com.intern001.dating.data.model.response.UploadAudioResponse
+import com.intern001.dating.data.model.response.UploadImageResponse
 import com.intern001.dating.data.model.response.UserData
 import com.intern001.dating.data.model.response.VerifyFaceResponse
 import com.intern001.dating.data.model.response.VerifyOtpResponse
@@ -267,4 +268,10 @@ interface DatingApiService {
     suspend fun uploadAudio(
         @Part audio: MultipartBody.Part,
     ): Response<UploadAudioResponse>
+
+    @Multipart
+    @POST("api/media/image")
+    suspend fun uploadChatImage(
+        @Part file: MultipartBody.Part,
+    ): Response<UploadImageResponse>
 }
