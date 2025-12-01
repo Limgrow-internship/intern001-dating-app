@@ -18,7 +18,7 @@ data class UnmatchRequest(
     @SerializedName("matchId")
     val matchId: String,
 )
-
+data class UnmatchUserRequest(val targetUserId: String)
 data class RecommendationCriteriaRequest(
     @SerializedName("seekingGender")
     val seekingGender: List<String>? = null,

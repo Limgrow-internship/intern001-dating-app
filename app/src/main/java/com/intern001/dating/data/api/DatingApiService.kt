@@ -14,6 +14,7 @@ import com.intern001.dating.data.model.request.ReorderPhotosRequest
 import com.intern001.dating.data.model.request.RequestOtpRequest
 import com.intern001.dating.data.model.request.SignupRequest
 import com.intern001.dating.data.model.request.UnmatchRequest
+import com.intern001.dating.data.model.request.UnmatchUserRequest
 import com.intern001.dating.data.model.request.UpdateFCMTokenRequest
 import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.data.model.request.VerifyOtpRequest
@@ -242,12 +243,11 @@ interface DatingApiService {
     // Match liked you
     @GET("api/match/status/{targetUserId}")
     suspend fun getMatchStatus(
-        @Path("targetUserId") targetUserId: String
+        @Path("targetUserId") targetUserId: String,
     ): MatchStatusResponse
 
     @GET("api/matches/liked-you")
     suspend fun getUsersWhoLikedYou(): List<LikedYouResponseDto>
-
 
     @GET("api/conversations/matched-users")
     suspend fun getMatchedUsers(
@@ -274,4 +274,10 @@ interface DatingApiService {
     suspend fun uploadChatImage(
         @Part file: MultipartBody.Part,
     ): Response<UploadImageResponse>
+
+    @DELETE("api/conversations/{matchId}")
+    suspend fun deleteAllMessages(@Path("matchId") matchId: String)
+
+    @POST("api/matches/unmatch")
+    suspend fun unmatch(@Body request: UnmatchUserRequest): Response<Unit>
 }
