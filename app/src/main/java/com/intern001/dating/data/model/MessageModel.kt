@@ -6,5 +6,6 @@ data class MessageModel(
     val message: String,
     val timestamp: String? = null,
     val audioPath: String? = null,
+    val imgChat: String? = null,
     val duration: Int? = null,
 )

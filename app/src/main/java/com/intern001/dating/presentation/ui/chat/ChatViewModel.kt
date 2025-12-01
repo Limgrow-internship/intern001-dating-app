@@ -10,6 +10,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import okhttp3.MultipartBody
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
@@ -40,6 +41,26 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             sendVoiceMessageUseCase(matchId, senderId, localAudioPath, duration)
             fetchHistory(matchId)
+        }
+    }
+
+    fun sendImageMessage(imageUrl: String, matchId: String, senderId: String) {
+        viewModelScope.launch {
+            val message = MessageModel(
+                senderId = senderId,
+                matchId = matchId,
+                message = "",
+                imgChat = imageUrl,
+            )
+            repo.sendMessage(message)
+            fetchHistory(matchId)
+        }
+    }
+    suspend fun uploadChatImage(file: MultipartBody.Part): String? {
+        return try {
+            repo.uploadImage(file)?.url?.secure_url
+        } catch (e: Exception) {
+            null
         }
     }
 }
