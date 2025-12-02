@@ -67,7 +67,7 @@ class ChatListFragment : BaseFragment() {
 
         binding.rvConversations.layoutManager = LinearLayoutManager(requireContext())
 
-        conversationAdapter = ConversationAdapter(listOf()) { convo ->
+        conversationAdapter = ConversationAdapter(listOf()) { conversation ->
             findNavController().navigate(
                 R.id.action_chatList_to_chatDetail,
                 bundleOf(

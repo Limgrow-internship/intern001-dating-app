@@ -54,10 +54,11 @@ class DatingModeFragment : BaseFragment() {
 
         val targetUserId = arguments?.getString("targetUserId")
         val likerId = arguments?.getString("likerId")
+        val allowMatchedProfile = arguments?.getBoolean("allowMatchedProfile") ?: false
 
         if (!targetUserId.isNullOrBlank()) {
             viewLifecycleOwner.lifecycleScope.launch {
-                val result = viewModel.fetchAndAddProfileCard(targetUserId)
+                val result = viewModel.fetchAndAddProfileCard(targetUserId, allowMatched = allowMatchedProfile)
                 result.fold(
                     onSuccess = { card ->
                         val index = viewModel.matchCards.value.indexOfFirst { it.userId == card.userId }
