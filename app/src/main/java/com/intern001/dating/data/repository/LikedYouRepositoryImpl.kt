@@ -1,17 +1,13 @@
 package com.intern001.dating.data.repository
 
-import android.util.Log
 import com.intern001.dating.data.api.DatingApiService
 import com.intern001.dating.data.local.TokenManager
-import com.intern001.dating.data.model.response.LikedYouResponseDto
 import com.intern001.dating.data.model.response.toDomain
 import com.intern001.dating.domain.model.LikedYouUser
 import com.intern001.dating.domain.repository.LikedYouRepository
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 @Singleton
 class LikedYouRepositoryImpl @Inject constructor(
@@ -34,7 +30,6 @@ class LikedYouRepositoryImpl @Inject constructor(
             val users = rawList.map { it.toDomain() }
 
             Result.success(users)
-
         } catch (e: Exception) {
             Result.failure(e)
         }

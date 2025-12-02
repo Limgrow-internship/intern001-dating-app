@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class LikedYouViewModel @Inject constructor(
-    private val getUsersWhoLikedYouUseCase: GetUsersWhoLikedYouUseCase
+    private val getUsersWhoLikedYouUseCase: GetUsersWhoLikedYouUseCase,
 ) : ViewModel() {
 
     sealed class UiState<out T> {
@@ -38,7 +38,7 @@ class LikedYouViewModel @Inject constructor(
                 },
                 onFailure = { error ->
                     UiState.Error(error.message ?: "Failed to load users who liked you")
-                }
+                },
             )
         }
     }

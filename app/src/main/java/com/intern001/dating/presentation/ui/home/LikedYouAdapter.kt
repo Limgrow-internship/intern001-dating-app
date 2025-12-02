@@ -10,14 +10,12 @@ import com.intern001.dating.domain.model.LikedYouUser
 
 class LikedYouAdapter(
     private var items: List<LikedYouUser> = emptyList(),
-    private val onItemClick: (LikedYouUser) -> Unit
+    private val onItemClick: (LikedYouUser) -> Unit,
 ) : RecyclerView.Adapter<LikedYouAdapter.ViewHolder>() {
 
-    inner class ViewHolder(val binding: ItemLikedYouBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(val binding: ItemLikedYouBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: LikedYouUser) = with(binding) {
-
             txtNameAge.text = item.displayName ?: "Chưa cập nhật"
             txtLocation.text = item.city ?: "Chưa cập nhật"
 
@@ -41,8 +39,8 @@ class LikedYouAdapter(
             ItemLikedYouBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
-                false
-            )
+                false,
+            ),
         )
     }
 

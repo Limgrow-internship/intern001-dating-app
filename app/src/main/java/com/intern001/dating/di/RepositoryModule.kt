@@ -79,12 +79,12 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindMatchStatusRepository(
-        impl: MatchStatusRepositoryImpl
+        impl: MatchStatusRepositoryImpl,
     ): MatchStatusRepository
 
     @Binds
     @Singleton
     abstract fun bindLikedYouRepository(
-        impl: LikedYouRepositoryImpl
+        impl: LikedYouRepositoryImpl,
     ): LikedYouRepository
 }

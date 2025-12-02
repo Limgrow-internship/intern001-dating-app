@@ -3,6 +3,7 @@ package com.intern001.dating.presentation.ui.discover
 import android.location.Location
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.domain.cache.InitialDataCache
 import com.intern001.dating.domain.model.MatchCard
 import com.intern001.dating.domain.model.MatchResult
@@ -10,6 +11,7 @@ import com.intern001.dating.domain.model.UserLocation
 import com.intern001.dating.domain.usecase.ObserveLocationUpdatesUseCase
 import com.intern001.dating.domain.usecase.RefreshLocationUseCase
 import com.intern001.dating.domain.usecase.match.GetMatchCardsUseCase
+import com.intern001.dating.domain.usecase.match.GetMatchedUsersUseCase
 import com.intern001.dating.domain.usecase.match.GetProfileByUserIdUseCase
 import com.intern001.dating.domain.usecase.match.LikeUserUseCase
 import com.intern001.dating.domain.usecase.match.PassUserUseCase
@@ -36,6 +38,8 @@ class DiscoverViewModel @Inject constructor(
     private val refreshLocationUseCase: RefreshLocationUseCase,
     private val observeLocationUpdatesUseCase: ObserveLocationUpdatesUseCase,
     private val initialDataCache: InitialDataCache,
+    private val getMatchedUsersUseCase: GetMatchedUsersUseCase,
+    private val tokenManager: TokenManager,
 ) : BaseStateViewModel<List<MatchCard>>() {
 
     private val _matchCards = MutableStateFlow<List<MatchCard>>(emptyList())
@@ -47,15 +51,38 @@ class DiscoverViewModel @Inject constructor(
     private val _matchResult = MutableSharedFlow<MatchResult?>()
     val matchResult: SharedFlow<MatchResult?> = _matchResult.asSharedFlow()
 
+    private val _alreadyLikedEvent = MutableSharedFlow<MatchCard>()
+    val alreadyLikedEvent: SharedFlow<MatchCard> = _alreadyLikedEvent.asSharedFlow()
+
     private val _undoStack = MutableStateFlow<List<MatchCard>>(emptyList())
+
+    private val matchedUserIds = MutableStateFlow<Set<String>>(emptySet())
+    private val allowlistedMatchedUsers = MutableStateFlow<Set<String>>(emptySet())
 
     private var isInitialized = false
 
     private var latestUserLocation: UserLocation? = null
 
     init {
+        preloadMatchedUsers()
         startRealtimeLocationUpdates()
         loadMatchCardsIfNeeded()
+    }
+
+    private fun preloadMatchedUsers() {
+        viewModelScope.launch {
+            val token = tokenManager.getAccessToken()
+            if (token.isNullOrBlank()) return@launch
+            runCatching { getMatchedUsersUseCase(token) }
+                .onSuccess { matches ->
+                    val ids = matches.map { it.matchedUser.userId }.toSet()
+                    matchedUserIds.value = ids
+                    refreshCardsAfterMatchFilter()
+                }
+                .onFailure { error ->
+                    Log.w(TAG, "Unable to preload matched users", error)
+                }
+        }
     }
 
     private fun loadMatchCardsIfNeeded() {
@@ -63,9 +90,10 @@ class DiscoverViewModel @Inject constructor(
             isInitialized = true
             val cachedCards = initialDataCache.consumeMatchCards()
             if (!cachedCards.isNullOrEmpty()) {
-                _matchCards.value = cachedCards
+                val filteredCards = applyMatchFilters(cachedCards)
+                _matchCards.value = filteredCards
                 _currentCardIndex.value = 0
-                setSuccess(cachedCards)
+                setSuccess(filteredCards)
                 viewModelScope.launch {
                     loadMatchCards(showLoading = false)
                 }
@@ -92,9 +120,10 @@ class DiscoverViewModel @Inject constructor(
                     val adjustedCards = latestUserLocation?.let {
                         applyRealtimeDistances(cards, it)
                     } ?: cards
-                    _matchCards.value = adjustedCards
+                    val filteredCards = applyMatchFilters(adjustedCards)
+                    _matchCards.value = filteredCards
                     _currentCardIndex.value = 0
-                    setSuccess(adjustedCards)
+                    setSuccess(filteredCards)
                 },
                 onFailure = { error ->
                     if (showLoading) {
@@ -115,9 +144,16 @@ class DiscoverViewModel @Inject constructor(
 
     fun likeUser() {
         val currentCard = getCurrentCard() ?: return
+        if (matchedUserIds.value.contains(currentCard.userId)) {
+            viewModelScope.launch { _alreadyLikedEvent.emit(currentCard) }
+            return
+        }
         viewModelScope.launch {
             likeUserUseCase(currentCard.userId).fold(
                 onSuccess = { result ->
+                    if (result.isMatch) {
+                        handleMatchCompletion(result.matchedUser?.userId ?: currentCard.userId)
+                    }
                     _matchResult.emit(result)
                     moveToNextCard(currentCard)
                 },
@@ -146,9 +182,16 @@ class DiscoverViewModel @Inject constructor(
 
     fun superLikeUser() {
         val currentCard = getCurrentCard() ?: return
+        if (matchedUserIds.value.contains(currentCard.userId)) {
+            viewModelScope.launch { _alreadyLikedEvent.emit(currentCard) }
+            return
+        }
         viewModelScope.launch {
             superLikeUserUseCase(currentCard.userId).fold(
                 onSuccess = { result ->
+                    if (result.isMatch) {
+                        handleMatchCompletion(result.matchedUser?.userId ?: currentCard.userId)
+                    }
                     _matchResult.emit(result)
                     moveToNextCard(currentCard)
                 },
@@ -161,6 +204,7 @@ class DiscoverViewModel @Inject constructor(
     }
 
     private fun moveToNextCard(removedCard: MatchCard) {
+        revokeMatchedUserAllowance(removedCard.userId)
         _undoStack.value = _undoStack.value + removedCard
         _currentCardIndex.value += 1
 
@@ -189,8 +233,14 @@ class DiscoverViewModel @Inject constructor(
         }
     }
 
-    suspend fun fetchAndAddProfileCard(userId: String): Result<MatchCard> {
+    suspend fun fetchAndAddProfileCard(
+        userId: String,
+        allowMatched: Boolean = false,
+    ): Result<MatchCard> {
         return try {
+            if (allowMatched) {
+                allowMatchedUser(userId)
+            }
             getProfileByUserIdUseCase(userId).fold(
                 onSuccess = { card ->
                     val currentCards = _matchCards.value.toMutableList()
@@ -199,13 +249,13 @@ class DiscoverViewModel @Inject constructor(
                     if (existingIndex >= 0) {
                         currentCards.removeAt(existingIndex)
                         currentCards.add(0, card)
-                        _matchCards.value = currentCards
-                        _currentCardIndex.value = 0
                     } else {
                         currentCards.add(0, card)
-                        _matchCards.value = currentCards
-                        _currentCardIndex.value = 0
                     }
+                    val filteredCards = applyMatchFilters(currentCards)
+                    _matchCards.value = filteredCards
+                    _currentCardIndex.value = 0
+                    setSuccess(filteredCards)
                     Result.success(card)
                 },
                 onFailure = { error ->
@@ -300,6 +350,57 @@ class DiscoverViewModel @Inject constructor(
                     Log.w(TAG, "Unable to refresh location for realtime distance", error)
                 }
         }
+    }
+
+    fun clearTemporaryMatchedAllowances() {
+        if (allowlistedMatchedUsers.value.isNotEmpty()) {
+            allowlistedMatchedUsers.value = emptySet()
+            refreshCardsAfterMatchFilter()
+        }
+    }
+
+    private fun handleMatchCompletion(userId: String) {
+        if (userId.isBlank()) return
+        val updated = matchedUserIds.value + userId
+        matchedUserIds.value = updated
+        refreshCardsAfterMatchFilter()
+    }
+
+    private fun allowMatchedUser(userId: String) {
+        if (userId.isBlank()) return
+        allowlistedMatchedUsers.value = allowlistedMatchedUsers.value + userId
+    }
+
+    private fun revokeMatchedUserAllowance(userId: String) {
+        if (userId.isBlank()) return
+        val updated = allowlistedMatchedUsers.value - userId
+        if (updated.size != allowlistedMatchedUsers.value.size) {
+            allowlistedMatchedUsers.value = updated
+            refreshCardsAfterMatchFilter()
+        }
+    }
+
+    private fun refreshCardsAfterMatchFilter() {
+        val currentCards = _matchCards.value
+        if (currentCards.isEmpty()) return
+        val filteredCards = applyMatchFilters(currentCards)
+        if (filteredCards.size == currentCards.size) return
+        _matchCards.value = filteredCards
+        if (_currentCardIndex.value >= filteredCards.size) {
+            _currentCardIndex.value = 0
+        }
+        setSuccess(filteredCards)
+    }
+
+    private fun applyMatchFilters(cards: List<MatchCard>): List<MatchCard> {
+        if (cards.isEmpty()) return cards
+        val matched = matchedUserIds.value
+        if (matched.isEmpty()) return cards
+        val allowlist = allowlistedMatchedUsers.value
+        if (allowlist.isEmpty()) {
+            return cards.filterNot { matched.contains(it.userId) }
+        }
+        return cards.filterNot { matched.contains(it.userId) && !allowlist.contains(it.userId) }
     }
 
     companion object {
