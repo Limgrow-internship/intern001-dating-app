@@ -5,9 +5,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.intern001.dating.databinding.FragmentLikedYouBinding
@@ -15,6 +19,7 @@ import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.ui.home.LikedYouViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import com.intern001.dating.R
 
 @AndroidEntryPoint
 class LikedYouFragment : BaseFragment() {
@@ -43,7 +48,12 @@ class LikedYouFragment : BaseFragment() {
     }
 
     private fun setupRecycler() {
-        adapter = LikedYouAdapter()
+        adapter = LikedYouAdapter { user ->
+            findNavController().navigate(
+                R.id.action_home_to_datingMode,
+                bundleOf("targetUserId" to user.userId)
+            )
+        }
 
         binding.rvLikedYou.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -54,27 +64,31 @@ class LikedYouFragment : BaseFragment() {
     }
 
     private fun observeViewModel() {
-        lifecycleScope.launch {
-            viewModel.likedYouState.collect { state ->
-                when (state) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
-                    is LikedYouViewModel.UiState.Idle -> {
-                        Log.d("LikedYouFragment", "UI State: Idle")
-                    }
+                viewModel.likedYouState.collect { state ->
 
-                    is LikedYouViewModel.UiState.Loading -> {
-                        binding.progressBar.visibility = View.VISIBLE
-                    }
+                    when (state) {
 
-                    is LikedYouViewModel.UiState.Success -> {
-                        binding.progressBar.visibility = View.GONE
-                        adapter.updateData(state.data)
-                    }
+                        is LikedYouViewModel.UiState.Idle -> {
+                            // nothing
+                        }
 
-                    is LikedYouViewModel.UiState.Error -> {
-                        binding.progressBar.visibility = View.GONE
-                        binding.txtError.text = state.message
-                        binding.txtError.visibility = View.VISIBLE
+                        is LikedYouViewModel.UiState.Loading -> {
+                            binding.progressBar.visibility = View.VISIBLE
+                        }
+
+                        is LikedYouViewModel.UiState.Success -> {
+                            binding.progressBar.visibility = View.GONE
+                            adapter.updateData(state.data)
+                        }
+
+                        is LikedYouViewModel.UiState.Error -> {
+                            binding.progressBar.visibility = View.GONE
+                            binding.txtError.text = state.message
+                            binding.txtError.visibility = View.VISIBLE
+                        }
                     }
                 }
             }

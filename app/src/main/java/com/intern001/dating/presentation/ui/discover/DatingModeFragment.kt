@@ -46,7 +46,6 @@ class DatingModeFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Hide bottom navigation and tab bar in Dating Mode screen
         (activity as? MainActivity)?.hideBottomNavigation(true)
         (parentFragment as? com.intern001.dating.presentation.ui.home.HomeFragment)?.hideTabBar(true)
 
@@ -54,11 +53,33 @@ class DatingModeFragment : BaseFragment() {
         observeViewModel()
 
         val likerId = arguments?.getString("likerId")
+        val targetUserId = arguments?.getString("targetUserId")
+
+        if (!targetUserId.isNullOrBlank()) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.fetchAndAddProfileCard(targetUserId).fold(
+                    onSuccess = {
+                        delay(200)
+                        showCurrentCard()
+                    },
+                    onFailure = {
+                        val index = viewModel.matchCards.value.indexOfFirst { it.userId == targetUserId }
+                        if (index >= 0) {
+                            viewModel.setCurrentCardIndex(index)
+                            delay(200)
+                            showCurrentCard()
+                        } else {
+                            if (viewModel.hasMoreCards()) showCurrentCard()
+                        }
+                    }
+                )
+            }
+            return
+        }
+
         if (!likerId.isNullOrBlank()) {
             viewLifecycleOwner.lifecycleScope.launch {
-                val cards = viewModel.matchCards
-                    .filter { it.isNotEmpty() }
-                    .first()
+                val cards = viewModel.matchCards.filter { it.isNotEmpty() }.first()
 
                 val likerIndex = cards.indexOfFirst { it.userId == likerId }
 
@@ -75,13 +96,14 @@ class DatingModeFragment : BaseFragment() {
                         } else if (viewModel.hasMoreCards()) {
                             showCurrentCard()
                         }
-                    },
+                    }
                 )
             }
-        } else {
-            if (viewModel.matchCards.value.isNotEmpty() && viewModel.hasMoreCards()) {
-                showCurrentCard()
-            }
+            return
+        }
+
+        if (viewModel.matchCards.value.isNotEmpty() && viewModel.hasMoreCards()) {
+            showCurrentCard()
         }
     }
 
