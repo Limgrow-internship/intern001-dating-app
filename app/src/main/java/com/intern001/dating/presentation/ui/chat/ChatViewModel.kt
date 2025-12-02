@@ -63,4 +63,23 @@ class ChatViewModel @Inject constructor(
             null
         }
     }
+    fun deleteAllMessages(matchId: String) {
+        viewModelScope.launch {
+            try {
+                repo.deleteAllMessages(matchId)
+                fetchHistory(matchId)
+            } catch (_: Exception) { }
+        }
+    }
+
+    fun unmatch(targetUserId: String, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            try {
+                repo.unmatch(targetUserId)
+                onResult(true)
+            } catch (e: Exception) {
+                onResult(false)
+            }
+        }
+    }
 }

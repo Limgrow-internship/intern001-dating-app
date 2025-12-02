@@ -33,6 +33,7 @@ class ChatListFragment : BaseFragment() {
         val lastMessage: String?,
         val timestamp: String?,
         val isOnline: Boolean?,
+        val targetUserId: String,
     )
 
     private var _binding: FragmentChatListBinding? = null
@@ -59,12 +60,10 @@ class ChatListFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // RecyclerView setup cho danh sách match
         binding.rvMatches.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         matchAdapter = MatchAdapter()
         binding.rvMatches.adapter = matchAdapter
 
-        // RecyclerView setup cho conversation
         binding.rvConversations.layoutManager = LinearLayoutManager(requireContext())
         conversationAdapter = ConversationAdapter(listOf()) { conversation ->
             findNavController().navigate(
@@ -73,6 +72,7 @@ class ChatListFragment : BaseFragment() {
                     "matchId" to conversation.matchId,
                     "matchedUserName" to conversation.userName,
                     "matchedUserAvatar" to conversation.avatarUrl,
+                    "targetUserId" to conversation.targetUserId,
                 ),
             )
         }
@@ -109,6 +109,7 @@ class ChatListFragment : BaseFragment() {
                                 lastMessage = lastMsg?.message,
                                 timestamp = lastMsg?.timestamp,
                                 isOnline = null,
+                                targetUserId = match.matchedUser.userId,
                             )
                         }
                     }.awaitAll()

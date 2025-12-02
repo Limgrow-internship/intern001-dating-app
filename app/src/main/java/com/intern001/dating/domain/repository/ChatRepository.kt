@@ -13,4 +13,8 @@ interface ChatRepository {
     suspend fun uploadAudio(localPath: String): String?
 
     suspend fun uploadImage(file: MultipartBody.Part): UploadImageResponse?
+
+    suspend fun deleteAllMessages(matchId: String)
+
+    suspend fun unmatch(targetUserId: String)
 }
