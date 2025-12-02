@@ -3,4 +3,7 @@
     <!-- Photo Indicators -->
     <dimen name="indicator_height">4dp</dimen>
     <dimen name="indicator_margin">4dp</dimen>
+    <dimen name="premium_indicator_active_width">48dp</dimen>
+    <dimen name="premium_indicator_inactive_width">12dp</dimen>
+    <dimen name="premium_indicator_height">12dp</dimen>
 </resources>
