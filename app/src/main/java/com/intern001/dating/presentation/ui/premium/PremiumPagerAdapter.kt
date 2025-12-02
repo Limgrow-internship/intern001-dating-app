@@ -6,7 +6,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 
 class PremiumPagerAdapter(
     fragmentActivity: FragmentActivity,
-    private val onUpgradeClick: (TierType, PlanType) -> Unit
+    private val onUpgradeClick: (TierType, PlanType) -> Unit,
 ) : FragmentStateAdapter(fragmentActivity) {
 
     override fun getItemCount(): Int = 3
@@ -18,10 +18,9 @@ class PremiumPagerAdapter(
             2 -> TierType.ELITE
             else -> TierType.BASIC
         }
-        
+
         val fragment = PremiumTierFragment.newInstance(tierType)
         fragment.setOnUpgradeClickListener(onUpgradeClick)
         return fragment
     }
 }
-

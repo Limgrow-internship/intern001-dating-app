@@ -356,6 +356,10 @@
             android:name="targetUserId"
             app:argType="string"
             android:defaultValue="@null" />
+        <argument
+            android:name="allowMatchedProfile"
+            app:argType="boolean"
+            android:defaultValue="false" />
 
         <action
             android:id="@+id/action_datingModeFragment_to_filterFragment"

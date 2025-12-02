@@ -6,10 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.chip.Chip
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentDatingModeBinding
@@ -33,6 +35,7 @@ class DatingModeFragment : BaseFragment() {
 
     private var currentCardView: SwipeableCardView? = null
     private var nextCardView: SwipeableCardView? = null
+    private var alreadyLikedDialog: AlertDialog? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -70,6 +73,10 @@ class DatingModeFragment : BaseFragment() {
                         } else {
                             if (viewModel.hasMoreCards()) showCurrentCard()
                         }
+                viewModel.fetchAndAddProfileCard(targetUserId, allowMatched = allowMatchedProfile).fold(
+                    onSuccess = {
+                        delay(200)
+                        showCurrentCard()
                     },
                     onFailure = {
                         val index = viewModel.matchCards.value.indexOfFirst { it.userId == targetUserId }
@@ -80,7 +87,7 @@ class DatingModeFragment : BaseFragment() {
                         } else {
                             if (viewModel.hasMoreCards()) showCurrentCard()
                         }
-                    }
+                    },
                 )
             }
             return
@@ -105,7 +112,7 @@ class DatingModeFragment : BaseFragment() {
                         } else if (viewModel.hasMoreCards()) {
                             showCurrentCard()
                         }
-                    }
+                    },
                 )
             }
             return
@@ -121,6 +128,9 @@ class DatingModeFragment : BaseFragment() {
         // Show tab bar again when leaving Dating Mode
         (parentFragment as? com.intern001.dating.presentation.ui.home.HomeFragment)?.hideTabBar(false)
         (activity as? MainActivity)?.hideBottomNavigation(false)
+        alreadyLikedDialog?.dismiss()
+        alreadyLikedDialog = null
+        viewModel.clearTemporaryMatchedAllowances()
         _binding = null
     }
 
@@ -208,10 +218,19 @@ class DatingModeFragment : BaseFragment() {
                 }
             }
         }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.alreadyLikedEvent.collect { card ->
+                showAlreadyLikedDialog(card.displayName)
+            }
+        }
     }
 
     private fun showCurrentCard() {
         val currentCard = viewModel.getCurrentCard() ?: return
+
+        binding.noMoreCardsLayout.isVisible = false
+        binding.detailInfoContainer.visibility = View.VISIBLE
 
         val container = binding.cardContainer
 
@@ -411,5 +430,20 @@ class DatingModeFragment : BaseFragment() {
         if (isAdded && parentFragmentManager != null) {
             dialog.show(parentFragmentManager, "MatchOverlayDialog")
         }
+    }
+
+    private fun showAlreadyLikedDialog(displayName: String?) {
+        alreadyLikedDialog?.dismiss()
+        alreadyLikedDialog =
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.already_liked_dialog_title)
+                .setMessage(
+                    getString(
+                        R.string.already_liked_dialog_message,
+                        displayName ?: getString(R.string.profile),
+                    ),
+                )
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
     }
 }

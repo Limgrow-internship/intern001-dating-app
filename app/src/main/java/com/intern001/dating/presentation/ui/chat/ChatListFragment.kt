@@ -62,7 +62,16 @@ class ChatListFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.rvMatches.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        matchAdapter = MatchAdapter()
+        matchAdapter =
+            MatchAdapter { match ->
+                findNavController().navigate(
+                    R.id.action_chatList_to_datingMode,
+                    bundleOf(
+                        "targetUserId" to match.matchedUser.userId,
+                        "allowMatchedProfile" to true,
+                    ),
+                )
+            }
         binding.rvMatches.adapter = matchAdapter
 
         binding.rvConversations.layoutManager = LinearLayoutManager(requireContext())

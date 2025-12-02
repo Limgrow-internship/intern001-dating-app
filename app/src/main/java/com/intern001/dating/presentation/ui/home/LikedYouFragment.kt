@@ -1,12 +1,10 @@
 package com.intern001.dating.presentation.ui.home
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -14,12 +12,12 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentLikedYouBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.ui.home.LikedYouViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import com.intern001.dating.R
 
 @AndroidEntryPoint
 class LikedYouFragment : BaseFragment() {
@@ -34,7 +32,7 @@ class LikedYouFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentLikedYouBinding.inflate(inflater, container, false)
         return binding.root
@@ -51,7 +49,7 @@ class LikedYouFragment : BaseFragment() {
         adapter = LikedYouAdapter { user ->
             findNavController().navigate(
                 R.id.action_home_to_datingMode,
-                bundleOf("targetUserId" to user.userId)
+                bundleOf("targetUserId" to user.userId),
             )
         }
 
@@ -66,11 +64,9 @@ class LikedYouFragment : BaseFragment() {
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-
                 viewModel.likedYouState.collect { state ->
 
                     when (state) {
-
                         is LikedYouViewModel.UiState.Idle -> {
                             // nothing
                         }

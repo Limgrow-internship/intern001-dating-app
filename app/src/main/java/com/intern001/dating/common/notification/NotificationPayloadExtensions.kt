@@ -20,4 +20,3 @@ fun Map<String, String>.resolveTargetUserId(): String? {
         .firstOrNull { !it.isNullOrBlank() }
         ?.trim()
 }
-

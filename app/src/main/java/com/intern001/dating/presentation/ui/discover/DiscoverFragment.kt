@@ -6,9 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentDiscoverBinding
@@ -27,6 +29,7 @@ class DiscoverFragment : BaseFragment() {
 
     private var currentCardView: MatchCardView? = null
     private var nextCardView: MatchCardView? = null
+    private var alreadyLikedDialog: AlertDialog? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -59,6 +62,8 @@ class DiscoverFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        alreadyLikedDialog?.dismiss()
+        alreadyLikedDialog = null
         _binding = null
     }
 
@@ -129,6 +134,12 @@ class DiscoverFragment : BaseFragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.currentCardIndex.collect {
                 showNextCard()
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.alreadyLikedEvent.collect { card ->
+                showAlreadyLikedDialog(card.displayName)
             }
         }
     }
@@ -265,5 +276,20 @@ class DiscoverFragment : BaseFragment() {
         if (isAdded && parentFragmentManager != null) {
             dialog.show(parentFragmentManager, "MatchOverlayDialog")
         }
+    }
+
+    private fun showAlreadyLikedDialog(displayName: String?) {
+        alreadyLikedDialog?.dismiss()
+        alreadyLikedDialog =
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.already_liked_dialog_title)
+                .setMessage(
+                    getString(
+                        R.string.already_liked_dialog_message,
+                        displayName ?: getString(R.string.profile),
+                    ),
+                )
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
     }
 }

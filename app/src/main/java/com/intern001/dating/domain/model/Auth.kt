@@ -46,7 +46,7 @@ data class UserProfile(
     val job: String? = null,
     val openQuestionAnswers: Map<String, String>? = null,
     val createdAt: Date,
-    val updatedAt: Date
+    val updatedAt: Date,
 ) {
     companion object {
         fun fromLocal(
@@ -54,7 +54,7 @@ data class UserProfile(
             lastName: String?,
             gender: String?,
             mode: String?,
-            avatar: String?
+            avatar: String?,
         ): UpdateProfile {
             val now = Date()
             return UpdateProfile(
@@ -66,12 +66,11 @@ data class UserProfile(
                 mode = mode,
                 avatar = avatar,
                 createdAt = now,
-                updatedAt = now
+                updatedAt = now,
             )
         }
     }
 }
-
 
 data class UserLocation(
     val latitude: Double,
@@ -133,15 +132,14 @@ data class LikedYouUser(
     val displayName: String,
     val age: Int?,
     val avatar: String?,
-    val city: String?
+    val city: String?,
 )
-
 
 data class MatchStatusGet(
     val matched: Boolean,
     val userLiked: Boolean,
     val targetLiked: Boolean,
-    val targetProfile: TargetProfile?
+    val targetProfile: TargetProfile?,
 )
 
 data class TargetProfile(
@@ -152,7 +150,7 @@ data class TargetProfile(
     val interests: List<String>,
     val city: String?,
     val occupation: String?,
-    val height: Int?
+    val height: Int?,
 )
 
 // Type alias for backward compatibility
