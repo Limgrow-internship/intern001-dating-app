@@ -33,4 +33,3 @@ class InitialDataCache @Inject constructor() {
         userProfileRef.set(null)
     }
 }
-

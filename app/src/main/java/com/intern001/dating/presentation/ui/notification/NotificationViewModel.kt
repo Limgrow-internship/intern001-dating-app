@@ -2,8 +2,8 @@ package com.intern001.dating.presentation.ui.notification
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.common.notification.resolveTargetUserId
+import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.domain.model.Notification
 import com.intern001.dating.domain.usecase.notification.DeleteAllNotificationsUseCase
 import com.intern001.dating.domain.usecase.notification.DeleteNotificationUseCase

@@ -51,9 +51,8 @@ class PremiumActivity : AppCompatActivity() {
             selectedPlan = planType
             handlePurchase()
         }
-        
+
         binding.viewPager.adapter = adapter
-        
     }
 
     private fun setupListeners() {

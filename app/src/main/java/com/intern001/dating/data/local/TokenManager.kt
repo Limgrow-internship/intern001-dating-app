@@ -66,7 +66,6 @@ constructor(
     @Volatile
     private var cachedAvatar: String? = null
 
-
     init {
         scope.launch {
             context.dataStore.data.collect { preferences ->
@@ -115,7 +114,7 @@ constructor(
         lastName: String,
         gender: String,
         mode: String,
-        avatar: String
+        avatar: String,
     ) {
         cachedFirstName = firstName
         cachedLastName = lastName
@@ -131,7 +130,6 @@ constructor(
             pref[AVATAR_KEY] = avatar
         }
     }
-
 
     fun getFirstName(): String? = cachedFirstName
 

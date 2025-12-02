@@ -34,4 +34,3 @@ class PrefetchHomeDataUseCase @Inject constructor(
         private const val DEFAULT_MATCH_LIMIT = 10
     }
 }
-

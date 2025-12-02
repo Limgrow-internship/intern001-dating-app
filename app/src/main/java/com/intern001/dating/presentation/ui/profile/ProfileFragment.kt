@@ -114,14 +114,13 @@ class ProfileFragment : BaseFragment() {
                 lastName = lastName,
                 gender = gender,
                 mode = mode,
-                avatar = avatar
+                avatar = avatar,
             )
             bindProfileData(profile)
         }
 
         viewModel1.getUserProfile()
     }
-
 
     private fun observeUserProfile() {
         lifecycleScope.launch {
@@ -138,7 +137,7 @@ class ProfileFragment : BaseFragment() {
                             lastName = profile.lastName ?: "",
                             gender = profile.gender ?: "",
                             mode = profile.mode ?: "",
-                            avatar = profile.avatar ?: ""
+                            avatar = profile.avatar ?: "",
                         )
                     }
 
@@ -151,8 +150,6 @@ class ProfileFragment : BaseFragment() {
             }
         }
     }
-
-
 
     private fun bindProfileData(profile: UpdateProfile) {
         val currentBinding = _binding ?: return

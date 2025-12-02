@@ -3,8 +3,8 @@ package com.intern001.dating.presentation.ui.profile.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.intern001.dating.data.model.request.UpdateProfileRequest
-import com.intern001.dating.domain.model.UpdateProfile
 import com.intern001.dating.domain.cache.InitialDataCache
+import com.intern001.dating.domain.model.UpdateProfile
 import com.intern001.dating.domain.usecase.auth.GetCurrentUserUseCase
 import com.intern001.dating.domain.usecase.profile.UpdateProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel

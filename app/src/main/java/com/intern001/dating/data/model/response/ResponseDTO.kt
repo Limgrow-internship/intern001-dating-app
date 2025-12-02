@@ -181,7 +181,7 @@ data class MatchStatusResponse(
     val matched: Boolean,
     val userLiked: Boolean,
     val targetLiked: Boolean,
-    val targetProfile: TargetProfileResponse?
+    val targetProfile: TargetProfileResponse?,
 )
 
 data class TargetProfileResponse(
@@ -194,7 +194,7 @@ data class TargetProfileResponse(
     val interests: List<String>,
     val city: String?,
     val occupation: String?,
-    val height: Int?
+    val height: Int?,
 )
 
 data class LikedYouResponseDto(
@@ -209,7 +209,5 @@ data class LikedYouResponseDto(
     @SerializedName("city")
     val city: String?,
     @SerializedName("age")
-    val age: Int?
+    val age: Int?,
 )
-
-

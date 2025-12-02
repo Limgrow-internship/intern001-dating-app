@@ -252,13 +252,12 @@ fun RecommendationCriteriaResponse.toMatchCriteria(): MatchCriteria {
     )
 }
 
-
 fun MatchStatusResponse.toDomain(): MatchStatusGet {
     return MatchStatusGet(
         matched = matched,
         userLiked = userLiked,
         targetLiked = targetLiked,
-        targetProfile = targetProfile?.toDomain()
+        targetProfile = targetProfile?.toDomain(),
     )
 }
 
@@ -271,7 +270,7 @@ fun TargetProfileResponse.toDomain(): TargetProfile {
         interests = interests,
         city = city,
         occupation = occupation,
-        height = height
+        height = height,
     )
 }
 
@@ -300,12 +299,6 @@ fun LikedYouResponseDto.toDomain(): LikedYouUser {
         displayName = finalName,
         age = age,
         avatar = avatar,
-        city = city
+        city = city,
     )
 }
-
-
-
-
-
-

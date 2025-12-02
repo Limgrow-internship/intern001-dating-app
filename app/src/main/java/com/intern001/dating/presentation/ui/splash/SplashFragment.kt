@@ -14,8 +14,8 @@ import com.intern001.dating.presentation.common.ads.AdManager
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
