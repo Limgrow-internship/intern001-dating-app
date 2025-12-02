@@ -37,6 +37,8 @@ class PremiumTierFragment : Fragment() {
         setupListeners()
         updatePlanSelection(selectedPlan)
         updateTierIndicator()
+        updatePriceUI(null, null)
+        listenForPriceUpdates()
     }
 
     private fun setupTierUI() {
@@ -44,22 +46,16 @@ class PremiumTierFragment : Fragment() {
             TierType.BASIC -> {
                 binding.ivTierIcon.setImageResource(R.drawable.ic_basic)
                 binding.tvTagline.text = "Perfect for new users starting their journey."
-                binding.tvWeeklyPrice.text = "20.000 VND"
-                binding.tvMonthlyPrice.text = "59.000 VND"
                 binding.tvMonthlySave.text = "Save 21.000 VND"
             }
             TierType.GOLD -> {
                 binding.ivTierIcon.setImageResource(R.drawable.ic_gold)
                 binding.tvTagline.text = "Great if you want faster matches and more control."
-                binding.tvWeeklyPrice.text = "45.000 VND"
-                binding.tvMonthlyPrice.text = "149.000 VND"
                 binding.tvMonthlySave.text = "Save 31.000 VND"
             }
             TierType.ELITE -> {
                 binding.ivTierIcon.setImageResource(R.drawable.ic_elite)
                 binding.tvTagline.text = "The ultimate experience for those who want maximum visibility & connection."
-                binding.tvWeeklyPrice.text = "80.000 VND"
-                binding.tvMonthlyPrice.text = "299.000 VND"
                 binding.tvMonthlySave.text = "Save 21.000 VND"
             }
         }
@@ -172,6 +168,19 @@ class PremiumTierFragment : Fragment() {
         binding.ivMonthlySelect.setImageResource(monthlyIcon)
     }
 
+    private fun listenForPriceUpdates() {
+        parentFragmentManager.setFragmentResultListener(priceResultKey(tierType), viewLifecycleOwner) { _, bundle ->
+            val weeklyPrice = bundle.getString(RESULT_WEEKLY_PRICE)
+            val monthlyPrice = bundle.getString(RESULT_MONTHLY_PRICE)
+            updatePriceUI(weeklyPrice, monthlyPrice)
+        }
+    }
+
+    private fun updatePriceUI(weeklyPrice: String?, monthlyPrice: String?) {
+        binding.tvWeeklyPrice.text = weeklyPrice ?: "--"
+        binding.tvMonthlyPrice.text = monthlyPrice ?: "--"
+    }
+
     private fun updateTierIndicator() {
         val activeWidth = resources.getDimensionPixelSize(R.dimen.premium_indicator_active_width)
         val inactiveWidth = resources.getDimensionPixelSize(R.dimen.premium_indicator_inactive_width)
@@ -216,6 +225,9 @@ class PremiumTierFragment : Fragment() {
 
     companion object {
         private const val ARG_TIER_TYPE = "tier_type"
+        private const val RESULT_KEY_PREFIX = "premium_tier_price_result_"
+        const val RESULT_WEEKLY_PRICE = "result_weekly_price"
+        const val RESULT_MONTHLY_PRICE = "result_monthly_price"
 
         fun newInstance(tierType: TierType): PremiumTierFragment {
             return PremiumTierFragment().apply {
@@ -224,6 +236,8 @@ class PremiumTierFragment : Fragment() {
                 }
             }
         }
+
+        fun priceResultKey(tierType: TierType): String = RESULT_KEY_PREFIX + tierType.name
     }
 }
 
