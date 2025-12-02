@@ -142,6 +142,16 @@ class ChatDetailFragment : BaseFragment() {
                 }
             }
         }
+
+        binding.btnMore.setOnClickListener {
+            ChatMoreBottomSheet(
+                onUnmatch = { showUnmatchDialog() },
+                onReport = { },
+                onDeleteConversation = { showDeleteConversationDialog() },
+                onBlock = { },
+            ).show(childFragmentManager, "moreSheet")
+        }
+
         val emojiRecycler = RecyclerView(requireContext()).apply {
             layoutManager = GridLayoutManager(requireContext(), 8)
             adapter = EmojiAdapter(emojiList) { emoji ->
@@ -333,5 +343,39 @@ class ChatDetailFragment : BaseFragment() {
             cameraImageUri = null
             binding.btnCamera.performClick()
         }
+    }
+
+    private fun showDeleteConversationDialog() {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Delete Conversation")
+            .setMessage("Are you sure you want to delete all messages in this conversation? This cannot be undone.")
+            .setPositiveButton("Delete") { _, _ ->
+                viewModel.deleteAllMessages(matchId)
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showUnmatchDialog() {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Unmatch")
+            .setMessage("Bạn chắc chắn muốn unmatch với người này? Bạn sẽ không thể chat lại nếu không match lại!")
+            .setPositiveButton("Unmatch") { _, _ ->
+                val targetUserId = arguments?.getString("targetUserId")
+                if (targetUserId.isNullOrEmpty()) {
+                    return@setPositiveButton
+                }
+                viewModel.unmatch(targetUserId) { success ->
+                    if (success) {
+                        Toast.makeText(context, "Unmatch thành công!", Toast.LENGTH_SHORT).show()
+                        requireActivity().onBackPressedDispatcher.onBackPressed()
+                    } else {
+                        Toast.makeText(context, "Unmatch thất bại!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .setNegativeButton("Hủy", null)
+            .show()
     }
 }

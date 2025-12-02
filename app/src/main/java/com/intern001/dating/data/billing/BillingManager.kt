@@ -141,7 +141,11 @@ class BillingManager @Inject constructor(
         }
     }
 
-    fun launchPurchaseFlow(activity: Activity, productId: String) {
+    fun launchPurchaseFlow(
+        activity: Activity,
+        productId: String,
+        offerTokenOverride: String? = null,
+    ) {
         _purchaseState.value = PurchaseState.Purchasing(productId)
 
         if (billingClient?.isReady == false) {
@@ -163,7 +167,8 @@ class BillingManager @Inject constructor(
                     .build(),
             )
         } else {
-            val offerToken = productDetails.subscriptionOfferDetails?.firstOrNull()?.offerToken
+            val offerToken = offerTokenOverride
+                ?: productDetails.subscriptionOfferDetails?.firstOrNull()?.offerToken
             if (offerToken == null) {
                 _purchaseState.value = PurchaseState.Error("Offer not available")
                 return

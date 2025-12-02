@@ -3,6 +3,7 @@ package com.intern001.dating.presentation.ui.discover
 import android.location.Location
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.intern001.dating.domain.cache.InitialDataCache
 import com.intern001.dating.domain.model.MatchCard
 import com.intern001.dating.domain.model.MatchResult
 import com.intern001.dating.domain.model.UserLocation
@@ -34,6 +35,7 @@ class DiscoverViewModel @Inject constructor(
     private val superLikeUserUseCase: SuperLikeUserUseCase,
     private val refreshLocationUseCase: RefreshLocationUseCase,
     private val observeLocationUpdatesUseCase: ObserveLocationUpdatesUseCase,
+    private val initialDataCache: InitialDataCache,
 ) : BaseStateViewModel<List<MatchCard>>() {
 
     private val _matchCards = MutableStateFlow<List<MatchCard>>(emptyList())
@@ -59,17 +61,32 @@ class DiscoverViewModel @Inject constructor(
     private fun loadMatchCardsIfNeeded() {
         if (!isInitialized) {
             isInitialized = true
-            loadMatchCards()
+            val cachedCards = initialDataCache.consumeMatchCards()
+            if (!cachedCards.isNullOrEmpty()) {
+                _matchCards.value = cachedCards
+                _currentCardIndex.value = 0
+                setSuccess(cachedCards)
+                viewModelScope.launch {
+                    loadMatchCards(showLoading = false)
+                }
+            } else {
+                loadMatchCards()
+            }
         }
     }
 
-    fun loadMatchCards(limit: Int = 10) {
+    fun loadMatchCards(
+        limit: Int = 10,
+        showLoading: Boolean = true,
+    ) {
         viewModelScope.launch {
             runCatching { refreshLocationUseCase() }
                 .onFailure {
                     Log.w(TAG, "Unable to refresh location before fetching match cards", it)
                 }
-            setLoading()
+            if (showLoading) {
+                setLoading()
+            }
             getMatchCardsUseCase(limit).fold(
                 onSuccess = { cards ->
                     val adjustedCards = latestUserLocation?.let {
@@ -80,7 +97,11 @@ class DiscoverViewModel @Inject constructor(
                     setSuccess(adjustedCards)
                 },
                 onFailure = { error ->
-                    setError(error.message ?: "Failed to load cards")
+                    if (showLoading) {
+                        setError(error.message ?: "Failed to load cards")
+                    } else {
+                        Log.w(TAG, "Failed to refresh match cards silently", error)
+                    }
                 },
             )
         }
@@ -146,7 +167,7 @@ class DiscoverViewModel @Inject constructor(
         // Load more cards if running low
         val remaining = _matchCards.value.size - _currentCardIndex.value
         if (remaining <= 2) {
-            loadMatchCards()
+            loadMatchCards(showLoading = false)
         }
     }
 

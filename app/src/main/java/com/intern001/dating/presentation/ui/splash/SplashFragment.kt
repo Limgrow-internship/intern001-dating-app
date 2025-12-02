@@ -15,7 +15,9 @@ import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 @AndroidEntryPoint
 class SplashFragment : BaseFragment() {
@@ -27,6 +29,8 @@ class SplashFragment : BaseFragment() {
 
     @Inject
     lateinit var authRepository: AuthRepository
+
+    private var prefetchJob: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -57,6 +61,8 @@ class SplashFragment : BaseFragment() {
         val isLoggedIn = authRepository.isLoggedIn()
         val hasPurchasedNoAds = viewModel.hasActiveSubscription()
 
+        prefetchUserDataIfNeeded(isLoggedIn)
+
         when {
             !onboardingCompleted -> {
                 // User hasn't completed onboarding -> go to onboarding
@@ -81,8 +87,23 @@ class SplashFragment : BaseFragment() {
         }
     }
 
+    private fun prefetchUserDataIfNeeded(isLoggedIn: Boolean) {
+        if (!isLoggedIn || prefetchJob?.isActive == true) return
+        prefetchJob =
+            lifecycleScope.launch {
+                withTimeoutOrNull(PREFETCH_TIMEOUT_MS) {
+                    viewModel.prefetchHomeData()
+                }
+            }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         (activity as? MainActivity)?.hideBottomNavigation(true)
+        prefetchJob?.cancel()
+    }
+
+    companion object {
+        private const val PREFETCH_TIMEOUT_MS = 3_000L
     }
 }

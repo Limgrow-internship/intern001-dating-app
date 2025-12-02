@@ -34,6 +34,7 @@ class ChatListFragment : BaseFragment() {
         val lastMessage: String?,
         val timestamp: String?,
         val isOnline: Boolean?,
+        val targetUserId: String,
     )
 
     private var _binding: FragmentChatListBinding? = null
@@ -60,38 +61,21 @@ class ChatListFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // --- MATCHES LIST (horizontal)
-        binding.rvMatches.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-
-        matchAdapter = MatchAdapter { match ->
-
-            val clickedUserId = match.matchedUser.userId
-
-            findNavController().navigate(
-                R.id.action_chatList_to_datingMode,
-                bundleOf(
-                    "targetUserId" to clickedUserId
-                )
-            )
-        }
-
-
-
+        binding.rvMatches.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        matchAdapter = MatchAdapter()
         binding.rvMatches.adapter = matchAdapter
 
-        // --- CONVERSATION LIST (vertical)
         binding.rvConversations.layoutManager = LinearLayoutManager(requireContext())
 
         conversationAdapter = ConversationAdapter(listOf()) { convo ->
             findNavController().navigate(
                 R.id.action_chatList_to_chatDetail,
                 bundleOf(
-                    "matchId" to convo.matchId,
-                    "targetUserId" to convo.userId,
-                    "matchedUserName" to convo.userName,
-                    "matchedUserAvatar" to convo.avatarUrl
-                )
+                    "matchId" to conversation.matchId,
+                    "matchedUserName" to conversation.userName,
+                    "matchedUserAvatar" to conversation.avatarUrl,
+                    "targetUserId" to conversation.targetUserId,
+                ),
             )
         }
 
@@ -136,6 +120,7 @@ class ChatListFragment : BaseFragment() {
                                 lastMessage = lastMsg?.message,
                                 timestamp = lastMsg?.timestamp,
                                 isOnline = null,
+                                targetUserId = match.matchedUser.userId,
                             )
                         }
                     }.awaitAll()

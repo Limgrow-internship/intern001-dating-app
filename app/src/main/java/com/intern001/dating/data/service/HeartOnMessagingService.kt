@@ -13,6 +13,7 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
+import com.intern001.dating.common.notification.resolveTargetUserId
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.domain.model.Notification
 import com.intern001.dating.domain.usecase.notification.SaveNotificationUseCase
@@ -273,29 +274,38 @@ class HeartOnMessagingService : FirebaseMessagingService() {
     }
 
     private fun shouldShowNotification(data: Map<String, String>): Boolean {
-        val currentUserId = tokenManager.getUserId()
         val type = data["type"]
+        val currentUserId = tokenManager.getUserId()
+        val targetUserId = data.resolveTargetUserId()
 
         if (currentUserId.isNullOrBlank()) {
-            return false
+            Log.w(TAG, "No cached userId; allowing notification type=$type")
+            return true
         }
 
-        val targetUserId = data["targetUserId"]
+        val normalizedCurrentUserId = currentUserId.trim()
 
         if (targetUserId.isNullOrBlank()) {
-            when (type) {
+            return when (type) {
                 "match" -> {
                     val matchedUserId = data["matchedUserId"] ?: data["userId"]
-                    return matchedUserId.isNullOrBlank() || matchedUserId == currentUserId
+                    matchedUserId.isNullOrBlank() ||
+                        matchedUserId.trim().equals(normalizedCurrentUserId, ignoreCase = true)
                 }
-                else -> return true
+                else -> true
             }
         }
 
-        val normalizedTargetUserId = targetUserId.trim()
-        val normalizedCurrentUserId = currentUserId.trim()
+        val shouldShow = targetUserId.equals(normalizedCurrentUserId, ignoreCase = true)
 
-        return normalizedTargetUserId == normalizedCurrentUserId
+        if (!shouldShow) {
+            Log.d(
+                TAG,
+                "Skipping notification type=$type because targetUserId=$targetUserId does not match currentUserId=$normalizedCurrentUserId",
+            )
+        }
+
+        return shouldShow
     }
 
     private fun createNotificationChannel() {

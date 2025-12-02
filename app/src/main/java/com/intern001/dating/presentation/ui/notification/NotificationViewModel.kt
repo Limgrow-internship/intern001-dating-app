@@ -3,6 +3,7 @@ package com.intern001.dating.presentation.ui.notification
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.common.notification.resolveTargetUserId
 import com.intern001.dating.domain.model.Notification
 import com.intern001.dating.domain.usecase.notification.DeleteAllNotificationsUseCase
 import com.intern001.dating.domain.usecase.notification.DeleteNotificationUseCase
@@ -101,26 +102,27 @@ class NotificationViewModel @Inject constructor(
      * This prevents showing notifications from other users on the same device
      */
     private fun filterNotificationsByCurrentUser(notifications: List<Notification>): List<Notification> {
-        val currentUserId = tokenManager.getUserId() ?: return emptyList()
+        val currentUserId = tokenManager.getUserId()
+
+        if (currentUserId.isNullOrBlank()) {
+            return notifications
+        }
+
+        val normalizedCurrentUserId = currentUserId.trim()
 
         return notifications.filter { notification ->
-            val targetUserId = notification.actionData?.extraData?.get("targetUserId")
+            val targetUserId = notification.actionData?.extraData?.resolveTargetUserId()
 
-            // If targetUserId is present, only show if it matches current user
             if (!targetUserId.isNullOrBlank()) {
-                targetUserId.trim() == currentUserId.trim()
+                targetUserId.equals(normalizedCurrentUserId, ignoreCase = true)
             } else {
-                // Fallback: for match notifications, check matchedUserId
-                // For other types without targetUserId, show them (backward compatibility)
                 when (notification.type) {
                     Notification.NotificationType.MATCH -> {
                         val matchedUserId = notification.actionData?.userId
-                        matchedUserId == currentUserId || matchedUserId.isNullOrBlank()
+                        matchedUserId.isNullOrBlank() ||
+                            matchedUserId.trim().equals(normalizedCurrentUserId, ignoreCase = true)
                     }
-                    else -> {
-                        // Show notifications without targetUserId (backward compatibility)
-                        true
-                    }
+                    else -> true
                 }
             }
         }

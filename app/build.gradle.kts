@@ -33,6 +33,18 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    flavorDimensions += "distribution"
+    productFlavors {
+        create("releaseApp") {
+            dimension = "distribution"
+            applicationId = "com.intern001.dating"
+        }
+        create("debugApp") {
+            dimension = "distribution"
+            applicationId = "com.intern001.dating"
+        }
+    }
+
     buildTypes {
         debug {
             val devUrl = getLocalProperty("base.url.dev", "http://10.0.2.2:3000/")
@@ -46,6 +58,15 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+        }
+    }
+
+    variantFilter {
+        val flavorNames = flavors.map { it.name }
+        if ((buildType.name == "debug" && flavorNames.contains("releaseApp")) ||
+            (buildType.name == "release" && flavorNames.contains("debugApp"))
+        ) {
+            ignore = true
         }
     }
     compileOptions {
@@ -134,6 +155,9 @@ dependencies {
 
     // Material Components
     implementation("com.google.android.material:material:1.12.0")
+
+    // ViewPager2
+    implementation("androidx.viewpager2:viewpager2:1.1.0")
 
     implementation("jp.wasabeef:richeditor-android:2.0.0")
 }

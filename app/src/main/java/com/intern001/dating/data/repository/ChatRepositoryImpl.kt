@@ -2,6 +2,7 @@ package com.intern001.dating.data.repository
 
 import com.intern001.dating.data.api.DatingApiService
 import com.intern001.dating.data.model.MessageModel
+import com.intern001.dating.data.model.request.UnmatchUserRequest
 import com.intern001.dating.data.model.response.UploadImageResponse
 import com.intern001.dating.data.model.response.toEntity
 import com.intern001.dating.domain.entity.LastMessageEntity
@@ -37,5 +38,14 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun uploadImage(file: MultipartBody.Part): UploadImageResponse? {
         val res = api.uploadChatImage(file)
         return if (res.isSuccessful) res.body() else null
+    }
+
+    override suspend fun deleteAllMessages(matchId: String) {
+        api.deleteAllMessages(matchId)
+    }
+
+    override suspend fun unmatch(targetUserId: String) {
+        val req = UnmatchUserRequest(targetUserId)
+        api.unmatch(req)
     }
 }
