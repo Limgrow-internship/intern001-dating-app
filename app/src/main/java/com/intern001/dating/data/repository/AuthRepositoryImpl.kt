@@ -5,6 +5,7 @@ import android.net.Uri
 import com.intern001.dating.data.api.DatingApiService
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.data.model.request.FacebookLoginRequest
+import com.intern001.dating.data.model.request.GenerateBioDto
 import com.intern001.dating.data.model.request.GoogleLoginRequest
 import com.intern001.dating.data.model.request.LocationRequest
 import com.intern001.dating.data.model.request.LoginRequest
@@ -443,29 +444,31 @@ constructor(
         }
     }
 
-    override suspend fun generateBio(): Result<UserProfile> {
+    override suspend fun generateBio(prompt: String): Result<UserProfile> {
         return try {
             if (tokenManager.getAccessToken() == null) {
                 return Result.failure(Exception("User not logged in"))
             }
 
-            val response = apiService.generateBio()
+            val request = GenerateBioDto(prompt = prompt)
+            val response = apiService.generateBio(request)
 
             if (response.isSuccessful) {
                 val bioResponse = response.body()
                 if (bioResponse != null) {
-                    android.util.Log.d("AuthRepository", "Bio generated and saved: ${bioResponse.bio}")
-                    android.util.Log.d("AuthRepository", "Message: ${bioResponse.message}")
+                    android.util.Log.d("AuthRepository", "Bio generated: ${bioResponse.generatedBio}")
+                    android.util.Log.d("AuthRepository", "Provider: ${bioResponse.provider}")
 
-                    // API đã tự động generate và save bio vào profile
-                    // Refresh profile để lấy dữ liệu mới nhất từ server
-                    val profileResult = getUserProfile()
+                    // API chỉ generate bio, chưa save vào profile
+                    // Cần update profile với bio mới
+                    val updateRequest = UpdateProfileRequest(bio = bioResponse.generatedBio)
+                    val updateResult = updateUserProfile(updateRequest)
 
-                    profileResult.onSuccess { profile ->
-                        android.util.Log.d("AuthRepository", "Profile refreshed with new bio: ${profile.bio}")
+                    updateResult.onSuccess { profile ->
+                        android.util.Log.d("AuthRepository", "Bio saved to profile successfully")
                     }
 
-                    profileResult
+                    updateResult
                 } else {
                     Result.failure(Exception("Generate bio response body is null"))
                 }
@@ -476,6 +479,45 @@ constructor(
             }
         } catch (e: Exception) {
             android.util.Log.e("AuthRepository", "Generate bio exception", e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun enhanceBio(): Result<UserProfile> {
+        return try {
+            if (tokenManager.getAccessToken() == null) {
+                return Result.failure(Exception("User not logged in"))
+            }
+
+            // Gọi API enhance-bio (không cần body, backend tự lấy bio hiện tại)
+            val response = apiService.enhanceBio()
+
+            if (response.isSuccessful) {
+                val bioResponse = response.body()
+                if (bioResponse != null) {
+                    android.util.Log.d("AuthRepository", "Bio enhanced: ${bioResponse.generatedBio}")
+                    android.util.Log.d("AuthRepository", "Provider: ${bioResponse.provider}")
+
+                    // API chỉ enhance bio, chưa save vào profile
+                    // Cần update profile với bio mới
+                    val updateRequest = UpdateProfileRequest(bio = bioResponse.generatedBio)
+                    val updateResult = updateUserProfile(updateRequest)
+
+                    updateResult.onSuccess { profile ->
+                        android.util.Log.d("AuthRepository", "Enhanced bio saved to profile successfully")
+                    }
+
+                    updateResult
+                } else {
+                    Result.failure(Exception("Enhance bio response body is null"))
+                }
+            } else {
+                val errorBody = response.errorBody()?.string()
+                android.util.Log.e("AuthRepository", "Enhance bio failed: ${response.code()} - $errorBody")
+                Result.failure(Exception("Failed to enhance bio: ${response.code()} - $errorBody"))
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("AuthRepository", "Enhance bio exception", e)
             Result.failure(e)
         }
     }

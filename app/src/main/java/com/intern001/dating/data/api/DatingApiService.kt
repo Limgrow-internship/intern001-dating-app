@@ -6,6 +6,7 @@ import com.intern001.dating.data.model.MessageModel
 import com.intern001.dating.data.model.request.BlockUserRequest
 import com.intern001.dating.data.model.request.ChangePasswordRequest
 import com.intern001.dating.data.model.request.FacebookLoginRequest
+import com.intern001.dating.data.model.request.GenerateBioDto
 import com.intern001.dating.data.model.request.GoogleLoginRequest
 import com.intern001.dating.data.model.request.LoginRequest
 import com.intern001.dating.data.model.request.MatchActionRequest
@@ -81,8 +82,11 @@ interface DatingApiService {
     @PUT("api/profile")
     suspend fun updateUserProfile(@Body request: UpdateProfileRequest): Response<UserData>
 
-    @POST("api/profile/generate-bio")
-    suspend fun generateBio(): Response<GenerateBioResponse>
+    @POST("api/ai/generate-bio")
+    suspend fun generateBio(@Body request: GenerateBioDto): Response<GenerateBioResponse>
+
+    @POST("api/ai/enhance-bio")
+    suspend fun enhanceBio(): Response<GenerateBioResponse>
 
     @DELETE("api/profile")
     suspend fun deleteProfile(
@@ -245,7 +249,7 @@ interface DatingApiService {
     suspend fun updateFCMToken(@Body request: UpdateFCMTokenRequest): Response<Unit>
 
     // Match liked you
-    @GET("api/matches/status/{targetUserId}")
+    @GET("api/match/status/{targetUserId}")
     suspend fun getMatchStatus(
         @Path("targetUserId") targetUserId: String,
     ): MatchStatusResponse
