@@ -1,6 +1,7 @@
 package com.intern001.dating.presentation.ui.discover
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -56,39 +57,67 @@ class DatingModeFragment : BaseFragment() {
         observeViewModel()
 
         val targetUserId = arguments?.getString("targetUserId")
+        val targetListUserId = arguments?.getString("targetListUserId")
         val likerId = arguments?.getString("likerId")
         val allowMatchedProfile = arguments?.getBoolean("allowMatchedProfile") ?: false
 
+        Log.d("DEBUG_ARGS", "targetListUserId = ${arguments?.getString("targetListUserId")}")
+        Log.d("DEBUG_ARGS", "targetUserId = ${arguments?.getString("targetUserId")}")
+        Log.d("DEBUG_ARGS", "likerId = ${arguments?.getString("likerId")}")
+
+
+        if (!targetListUserId.isNullOrBlank()) {
+            viewLifecycleOwner.lifecycleScope.launch {
+
+                // fetch card
+                viewModel.fetchAndAddProfileCard(targetListUserId, allowMatched = allowMatchedProfile)
+
+                // 🔥 CHỜ LIST CẬP NHẬT XONG
+                val updatedList = viewModel.matchCards
+                    .filter { it.isNotEmpty() }
+                    .first()  // suspend until list updated
+
+                // 🔥 TÌM INDEX CHÍNH XÁC SAU UPDATE
+                val index = updatedList.indexOfFirst { it.userId == targetListUserId }
+
+                // 🔥 NẾU THẤY → NHẢY ĐÚNG VỊ TRÍ
+                if (index >= 0) {
+                    viewModel.setCurrentCardIndex(index)
+                }
+
+                delay(150)
+                showCurrentCard()
+            }
+            return
+        }
         if (!targetUserId.isNullOrBlank()) {
             viewLifecycleOwner.lifecycleScope.launch {
-                val result = viewModel.fetchAndAddProfileCard(targetUserId, allowMatched = allowMatchedProfile)
-                result.fold(
-                    onSuccess = { card ->
-                        val index = viewModel.matchCards.value.indexOfFirst { it.userId == card.userId }
+                viewModel.fetchAndAddProfileCard(targetUserId, allowMatched = allowMatchedProfile)
+                    .fold(
+                        onSuccess = {
+                            val index = viewModel.matchCards.value.indexOfFirst { it.userId == targetUserId }
+                            Log.d("DEBUG_ARGS", "Fetched card.userId = ${it.userId}")
+                            Log.d("DEBUG_ARGS", "Fetched card.id = ${it.id}")
 
-                        if (index >= 0) {
-                            viewModel.setCurrentCardIndex(index)
-                            delay(150)
-                            showCurrentCard()
-                        } else {
-                            if (viewModel.hasMoreCards()) showCurrentCard()
-                        }
-                viewModel.fetchAndAddProfileCard(targetUserId, allowMatched = allowMatchedProfile).fold(
-                    onSuccess = {
-                        delay(200)
-                        showCurrentCard()
-                    },
-                    onFailure = {
-                        val index = viewModel.matchCards.value.indexOfFirst { it.userId == targetUserId }
-                        if (index >= 0) {
-                            viewModel.setCurrentCardIndex(index)
-                            delay(150)
-                            showCurrentCard()
-                        } else {
-                            if (viewModel.hasMoreCards()) showCurrentCard()
-                        }
-                    },
-                )
+                            if (index >= 0) {
+                                viewModel.setCurrentCardIndex(index)
+                                delay(150)
+                                showCurrentCard()
+                            } else if (viewModel.hasMoreCards()) {
+                                showCurrentCard()
+                            }
+                        },
+                        onFailure = {
+                            val index = viewModel.matchCards.value.indexOfFirst { it.userId == targetUserId }
+                            if (index >= 0) {
+                                viewModel.setCurrentCardIndex(index)
+                                delay(150)
+                                showCurrentCard()
+                            } else if (viewModel.hasMoreCards()) {
+                                showCurrentCard()
+                            }
+                        },
+                    )
             }
             return
         }

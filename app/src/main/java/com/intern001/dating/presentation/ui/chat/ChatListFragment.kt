@@ -2,6 +2,7 @@
 package com.intern001.dating.presentation.ui.chat
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.intern001.dating.R
@@ -22,6 +24,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import com.intern001.dating.presentation.ui.chat.MatchAdapter
 
 @AndroidEntryPoint
 class ChatListFragment : BaseFragment() {
@@ -61,17 +64,17 @@ class ChatListFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.rvMatches.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        matchAdapter =
-            MatchAdapter { match ->
-                findNavController().navigate(
-                    R.id.action_chatList_to_datingMode,
-                    bundleOf(
-                        "targetUserId" to match.matchedUser.userId,
-                        "allowMatchedProfile" to true,
-                    ),
-                )
-            }
+        matchAdapter = MatchAdapter { match ->
+            val clickedUserId = match.matchedUser.userId
+            findNavController().navigate(
+                R.id.action_chatList_to_datingMode,
+                bundleOf("targetListUserId" to clickedUserId)
+            )
+        }
+
+        binding.rvMatches.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
         binding.rvMatches.adapter = matchAdapter
 
         binding.rvConversations.layoutManager = LinearLayoutManager(requireContext())
