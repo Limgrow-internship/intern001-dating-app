@@ -300,5 +300,6 @@ fun LikedYouResponseDto.toDomain(): LikedYouUser {
         age = age,
         avatar = avatar,
         city = city,
+        picture = picture,
     )
 }

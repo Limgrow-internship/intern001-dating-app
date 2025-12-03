@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DecodeFormat
+import com.intern001.dating.R
 import com.intern001.dating.databinding.ItemLikedYouBinding
 import com.intern001.dating.domain.model.LikedYouUser
 
@@ -19,14 +20,29 @@ class LikedYouAdapter(
             txtNameAge.text = item.displayName ?: "Chưa cập nhật"
             txtLocation.text = item.city ?: "Chưa cập nhật"
 
-            val hdUrl = "${item.avatar}?q_auto:best&f_auto&c_fill&w=900&h=900"
+            val imageUrl = when {
+                !item.avatar.isNullOrBlank() -> item.avatar
+                !item.picture.isNullOrBlank() -> item.picture
+                else -> null
+            }
 
-            Glide.with(imgAvatar.context)
-                .load(hdUrl)
-                .override(900, 900)
-                .format(DecodeFormat.PREFER_ARGB_8888)
-                .centerCrop()
-                .into(imgAvatar)
+            if (imageUrl == null) {
+                // Không có URL → load default
+                Glide.with(imgAvatar.context)
+                    .load(R.drawable.bg_avatar_round)
+                    .centerCrop()
+                    .into(imgAvatar)
+            } else {
+                val hdUrl = "$imageUrl?q_auto:best&f_auto&c_fill&w=900&h=900"
+
+                Glide.with(imgAvatar.context)
+                    .load(hdUrl)
+                    .override(900, 900)
+                    .format(DecodeFormat.PREFER_ARGB_8888)
+                    .centerCrop()
+                    .error(R.drawable.bg_avatar_round)
+                    .into(imgAvatar)
+            }
 
             root.setOnClickListener {
                 onItemClick(item)

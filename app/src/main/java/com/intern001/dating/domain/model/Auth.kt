@@ -132,6 +132,7 @@ data class LikedYouUser(
     val displayName: String,
     val age: Int?,
     val avatar: String?,
+    val picture: String?,
     val city: String?,
 )
 
