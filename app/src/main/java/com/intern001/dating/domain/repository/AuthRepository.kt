@@ -36,6 +36,8 @@ interface AuthRepository {
 
     suspend fun updateUserProfile(request: UpdateProfileRequest): Result<UserProfile>
 
+    suspend fun generateBio(): Result<UserProfile>
+
     suspend fun uploadImage(imageUri: Uri): Result<String>
 
     suspend fun isLoggedIn(): Boolean

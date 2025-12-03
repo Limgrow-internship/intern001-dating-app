@@ -73,10 +73,6 @@ class DatingModeFragment : BaseFragment() {
                         } else {
                             if (viewModel.hasMoreCards()) showCurrentCard()
                         }
-                viewModel.fetchAndAddProfileCard(targetUserId, allowMatched = allowMatchedProfile).fold(
-                    onSuccess = {
-                        delay(200)
-                        showCurrentCard()
                     },
                     onFailure = {
                         val index = viewModel.matchCards.value.indexOfFirst { it.userId == targetUserId }
@@ -94,7 +90,6 @@ class DatingModeFragment : BaseFragment() {
         }
         if (!likerId.isNullOrBlank()) {
             viewLifecycleOwner.lifecycleScope.launch {
-
                 val cards = viewModel.matchCards.filter { it.isNotEmpty() }.first()
 
                 val likerIndex = cards.indexOfFirst { it.userId == likerId }
@@ -121,7 +116,6 @@ class DatingModeFragment : BaseFragment() {
             showCurrentCard()
         }
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
