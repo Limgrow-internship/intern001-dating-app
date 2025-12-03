@@ -9,7 +9,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.intern001.dating.R
 
 class ChatMoreBottomSheet(
-    val onUnmatch: () -> Unit,
+    val onUnmatch: (() -> Unit)? = null,
     val onReport: () -> Unit,
     val onDeleteConversation: () -> Unit,
     val onBlock: () -> Unit,
@@ -20,9 +20,15 @@ class ChatMoreBottomSheet(
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        view.findViewById<TextView>(R.id.tvUnmatch).setOnClickListener {
-            dismiss()
-            onUnmatch()
+        val tvUnmatch = view.findViewById<TextView>(R.id.tvUnmatch)
+        if (onUnmatch != null) {
+            tvUnmatch.setOnClickListener {
+                dismiss()
+                onUnmatch()
+            }
+        } else {
+            // Hide unmatch option if null (e.g., for AI conversation)
+            tvUnmatch.visibility = View.GONE
         }
         view.findViewById<TextView>(R.id.tvReport).setOnClickListener {
             dismiss()

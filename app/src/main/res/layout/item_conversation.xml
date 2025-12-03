@@ -36,15 +36,37 @@
         android:layout_weight="1"
         android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/tvUserName"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="#000"
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Minh Hang"
-            />
+            android:gravity="center_vertical">
+            
+            <TextView
+                android:id="@+id/tvUserName"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="#000"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Minh Hang"
+                />
+            
+            <TextView
+                android:id="@+id/tvAIBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="AI"
+                android:textSize="10sp"
+                android:textColor="#FFFFFF"
+                android:background="#4CAF50"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:visibility="gone"
+                android:textStyle="bold"
+                />
+        </LinearLayout>
         <Space
             android:layout_width="match_parent"
             android:layout_height="5dp"/>
