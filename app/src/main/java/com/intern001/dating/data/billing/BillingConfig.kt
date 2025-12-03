@@ -8,11 +8,11 @@ object BillingConfig {
     }
 
     object Subscriptions {
-        const val WEEKLY = "com.ledkeyboard.weekly"
-        const val MONTHLY = "monthly"
-        const val YEARLY = "com.led.yearlytest"
+        const val BASIC = "basic.test"
+        const val GOLD = "gold.test"
+        const val ELITE = "elite.test"
 
-        fun getAllSubscriptionIds(): List<String> = listOf(WEEKLY, MONTHLY, YEARLY)
+        fun getAllSubscriptionIds(): List<String> = listOf(BASIC, GOLD, ELITE)
     }
 
     object RetryConfig {

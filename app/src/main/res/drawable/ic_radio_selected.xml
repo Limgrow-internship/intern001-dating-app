@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+
+    <!-- Fake shadow -->
+    <path
+        android:fillColor="#FFFFE66D"
+        android:fillAlpha="0.2"
+        android:pathData="M16,4a12,12 0 1,1 0,24a12,12 0 1,1 0,-24" />
+
+    <!-- Inner yellow circle -->
+    <path
+        android:fillColor="#FFE66D"
+        android:pathData="M16,7a9,9 0 1,1 0,18a9,9 0 1,1 0,-18" />
+
+</vector>

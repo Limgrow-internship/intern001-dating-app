@@ -46,7 +46,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="REGISTRATION"
+                    android:text="@string/registration"
                     android:textStyle="bold"
                     android:textSize="32dp"
                     android:textColor="@android:color/black"
@@ -123,7 +123,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Enter the code sent to"
+                    android:text="@string/enter_the_code"
                     android:textSize="18dp"
                     android:textColor="@android:color/black" />
 
@@ -132,7 +132,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="+limgrow@gmail.com"
+                    android:text="@string/email_example"
                     android:textSize="18dp"
                     android:visibility="visible"
                     android:textColor="#00BEFF" />
@@ -142,7 +142,7 @@
                 android:id="@+id/btnVerify"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:text="VERIFY"
+                android:text="@string/verify"
                 android:textStyle="bold"
                 android:textColor="@android:color/white"
                 android:backgroundTint="#000000"
@@ -160,7 +160,7 @@
                 android:textFontWeight="700"
                 android:textSize="18dp"
                 android:layout_height="wrap_content"
-                android:text="Didn’t receive the code? "
+                android:text="@string/didn_receive"
                 android:textColor="@android:color/black" />
 
             <TextView
@@ -169,7 +169,7 @@
                 android:layout_height="wrap_content"
                 android:textFontWeight="700"
                 android:textSize="18dp"
-                android:text="Recent code"
+                android:text="@string/recent_code"
                 android:textStyle="bold"
                 android:textColor="#00BEFF"
                 android:clickable="true"

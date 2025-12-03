@@ -171,6 +171,17 @@
             app:destination="@id/chatDetailFragment"
             app:enterAnim="@android:anim/slide_in_left"
             app:exitAnim="@android:anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_homeFragment_to_filterFragment"
+            app:destination="@id/filterFragment"/>
+
+        <action
+            android:id="@+id/action_home_to_datingMode"
+            app:destination="@id/datingModeFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            />
     </fragment>
 
     <fragment
@@ -180,19 +191,43 @@
         <action
             android:id="@+id/action_chatList_to_chatDetail"
             app:destination="@id/chatDetailFragment"
-            app:enterAnim="@android:anim/slide_in_left"
-            app:exitAnim="@android:anim/slide_out_right" />
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
         <action
             android:id="@+id/action_chatList_to_profileDetail"
             app:destination="@id/profileDetailFragment" />
+
+        <action
+            android:id="@+id/action_chatList_to_datingMode"
+            app:destination="@id/datingModeFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+        <argument
+            android:name="targetUserId"
+            app:argType="string"
+            android:defaultValue="@null" />
     </fragment>
 
     <fragment
         android:id="@+id/chatDetailFragment"
+        android:name="com.intern001.dating.presentation.ui.chat.ChatDetailFragment"
         android:label="ChatDetailFragment">
         <argument
-            android:name="userId"
+            android:name="matchId"
             app:argType="string" />
+        <argument
+            android:name="matchedUserName"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="matchedUserAvatar"
+            app:argType="string"
+            android:defaultValue="" />
         <action
             android:id="@+id/action_chatDetail_to_profileDetail"
             app:destination="@id/profileDetailFragment"
@@ -233,6 +268,38 @@
             app:destination="@id/loginFragment"
             app:popUpTo="@id/profileFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_profile_to_verifyAccount"
+            app:destination="@id/verifyAccountFragment"
+            app:popUpTo="@id/profileFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/verifyAccountFragment"
+        android:name="com.intern001.dating.presentation.ui.verify.VerifyAccountFragment"
+        android:label="VerifyAccountFragment">
+        <action
+            android:id="@+id/action_verifyAccountFragment_to_verifyCameraFragment"
+            app:destination="@id/verifyCameraFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/verifyCameraFragment"
+        android:name="com.intern001.dating.presentation.ui.verify.VerifyCameraFragment"
+        android:label="VerifyCameraFragment">
+        <action
+            android:id="@+id/action_verifyCameraFragment_to_verificationSuccessFragment"
+            app:destination="@id/verificationSuccessFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/verificationSuccessFragment"
+        android:name="com.intern001.dating.presentation.ui.verify.VerificationSuccessFragment"
+        android:label="VerificationSuccessFragment">
+        <action
+            android:id="@+id/action_verificationSuccessFragment_to_home"
+            app:destination="@id/homeFragment" />
     </fragment>
 
     <fragment
@@ -248,13 +315,22 @@
         <action
             android:id="@+id/action_profileDetail_to_chatDetail"
             app:destination="@id/chatDetailFragment"
-            app:enterAnim="@android:anim/slide_in_left"
-            app:exitAnim="@android:anim/slide_out_right" />
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left" />
     </fragment>
 
     <fragment
         android:id="@+id/editProfileFragment"
-        android:label="EditProfileFragment" />
+        android:name="com.intern001.dating.presentation.ui.profile.edit.EditProfileFragment"
+        android:label="EditProfileFragment">
+
+        <action
+            android:id="@+id/action_editProfileFragment_to_viewProfileFragment"
+            app:destination="@id/profileFragment"
+            app:popUpTo="@id/editProfileFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
+
 
     <fragment
         android:id="@+id/settingsFragment"
@@ -266,4 +342,47 @@
             app:popUpToInclusive="true" />
     </fragment>
 
+    <fragment
+        android:id="@+id/datingModeFragment"
+        android:name="com.intern001.dating.presentation.ui.discover.DatingModeFragment"
+        android:label="Dating Mode"
+        app:route="dating_mode?likerId={likerId}">
+        <argument
+            android:name="likerId"
+            app:argType="string"
+            android:defaultValue="@null" />
+
+        <argument
+            android:name="targetUserId"
+            app:argType="string"
+            android:defaultValue="@null" />
+        <argument
+            android:name="allowMatchedProfile"
+            app:argType="boolean"
+            android:defaultValue="false" />
+
+        <action
+            android:id="@+id/action_datingModeFragment_to_filterFragment"
+            app:destination="@id/filterFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/likedYouFragment"
+        android:name="com.intern001.dating.presentation.ui.home.LikedYouFragment"
+        android:label="LikedYouFragment">
+
+        <action
+            android:id="@+id/action_likedYou_to_datingMode"
+            app:destination="@id/datingModeFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/filterFragment"
+        android:name="com.intern001.dating.presentation.ui.discover.filter.DatingFilterFragment"
+        android:label="Filter" />
 </navigation>

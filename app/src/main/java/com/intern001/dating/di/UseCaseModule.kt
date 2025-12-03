@@ -52,4 +52,8 @@ object UseCaseModule {
     fun provideFacebookLoginUseCase(authRepository: AuthRepository): FacebookLoginUseCase {
         return FacebookLoginUseCase(authRepository)
     }
+
+    // Note: Match and Recommendation UseCases are automatically provided by Hilt
+    // via constructor injection (@Inject constructors).
+    // No need for manual @Provides methods - this reduces boilerplate code.
 }

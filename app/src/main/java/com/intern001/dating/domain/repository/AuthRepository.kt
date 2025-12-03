@@ -1,6 +1,7 @@
 package com.intern001.dating.domain.repository
 
 import android.net.Uri
+import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.data.model.response.FacebookLoginResponse
 import com.intern001.dating.data.model.response.GoogleLoginResponse
 import com.intern001.dating.domain.model.User
@@ -10,7 +11,7 @@ interface AuthRepository {
     suspend fun login(
         email: String,
         password: String,
-        deviceToken: String? = null,
+        deviceId: String? = null,
     ): Result<String>
 
     suspend fun facebookLogin(
@@ -24,7 +25,7 @@ interface AuthRepository {
         lastName: String,
         gender: String,
         dateOfBirth: String,
-        deviceToken: String? = null,
+        deviceId: String? = null,
     ): Result<String>
 
     suspend fun logout(): Result<Unit>
@@ -33,15 +34,9 @@ interface AuthRepository {
 
     suspend fun getUserProfile(): Result<UserProfile>
 
-    suspend fun updateUserProfile(
-        firstName: String? = null,
-        lastName: String? = null,
-        dateOfBirth: String? = null,
-        gender: String? = null,
-        profileImageUrl: String? = null,
-        mode: String? = null,
-        bio: String? = null,
-    ): Result<UserProfile>
+    suspend fun updateUserProfile(request: UpdateProfileRequest): Result<UserProfile>
+
+    suspend fun generateBio(): Result<UserProfile>
 
     suspend fun uploadImage(imageUri: Uri): Result<String>
 
@@ -52,4 +47,6 @@ interface AuthRepository {
     suspend fun googleLogin(
         accessToken: String,
     ): Result<GoogleLoginResponse>
+
+    suspend fun clearUserCache()
 }

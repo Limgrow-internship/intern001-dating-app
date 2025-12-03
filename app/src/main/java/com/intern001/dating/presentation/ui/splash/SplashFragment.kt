@@ -14,8 +14,10 @@ import com.intern001.dating.presentation.common.ads.AdManager
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 @AndroidEntryPoint
 class SplashFragment : BaseFragment() {
@@ -27,6 +29,8 @@ class SplashFragment : BaseFragment() {
 
     @Inject
     lateinit var authRepository: AuthRepository
+
+    private var prefetchJob: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,9 +45,13 @@ class SplashFragment : BaseFragment() {
         (activity as? MainActivity)?.hideBottomNavigation(true)
 
         AdManager.preloadNativeAds(requireContext()) {
-            viewLifecycleOwner.lifecycleScope.launch {
+            // Use lifecycleScope instead of viewLifecycleOwner to avoid crash when view is destroyed
+            lifecycleScope.launch {
                 delay(1500)
-                navigateToNextScreen()
+                // Check if fragment is still attached and view exists before navigation
+                if (isAdded && view != null) {
+                    navigateToNextScreen()
+                }
             }
         }
     }
@@ -52,6 +60,8 @@ class SplashFragment : BaseFragment() {
         val onboardingCompleted = appPreferencesManager.isOnboardingCompleted()
         val isLoggedIn = authRepository.isLoggedIn()
         val hasPurchasedNoAds = viewModel.hasActiveSubscription()
+
+        prefetchUserDataIfNeeded(isLoggedIn)
 
         when {
             !onboardingCompleted -> {
@@ -77,8 +87,23 @@ class SplashFragment : BaseFragment() {
         }
     }
 
+    private fun prefetchUserDataIfNeeded(isLoggedIn: Boolean) {
+        if (!isLoggedIn || prefetchJob?.isActive == true) return
+        prefetchJob =
+            lifecycleScope.launch {
+                withTimeoutOrNull(PREFETCH_TIMEOUT_MS) {
+                    viewModel.prefetchHomeData()
+                }
+            }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         (activity as? MainActivity)?.hideBottomNavigation(true)
+        prefetchJob?.cancel()
+    }
+
+    companion object {
+        private const val PREFETCH_TIMEOUT_MS = 3_000L
     }
 }

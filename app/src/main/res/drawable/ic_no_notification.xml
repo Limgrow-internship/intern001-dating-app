@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="206dp"
+    android:height="206dp"
+    android:viewportWidth="206"
+    android:viewportHeight="206">
+
+    <!-- Circle (background) -->
+    <path
+        android:fillColor="#FFCFB0"
+        android:pathData="M206,103 A103,103 0 1 0 0,103 A103,103 0 1 0 206,103 Z" />
+
+    <!-- Main orange shape (copied from SVG path, includes two subpaths) -->
+    <path
+        android:fillColor="#FF6500"
+        android:fillType="nonZero"
+        android:pathData="M103 160.5 C106.561 160.504 110.035 159.399 112.939 157.338 C115.843 155.277 118.032 152.363 119.203 149 H86.7965 C87.9676 152.363 90.1572 155.277 93.0612 157.338 C95.9651 159.399 99.439 160.504 103 160.5 Z
+                         M143.25 117.869 V91.5 C143.25 73.0023 130.686 57.4197 113.666 52.7335 C111.981 48.49 107.865 45.5 103 45.5 C98.1355 45.5 94.0185 48.49 92.3338 52.7335 C75.3138 57.4255 62.75 73.0023 62.75 91.5 V117.869 L52.9347 127.685 C51.8563 128.763 51.2503 130.225 51.25 131.75 V137.5 C51.25 139.025 51.8558 140.488 52.9341 141.566 C54.0125 142.644 55.475 143.25 57 143.25 H149 C150.525 143.25 151.988 142.644 153.066 141.566 C154.144 140.488 154.75 139.025 154.75 137.5 V131.75 C154.75 130.225 154.144 128.763 153.065 127.685 L143.25 117.869 Z" />
+
+    <!-- Rounded rectangle (white) rotated by 45 degrees around pivot (50,45).
+         Implemented as a Group with rotation + a rounded-rect path. -->
+    <group
+        android:rotation="45"
+        android:pivotX="50"
+        android:pivotY="45">
+
+        <path
+            android:fillColor="#FFFFFF"
+            android:fillType="nonZero"
+            android:pathData="
+                M 53.78127 45
+                H 201.60473
+                A 3.78127 3.78127 0 0 1 205.386 48.78127
+                V 48.78127
+                A 3.78127 3.78127 0 0 1 201.60473 52.56254
+                H 53.78127
+                A 3.78127 3.78127 0 0 1 50 48.78127
+                V 48.78127
+                A 3.78127 3.78127 0 0 1 53.78127 45
+                Z" />
+    </group>
+
+</vector>

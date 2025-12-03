@@ -1,5 +1,6 @@
 package com.intern001.dating.data.model.response
 
+import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
 
 data class AuthResponse(
@@ -35,12 +36,41 @@ data class UserData(
     val dateOfBirth: String? = null,
     @SerializedName("gender")
     val gender: String? = null,
-    @SerializedName("profilePicture")
-    val profileImageUrl: String? = null,
+    @SerializedName("avatar")
+    val avatar: String? = null,
+    @SerializedName("photos")
+    @JsonAdapter(PhotoListDeserializer::class)
+    val photos: List<PhotoResponse>? = null,
     @SerializedName("mode")
     val mode: String? = null,
     @SerializedName("bio")
     val bio: String? = null,
+    @SerializedName("goals")
+    val goals: List<String>? = null,
+    @SerializedName("interests")
+    val interests: List<String>? = null,
+    @SerializedName("occupation")
+    val occupation: String? = null,
+    @SerializedName("company")
+    val company: String? = null,
+    @SerializedName("education")
+    val education: String? = null,
+    @SerializedName("zodiacSign")
+    val zodiacSign: String? = null,
+    @SerializedName("city")
+    val city: String? = null,
+    @SerializedName("country")
+    val country: String? = null,
+    @SerializedName("location")
+    val location: LocationResponse? = null,
+    @SerializedName("height")
+    val height: Int? = null,
+    @SerializedName("weight")
+    val weight: Int? = null,
+    @SerializedName("job")
+    val job: String? = null,
+    @SerializedName("openQuestionAnswers")
+    val openQuestionAnswers: Map<String, String>? = null,
 )
 
 data class RefreshTokenRequest(
@@ -124,4 +154,61 @@ data class ProfileData(
     val firstName: String?,
     @SerializedName("lastName")
     val lastName: String?,
+)
+
+data class VerifyFaceResponse(
+    val verified: Boolean,
+    val message: String,
+)
+
+// ============================================================
+// Photo Management Response DTOs - New Photo System
+// ============================================================
+
+data class PhotoListResponse(
+    @SerializedName("photos")
+    val photos: List<PhotoResponse>,
+    @SerializedName("count")
+    val count: Int? = null,
+)
+
+data class PhotoCountResponse(
+    @SerializedName("count")
+    val count: Int,
+)
+
+data class MatchStatusResponse(
+    val matched: Boolean,
+    val userLiked: Boolean,
+    val targetLiked: Boolean,
+    val targetProfile: TargetProfileResponse?,
+    val status: String,
+)
+
+data class TargetProfileResponse(
+    val firstName: String?,
+    val lastName: String?,
+    val displayName: String?,
+    val age: Int?,
+    val gender: String?,
+    val bio: String?,
+    val interests: List<String>,
+    val city: String?,
+    val occupation: String?,
+    val height: Int?,
+)
+
+data class LikedYouResponseDto(
+    @SerializedName("userId")
+    val userId: String,
+    @SerializedName("firstName")
+    val firstName: String?,
+    @SerializedName("lastName")
+    val lastName: String?,
+    @SerializedName("avatar")
+    val avatar: String?,
+    @SerializedName("city")
+    val city: String?,
+    @SerializedName("age")
+    val age: Int?,
 )

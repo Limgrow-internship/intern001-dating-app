@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:id="@+id/ll_photos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Photo"
+                    android:textColor="@color/black"
+                    android:textSize="24dp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Add and drag photo cards to arrange them in the order you want them to appear."
+                    android:textColor="@color/black"
+                    android:textSize="16dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <include
+                    android:id="@+id/item_photo_1"
+                    android:tag="item_photo_1"
+                    layout="@layout/item_photo_profile" />
+
+                <include
+                    android:id="@+id/item_photo_2"
+                    android:tag="item_photo_2"
+                    layout="@layout/item_photo_profile" />
+
+                <include
+                    android:id="@+id/item_photo_3"
+                    android:tag="item_photo_3"
+                    layout="@layout/item_photo_profile" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp">
+
+                <include
+                    android:id="@+id/item_photo_4"
+                    android:tag="item_photo_4"
+                    layout="@layout/item_photo_profile" />
+
+                <include
+                    android:id="@+id/item_photo_5"
+                    android:tag="item_photo_5"
+                    layout="@layout/item_photo_profile" />
+
+                <include
+                    android:id="@+id/item_photo_6"
+                    android:tag="item_photo_6"
+                    layout="@layout/item_photo_profile" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/include_info"
+                layout="@layout/item_info_profile" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_about"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/include_about"
+                layout="@layout/item_about_profile" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_goals"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/include_goals"
+                layout="@layout/item_goals_profile" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_details"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/include_details"
+                layout="@layout/item_details_profile" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_interests"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/include_interests"
+                layout="@layout/item_interests_profile" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_questions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/include_questions"
+                layout="@layout/item_open_questions_profile" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Save"
+            android:textStyle="bold"
+            android:layout_marginTop="50dp"
+            android:layout_marginBottom="40dp"
+            android:textColor="@android:color/white"
+            android:backgroundTint="#000000" />
+    </LinearLayout>
+</ScrollView>

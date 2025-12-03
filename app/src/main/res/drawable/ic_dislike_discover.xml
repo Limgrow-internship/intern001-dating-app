@@ -1,0 +1,15 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <!-- Dark circle background (path instead of circle) -->
+    <path
+        android:fillColor="#000000"
+        android:fillAlpha="0.5"
+        android:pathData="M 32,0 A 32,32 0 1,1 32,64 A 32,32 0 1,1 32,0 Z" />
+    <!-- Thumbs up icon path -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M16,15H18V41H16C14.9391,41 13.9217,40.5786 13.1716,39.8284C12.4214,39.0783 12,38.0609 12,37V19C12,17.9391 12.4214,16.9217 13.1716,16.1716C13.9217,15.4214 14.9391,15 16,15ZM48,41H34L36.244,47.736C36.4442,48.3372 36.4988,48.9773 36.4031,49.6037C36.3075,50.2301 36.0644,50.8248 35.694,51.3388C35.3235,51.8528 34.8362,52.2715 34.2722,52.5603C33.7082,52.8491 33.0836,52.9998 32.45,53H32L22,42.124V15H44L51.874,32.298L52,32.884V37C52,38.0609 51.5786,39.0783 50.8284,39.8284C50.0783,40.5786 49.0609,41 48,41Z" />
+</vector>

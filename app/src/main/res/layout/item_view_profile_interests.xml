@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_marginBottom="12dp">
+
+    <TextView
+        android:id="@+id/tv_interests"
+        android:layout_width="wrap_content"
+        android:layout_height="39dp"
+        android:paddingHorizontal="12dp"
+        android:text="Music"
+        android:gravity="center"
+        android:textSize="16sp"
+        android:textColor="#000000"
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/bg_view_profile"/>
+</LinearLayout>

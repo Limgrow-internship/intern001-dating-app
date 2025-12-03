@@ -12,18 +12,23 @@ import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.databinding.FragmentProfileBinding
+import com.intern001.dating.domain.model.UpdateProfile
 import com.intern001.dating.presentation.common.ads.AdManager
 import com.intern001.dating.presentation.common.ads.NativeAdHelper
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.common.viewmodel.ProfileViewModel
 import com.intern001.dating.presentation.ui.premium.PremiumActivity
+import com.intern001.dating.presentation.ui.profile.edit.EditProfileViewModel
+import com.intern001.dating.presentation.ui.profile.edit.ProfileActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -32,6 +37,7 @@ class ProfileFragment : BaseFragment() {
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
     private val viewModel: ProfileViewModel by viewModels()
+    private val viewModel1: EditProfileViewModel by viewModels()
 
     @Inject
     lateinit var tokenManager: TokenManager
@@ -44,6 +50,9 @@ class ProfileFragment : BaseFragment() {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val view = binding.root
         val adContainer = binding.grayBox
+
+        observeUserProfile()
+        loadUserProfile()
 
         // Only show ads if user hasn't purchased "no ads"
         if (!viewModel.hasActiveSubscription()) {
@@ -58,12 +67,22 @@ class ProfileFragment : BaseFragment() {
             adContainer.visibility = View.GONE
         }
 
+        val btnVerifyProfile = view.findViewById<LinearLayout>(R.id.btnVerifyProfile)
+        btnVerifyProfile.setOnClickListener {
+            findNavController().navigate(R.id.action_profile_to_verifyAccount)
+        }
+
         binding.btnContinuePremium.setOnClickListener {
             navigateToPremium()
         }
 
         binding.btnLogout.setOnClickListener {
             showLogOutBottomSheet()
+        }
+
+        binding.btnProfile.setOnClickListener {
+            val intent = Intent(context, ProfileActivity::class.java)
+            startActivity(intent)
         }
 
         val btnDeleteAccount = view.findViewById<LinearLayout>(R.id.btnDeleteAccount)
@@ -80,6 +99,76 @@ class ProfileFragment : BaseFragment() {
         }
 
         return view
+    }
+
+    private fun loadUserProfile() {
+        val firstName = tokenManager.getFirstName()
+        val lastName = tokenManager.getLastName()
+        val gender = tokenManager.getGender()
+        val mode = tokenManager.getMode()
+        val avatar = tokenManager.getAvatar()
+
+        if (firstName != null || lastName != null || gender != null || mode != null) {
+            val profile = UpdateProfile.fromLocal(
+                firstName = firstName,
+                lastName = lastName,
+                gender = gender,
+                mode = mode,
+                avatar = avatar,
+            )
+            bindProfileData(profile)
+        }
+
+        viewModel1.getUserProfile()
+    }
+
+    private fun observeUserProfile() {
+        lifecycleScope.launch {
+            viewModel1.userProfileState.collectLatest { state ->
+                when (state) {
+                    is EditProfileViewModel.UiState.Loading -> Unit
+
+                    is EditProfileViewModel.UiState.Success<*> -> {
+                        val profile = state.data as UpdateProfile
+                        bindProfileData(profile)
+
+                        tokenManager.saveUserProfile(
+                            firstName = profile.firstName ?: "",
+                            lastName = profile.lastName ?: "",
+                            gender = profile.gender ?: "",
+                            mode = profile.mode ?: "",
+                            avatar = profile.avatar ?: "",
+                        )
+                    }
+
+                    is EditProfileViewModel.UiState.Error -> {
+                        Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+                    }
+
+                    else -> Unit
+                }
+            }
+        }
+    }
+
+    private fun bindProfileData(profile: UpdateProfile) {
+        val currentBinding = _binding ?: return
+        val fullName = listOfNotNull(profile.firstName, profile.lastName).joinToString(" ")
+        currentBinding.tvName.text = fullName
+        currentBinding.tvGender.text = profile.gender ?: getString(R.string.profile_gender_placeholder)
+        currentBinding.tvMode.text = profile.mode ?: getString(R.string.dating)
+
+        val avatarUrl = profile.avatar
+        if (!avatarUrl.isNullOrEmpty()) {
+            Glide.with(currentBinding.avatarImageView.context)
+                .load(avatarUrl)
+                .placeholder(R.drawable.ic_person)
+                .error(R.drawable.ic_person)
+                .circleCrop()
+                .into(currentBinding.avatarImageView)
+        } else {
+            currentBinding.avatarImageView.setImageResource(R.drawable.ic_person)
+        }
     }
 
     private fun showLogOutBottomSheet() {

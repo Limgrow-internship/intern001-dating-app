@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">HeartOnDatingApp</string>
     <string name="create_new_password_message">
-        为您的账户创建新密码。请确保密码强大且容易记住。
+        为您的账户创建一个新密码。请确保密码既安全又容易记住。
     </string>
+    <string name="error_signup">请选择更强的密码。请尝试字母和数字的组合。</string>
     <string name="login">登录</string>
     <string name="email">邮箱</string>
     <string name="pass">密码</string>
@@ -11,11 +11,52 @@
     <string name="login_with">或使用以下方式登录</string>
     <string name="dont_have_account">还没有账户？</string>
     <string name="signup">注册</string>
-    <string name="incorrect_mail">邮箱不正确</string>
-    <string name="incorrect_pass">密码不正确</string>
+    <string name="incorrect_mail">邮箱无效</string>
+    <string name="incorrect_pass">密码无效</string>
     <string name="it_all_starts_with_a_swipe">一切从滑动开始</string>
-    <string name="a_single_swipe_can_open_a_whole_new_story_discover_people_nearby_who_share_your_vibe">一次滑动就能开启全新的故事。发现附近与你志趣相投的人</string>
-    <string name="find_your_vibe_not_just_a_match">找到你的共鸣，而不仅仅是匹配</string>
-    <string name="we_help_you_meet_people_who_feel_right_not_just_look_right">我们帮助你遇见心灵契合的人 — 而不仅仅是外表合适</string>
+    <string name="a_single_swipe_can_open_a_whole_new_story_discover_people_nearby_who_share_your_vibe">一次滑动可以开启全新故事。发现身边与您有相同氛围的人。</string>
+    <string name="find_your_vibe_not_just_a_match">找到您的氛围，而不仅仅是匹配</string>
+    <string name="we_help_you_meet_people_who_feel_right_not_just_look_right">我们帮助您遇见感觉合适的人，不只是外表合适。</string>
     <string name="btn_continue">继续</string>
+    <string name="button">按钮</string>
+    <string name="male">男</string>
+    <string name="female">女</string>
+    <string name="other">其他</string>
+    <string name="sign_up">注册</string>
+    <string name="password">密码</string>
+    <string name="already_have_account">已经有账户？</string>
+    <string name="_40">40%</string>
+    <string name="next">下一步</string>
+    <string name="default_web_client_id">657435569191-s3n5md0h818sh72j2u7gls8vla24d90d.apps.googleusercontent.com</string>
+    <string name="log_out">登出</string>
+    <string name="billing_sub_week" translatable="false">com.ledkeyboard.weekly</string>
+    <string name="billing_sub_month" translatable="false">monthly</string>
+    <string name="billing_sub_year" translatable="false">com.led.yearlytest</string>
+    <string name="billing_inapp_onetime" translatable="false">test1</string>
+    <string name="registration">注册</string>
+    <string name="enter_the_code">请输入发送到您的代码</string>
+    <string name="email_example">+limgrow@gmail.com</string>
+    <string name="verify">验证</string>
+    <string name="didn_receive">没有收到代码？</string>
+    <string name="recent_code">重新发送代码</string>
+    <string name="choose_photo">选择您最好的照片！</string>
+    <string name="btn_next">下一步</string>
+    <string name="what_name">您的名字是什么？</string>
+    <string name="enter_name">请输入您的名字</string>
+    <string name="choose_gender">请选择您的性别</string>
+    <string name="birthday">请选择生日</string>
+    <string name="mode">模式</string>
+    <string name="dating">约会模式</string>
+    <string name="friend">朋友模式</string>
+    <string name="upgrade">升级到 Heart On</string>
+    <string name="upgrade_text">现在升级并传递爱心！</string>
+    <string name="btn_upgrad">立即升级</string>
+    <string name="profile">个人资料</string>
+    <string name="change_password">修改密码</string>
+    <string name="verify_profile">验证资料</string>
+    <string name="language">语言</string>
+    <string name="notications">通知</string>
+    <string name="help_center">帮助中心</string>
+    <string name="contact_us">联系我们</string>
+    <string name="delete_acc">删除账号</string>
 </resources>
