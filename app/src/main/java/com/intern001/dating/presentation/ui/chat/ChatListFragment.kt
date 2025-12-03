@@ -28,6 +28,7 @@ class ChatListFragment : BaseFragment() {
 
     data class Conversation(
         val matchId: String,
+        val userId: String,
         val avatarUrl: String?,
         val userName: String,
         val lastMessage: String?,
@@ -74,6 +75,7 @@ class ChatListFragment : BaseFragment() {
         binding.rvMatches.adapter = matchAdapter
 
         binding.rvConversations.layoutManager = LinearLayoutManager(requireContext())
+
         conversationAdapter = ConversationAdapter(listOf()) { conversation ->
             findNavController().navigate(
                 R.id.action_chatList_to_chatDetail,
@@ -85,13 +87,16 @@ class ChatListFragment : BaseFragment() {
                 ),
             )
         }
+
         binding.rvConversations.adapter = conversationAdapter
 
+        // --- OBSERVE DATA
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 vm.isLoading.combine(vm.matches) { isLoading, matches ->
-                    Pair(isLoading, matches)
+                    isLoading to matches
                 }.collect { (isLoading, matches) ->
+
                     if (isLoading) {
                         binding.matchPlaceholder.isVisible = true
                         binding.rvMatches.isVisible = false
@@ -102,17 +107,22 @@ class ChatListFragment : BaseFragment() {
                     }
 
                     val hasMatches = matches.isNotEmpty()
+
+                    // Show / hide UI components
                     binding.rvMatches.isVisible = hasMatches
                     binding.matchPlaceholder.isVisible = false
                     binding.noMatchesCard?.isVisible = !hasMatches
+
                     matchAdapter.submitList(matches)
 
-                    // Build conversation list (lấy message/timestamp từng phòng)
+                    // --- Build conversations
                     val conversations = matches.map { match ->
                         async {
                             val lastMsg = vm.getLastMessage(match.matchId)
+
                             Conversation(
                                 matchId = match.matchId,
+                                userId = match.matchedUser.userId, // ✔ LẤY userId ở đây
                                 avatarUrl = match.matchedUser.avatarUrl,
                                 userName = match.matchedUser.name,
                                 lastMessage = lastMsg?.message,
@@ -122,14 +132,16 @@ class ChatListFragment : BaseFragment() {
                             )
                         }
                     }.awaitAll()
+
                     conversationAdapter.setData(conversations)
+
                     binding.rvConversations.isVisible = conversations.isNotEmpty()
                     binding.noChatsLayout.isVisible = conversations.isEmpty()
                 }
             }
         }
 
-        val token = "YourTokenHere"
-        vm.fetchMatches(token)
+        // Fetch data
+        vm.fetchMatches("YourTokenHere")
     }
 }

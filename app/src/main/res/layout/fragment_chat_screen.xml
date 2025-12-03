@@ -85,6 +85,23 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="8dp" />
 
+    <TextView
+        android:id="@+id/tvUnmatched"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Unmatched this user."
+        android:textColor="#FF7700"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:background="#FFF9F4"
+        android:gravity="center"
+        android:padding="20dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/emojiContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/messageInputLayout"
         android:layout_width="0dp"
@@ -185,8 +202,8 @@
         android:clickable="true">
         <ImageView
             android:id="@+id/previewImage"
-            android:layout_width="320dp"
-            android:layout_height="320dp"
+            android:layout_width="400dp"
+            android:layout_height="400dp"
             android:layout_gravity="center"/>
         <LinearLayout
             android:layout_width="wrap_content"

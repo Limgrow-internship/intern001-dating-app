@@ -198,6 +198,7 @@
         <action
             android:id="@+id/action_chatList_to_profileDetail"
             app:destination="@id/profileDetailFragment" />
+
         <action
             android:id="@+id/action_chatList_to_datingMode"
             app:destination="@id/datingModeFragment"
@@ -205,6 +206,11 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+
+        <argument
+            android:name="targetUserId"
+            app:argType="string"
+            android:defaultValue="@null" />
     </fragment>
 
     <fragment

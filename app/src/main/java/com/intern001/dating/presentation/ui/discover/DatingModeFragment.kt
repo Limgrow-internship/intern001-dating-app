@@ -55,22 +55,30 @@ class DatingModeFragment : BaseFragment() {
         setupListeners()
         observeViewModel()
 
-        val likerId = arguments?.getString("likerId")
         val targetUserId = arguments?.getString("targetUserId")
+        val likerId = arguments?.getString("likerId")
         val allowMatchedProfile = arguments?.getBoolean("allowMatchedProfile") ?: false
 
         if (!targetUserId.isNullOrBlank()) {
             viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.fetchAndAddProfileCard(targetUserId, allowMatched = allowMatchedProfile).fold(
-                    onSuccess = {
-                        delay(200)
-                        showCurrentCard()
+                val result = viewModel.fetchAndAddProfileCard(targetUserId, allowMatched = allowMatchedProfile)
+                result.fold(
+                    onSuccess = { card ->
+                        val index = viewModel.matchCards.value.indexOfFirst { it.userId == card.userId }
+
+                        if (index >= 0) {
+                            viewModel.setCurrentCardIndex(index)
+                            delay(150)
+                            showCurrentCard()
+                        } else {
+                            if (viewModel.hasMoreCards()) showCurrentCard()
+                        }
                     },
                     onFailure = {
                         val index = viewModel.matchCards.value.indexOfFirst { it.userId == targetUserId }
                         if (index >= 0) {
                             viewModel.setCurrentCardIndex(index)
-                            delay(200)
+                            delay(150)
                             showCurrentCard()
                         } else {
                             if (viewModel.hasMoreCards()) showCurrentCard()
@@ -80,7 +88,6 @@ class DatingModeFragment : BaseFragment() {
             }
             return
         }
-
         if (!likerId.isNullOrBlank()) {
             viewLifecycleOwner.lifecycleScope.launch {
                 val cards = viewModel.matchCards.filter { it.isNotEmpty() }.first()
@@ -105,7 +112,6 @@ class DatingModeFragment : BaseFragment() {
             }
             return
         }
-
         if (viewModel.matchCards.value.isNotEmpty() && viewModel.hasMoreCards()) {
             showCurrentCard()
         }

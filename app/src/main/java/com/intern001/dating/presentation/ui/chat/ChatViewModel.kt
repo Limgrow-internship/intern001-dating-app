@@ -20,6 +20,9 @@ class ChatViewModel @Inject constructor(
     private val _messages = MutableStateFlow<List<MessageModel>>(emptyList())
     val messages: StateFlow<List<MessageModel>> = _messages
 
+    private val _matchStatus = MutableStateFlow("active")
+    val matchStatus: StateFlow<String> = _matchStatus
+
     fun fetchHistory(matchId: String) {
         viewModelScope.launch {
             try {
@@ -79,6 +82,17 @@ class ChatViewModel @Inject constructor(
                 onResult(true)
             } catch (e: Exception) {
                 onResult(false)
+            }
+        }
+    }
+
+    fun fetchMatchStatus(targetUserId: String) {
+        viewModelScope.launch {
+            try {
+                val status = repo.getMatchStatus(targetUserId)
+                _matchStatus.value = status
+            } catch (e: Exception) {
+                _matchStatus.value = "error"
             }
         }
     }
