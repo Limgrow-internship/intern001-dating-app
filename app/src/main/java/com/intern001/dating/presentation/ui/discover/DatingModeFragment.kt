@@ -63,10 +63,9 @@ class DatingModeFragment : BaseFragment() {
 
         if (!targetListUserId.isNullOrBlank()) {
             viewLifecycleOwner.lifecycleScope.launch {
-
                 val result = viewModel.fetchProfileForNavigation(
                     userId = targetListUserId,
-                    allowMatched = allowMatchedProfile
+                    allowMatched = allowMatchedProfile,
                 )
 
                 result.fold(
@@ -78,7 +77,7 @@ class DatingModeFragment : BaseFragment() {
                     },
                     onFailure = {
                         Toast.makeText(requireContext(), "Không tải được profile", Toast.LENGTH_SHORT).show()
-                    }
+                    },
                 )
             }
             return

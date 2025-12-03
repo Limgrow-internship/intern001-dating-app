@@ -2,7 +2,6 @@
 package com.intern001.dating.presentation.ui.chat
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,12 +18,12 @@ import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentChatListBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.common.viewmodel.ChatListViewModel
+import com.intern001.dating.presentation.ui.chat.MatchAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import com.intern001.dating.presentation.ui.chat.MatchAdapter
 
 @AndroidEntryPoint
 class ChatListFragment : BaseFragment() {
@@ -68,7 +67,7 @@ class ChatListFragment : BaseFragment() {
             val clickedUserId = match.matchedUser.userId
             findNavController().navigate(
                 R.id.action_chatList_to_datingMode,
-                bundleOf("targetListUserId" to clickedUserId)
+                bundleOf("targetListUserId" to clickedUserId),
             )
         }
 

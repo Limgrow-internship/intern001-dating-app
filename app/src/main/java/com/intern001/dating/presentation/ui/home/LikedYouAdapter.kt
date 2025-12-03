@@ -5,9 +5,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DecodeFormat
+import com.intern001.dating.R
 import com.intern001.dating.databinding.ItemLikedYouBinding
 import com.intern001.dating.domain.model.LikedYouUser
-import com.intern001.dating.R
 
 class LikedYouAdapter(
     private var items: List<LikedYouUser> = emptyList(),
@@ -48,7 +48,6 @@ class LikedYouAdapter(
                 onItemClick(item)
             }
         }
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

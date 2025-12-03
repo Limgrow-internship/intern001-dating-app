@@ -269,7 +269,7 @@ class DiscoverViewModel @Inject constructor(
 
     suspend fun fetchProfileForNavigation(
         userId: String,
-        allowMatched: Boolean = false
+        allowMatched: Boolean = false,
     ): Result<MatchCard> {
         return try {
             if (allowMatched) {
@@ -294,7 +294,6 @@ class DiscoverViewModel @Inject constructor(
             Result.failure(e)
         }
     }
-
 
     private fun startRealtimeLocationUpdates() {
         viewModelScope.launch {
