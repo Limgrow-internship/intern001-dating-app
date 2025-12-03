@@ -267,6 +267,35 @@ class DiscoverViewModel @Inject constructor(
         }
     }
 
+    suspend fun fetchProfileForNavigation(
+        userId: String,
+        allowMatched: Boolean = false
+    ): Result<MatchCard> {
+        return try {
+            if (allowMatched) {
+                allowMatchedUser(userId)
+            }
+
+            getProfileByUserIdUseCase(userId).fold(
+                onSuccess = { card ->
+                    val fixed = card.copy(userId = userId)
+
+                    _matchCards.value = listOf(fixed)
+                    _currentCardIndex.value = 0
+
+                    setSuccess(listOf(fixed))
+                    Result.success(fixed)
+                },
+                onFailure = { error ->
+                    Result.failure(error)
+                },
+            )
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+
     private fun startRealtimeLocationUpdates() {
         viewModelScope.launch {
             observeLocationUpdatesUseCase()

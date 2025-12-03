@@ -61,38 +61,32 @@ class DatingModeFragment : BaseFragment() {
         val likerId = arguments?.getString("likerId")
         val allowMatchedProfile = arguments?.getBoolean("allowMatchedProfile") ?: false
 
-        Log.d("DEBUG_ARGS", "targetListUserId = ${arguments?.getString("targetListUserId")}")
-        Log.d("DEBUG_ARGS", "targetUserId = ${arguments?.getString("targetUserId")}")
-        Log.d("DEBUG_ARGS", "likerId = ${arguments?.getString("likerId")}")
-
-
         if (!targetListUserId.isNullOrBlank()) {
             viewLifecycleOwner.lifecycleScope.launch {
 
-                // fetch card
-                viewModel.fetchAndAddProfileCard(targetListUserId, allowMatched = allowMatchedProfile)
+                val result = viewModel.fetchProfileForNavigation(
+                    userId = targetListUserId,
+                    allowMatched = allowMatchedProfile
+                )
 
-                // 🔥 CHỜ LIST CẬP NHẬT XONG
-                val updatedList = viewModel.matchCards
-                    .filter { it.isNotEmpty() }
-                    .first()  // suspend until list updated
+                result.fold(
+                    onSuccess = {
+                        viewModel.setCurrentCardIndex(0)
 
-                // 🔥 TÌM INDEX CHÍNH XÁC SAU UPDATE
-                val index = updatedList.indexOfFirst { it.userId == targetListUserId }
-
-                // 🔥 NẾU THẤY → NHẢY ĐÚNG VỊ TRÍ
-                if (index >= 0) {
-                    viewModel.setCurrentCardIndex(index)
-                }
-
-                delay(150)
-                showCurrentCard()
+                        delay(150)
+                        showCurrentCard()
+                    },
+                    onFailure = {
+                        Toast.makeText(requireContext(), "Không tải được profile", Toast.LENGTH_SHORT).show()
+                    }
+                )
             }
             return
         }
+
         if (!targetUserId.isNullOrBlank()) {
             viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.fetchAndAddProfileCard(targetUserId, allowMatched = allowMatchedProfile)
+                viewModel.fetchProfileForNavigation(targetUserId, allowMatched = allowMatchedProfile)
                     .fold(
                         onSuccess = {
                             val index = viewModel.matchCards.value.indexOfFirst { it.userId == targetUserId }
