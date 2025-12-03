@@ -93,7 +93,6 @@ class ChatListFragment : BaseFragment() {
         // --- OBSERVE DATA
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-
                 vm.isLoading.combine(vm.matches) { isLoading, matches ->
                     isLoading to matches
                 }.collect { (isLoading, matches) ->
@@ -123,7 +122,7 @@ class ChatListFragment : BaseFragment() {
 
                             Conversation(
                                 matchId = match.matchId,
-                                userId = match.matchedUser.userId,      // ✔ LẤY userId ở đây
+                                userId = match.matchedUser.userId, // ✔ LẤY userId ở đây
                                 avatarUrl = match.matchedUser.avatarUrl,
                                 userName = match.matchedUser.name,
                                 lastMessage = lastMsg?.message,
