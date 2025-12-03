@@ -6,6 +6,7 @@ import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.domain.cache.InitialDataCache
 import com.intern001.dating.domain.model.UpdateProfile
 import com.intern001.dating.domain.usecase.auth.GetCurrentUserUseCase
+import com.intern001.dating.domain.usecase.profile.GenerateBioUseCase
 import com.intern001.dating.domain.usecase.profile.UpdateProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -17,6 +18,7 @@ import kotlinx.coroutines.launch
 class EditProfileViewModel @Inject constructor(
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val updateProfileUseCase: UpdateProfileUseCase,
+    private val generateBioUseCase: GenerateBioUseCase,
     private val initialDataCache: InitialDataCache,
 ) : ViewModel() {
 
@@ -32,6 +34,9 @@ class EditProfileViewModel @Inject constructor(
 
     private val _updateProfileState = MutableStateFlow<UiState<UpdateProfile>>(UiState.Idle)
     val updateProfileState: StateFlow<UiState<UpdateProfile>> = _updateProfileState
+
+    private val _generateBioState = MutableStateFlow<UiState<UpdateProfile>>(UiState.Idle)
+    val generateBioState: StateFlow<UiState<UpdateProfile>> = _generateBioState
 
     fun getUserProfile(forceRefresh: Boolean = false) {
         if (!forceRefresh) {
@@ -57,6 +62,23 @@ class EditProfileViewModel @Inject constructor(
                 },
                 onFailure = { error ->
                     _updateProfileState.value = UiState.Error(error.message ?: "Failed to update profile")
+                },
+            )
+        }
+    }
+
+    fun generateBio(prompt: String) {
+        viewModelScope.launch {
+            _generateBioState.value = UiState.Loading
+            val result = generateBioUseCase(prompt)
+            result.fold(
+                onSuccess = { updatedProfile ->
+                    initialDataCache.storeUserProfile(updatedProfile)
+                    _generateBioState.value = UiState.Success(updatedProfile)
+                    _userProfileState.value = UiState.Success(updatedProfile)
+                },
+                onFailure = { error ->
+                    _generateBioState.value = UiState.Error(error.message ?: "Failed to generate bio")
                 },
             )
         }

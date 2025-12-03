@@ -10,6 +10,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -30,6 +32,8 @@ import java.util.Locale
 import javax.inject.Inject
 import kotlin.text.get
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -48,6 +52,8 @@ class EditProfileFragment : BaseFragment() {
     private val photoUris = MutableList<Uri?>(6) { null }
     private val photoUrls = MutableList<String?>(6) { null }
     private val photoIds = MutableList<String?>(6) { null } // Store photo IDs from server
+    private var loadingTextJob: Job? = null
+    private var generateBioDialog: AlertDialog? = null
     private var currentPhotoIndex = 0
 
     private val selectedGoals = mutableSetOf<String>()
@@ -87,7 +93,9 @@ class EditProfileFragment : BaseFragment() {
         setupGoalClick()
         setupInterestClick()
         setupSaveButton()
+        setupBioGeneration()
         observeUpdateState()
+        observeGenerateBioState()
         loadUserProfile()
     }
 
@@ -516,6 +524,111 @@ class EditProfileFragment : BaseFragment() {
         }
     }
 
+    private fun setupBioGeneration() {
+        binding.includeAbout.ivMagicPen.setOnClickListener {
+            showGenerateBioDialog()
+        }
+    }
+
+    private fun showGenerateBioDialog() {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_generate_bio, null)
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        val etPrompt = dialogView.findViewById<EditText>(R.id.etPrompt)
+        val btnCancel = dialogView.findViewById<TextView>(R.id.btnCancel)
+        val btnGenerate = dialogView.findViewById<TextView>(R.id.btnGenerate)
+        val loadingLayout = dialogView.findViewById<LinearLayout>(R.id.loadingLayout)
+        val tvLoadingText = dialogView.findViewById<TextView>(R.id.tvLoadingText)
+
+        generateBioDialog = dialog
+
+        btnCancel.setOnClickListener {
+            stopLoadingTextAnimation()
+            dialog.dismiss()
+            generateBioDialog = null
+        }
+
+        btnGenerate.setOnClickListener {
+            val prompt = etPrompt.text.toString().trim()
+            if (prompt.isEmpty()) {
+                Toast.makeText(requireContext(), "Vui lòng nhập ý tưởng của bạn", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Show loading
+            etPrompt.isEnabled = false
+            btnGenerate.isEnabled = false
+            btnCancel.isEnabled = false
+            loadingLayout.visibility = View.VISIBLE
+
+            // Start animated loading text
+            startLoadingTextAnimation(tvLoadingText)
+
+            // Generate bio
+            viewModel.generateBio(prompt)
+        }
+
+        dialog.show()
+    }
+
+    private fun startLoadingTextAnimation(textView: TextView) {
+        stopLoadingTextAnimation()
+
+        val loadingMessages = listOf(
+            "Đang phân tích ý tưởng của bạn...",
+            "AI đang tạo bio phù hợp...",
+            "Đang tinh chỉnh nội dung...",
+            "Sắp hoàn thành...",
+        )
+
+        var messageIndex = 0
+        loadingTextJob = lifecycleScope.launch {
+            while (true) {
+                textView.text = loadingMessages[messageIndex]
+                messageIndex = (messageIndex + 1) % loadingMessages.size
+                delay(2000) // Change message every 2 seconds
+            }
+        }
+    }
+
+    private fun stopLoadingTextAnimation() {
+        loadingTextJob?.cancel()
+        loadingTextJob = null
+    }
+
+    private fun observeGenerateBioState() {
+        lifecycleScope.launch {
+            viewModel.generateBioState.collect { state ->
+                when (state) {
+                    is EditProfileViewModel.UiState.Loading -> {
+                        // Loading is already shown in dialog
+                    }
+                    is EditProfileViewModel.UiState.Success<*> -> {
+                        stopLoadingTextAnimation()
+                        generateBioDialog?.dismiss()
+                        generateBioDialog = null
+
+                        val profile = state.data as? UpdateProfile
+                        profile?.let {
+                            binding.includeAbout.etIntroduce.setText(it.bio ?: "")
+                            Toast.makeText(requireContext(), "Bio đã được tạo thành công!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    is EditProfileViewModel.UiState.Error -> {
+                        stopLoadingTextAnimation()
+                        generateBioDialog?.dismiss()
+                        generateBioDialog = null
+                        Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
     private fun observeUpdateState() {
         lifecycleScope.launch {
             viewModel.updateProfileState.collect { state ->
@@ -537,6 +650,9 @@ class EditProfileFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        stopLoadingTextAnimation()
+        generateBioDialog?.dismiss()
+        generateBioDialog = null
         _binding = null
     }
 }

@@ -5,6 +5,7 @@ import android.net.Uri
 import com.intern001.dating.data.api.DatingApiService
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.data.model.request.FacebookLoginRequest
+import com.intern001.dating.data.model.request.GenerateBioDto
 import com.intern001.dating.data.model.request.GoogleLoginRequest
 import com.intern001.dating.data.model.request.LocationRequest
 import com.intern001.dating.data.model.request.LoginRequest
@@ -439,6 +440,45 @@ constructor(
             }
         } catch (e: Exception) {
             android.util.Log.e("AuthRepository", "Update profile exception", e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun generateBio(prompt: String): Result<UserProfile> {
+        return try {
+            if (tokenManager.getAccessToken() == null) {
+                return Result.failure(Exception("User not logged in"))
+            }
+
+            val request = GenerateBioDto(prompt = prompt)
+            val response = apiService.generateBio(request)
+
+            if (response.isSuccessful) {
+                val bioResponse = response.body()
+                if (bioResponse != null) {
+                    android.util.Log.d("AuthRepository", "Bio generated: ${bioResponse.generatedBio}")
+                    android.util.Log.d("AuthRepository", "Provider: ${bioResponse.provider}")
+
+                    // API chỉ generate bio, chưa save vào profile
+                    // Cần update profile với bio mới
+                    val updateRequest = UpdateProfileRequest(bio = bioResponse.generatedBio)
+                    val updateResult = updateUserProfile(updateRequest)
+
+                    updateResult.onSuccess { profile ->
+                        android.util.Log.d("AuthRepository", "Bio saved to profile successfully")
+                    }
+
+                    updateResult
+                } else {
+                    Result.failure(Exception("Generate bio response body is null"))
+                }
+            } else {
+                val errorBody = response.errorBody()?.string()
+                android.util.Log.e("AuthRepository", "Generate bio failed: ${response.code()} - $errorBody")
+                Result.failure(Exception("Failed to generate bio: ${response.code()} - $errorBody"))
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("AuthRepository", "Generate bio exception", e)
             Result.failure(e)
         }
     }
