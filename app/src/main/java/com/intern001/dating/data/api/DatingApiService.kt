@@ -89,9 +89,7 @@ interface DatingApiService {
     suspend fun enhanceBio(): Response<GenerateBioResponse>
 
     @DELETE("api/profile")
-    suspend fun deleteProfile(
-        @Header("Authorization") token: String,
-    ): Response<Unit>
+    suspend fun deleteProfile(): Response<Unit>
 
     // ============================================================
     // Photo Management APIs
@@ -149,9 +147,7 @@ interface DatingApiService {
     suspend fun getLanguages(): List<LanguageResponse>
 
     @DELETE("api/user/account")
-    suspend fun deleteAccount(
-        @Header("Authorization") token: String,
-    ): Response<Unit>
+    suspend fun deleteAccount(): Response<Unit>
 
     @POST("api/auth/facebook-login")
     suspend fun facebookLogin(@Body request: FacebookLoginRequest): FacebookLoginResponse

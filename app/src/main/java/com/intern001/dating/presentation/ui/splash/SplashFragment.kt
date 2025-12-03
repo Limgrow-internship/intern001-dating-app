@@ -57,34 +57,13 @@ class SplashFragment : BaseFragment() {
     }
 
     private suspend fun navigateToNextScreen() {
-        val onboardingCompleted = appPreferencesManager.isOnboardingCompleted()
         val isLoggedIn = authRepository.isLoggedIn()
-        val hasPurchasedNoAds = viewModel.hasActiveSubscription()
 
+        // Prefetch data if logged in (for faster loading later)
         prefetchUserDataIfNeeded(isLoggedIn)
 
-        when {
-            !onboardingCompleted -> {
-                // User hasn't completed onboarding -> go to onboarding
-                navController.navigate(R.id.action_splash_to_onboard1)
-            }
-            hasPurchasedNoAds && !isLoggedIn -> {
-                // User purchased "no ads" but not logged in -> go to login (skip ads)
-                navController.navigate(R.id.action_splash_to_login)
-            }
-            hasPurchasedNoAds && isLoggedIn -> {
-                // User purchased "no ads" and logged in -> go to home (skip ads)
-                navController.navigate(R.id.action_splash_to_home)
-            }
-            !isLoggedIn -> {
-                // User hasn't purchased and not logged in -> go to login
-                navController.navigate(R.id.action_splash_to_login)
-            }
-            else -> {
-                // User hasn't purchased but logged in -> show full ad
-                navController.navigate(R.id.action_splash_to_nativeAd)
-            }
-        }
+        // Always go to onboarding from splash
+        navController.navigate(R.id.action_splash_to_onboard1)
     }
 
     private fun prefetchUserDataIfNeeded(isLoggedIn: Boolean) {
