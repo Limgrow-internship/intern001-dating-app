@@ -87,7 +87,8 @@ class SelectLanguageFragment : BaseFragment() {
 
                     setAppLocale(langCode)
 
-                    findNavController().navigate(R.id.action_selectLanguageFragment_to_login)
+                    // Navigate to NativeFullFragment (mandatory)
+                    findNavController().navigate(R.id.action_selectLanguageFragment_to_nativeFull)
                 }
             } else {
                 android.widget.Toast.makeText(
