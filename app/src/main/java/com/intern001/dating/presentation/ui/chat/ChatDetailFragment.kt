@@ -22,18 +22,23 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.intern001.dating.BuildConfig
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.data.model.MessageModel
 import com.intern001.dating.databinding.FragmentChatScreenBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.ui.MessageAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import io.socket.client.IO
+import io.socket.client.Socket
+import io.socket.emitter.Emitter
 import java.io.File
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import org.json.JSONObject
 
 @AndroidEntryPoint
 class ChatDetailFragment : BaseFragment() {
@@ -56,6 +61,9 @@ class ChatDetailFragment : BaseFragment() {
         "🤑", "😲", "☹️", "🙁", "😖", "😞", "😟", "😤", "😢", "😭", "😦", "😧", "😨", "😩", "🤯", "😬", "😰", "😱", "😳", "🤪", "😵", "😡",
         "😠", "🤬", "😷", "🤒", "🤕", "🤢", "🤮", "🤧", "😇", "🥳", "🥰", "🤠", "🤡", "🥺",
     )
+
+    private var mSocket: Socket? = null
+    private var isSocketConnected = false
 
     private var recorder: MediaRecorder? = null
     private var audioFilePath: String = ""
@@ -91,6 +99,9 @@ class ChatDetailFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        mSocket?.disconnect()
+        mSocket?.off()
+        mSocket = null
         _binding = null
         recorder?.release()
         recorder = null
@@ -105,6 +116,7 @@ class ChatDetailFragment : BaseFragment() {
             matchedUserName = it.getString("matchedUserName")
             targetUserId = it.getString("targetUserId", "")
         }
+        initSocketAndJoinRoom(matchId)
         viewModel.fetchMatchStatus(targetUserId)
         lifecycleScope.launch {
             viewModel.matchStatus.collectLatest { status ->
@@ -117,7 +129,6 @@ class ChatDetailFragment : BaseFragment() {
                 }
             }
         }
-
         viewModel.fetchHistory(matchId)
         lifecycleScope.launch {
             val myUserId = getMyUserIdAsync()
@@ -165,12 +176,12 @@ class ChatDetailFragment : BaseFragment() {
             if (content.isNotEmpty()) {
                 lifecycleScope.launch {
                     val confirmedUserId = getMyUserIdAsync()
-                    val message = MessageModel(
-                        senderId = confirmedUserId,
-                        matchId = matchId,
-                        message = content,
-                    )
-                    viewModel.sendMessage(message)
+                    val msg = JSONObject().apply {
+                        put("matchId", matchId)
+                        put("senderId", confirmedUserId)
+                        put("message", content)
+                    }
+                    mSocket?.emit("send_message", msg)
                     binding.edtMessage.setText("")
                 }
             }
@@ -410,5 +421,41 @@ class ChatDetailFragment : BaseFragment() {
             }
             .setNegativeButton("Hủy", null)
             .show()
+    }
+
+    private fun initSocketAndJoinRoom(matchId: String) {
+        val opts = IO.Options().apply { forceNew = true }
+        val baseUrl = BuildConfig.BASE_URL
+        val socketUrl = "$baseUrl/chat"
+
+        mSocket = IO.socket(socketUrl, opts)
+
+        mSocket?.on(
+            Socket.EVENT_CONNECT,
+            Emitter.Listener {
+                val obj = JSONObject().put("matchId", matchId)
+                mSocket?.emit("join_room", obj)
+            },
+        )
+
+        mSocket?.on(
+            "receive_message",
+            Emitter.Listener { args ->
+                val obj = args[0] as JSONObject
+                requireActivity().runOnUiThread {
+                    val newMsg = MessageModel(
+                        senderId = obj.optString("senderId"),
+                        matchId = obj.optString("matchId"),
+                        message = obj.optString("message"),
+                        imgChat = obj.optString("imgChat"),
+                        audioPath = obj.optString("audioPath", null),
+                        duration = if (obj.has("duration")) obj.optInt("duration") else null,
+                    )
+                    adapter.setMessages(adapter.getAllMessages() + newMsg)
+                    binding.rvMessages.scrollToPosition(adapter.itemCount - 1)
+                }
+            },
+        )
+        mSocket?.connect()
     }
 }
