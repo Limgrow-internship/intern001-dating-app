@@ -483,6 +483,45 @@ constructor(
         }
     }
 
+    override suspend fun enhanceBio(): Result<UserProfile> {
+        return try {
+            if (tokenManager.getAccessToken() == null) {
+                return Result.failure(Exception("User not logged in"))
+            }
+
+            // Gọi API enhance-bio (không cần body, backend tự lấy bio hiện tại)
+            val response = apiService.enhanceBio()
+
+            if (response.isSuccessful) {
+                val bioResponse = response.body()
+                if (bioResponse != null) {
+                    android.util.Log.d("AuthRepository", "Bio enhanced: ${bioResponse.generatedBio}")
+                    android.util.Log.d("AuthRepository", "Provider: ${bioResponse.provider}")
+
+                    // API chỉ enhance bio, chưa save vào profile
+                    // Cần update profile với bio mới
+                    val updateRequest = UpdateProfileRequest(bio = bioResponse.generatedBio)
+                    val updateResult = updateUserProfile(updateRequest)
+
+                    updateResult.onSuccess { profile ->
+                        android.util.Log.d("AuthRepository", "Enhanced bio saved to profile successfully")
+                    }
+
+                    updateResult
+                } else {
+                    Result.failure(Exception("Enhance bio response body is null"))
+                }
+            } else {
+                val errorBody = response.errorBody()?.string()
+                android.util.Log.e("AuthRepository", "Enhance bio failed: ${response.code()} - $errorBody")
+                Result.failure(Exception("Failed to enhance bio: ${response.code()} - $errorBody"))
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("AuthRepository", "Enhance bio exception", e)
+            Result.failure(e)
+        }
+    }
+
     private suspend fun resolveLocationAfterUpdate(
         responseData: UserData,
         request: UpdateProfileRequest,

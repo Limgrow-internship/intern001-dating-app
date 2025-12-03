@@ -85,6 +85,9 @@ interface DatingApiService {
     @POST("api/ai/generate-bio")
     suspend fun generateBio(@Body request: GenerateBioDto): Response<GenerateBioResponse>
 
+    @POST("api/ai/enhance-bio")
+    suspend fun enhanceBio(): Response<GenerateBioResponse>
+
     @DELETE("api/profile")
     suspend fun deleteProfile(
         @Header("Authorization") token: String,

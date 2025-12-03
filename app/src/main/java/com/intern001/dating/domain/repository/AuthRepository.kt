@@ -38,6 +38,8 @@ interface AuthRepository {
 
     suspend fun generateBio(prompt: String): Result<UserProfile>
 
+    suspend fun enhanceBio(): Result<UserProfile>
+
     suspend fun uploadImage(imageUri: Uri): Result<String>
 
     suspend fun isLoggedIn(): Boolean

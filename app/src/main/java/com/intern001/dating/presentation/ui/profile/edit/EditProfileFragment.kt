@@ -96,6 +96,7 @@ class EditProfileFragment : BaseFragment() {
         setupBioGeneration()
         observeUpdateState()
         observeGenerateBioState()
+        observeEnhanceBioState()
         loadUserProfile()
     }
 
@@ -526,7 +527,17 @@ class EditProfileFragment : BaseFragment() {
 
     private fun setupBioGeneration() {
         binding.includeAbout.ivMagicPen.setOnClickListener {
-            showGenerateBioDialog()
+            // Check xem đã có bio chưa
+            val currentBio = binding.includeAbout.etIntroduce.text.toString().trim()
+            val hasBio = currentBio.isNotEmpty() || currentProfile?.bio?.isNotEmpty() == true
+
+            if (hasBio) {
+                // Đã có bio → Show confirmation dialog để enhance
+                showEnhanceBioConfirmationDialog()
+            } else {
+                // Chưa có bio → Show dialog nhập prompt để generate
+                showGenerateBioDialog()
+            }
         }
     }
 
@@ -599,6 +610,64 @@ class EditProfileFragment : BaseFragment() {
         loadingTextJob = null
     }
 
+    private fun showEnhanceBioConfirmationDialog() {
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle("Cải thiện Bio")
+            .setMessage("Bạn muốn AI cải thiện bio hiện tại của bạn không?")
+            .setPositiveButton("Cải thiện") { _, _ ->
+                // Show loading và gọi enhance
+                showEnhanceBioLoading()
+                viewModel.enhanceBio()
+            }
+            .setNegativeButton("Hủy", null)
+            .create()
+
+        dialog.show()
+    }
+
+    private fun showEnhanceBioLoading() {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_generate_bio, null)
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        val loadingLayout = dialogView.findViewById<LinearLayout>(R.id.loadingLayout)
+        val tvLoadingText = dialogView.findViewById<TextView>(R.id.tvLoadingText)
+        val etPrompt = dialogView.findViewById<EditText>(R.id.etPrompt)
+
+        // Hide prompt input, chỉ show loading
+        etPrompt.visibility = View.GONE
+        loadingLayout.visibility = View.VISIBLE
+
+        generateBioDialog = dialog
+
+        // Start animated loading text với messages khác cho enhance
+        startEnhanceLoadingTextAnimation(tvLoadingText)
+
+        dialog.show()
+    }
+
+    private fun startEnhanceLoadingTextAnimation(textView: TextView) {
+        stopLoadingTextAnimation()
+
+        val loadingMessages = listOf(
+            "Đang phân tích bio hiện tại...",
+            "AI đang cải thiện nội dung...",
+            "Đang tinh chỉnh ngôn từ...",
+            "Sắp hoàn thành...",
+        )
+
+        var messageIndex = 0
+        loadingTextJob = lifecycleScope.launch {
+            while (true) {
+                textView.text = loadingMessages[messageIndex]
+                messageIndex = (messageIndex + 1) % loadingMessages.size
+                delay(2000) // Change message every 2 seconds
+            }
+        }
+    }
+
     private fun observeGenerateBioState() {
         lifecycleScope.launch {
             viewModel.generateBioState.collect { state ->
@@ -615,6 +684,36 @@ class EditProfileFragment : BaseFragment() {
                         profile?.let {
                             binding.includeAbout.etIntroduce.setText(it.bio ?: "")
                             Toast.makeText(requireContext(), "Bio đã được tạo thành công!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    is EditProfileViewModel.UiState.Error -> {
+                        stopLoadingTextAnimation()
+                        generateBioDialog?.dismiss()
+                        generateBioDialog = null
+                        Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    private fun observeEnhanceBioState() {
+        lifecycleScope.launch {
+            viewModel.enhanceBioState.collect { state ->
+                when (state) {
+                    is EditProfileViewModel.UiState.Loading -> {
+                        // Loading đã được hiển thị trong dialog
+                    }
+                    is EditProfileViewModel.UiState.Success<*> -> {
+                        stopLoadingTextAnimation()
+                        generateBioDialog?.dismiss()
+                        generateBioDialog = null
+
+                        val profile = state.data as? UpdateProfile
+                        profile?.let {
+                            binding.includeAbout.etIntroduce.setText(it.bio ?: "")
+                            Toast.makeText(requireContext(), "Bio đã được cải thiện thành công!", Toast.LENGTH_SHORT).show()
                         }
                     }
                     is EditProfileViewModel.UiState.Error -> {
