@@ -182,6 +182,7 @@ data class MatchStatusResponse(
     val userLiked: Boolean,
     val targetLiked: Boolean,
     val targetProfile: TargetProfileResponse?,
+    val status: String,
 )
 
 data class TargetProfileResponse(

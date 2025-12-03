@@ -241,7 +241,7 @@ interface DatingApiService {
     suspend fun updateFCMToken(@Body request: UpdateFCMTokenRequest): Response<Unit>
 
     // Match liked you
-    @GET("api/match/status/{targetUserId}")
+    @GET("api/matches/status/{targetUserId}")
     suspend fun getMatchStatus(
         @Path("targetUserId") targetUserId: String,
     ): MatchStatusResponse

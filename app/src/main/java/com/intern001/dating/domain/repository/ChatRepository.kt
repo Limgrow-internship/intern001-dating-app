@@ -17,4 +17,6 @@ interface ChatRepository {
     suspend fun deleteAllMessages(matchId: String)
 
     suspend fun unmatch(targetUserId: String)
+
+    suspend fun getMatchStatus(matchId: String): String
 }
