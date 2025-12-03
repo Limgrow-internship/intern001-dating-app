@@ -60,5 +60,5 @@
     <string name="contact_us">Liên hệ với chúng tôi</string>
     <string name="delete_acc">Xóa tài khoản</string>
     <string name="already_liked_dialog_title">Bạn đã like người này rồi</string>
-    <string name="already_liked_dialog_message">Hai bạn đã match trước đó. Hãy mở danh sách match để tiếp tục trò chuyện nhé.</string>
+    <string name="already_liked_dialog_message">Bạn và %1$s đã match trước đó. Hãy mở danh sách match để tiếp tục trò chuyện nhé.</string>
 </resources>

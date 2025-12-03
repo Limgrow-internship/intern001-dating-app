@@ -48,4 +48,9 @@ class ChatRepositoryImpl @Inject constructor(
         val req = UnmatchUserRequest(targetUserId)
         api.unmatch(req)
     }
+
+    override suspend fun getMatchStatus(targetUserId: String): String {
+        val resp = api.getMatchStatus(targetUserId)
+        return resp.status
+    }
 }

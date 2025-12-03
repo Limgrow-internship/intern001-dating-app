@@ -443,6 +443,43 @@ constructor(
         }
     }
 
+    override suspend fun generateBio(): Result<UserProfile> {
+        return try {
+            if (tokenManager.getAccessToken() == null) {
+                return Result.failure(Exception("User not logged in"))
+            }
+
+            val response = apiService.generateBio()
+
+            if (response.isSuccessful) {
+                val bioResponse = response.body()
+                if (bioResponse != null) {
+                    android.util.Log.d("AuthRepository", "Bio generated and saved: ${bioResponse.bio}")
+                    android.util.Log.d("AuthRepository", "Message: ${bioResponse.message}")
+
+                    // API đã tự động generate và save bio vào profile
+                    // Refresh profile để lấy dữ liệu mới nhất từ server
+                    val profileResult = getUserProfile()
+
+                    profileResult.onSuccess { profile ->
+                        android.util.Log.d("AuthRepository", "Profile refreshed with new bio: ${profile.bio}")
+                    }
+
+                    profileResult
+                } else {
+                    Result.failure(Exception("Generate bio response body is null"))
+                }
+            } else {
+                val errorBody = response.errorBody()?.string()
+                android.util.Log.e("AuthRepository", "Generate bio failed: ${response.code()} - $errorBody")
+                Result.failure(Exception("Failed to generate bio: ${response.code()} - $errorBody"))
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("AuthRepository", "Generate bio exception", e)
+            Result.failure(e)
+        }
+    }
+
     private suspend fun resolveLocationAfterUpdate(
         responseData: UserData,
         request: UpdateProfileRequest,

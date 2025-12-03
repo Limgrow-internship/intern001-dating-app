@@ -46,6 +46,10 @@ class ChatDetailFragment : BaseFragment() {
     private val binding get() = _binding!!
     private val tokenManager by lazy { TokenManager(requireContext()) }
 
+    private var targetUserId: String = ""
+
+    private val CAMERA_REQUEST_CODE = 124
+
     private val emojiList = listOf(
         "😀", "😁", "😂", "🤣", "😃", "😄", "😅", "😆", "😉", "😊", "😋", "😎", "😍", "😘", "😗", "😙", "😚", "☺️", "🙂", "🤗", "🤩", "🤔", "🤨",
         "😐", "😑", "😶", "🙄", "😏", "😣", "😥", "😮", "🤐", "😯", "😪", "😫", "😴", "😌", "😛", "😜", "😝", "🤤", "😒", "😓", "😔", "😕", "🙃",
@@ -93,10 +97,27 @@ class ChatDetailFragment : BaseFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        requireActivity().window.setSoftInputMode(
+            android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE,
+        )
         arguments?.let {
             matchId = it.getString("matchId", "")
             matchedUserName = it.getString("matchedUserName")
+            targetUserId = it.getString("targetUserId", "")
         }
+        viewModel.fetchMatchStatus(targetUserId)
+        lifecycleScope.launch {
+            viewModel.matchStatus.collectLatest { status ->
+                if (status == "unmatched") {
+                    binding.messageInputLayout.visibility = View.GONE
+                    binding.tvUnmatched.visibility = View.VISIBLE
+                } else {
+                    binding.messageInputLayout.visibility = View.VISIBLE
+                    binding.tvUnmatched.visibility = View.GONE
+                }
+            }
+        }
+
         viewModel.fetchHistory(matchId)
         lifecycleScope.launch {
             val myUserId = getMyUserIdAsync()
@@ -119,6 +140,18 @@ class ChatDetailFragment : BaseFragment() {
             pickImage.launch("image/*")
         }
         binding.btnCamera.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.CAMERA,
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(Manifest.permission.CAMERA),
+                    CAMERA_REQUEST_CODE,
+                )
+                return@setOnClickListener
+            }
             val photoFile = File(requireContext().cacheDir, "photo_${System.currentTimeMillis()}.jpg")
             cameraImageUri = FileProvider.getUriForFile(
                 requireContext(),
@@ -368,8 +401,8 @@ class ChatDetailFragment : BaseFragment() {
                 }
                 viewModel.unmatch(targetUserId) { success ->
                     if (success) {
+                        viewModel.fetchMatchStatus(targetUserId)
                         Toast.makeText(context, "Unmatch thành công!", Toast.LENGTH_SHORT).show()
-                        requireActivity().onBackPressedDispatcher.onBackPressed()
                     } else {
                         Toast.makeText(context, "Unmatch thất bại!", Toast.LENGTH_SHORT).show()
                     }
