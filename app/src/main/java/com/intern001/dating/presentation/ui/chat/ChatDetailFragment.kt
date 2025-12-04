@@ -204,7 +204,7 @@ class ChatDetailFragment : BaseFragment() {
 
                 lifecycleScope.launch {
                     val confirmedUserId = getMyUserIdAsync()
-                    
+
                     // Tạo message object để gửi qua socket
                     val msg = JSONObject().apply {
                         put("matchId", matchId)
@@ -224,13 +224,13 @@ class ChatDetailFragment : BaseFragment() {
                         audioPath = null,
                         duration = null,
                     )
-                    
+
                     // Cập nhật ViewModel để hiển thị message ngay
                     viewModel.addMessage(messageModel)
-                    
+
                     // Gửi message qua socket
                     mSocket?.emit("send_message", msg)
-                    
+
                     // Xóa input
                     binding.edtMessage.setText("")
 
@@ -553,7 +553,7 @@ class ChatDetailFragment : BaseFragment() {
                 }
             },
         )
-        
+
         // Bắt đầu kết nối socket
         mSocket?.connect()
     }
