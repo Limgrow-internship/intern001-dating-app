@@ -44,7 +44,7 @@ data class UserProfile(
     val profileViews: Int = 0,
     val goals: List<String> = emptyList(),
     val job: String? = null,
-    val openQuestionAnswers: Map<String, String>? = null,
+    val openQuestionAnswers: Map<String, String> = emptyMap(),
     val createdAt: Date,
     val updatedAt: Date,
 ) {

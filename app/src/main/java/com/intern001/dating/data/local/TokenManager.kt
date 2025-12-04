@@ -35,6 +35,8 @@ constructor(
         private val GENDER_KEY = stringPreferencesKey("gender")
         private val MODE_KEY = stringPreferencesKey("mode")
         private val AVATAR_KEY = stringPreferencesKey("avatar")
+
+        private val PICTURE_KEY = stringPreferencesKey("picture")
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -66,6 +68,8 @@ constructor(
     @Volatile
     private var cachedAvatar: String? = null
 
+    @Volatile
+    private var cachedPicture: String? = null
     init {
         scope.launch {
             context.dataStore.data.collect { preferences ->
@@ -79,6 +83,7 @@ constructor(
                 cachedGender = preferences[GENDER_KEY]
                 cachedMode = preferences[MODE_KEY]
                 cachedAvatar = preferences[AVATAR_KEY]
+                cachedPicture = preferences[PICTURE_KEY]
             }
         }
     }
@@ -115,12 +120,14 @@ constructor(
         gender: String,
         mode: String,
         avatar: String,
+        picture: String,
     ) {
         cachedFirstName = firstName
         cachedLastName = lastName
         cachedGender = gender
         cachedMode = mode
         cachedAvatar = avatar
+        cachedPicture = picture
 
         context.dataStore.edit { pref ->
             pref[FIRST_NAME_KEY] = firstName
@@ -128,6 +135,7 @@ constructor(
             pref[GENDER_KEY] = gender
             pref[MODE_KEY] = mode
             pref[AVATAR_KEY] = avatar
+            pref[PICTURE_KEY] = picture
         }
     }
 
@@ -140,6 +148,8 @@ constructor(
     fun getMode(): String? = cachedMode
 
     fun getAvatar(): String? = cachedAvatar
+
+    fun getPicture(): String? = cachedPicture
 
     fun getUserId(): String? = cachedUserId
 
@@ -188,6 +198,7 @@ constructor(
             preferences.remove(GENDER_KEY)
             preferences.remove(MODE_KEY)
             preferences.remove(AVATAR_KEY)
+            preferences.remove(PICTURE_KEY)
         }
     }
     suspend fun getUserIdAsync(): String? {
