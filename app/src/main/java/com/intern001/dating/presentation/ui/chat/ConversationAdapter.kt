@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.intern001.dating.R
+import com.intern001.dating.presentation.ui.chat.AIConstants
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
@@ -32,6 +33,7 @@ class ConversationAdapter(
         val tvLastMessage: TextView = itemView.findViewById(R.id.tvLastMessage)
         val tvTimestamp: TextView = itemView.findViewById(R.id.tvTimestamp)
         val onlineDot: View = itemView.findViewById(R.id.onlineDot)
+        val tvAIBadge: TextView = itemView.findViewById(R.id.tvAIBadge)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ConversationViewHolder {
@@ -42,15 +44,27 @@ class ConversationAdapter(
 
     override fun onBindViewHolder(holder: ConversationViewHolder, position: Int) {
         val c = conversations[position]
-        Glide.with(holder.itemView.context)
-            .load(c.avatarUrl)
-            .placeholder(R.drawable.bg_avatar_round)
-            .circleCrop()
-            .into(holder.imvAvatar)
+        val isAIConversation = AIConstants.isAIConversation(c.userId)
+
+        if (isAIConversation) {
+            holder.imvAvatar.setImageResource(R.drawable.ic_chatbot)
+        } else {
+            Glide.with(holder.itemView.context)
+                .load(c.avatarUrl)
+                .placeholder(R.drawable.bg_avatar_round)
+                .circleCrop()
+                .into(holder.imvAvatar)
+        }
+
         holder.tvUserName.text = c.userName
-        holder.tvLastMessage.text = c.lastMessage ?: "Say hi match!"
+        holder.tvLastMessage.text = c.lastMessage ?: if (isAIConversation) "Start chatting with AI!" else "Say hi match!"
         holder.tvTimestamp.text = c.timestamp?.let { formatChatTimestamp(it) } ?: ""
-        holder.onlineDot.visibility = if (c.isOnline == true) View.VISIBLE else View.INVISIBLE
+
+        // Hide online dot for AI conversation
+        holder.onlineDot.visibility = if (isAIConversation || c.isOnline != true) View.INVISIBLE else View.VISIBLE
+
+        // Show AI badge for AI conversation
+        holder.tvAIBadge.visibility = if (isAIConversation) View.VISIBLE else View.GONE
 
         holder.itemView.setOnClickListener { onClick(c) }
     }

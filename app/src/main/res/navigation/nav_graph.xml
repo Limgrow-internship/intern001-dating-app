@@ -86,8 +86,8 @@
         android:name="com.intern001.dating.presentation.ui.language.SelectLanguageFragment"
         android:label="SelectLanguageFragment" >
         <action
-            android:id="@+id/action_selectLanguageFragment_to_login"
-            app:destination="@id/loginFragment"
+            android:id="@+id/action_selectLanguageFragment_to_nativeFull"
+            app:destination="@id/nativeFullFragment"
             app:popUpTo="@id/selectLanguageFragment"
             app:popUpToInclusive="true"/>
     </fragment>

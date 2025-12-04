@@ -1,4 +1,4 @@
-package com.intern001.dating.presentation.ui
+package com.intern001.dating.presentation.ui.chat
 
 import android.media.MediaPlayer
 import android.view.LayoutInflater
@@ -31,16 +31,17 @@ class MessageAdapter(private val myUserId: String) : RecyclerView.Adapter<Recycl
         messages = list.filter {
             it.message?.isNotBlank() == true ||
                 !it.imgChat.isNullOrBlank() ||
-                it.audioPath != null
+                !it.audioPath.isNullOrBlank()
         }
         notifyDataSetChanged()
     }
 
     override fun getItemViewType(position: Int): Int {
         val msg = messages[position]
+        val hasAudio = !msg.audioPath.isNullOrBlank()
         return when {
-            msg.audioPath != null && msg.senderId == myUserId -> VIEW_TYPE_AUDIO_RIGHT
-            msg.audioPath != null -> VIEW_TYPE_AUDIO_LEFT
+            hasAudio && msg.senderId == myUserId -> VIEW_TYPE_AUDIO_RIGHT
+            hasAudio -> VIEW_TYPE_AUDIO_LEFT
             msg.senderId == myUserId -> VIEW_TYPE_RIGHT_TEXT
             else -> VIEW_TYPE_LEFT_TEXT
         }
@@ -196,4 +197,6 @@ class MessageAdapter(private val myUserId: String) : RecyclerView.Adapter<Recycl
         val s = sec % 60
         return if (m > 0) "$m:${s.toString().padStart(2, '0')}" else "0:${s.toString().padStart(2, '0')}"
     }
+
+    fun getAllMessages(): List<MessageModel> = messages
 }

@@ -18,6 +18,7 @@ import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentChatListBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.common.viewmodel.ChatListViewModel
+import com.intern001.dating.presentation.ui.chat.AIConstants
 import com.intern001.dating.presentation.ui.chat.MatchAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.async
@@ -84,7 +85,7 @@ class ChatListFragment : BaseFragment() {
                 bundleOf(
                     "matchId" to conversation.matchId,
                     "matchedUserName" to conversation.userName,
-                    "matchedUserAvatar" to conversation.avatarUrl,
+                    "matchedUserAvatar" to (conversation.avatarUrl ?: ""),
                     "targetUserId" to conversation.targetUserId,
                 ),
             )
@@ -135,7 +136,13 @@ class ChatListFragment : BaseFragment() {
                         }
                     }.awaitAll()
 
-                    conversationAdapter.setData(conversations)
+                    // Sort conversations: AI conversation first, then others sorted by lastActivityAt
+                    val sortedConversations = conversations.sortedWith(
+                        compareBy<Conversation> { !AIConstants.isAIConversation(it.userId) }
+                            .thenByDescending { it.timestamp ?: "" },
+                    )
+
+                    conversationAdapter.setData(sortedConversations)
 
                     binding.rvConversations.isVisible = conversations.isNotEmpty()
                     binding.noChatsLayout.isVisible = conversations.isEmpty()

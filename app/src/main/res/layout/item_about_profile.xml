@@ -13,17 +13,40 @@
         android:textSize="24dp"
         android:textStyle="bold" />
 
-    <EditText
-        android:id="@+id/et_introduce"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:background="@drawable/bg_edittext_outline"
-        android:padding="16dp"
-        android:textSize="16sp"
-        android:hint="Introduce your self"
-        android:textColor="#000000"
-        android:textColorHint="#777777"
-        android:gravity="top|start"
-        android:inputType="textMultiLine"
-        android:layout_marginTop="12dp" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp">
+
+        <EditText
+            android:id="@+id/et_introduce"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:background="@drawable/bg_edittext_outline"
+            android:padding="16dp"
+            android:paddingEnd="48dp"
+            android:textSize="16sp"
+            android:hint="Introduce your self"
+            android:textColor="#000000"
+            android:textColorHint="#777777"
+            android:gravity="top|start"
+            android:inputType="textMultiLine|textCapSentences"
+            android:minLines="3"
+            android:maxLines="10"
+            android:scrollbars="vertical"
+            android:overScrollMode="always"
+            android:isScrollContainer="true" />
+
+        <ImageView
+            android:id="@+id/ivMagicPen"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="12dp"
+            android:src="@drawable/ic_magic_pen"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="4dp"
+            android:contentDescription="Generate bio with AI" />
+    </RelativeLayout>
 </LinearLayout>
