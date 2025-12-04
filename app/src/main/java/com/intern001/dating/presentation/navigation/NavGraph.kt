@@ -83,13 +83,13 @@ fun NavController.navigateToDatingMode(
     likerId: String? = null,
     targetUserId: String? = null,
     targetListUserId: String? = null,
-    allowMatchedProfile: Boolean = false
+    allowMatchedProfile: Boolean = false,
 ) {
     val route = "${NavGraph.ROUTE_DATING_MODE}?" +
-            "likerId=${likerId ?: ""}&" +
-            "targetUserId=${targetUserId ?: ""}&" +
-            "targetListUserId=${targetListUserId ?: ""}&" +
-            "allowMatchedProfile=$allowMatchedProfile"
+        "likerId=${likerId ?: ""}&" +
+        "targetUserId=${targetUserId ?: ""}&" +
+        "targetListUserId=${targetListUserId ?: ""}&" +
+        "allowMatchedProfile=$allowMatchedProfile"
     navigate(route)
 }
 
