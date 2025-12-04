@@ -196,8 +196,16 @@ class ChatDetailFragment : BaseFragment() {
         binding.btnSend.setOnClickListener {
             val content = binding.edtMessage.text.toString().trim()
             if (content.isNotEmpty()) {
+                // Kiểm tra socket connection trước khi gửi
+                if (!isSocketConnected) {
+                    Toast.makeText(context, "Đang kết nối... Vui lòng đợi!", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
                 lifecycleScope.launch {
                     val confirmedUserId = getMyUserIdAsync()
+
+                    // Tạo message object để gửi qua socket
                     val msg = JSONObject().apply {
                         put("matchId", matchId)
                         put("senderId", confirmedUserId)
@@ -206,7 +214,24 @@ class ChatDetailFragment : BaseFragment() {
                         put("audioPath", "")
                         put("duration", 0)
                     }
+
+                    // Optimistic update: Thêm message vào UI ngay lập tức
+                    val messageModel = MessageModel(
+                        senderId = confirmedUserId,
+                        matchId = matchId,
+                        message = content,
+                        imgChat = null,
+                        audioPath = null,
+                        duration = null,
+                    )
+
+                    // Cập nhật ViewModel để hiển thị message ngay
+                    viewModel.addMessage(messageModel)
+
+                    // Gửi message qua socket
                     mSocket?.emit("send_message", msg)
+
+                    // Xóa input
                     binding.edtMessage.setText("")
 
                     if (isAIConversation) {
@@ -466,14 +491,41 @@ class ChatDetailFragment : BaseFragment() {
 
         mSocket = IO.socket(socketUrl, opts)
 
+        // Xử lý khi socket kết nối thành công
         mSocket?.on(
             Socket.EVENT_CONNECT,
             Emitter.Listener {
+                isSocketConnected = true
+                android.util.Log.d("ChatDetailFragment", "Socket connected successfully")
+                // Join room sau khi kết nối thành công
                 val obj = JSONObject().put("matchId", matchId)
                 mSocket?.emit("join_room", obj)
             },
         )
 
+        // Xử lý khi socket disconnect
+        mSocket?.on(
+            Socket.EVENT_DISCONNECT,
+            Emitter.Listener {
+                isSocketConnected = false
+                android.util.Log.d("ChatDetailFragment", "Socket disconnected")
+            },
+        )
+
+        // Xử lý lỗi kết nối
+        mSocket?.on(
+            Socket.EVENT_CONNECT_ERROR,
+            Emitter.Listener { args ->
+                isSocketConnected = false
+                val error = args[0] as? Throwable
+                android.util.Log.e("ChatDetailFragment", "Socket connection error", error)
+                requireActivity().runOnUiThread {
+                    Toast.makeText(context, "Lỗi kết nối chat! Đang thử lại...", Toast.LENGTH_SHORT).show()
+                }
+            },
+        )
+
+        // Xử lý khi nhận message từ socket (real-time)
         mSocket?.on(
             "receive_message",
             Emitter.Listener { args ->
@@ -495,11 +547,14 @@ class ChatDetailFragment : BaseFragment() {
                         hideAITypingIndicator()
                     }
 
-                    adapter.setMessages(adapter.getAllMessages() + newMsg)
-                    binding.rvMessages.scrollToPosition(adapter.itemCount - 1)
+                    // Đồng bộ với ViewModel để đảm bảo data consistency
+                    viewModel.addMessage(newMsg)
+                    // Adapter sẽ tự động cập nhật qua Flow từ ViewModel
                 }
             },
         )
+
+        // Bắt đầu kết nối socket
         mSocket?.connect()
     }
 

@@ -96,4 +96,22 @@ class ChatViewModel @Inject constructor(
             }
         }
     }
+
+    /**
+     * Thêm message mới vào danh sách (dùng cho real-time socket messages)
+     */
+    fun addMessage(message: MessageModel) {
+        val currentMessages = _messages.value
+        // Kiểm tra xem message đã tồn tại chưa để tránh duplicate
+        if (!currentMessages.any {
+                it.senderId == message.senderId &&
+                    it.message == message.message &&
+                    it.matchId == message.matchId &&
+                    it.imgChat == message.imgChat &&
+                    it.audioPath == message.audioPath
+            }
+        ) {
+            _messages.value = currentMessages + message
+        }
+    }
 }
