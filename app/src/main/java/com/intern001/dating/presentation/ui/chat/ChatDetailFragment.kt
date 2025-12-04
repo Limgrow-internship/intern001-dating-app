@@ -107,7 +107,6 @@ class ChatDetailFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Cancel typing indicator timeout
         aiTypingTimeout?.removeCallbacksAndMessages(null)
         aiTypingTimeout = null
 
@@ -129,19 +128,15 @@ class ChatDetailFragment : BaseFragment() {
             targetUserId = it.getString("targetUserId", "")
         }
 
-        // Check if this is an AI conversation
         isAIConversation = AIConstants.isAIConversation(targetUserId)
 
-        // Setup Lottie animation for typing indicator
         setupTypingIndicatorAnimation()
 
         initSocketAndJoinRoom(matchId)
 
-        // Don't fetch match status for AI conversation
         if (!isAIConversation) {
             viewModel.fetchMatchStatus(targetUserId)
         } else {
-            // Always show input layout for AI conversation
             binding.messageInputLayout.visibility = View.VISIBLE
             binding.tvUnmatched.visibility = View.GONE
         }
@@ -214,7 +209,6 @@ class ChatDetailFragment : BaseFragment() {
                     mSocket?.emit("send_message", msg)
                     binding.edtMessage.setText("")
 
-                    // Show typing indicator for AI conversation
                     if (isAIConversation) {
                         showAITypingIndicator()
                     }
@@ -223,7 +217,6 @@ class ChatDetailFragment : BaseFragment() {
         }
 
         binding.btnMore.setOnClickListener {
-            // Hide unmatch option for AI conversation
             ChatMoreBottomSheet(
                 onUnmatch = if (!isAIConversation) {
                     { showUnmatchDialog() }
@@ -308,7 +301,6 @@ class ChatDetailFragment : BaseFragment() {
 
     private fun setRecordingUI(isRecording: Boolean) {
         binding.tvRecording.visibility = if (isRecording) View.VISIBLE else View.GONE
-        // Hide AI typing indicator when recording
         if (isRecording) {
             hideAITypingIndicator()
         }
@@ -499,7 +491,6 @@ class ChatDetailFragment : BaseFragment() {
                         duration = if (obj.has("duration") && obj.optInt("duration") > 0) obj.optInt("duration") else null,
                     )
 
-                    // Hide typing indicator if message is from AI
                     if (AIConstants.isMessageFromAI(newMsg.senderId)) {
                         hideAITypingIndicator()
                     }
@@ -526,20 +517,13 @@ class ChatDetailFragment : BaseFragment() {
     }
 
     private fun showAITypingIndicator() {
-        // Hide recording indicator if it's showing
         binding.tvRecording.visibility = View.GONE
-
-        // Show AI typing indicator
         binding.aiTypingIndicator.visibility = View.VISIBLE
 
-        // Start Lottie animation
         val lottieView = binding.aiTypingIndicator.findViewById<LottieAnimationView>(R.id.lottieTypingIndicator)
         lottieView?.playAnimation()
 
-        // Cancel existing timeout
         aiTypingTimeout?.removeCallbacksAndMessages(null)
-
-        // Set timeout to hide indicator after 30 seconds
         aiTypingTimeout = android.os.Handler(android.os.Looper.getMainLooper())
         aiTypingTimeout?.postDelayed({
             hideAITypingIndicator()
@@ -549,7 +533,6 @@ class ChatDetailFragment : BaseFragment() {
     private fun hideAITypingIndicator() {
         binding.aiTypingIndicator.visibility = View.GONE
 
-        // Stop Lottie animation
         val lottieView = binding.aiTypingIndicator.findViewById<LottieAnimationView>(R.id.lottieTypingIndicator)
         lottieView?.pauseAnimation()
 
