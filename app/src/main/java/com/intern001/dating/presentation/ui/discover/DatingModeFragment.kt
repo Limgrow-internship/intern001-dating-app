@@ -1,6 +1,7 @@
 package com.intern001.dating.presentation.ui.discover
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -56,35 +57,60 @@ class DatingModeFragment : BaseFragment() {
         observeViewModel()
 
         val targetUserId = arguments?.getString("targetUserId")
+        val targetListUserId = arguments?.getString("targetListUserId")
         val likerId = arguments?.getString("likerId")
         val allowMatchedProfile = arguments?.getBoolean("allowMatchedProfile") ?: false
 
-        if (!targetUserId.isNullOrBlank()) {
+        if (!targetListUserId.isNullOrBlank()) {
             viewLifecycleOwner.lifecycleScope.launch {
-                val result = viewModel.fetchAndAddProfileCard(targetUserId, allowMatched = allowMatchedProfile)
-                result.fold(
-                    onSuccess = { card ->
-                        val index = viewModel.matchCards.value.indexOfFirst { it.userId == card.userId }
+                val result = viewModel.fetchProfileForNavigation(
+                    userId = targetListUserId,
+                    allowMatched = allowMatchedProfile,
+                )
 
-                        if (index >= 0) {
-                            viewModel.setCurrentCardIndex(index)
-                            delay(150)
-                            showCurrentCard()
-                        } else {
-                            if (viewModel.hasMoreCards()) showCurrentCard()
-                        }
+                result.fold(
+                    onSuccess = {
+                        viewModel.setCurrentCardIndex(0)
+
+                        delay(150)
+                        showCurrentCard()
                     },
                     onFailure = {
-                        val index = viewModel.matchCards.value.indexOfFirst { it.userId == targetUserId }
-                        if (index >= 0) {
-                            viewModel.setCurrentCardIndex(index)
-                            delay(150)
-                            showCurrentCard()
-                        } else {
-                            if (viewModel.hasMoreCards()) showCurrentCard()
-                        }
+                        Toast.makeText(requireContext(), "Không tải được profile", Toast.LENGTH_SHORT).show()
                     },
                 )
+            }
+            return
+        }
+
+        if (!targetUserId.isNullOrBlank()) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.fetchProfileForNavigation(targetUserId, allowMatched = allowMatchedProfile)
+                    .fold(
+                        onSuccess = {
+                            val index = viewModel.matchCards.value.indexOfFirst { it.userId == targetUserId }
+                            Log.d("DEBUG_ARGS", "Fetched card.userId = ${it.userId}")
+                            Log.d("DEBUG_ARGS", "Fetched card.id = ${it.id}")
+
+                            if (index >= 0) {
+                                viewModel.setCurrentCardIndex(index)
+                                delay(150)
+                                showCurrentCard()
+                            } else if (viewModel.hasMoreCards()) {
+                                showCurrentCard()
+                            }
+                        },
+                        onFailure = {
+                            val index = viewModel.matchCards.value.indexOfFirst { it.userId == targetUserId }
+                            if (index >= 0) {
+                                viewModel.setCurrentCardIndex(index)
+                                delay(150)
+                                showCurrentCard()
+                            } else if (viewModel.hasMoreCards()) {
+                                showCurrentCard()
+                            }
+                        },
+                    )
             }
             return
         }

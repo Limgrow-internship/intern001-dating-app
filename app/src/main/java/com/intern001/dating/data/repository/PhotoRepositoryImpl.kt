@@ -1,7 +1,10 @@
 package com.intern001.dating.data.repository
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Log
 import com.intern001.dating.data.api.DatingApiService
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.data.model.request.ReorderPhotosRequest
@@ -118,25 +121,36 @@ class PhotoRepositoryImpl @Inject constructor(
 
     override suspend fun uploadPhoto(filePath: String, type: String): Result<Photo> {
         return withContext(Dispatchers.IO) {
+            var compressedFile: File? = null
             try {
                 val token = tokenManager.getAccessToken()
                 if (token == null) {
                     return@withContext Result.failure(Exception("User not logged in"))
                 }
 
-                val file = File(filePath)
-                if (!file.exists()) {
+                val originalFile = File(filePath)
+                if (!originalFile.exists()) {
                     return@withContext Result.failure(Exception("File not found: $filePath"))
                 }
 
+                // Compress and resize image before upload
+                compressedFile = compressImage(originalFile) ?: originalFile
+                val fileSizeMB = compressedFile.length() / (1024.0 * 1024.0)
+                Log.d("PhotoRepository", "Uploading photo: ${compressedFile.name}, size: ${String.format("%.2f", fileSizeMB)} MB")
+
                 // Create request body for file
-                val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
-                val filePart = MultipartBody.Part.createFormData("file", file.name, requestFile)
+                val requestFile = compressedFile.asRequestBody("image/*".toMediaTypeOrNull())
+                val filePart = MultipartBody.Part.createFormData("file", compressedFile.name, requestFile)
 
                 // Create request body for type
                 val typePart = MultipartBody.Part.createFormData("type", type)
 
                 val response = apiService.uploadPhoto(filePart, typePart)
+
+                // Clean up compressed file if it's different from original
+                if (compressedFile != originalFile && compressedFile.exists()) {
+                    compressedFile.delete()
+                }
 
                 if (response.isSuccessful) {
                     val photoResponse = response.body()
@@ -150,6 +164,8 @@ class PhotoRepositoryImpl @Inject constructor(
                     Result.failure(Exception("Failed to upload photo: ${response.code()} - $errorBody"))
                 }
             } catch (e: Exception) {
+                // Clean up compressed file on error
+                compressedFile?.let { if (it.exists() && it.absolutePath != filePath) it.delete() }
                 Result.failure(e)
             }
         }
@@ -177,19 +193,111 @@ class PhotoRepositoryImpl @Inject constructor(
     private fun uriToFile(uri: Uri): File? {
         return try {
             val inputStream = context.contentResolver.openInputStream(uri) ?: return null
+
+            // Read bitmap from URI
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+            inputStream.close()
+
+            if (bitmap == null) {
+                Log.e("PhotoRepository", "Failed to decode bitmap from URI: $uri")
+                return null
+            }
+
+            // Compress and resize bitmap (always returns a new bitmap)
+            val compressedBitmap = resizeAndCompressBitmap(bitmap)
+            bitmap.recycle() // Safe to recycle original now
+
+            // Save compressed bitmap to temp file
             val tempFile = File.createTempFile("upload_", ".jpg", context.cacheDir)
             val outputStream = FileOutputStream(tempFile)
-
-            inputStream.use { input ->
-                outputStream.use { output ->
-                    input.copyTo(output)
-                }
-            }
+            compressedBitmap.compress(Bitmap.CompressFormat.JPEG, 85, outputStream)
+            outputStream.close()
+            compressedBitmap.recycle() // Recycle compressed bitmap after saving
 
             tempFile
         } catch (e: Exception) {
+            Log.e("PhotoRepository", "Error converting URI to file", e)
             null
         }
+    }
+
+    private fun compressImage(file: File): File? {
+        return try {
+            val fileSizeMB = file.length() / (1024.0 * 1024.0)
+            Log.d("PhotoRepository", "Original file size: ${String.format("%.2f", fileSizeMB)} MB")
+
+            if (file.length() < 1024 * 1024) {
+                return file
+            }
+
+            // Decode bitmap with options to reduce memory usage
+            val options = BitmapFactory.Options().apply {
+                inJustDecodeBounds = true
+            }
+            BitmapFactory.decodeFile(file.absolutePath, options)
+
+            // Calculate sample size to reduce memory
+            val sampleSize = calculateInSampleSize(options, 1920, 1920)
+            options.inJustDecodeBounds = false
+            options.inSampleSize = sampleSize
+
+            val bitmap = BitmapFactory.decodeFile(file.absolutePath, options)
+                ?: return file
+
+            // Resize and compress (always returns a new bitmap)
+            val compressedBitmap = resizeAndCompressBitmap(bitmap)
+            bitmap.recycle() // Safe to recycle original now
+
+            // Save to temp file
+            val compressedFile = File.createTempFile("compressed_", ".jpg", context.cacheDir)
+            val outputStream = FileOutputStream(compressedFile)
+            compressedBitmap.compress(Bitmap.CompressFormat.JPEG, 85, outputStream)
+            outputStream.close()
+            compressedBitmap.recycle() // Recycle compressed bitmap after saving
+
+            val compressedSizeMB = compressedFile.length() / (1024.0 * 1024.0)
+            Log.d("PhotoRepository", "Compressed file size: ${String.format("%.2f", compressedSizeMB)} MB")
+
+            compressedFile
+        } catch (e: Exception) {
+            Log.e("PhotoRepository", "Error compressing image", e)
+            file
+        }
+    }
+
+    private fun resizeAndCompressBitmap(bitmap: Bitmap, maxWidth: Int = 1920, maxHeight: Int = 1920): Bitmap {
+        val width = bitmap.width
+        val height = bitmap.height
+
+        // If image is already smaller than max dimensions, create a copy
+        if (width <= maxWidth && height <= maxHeight) {
+            val config = bitmap.config ?: Bitmap.Config.ARGB_8888
+            return bitmap.copy(config, false)
+        }
+
+        // Calculate new dimensions maintaining aspect ratio
+        val scale = minOf(maxWidth.toFloat() / width, maxHeight.toFloat() / height)
+        val newWidth = (width * scale).toInt()
+        val newHeight = (height * scale).toInt()
+
+        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
+    }
+
+    private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
+        val height = options.outHeight
+        val width = options.outWidth
+        var inSampleSize = 1
+
+        if (height > reqHeight || width > reqWidth) {
+            val halfHeight = height / 2
+            val halfWidth = width / 2
+
+            while ((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2
+            }
+        }
+
+        return inSampleSize
     }
 
     override suspend fun setPhotoAsPrimary(photoId: String): Result<Photo> {

@@ -19,18 +19,17 @@ class UserRepositoryImpl @Inject constructor(
     private val authRepository: AuthRepository,
 ) : UserRepository {
     override suspend fun deleteAccount(): Result<Unit> {
-        val token = tokenManager.getAccessToken()
         return try {
             // First delete profile on server (if endpoint exists)
             try {
-                api.deleteProfile("Bearer $token")
+                api.deleteProfile()
             } catch (e: Exception) {
                 // If deleteProfile endpoint doesn't exist or fails, continue with account deletion
                 // The account deletion might already delete the profile
             }
 
             // Then delete account on server
-            val deleteAccountResponse = api.deleteAccount("Bearer $token")
+            val deleteAccountResponse = api.deleteAccount()
 
             // Always clear all user data regardless of API response
             // This ensures local data is deleted even if server deletion fails

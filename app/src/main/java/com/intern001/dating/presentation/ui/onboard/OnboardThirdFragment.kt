@@ -45,18 +45,10 @@ class OnboardThirdFragment : BaseFragment() {
         }
 
         binding.btnContinue.setOnClickListener {
-            // If user has purchased "no ads", skip the full screen ad
-            if (viewModel.hasActiveSubscription()) {
-                // Skip ad and go directly to language selection
-                findNavController().navigate(
-                    com.intern001.dating.R.id.action_onboard3_to_language,
-                )
-            } else {
-                // Show full screen ad before language selection
-                findNavController().navigate(
-                    com.intern001.dating.R.id.action_onboard3_to_nativeFullFragment,
-                )
-            }
+            // Always go to language selection after onboarding
+            findNavController().navigate(
+                com.intern001.dating.R.id.action_onboard3_to_language,
+            )
         }
     }
 

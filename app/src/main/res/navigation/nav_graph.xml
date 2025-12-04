@@ -86,8 +86,8 @@
         android:name="com.intern001.dating.presentation.ui.language.SelectLanguageFragment"
         android:label="SelectLanguageFragment" >
         <action
-            android:id="@+id/action_selectLanguageFragment_to_login"
-            app:destination="@id/loginFragment"
+            android:id="@+id/action_selectLanguageFragment_to_nativeFull"
+            app:destination="@id/nativeFullFragment"
             app:popUpTo="@id/selectLanguageFragment"
             app:popUpToInclusive="true"/>
     </fragment>
@@ -206,11 +206,6 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
-
-        <argument
-            android:name="targetUserId"
-            app:argType="string"
-            android:defaultValue="@null" />
     </fragment>
 
     <fragment
@@ -346,14 +341,17 @@
         android:id="@+id/datingModeFragment"
         android:name="com.intern001.dating.presentation.ui.discover.DatingModeFragment"
         android:label="Dating Mode"
-        app:route="dating_mode?likerId={likerId}">
+        app:route="dating_mode?likerId={likerId}&amp;targetUserId={targetUserId}&amp;targetListUserId={targetListUserId}&amp;allowMatchedProfile={allowMatchedProfile}">
         <argument
             android:name="likerId"
             app:argType="string"
             android:defaultValue="@null" />
-
         <argument
             android:name="targetUserId"
+            app:argType="string"
+            android:defaultValue="@null" />
+        <argument
+            android:name="targetListUserId"
             app:argType="string"
             android:defaultValue="@null" />
         <argument

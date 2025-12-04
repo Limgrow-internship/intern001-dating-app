@@ -207,6 +207,8 @@ data class LikedYouResponseDto(
     val lastName: String?,
     @SerializedName("avatar")
     val avatar: String?,
+    @SerializedName("picture")
+    val picture: String?,
     @SerializedName("city")
     val city: String?,
     @SerializedName("age")

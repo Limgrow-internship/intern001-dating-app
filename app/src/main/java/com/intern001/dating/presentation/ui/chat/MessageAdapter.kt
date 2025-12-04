@@ -196,4 +196,6 @@ class MessageAdapter(private val myUserId: String) : RecyclerView.Adapter<Recycl
         val s = sec % 60
         return if (m > 0) "$m:${s.toString().padStart(2, '0')}" else "0:${s.toString().padStart(2, '0')}"
     }
+
+    fun getAllMessages(): List<MessageModel> = messages
 }

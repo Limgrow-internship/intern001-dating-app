@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/bg_bottom_sheet_rounded">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tạo Bio với AI"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nhập ý tưởng của bạn để AI tạo bio phù hợp"
+        android:textSize="14sp"
+        android:textColor="#777777"
+        android:layout_marginBottom="16dp" />
+
+    <EditText
+        android:id="@+id/etPrompt"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:hint="Ví dụ: Tôi yêu thích du lịch, cà phê và đọc sách. Tôi làm việc như một kỹ sư phần mềm và thích đi bộ vào cuối tuần."
+        android:background="@drawable/bg_edittext_outline"
+        android:padding="16dp"
+        android:textSize="14sp"
+        android:textColor="#000000"
+        android:textColorHint="#999999"
+        android:gravity="top|start"
+        android:inputType="textMultiLine|textCapSentences"
+        android:minLines="3"
+        android:maxLines="10"
+        android:scrollbars="vertical"
+        android:overScrollMode="always"
+        android:isScrollContainer="true"
+        android:layout_marginBottom="16dp" />
+
+    <LinearLayout
+        android:id="@+id/loadingLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:visibility="gone"
+        android:layout_marginBottom="16dp">
+
+        <ProgressBar
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="12dp"
+            android:indeterminateTint="@color/orange_500" />
+
+        <TextView
+            android:id="@+id/tvLoadingText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Đang tạo bio với AI..."
+            android:textSize="14sp"
+            android:textColor="#777777" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <TextView
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hủy"
+            android:textColor="#777777"
+            android:textSize="16sp"
+            android:padding="12dp"
+            android:layout_marginEnd="16dp"
+            android:background="?attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/btnGenerate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tạo Bio"
+            android:textColor="@color/orange_500"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:padding="12dp"
+            android:background="?attr/selectableItemBackground" />
+    </LinearLayout>
+</LinearLayout>
+
