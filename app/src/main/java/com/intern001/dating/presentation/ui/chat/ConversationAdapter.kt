@@ -45,11 +45,9 @@ class ConversationAdapter(
     override fun onBindViewHolder(holder: ConversationViewHolder, position: Int) {
         val c = conversations[position]
         val isAIConversation = AIConstants.isAIConversation(c.userId)
-        
-        // Load avatar - use default AI icon if null
-        if (isAIConversation && c.avatarUrl.isNullOrEmpty()) {
-            // You can set a default AI icon here if needed
-            holder.imvAvatar.setImageResource(R.drawable.bg_avatar_round)
+
+        if (isAIConversation) {
+            holder.imvAvatar.setImageResource(R.drawable.ic_chatbot)
         } else {
             Glide.with(holder.itemView.context)
                 .load(c.avatarUrl)
@@ -57,14 +55,14 @@ class ConversationAdapter(
                 .circleCrop()
                 .into(holder.imvAvatar)
         }
-        
+
         holder.tvUserName.text = c.userName
         holder.tvLastMessage.text = c.lastMessage ?: if (isAIConversation) "Start chatting with AI!" else "Say hi match!"
         holder.tvTimestamp.text = c.timestamp?.let { formatChatTimestamp(it) } ?: ""
-        
+
         // Hide online dot for AI conversation
         holder.onlineDot.visibility = if (isAIConversation || c.isOnline != true) View.INVISIBLE else View.VISIBLE
-        
+
         // Show AI badge for AI conversation
         holder.tvAIBadge.visibility = if (isAIConversation) View.VISIBLE else View.GONE
 

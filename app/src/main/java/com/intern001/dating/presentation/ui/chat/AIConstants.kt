@@ -22,4 +22,3 @@ object AIConstants {
         return senderId == AI_ASSISTANT_USER_ID
     }
 }
-
