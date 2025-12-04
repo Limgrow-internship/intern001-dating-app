@@ -21,14 +21,17 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.airbnb.lottie.LottieAnimationView
+import com.airbnb.lottie.LottieCompositionFactory
 import com.bumptech.glide.Glide
 import com.intern001.dating.BuildConfig
+import com.intern001.dating.R
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.data.model.MessageModel
 import com.intern001.dating.databinding.FragmentChatScreenBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
-import com.intern001.dating.presentation.ui.chat.MessageAdapter
 import com.intern001.dating.presentation.ui.chat.AIConstants
+import com.intern001.dating.presentation.ui.chat.MessageAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import io.socket.client.IO
 import io.socket.client.Socket
@@ -70,7 +73,7 @@ class ChatDetailFragment : BaseFragment() {
     private var audioFilePath: String = ""
     private var isRecording = false
     private var recordStartTime: Long = 0
-    
+
     private var isAIConversation = false
     private var aiTypingTimeout: android.os.Handler? = null
     private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
@@ -107,7 +110,7 @@ class ChatDetailFragment : BaseFragment() {
         // Cancel typing indicator timeout
         aiTypingTimeout?.removeCallbacksAndMessages(null)
         aiTypingTimeout = null
-        
+
         mSocket?.disconnect()
         mSocket?.off()
         mSocket = null
@@ -125,12 +128,15 @@ class ChatDetailFragment : BaseFragment() {
             matchedUserName = it.getString("matchedUserName")
             targetUserId = it.getString("targetUserId", "")
         }
-        
+
         // Check if this is an AI conversation
         isAIConversation = AIConstants.isAIConversation(targetUserId)
-        
+
+        // Setup Lottie animation for typing indicator
+        setupTypingIndicatorAnimation()
+
         initSocketAndJoinRoom(matchId)
-        
+
         // Don't fetch match status for AI conversation
         if (!isAIConversation) {
             viewModel.fetchMatchStatus(targetUserId)
@@ -207,7 +213,7 @@ class ChatDetailFragment : BaseFragment() {
                     }
                     mSocket?.emit("send_message", msg)
                     binding.edtMessage.setText("")
-                    
+
                     // Show typing indicator for AI conversation
                     if (isAIConversation) {
                         showAITypingIndicator()
@@ -219,7 +225,11 @@ class ChatDetailFragment : BaseFragment() {
         binding.btnMore.setOnClickListener {
             // Hide unmatch option for AI conversation
             ChatMoreBottomSheet(
-                onUnmatch = if (!isAIConversation) { { showUnmatchDialog() } } else null,
+                onUnmatch = if (!isAIConversation) {
+                    { showUnmatchDialog() }
+                } else {
+                    null
+                },
                 onReport = { },
                 onDeleteConversation = { showDeleteConversationDialog() },
                 onBlock = { },
@@ -479,7 +489,7 @@ class ChatDetailFragment : BaseFragment() {
                 requireActivity().runOnUiThread {
                     val audioPathValue = obj.optString("audioPath", null)
                     val imgChatValue = obj.optString("imgChat", null)
-                    
+
                     val newMsg = MessageModel(
                         senderId = obj.optString("senderId"),
                         matchId = obj.optString("matchId"),
@@ -488,12 +498,12 @@ class ChatDetailFragment : BaseFragment() {
                         audioPath = if (audioPathValue.isNullOrBlank()) null else audioPathValue,
                         duration = if (obj.has("duration") && obj.optInt("duration") > 0) obj.optInt("duration") else null,
                     )
-                    
+
                     // Hide typing indicator if message is from AI
                     if (AIConstants.isMessageFromAI(newMsg.senderId)) {
                         hideAITypingIndicator()
                     }
-                    
+
                     adapter.setMessages(adapter.getAllMessages() + newMsg)
                     binding.rvMessages.scrollToPosition(adapter.itemCount - 1)
                 }
@@ -501,26 +511,48 @@ class ChatDetailFragment : BaseFragment() {
         )
         mSocket?.connect()
     }
-    
+
+    private fun setupTypingIndicatorAnimation() {
+        val lottieView = binding.aiTypingIndicator.findViewById<LottieAnimationView>(R.id.lottieTypingIndicator)
+        lottieView?.let { view ->
+            LottieCompositionFactory.fromRawRes(requireContext(), R.raw.typing_indicator)
+                .addListener { composition ->
+                    view.setComposition(composition)
+                }
+                .addFailureListener { throwable ->
+                    android.util.Log.e("ChatDetailFragment", "Failed to load typing indicator animation", throwable)
+                }
+        }
+    }
+
     private fun showAITypingIndicator() {
         // Hide recording indicator if it's showing
         binding.tvRecording.visibility = View.GONE
-        
+
         // Show AI typing indicator
         binding.aiTypingIndicator.visibility = View.VISIBLE
-        
+
+        // Start Lottie animation
+        val lottieView = binding.aiTypingIndicator.findViewById<LottieAnimationView>(R.id.lottieTypingIndicator)
+        lottieView?.playAnimation()
+
         // Cancel existing timeout
         aiTypingTimeout?.removeCallbacksAndMessages(null)
-        
+
         // Set timeout to hide indicator after 30 seconds
         aiTypingTimeout = android.os.Handler(android.os.Looper.getMainLooper())
         aiTypingTimeout?.postDelayed({
             hideAITypingIndicator()
         }, AIConstants.AI_TYPING_TIMEOUT_MS)
     }
-    
+
     private fun hideAITypingIndicator() {
         binding.aiTypingIndicator.visibility = View.GONE
+
+        // Stop Lottie animation
+        val lottieView = binding.aiTypingIndicator.findViewById<LottieAnimationView>(R.id.lottieTypingIndicator)
+        lottieView?.pauseAnimation()
+
         aiTypingTimeout?.removeCallbacksAndMessages(null)
     }
 }
