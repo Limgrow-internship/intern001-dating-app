@@ -79,12 +79,17 @@ fun NavController.navigateToChatDetail(userId: String) {
     navigate(route)
 }
 
-fun NavController.navigateToDatingMode(likerId: String? = null) {
-    val route = if (likerId != null) {
-        "${NavGraph.ROUTE_DATING_MODE}?likerId=$likerId"
-    } else {
-        NavGraph.ROUTE_DATING_MODE
-    }
+fun NavController.navigateToDatingMode(
+    likerId: String? = null,
+    targetUserId: String? = null,
+    targetListUserId: String? = null,
+    allowMatchedProfile: Boolean = false,
+) {
+    val route = "${NavGraph.ROUTE_DATING_MODE}?" +
+        "likerId=${likerId ?: ""}&" +
+        "targetUserId=${targetUserId ?: ""}&" +
+        "targetListUserId=${targetListUserId ?: ""}&" +
+        "allowMatchedProfile=$allowMatchedProfile"
     navigate(route)
 }
 

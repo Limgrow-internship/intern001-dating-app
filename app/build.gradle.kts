@@ -162,6 +162,7 @@ dependencies {
     implementation("jp.wasabeef:richeditor-android:2.0.0")
 
     implementation("io.socket:socket.io-client:2.1.0")
+    implementation("com.airbnb.android:lottie:6.1.0")
 }
 
 // KtLint configuration

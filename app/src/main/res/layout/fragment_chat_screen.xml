@@ -85,6 +85,24 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="8dp" />
 
+    <LinearLayout
+        android:id="@+id/aiTypingIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/bg_input_round"
+        android:visibility="gone"
+        android:layout_marginStart="10dp"
+        app:layout_constraintBottom_toTopOf="@id/messageInputLayout"
+        app:layout_constraintStart_toStartOf="parent">
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottieTypingIndicator"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            app:lottie_loop="true"
+            app:lottie_autoPlay="false" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/tvUnmatched"
         android:layout_width="match_parent"
