@@ -1,5 +1,6 @@
 package com.intern001.dating.presentation.ui.chat
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.intern001.dating.data.model.MessageModel
@@ -22,11 +23,14 @@ class ChatViewModel @Inject constructor(
 
     private val _matchStatus = MutableStateFlow("active")
     val matchStatus: StateFlow<String> = _matchStatus
+    private val _blockerId = MutableStateFlow<String?>(null)
+    val blockerId: StateFlow<String?> = _blockerId
 
     fun fetchHistory(matchId: String) {
         viewModelScope.launch {
             try {
-                _messages.value = repo.getHistory(matchId)
+                val allMsgs = repo.getHistory(matchId)
+                _messages.value = allMsgs.filter { it.delivered == true }
             } catch (_: Exception) { }
         }
     }
@@ -86,20 +90,40 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun fetchMatchStatus(targetUserId: String) {
+    fun blockUser(targetUserId: String, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             try {
-                val status = repo.getMatchStatus(targetUserId)
-                _matchStatus.value = status
+                repo.block(targetUserId)
+                onResult(true)
             } catch (e: Exception) {
-                _matchStatus.value = "error"
+                onResult(false)
             }
         }
     }
 
-    /**
-     * Thêm message mới vào danh sách (dùng cho real-time socket messages)
-     */
+    fun unblockUser(targetUserId: String, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            try {
+                repo.unblock(targetUserId)
+                onResult(true)
+            } catch (e: Exception) {
+                onResult(false)
+            }
+        }
+    }
+    fun fetchMatchStatus(targetUserId: String) {
+        viewModelScope.launch {
+            try {
+                val resp = repo.getMatchStatusResponse(targetUserId)
+                _matchStatus.value = resp.status
+                _blockerId.value = resp.blockerId
+            } catch (e: Exception) {
+                _matchStatus.value = "error"
+                _blockerId.value = null
+            }
+        }
+    }
+
     fun addMessage(message: MessageModel) {
         val currentMessages = _messages.value
         // Kiểm tra xem message đã tồn tại chưa để tránh duplicate

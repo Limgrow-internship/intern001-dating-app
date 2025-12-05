@@ -140,22 +140,12 @@ constructor(
         }
     }
 
-    override suspend fun blockUser(
-        targetUserId: String,
-        reason: String?,
-    ): Result<Unit> {
+    override suspend fun blockUser(targetUserId: String): Result<Unit> {
         return try {
-            val request = BlockUserRequest(targetUserId = targetUserId, reason = reason)
-            val response = apiService.discoveryBlock(request)
-            if (response.isSuccessful) {
-                Result.success(Unit)
-            } else {
-                val errorMessage = response.errorBody()?.string() ?: "Failed to block user"
-                Log.e(TAG, "blockUser error: $errorMessage")
-                Result.failure(Exception(errorMessage))
-            }
+            val req = BlockUserRequest(targetUserId)
+            apiService.block(req)
+            Result.success(Unit)
         } catch (e: Exception) {
-            Log.e(TAG, "blockUser exception", e)
             Result.failure(e)
         }
     }

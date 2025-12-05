@@ -183,6 +183,8 @@ data class MatchStatusResponse(
     val targetLiked: Boolean,
     val targetProfile: TargetProfileResponse?,
     val status: String,
+    val blockerId: String?
+
 )
 
 data class TargetProfileResponse(

@@ -13,6 +13,9 @@ class ChatMoreBottomSheet(
     val onReport: () -> Unit,
     val onDeleteConversation: () -> Unit,
     val onBlock: () -> Unit,
+    val onUnblock: () -> Unit,
+    val canBlock: Boolean,
+    val canUnblock: Boolean,
 ) : BottomSheetDialogFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -38,9 +41,24 @@ class ChatMoreBottomSheet(
             dismiss()
             onDeleteConversation()
         }
-        view.findViewById<TextView>(R.id.tvBlock).setOnClickListener {
-            dismiss()
-            onBlock()
+        val tvBlock = view.findViewById<TextView>(R.id.tvBlock)
+        val tvUnBlock = view.findViewById<TextView>(R.id.tvUnBlock)
+
+        tvBlock.visibility = if (canBlock) View.VISIBLE else View.GONE
+        tvUnBlock.visibility = if (canUnblock) View.VISIBLE else View.GONE
+
+        tvBlock.setOnClickListener { dismiss(); onBlock() }
+        tvUnBlock.setOnClickListener { dismiss(); onUnblock() }
+
+        if (onUnmatch != null) {
+            tvUnmatch.setOnClickListener { dismiss(); onUnmatch() }
+        } else tvUnmatch.visibility = View.GONE
+
+        view.findViewById<TextView>(R.id.tvReport).setOnClickListener {
+            dismiss(); onReport()
+        }
+        view.findViewById<TextView>(R.id.tvDeleteConversation).setOnClickListener {
+            dismiss(); onDeleteConversation()
         }
     }
 }
