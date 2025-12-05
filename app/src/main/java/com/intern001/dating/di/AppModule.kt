@@ -40,10 +40,6 @@ object AppModule {
         return context.userPreferencesDataStore
     }
 
-    /**
-     * Provide Room Database instance
-     * Singleton để đảm bảo chỉ có một instance database trong app
-     */
     @Singleton
     @Provides
     fun provideChatDatabase(@ApplicationContext context: Context): ChatDatabase {
@@ -52,13 +48,10 @@ object AppModule {
             ChatDatabase::class.java,
             ChatDatabase.DATABASE_NAME,
         )
-            .fallbackToDestructiveMigration() // Nếu schema thay đổi, sẽ recreate database
+            .fallbackToDestructiveMigration()
             .build()
     }
 
-    /**
-     * Provide ChatLocalRepository
-     */
     @Singleton
     @Provides
     fun provideChatLocalRepository(database: ChatDatabase): ChatLocalRepository {
