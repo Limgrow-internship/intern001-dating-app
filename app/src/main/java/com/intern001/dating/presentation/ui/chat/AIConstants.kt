@@ -9,13 +9,13 @@ object AIConstants {
     const val AI_ASSISTANT_USER_ID = "AI_ASSISTANT"
     const val AI_ASSISTANT_NAME = "David Vu"
     const val AI_TYPING_TIMEOUT_MS = 30_000L
-    
+
     const val AI_FAKE_MATCH_ID = "AI_ASSISTANT_MATCH"
     const val AI_FAKE_NAME = "David Vu"
     const val AI_FAKE_AVATAR_URL = "https://i.pravatar.cc/300?img=68"
     const val AI_FAKE_AGE = 25
     const val AI_FAKE_CITY = "Hà Nội"
-    
+
     const val AI_FAKE_BIO = "Xin chào! Tôi là David, một người thích khám phá và trải nghiệm cuộc sống. Tôi yêu thích du lịch, đọc sách và nấu ăn. Hãy cùng nhau chia sẻ những câu chuyện thú vị nhé! 😊"
     const val AI_FAKE_GENDER = "male"
     const val AI_FAKE_OCCUPATION = "Software Engineer"
@@ -24,7 +24,7 @@ object AIConstants {
     const val AI_FAKE_HEIGHT = 175
     const val AI_FAKE_ZODIAC_SIGN = "Sư Tử"
     const val AI_FAKE_RELATIONSHIP_MODE = "serious"
-    
+
     val AI_FAKE_INTERESTS = listOf(
         "Du lịch",
         "Đọc sách",
@@ -33,14 +33,14 @@ object AIConstants {
         "Thể thao",
         "Phim ảnh",
         "Công nghệ",
-        "Nhiếp ảnh"
+        "Nhiếp ảnh",
     )
-    
+
     val AI_FAKE_PHOTOS = listOf(
         "https://i.pravatar.cc/800?img=68",
         "https://i.pravatar.cc/800?img=12",
         "https://i.pravatar.cc/800?img=33",
-        "https://i.pravatar.cc/800?img=45"
+        "https://i.pravatar.cc/800?img=45",
     )
 
     fun isAIConversation(userId: String?): Boolean {
@@ -50,7 +50,7 @@ object AIConstants {
     fun isMessageFromAI(senderId: String?): Boolean {
         return senderId == AI_ASSISTANT_USER_ID
     }
-    
+
     /**
      * Kiểm tra xem userId có phải AI user không
      * Alias cho isAIConversation để phù hợp với hướng dẫn
@@ -58,7 +58,7 @@ object AIConstants {
     fun isAIUser(userId: String?): Boolean {
         return userId == AI_ASSISTANT_USER_ID
     }
-    
+
     fun createAIFakeProfile(): MatchCard {
         val now = Date()
         return MatchCard(
@@ -96,7 +96,7 @@ object AIConstants {
                 latitude = 21.0285,
                 longitude = 105.8542,
                 city = AI_FAKE_CITY,
-                country = "Vietnam"
+                country = "Vietnam",
             ),
             occupation = AI_FAKE_OCCUPATION,
             company = AI_FAKE_COMPANY,

@@ -41,17 +41,17 @@ class ConversationAdapter(
         return ConversationViewHolder(view)
     }
 
-           override fun onBindViewHolder(holder: ConversationViewHolder, position: Int) {
-               val c = conversations[position]
-               val isAIConversation = AIConstants.isAIUser(c.userId)
+    override fun onBindViewHolder(holder: ConversationViewHolder, position: Int) {
+        val c = conversations[position]
+        val isAIConversation = AIConstants.isAIUser(c.userId)
 
-               Glide.with(holder.itemView.context)
-                   .load(if (isAIConversation) AIConstants.AI_FAKE_AVATAR_URL else c.avatarUrl)
-                   .placeholder(R.drawable.bg_avatar_round)
-                   .circleCrop()
-                   .into(holder.imvAvatar)
+        Glide.with(holder.itemView.context)
+            .load(if (isAIConversation) AIConstants.AI_FAKE_AVATAR_URL else c.avatarUrl)
+            .placeholder(R.drawable.bg_avatar_round)
+            .circleCrop()
+            .into(holder.imvAvatar)
 
-               holder.tvUserName.text = if (isAIConversation) AIConstants.AI_FAKE_NAME else c.userName
+        holder.tvUserName.text = if (isAIConversation) AIConstants.AI_FAKE_NAME else c.userName
         holder.tvLastMessage.text = c.lastMessage ?: "Say hi match!"
         holder.tvTimestamp.text = c.timestamp?.let { formatChatTimestamp(it) } ?: ""
 

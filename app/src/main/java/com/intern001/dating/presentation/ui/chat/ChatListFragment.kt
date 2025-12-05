@@ -22,11 +22,11 @@ import com.intern001.dating.presentation.common.viewmodel.ChatListViewModel
 import com.intern001.dating.presentation.ui.chat.AIConstants
 import com.intern001.dating.presentation.ui.chat.MatchAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.Instant
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.time.Instant
 
 @AndroidEntryPoint
 class ChatListFragment : BaseFragment() {
@@ -113,12 +113,12 @@ class ChatListFragment : BaseFragment() {
                         return@collect
                     }
 
-                    val aiMatchFromBackend = matches.firstOrNull { 
-                        AIConstants.isAIUser(it.matchedUser.userId) 
+                    val aiMatchFromBackend = matches.firstOrNull {
+                        AIConstants.isAIUser(it.matchedUser.userId)
                     }
 
-                    val filteredMatches = matches.filterNot { 
-                        AIConstants.isAIUser(it.matchedUser.userId) 
+                    val filteredMatches = matches.filterNot {
+                        AIConstants.isAIUser(it.matchedUser.userId)
                     }
 
                     val aiMatch = if (aiMatchFromBackend != null) {
@@ -128,7 +128,7 @@ class ChatListFragment : BaseFragment() {
                                 avatarUrl = AIConstants.AI_FAKE_AVATAR_URL,
                                 age = aiMatchFromBackend.matchedUser.age ?: AIConstants.AI_FAKE_AGE,
                                 city = aiMatchFromBackend.matchedUser.city ?: AIConstants.AI_FAKE_CITY,
-                            )
+                            ),
                         )
                     } else {
                         MatchList(

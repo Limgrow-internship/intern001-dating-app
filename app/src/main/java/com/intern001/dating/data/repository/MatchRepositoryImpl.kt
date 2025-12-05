@@ -207,11 +207,11 @@ constructor(
                 } catch (e: Exception) {
                     Log.w(TAG, "Exception fetching AI profile from API, using fake data", e)
                 }
-                
+
                 val aiProfile = com.intern001.dating.presentation.ui.chat.AIConstants.createAIFakeProfile()
                 return Result.success(aiProfile)
             }
-            
+
             val response = apiService.getProfileByUserId(userId)
             if (response.isSuccessful) {
                 val matchCard = response.body()?.toMatchCard()

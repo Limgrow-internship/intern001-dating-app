@@ -53,18 +53,18 @@ class ChatViewModel @Inject constructor(
             try {
                 val allMsgs = repo.getHistory(matchId)
                 val deliveredMsgs = allMsgs.filter { it.delivered == true }
-                
+
                 val currentMsgs = _messages.value
                 val mergedMsgs = mergeMessages(currentMsgs, deliveredMsgs)
                 _messages.value = mergedMsgs
             } catch (_: Exception) { }
         }
     }
-    
+
     private fun mergeMessages(current: List<MessageModel>, new: List<MessageModel>): List<MessageModel> {
         val merged = mutableListOf<MessageModel>()
         val seen = mutableSetOf<String>()
-        
+
         new.forEach { msg ->
             val key = "${msg.senderId}_${msg.message}_${msg.matchId}_${msg.imgChat}_${msg.audioPath}"
             if (!seen.contains(key)) {
@@ -72,7 +72,7 @@ class ChatViewModel @Inject constructor(
                 seen.add(key)
             }
         }
-        
+
         current.forEach { msg ->
             val key = "${msg.senderId}_${msg.message}_${msg.matchId}_${msg.imgChat}_${msg.audioPath}"
             if (!seen.contains(key)) {
@@ -80,7 +80,7 @@ class ChatViewModel @Inject constructor(
                 seen.add(key)
             }
         }
-        
+
         return merged.sortedBy { it.timestamp ?: "" }
     }
 
@@ -179,11 +179,11 @@ class ChatViewModel @Inject constructor(
         val exists = currentMessages.any {
             "${it.senderId}_${it.message}_${it.matchId}_${it.imgChat}_${it.audioPath}" == key
         }
-        
+
         if (!exists) {
             val updatedMessages = currentMessages + message
             _messages.value = updatedMessages.sortedBy { it.timestamp ?: "" }
-            
+
             android.util.Log.d("ChatViewModel", "Added message: ${message.message.take(50)}... Total: ${_messages.value.size}")
 
             if (isAIConversation && com.intern001.dating.presentation.ui.chat.AIConstants.isMessageFromAI(message.senderId)) {
@@ -237,10 +237,10 @@ class ChatViewModel @Inject constructor(
                 android.util.Log.d("ChatViewModel", "Received new message: senderId=${message.senderId}, isFromAI=${AIConstants.isMessageFromAI(message.senderId)}")
                 addMessage(message)
             }
-            
+
             service.joinRoom(matchId, userId)
             _isSocketConnected.value = service.isConnected()
-            
+
             android.util.Log.d("ChatViewModel", "Joined chat room: matchId=$matchId, userId=$userId, isAI=$isAI, connected=${service.isConnected()}")
         } ?: run {
             android.util.Log.e("ChatViewModel", "Socket service not initialized")

@@ -39,4 +39,3 @@ object AIHelper {
             ?: AIConstants.AI_FAKE_INTERESTS
     }
 }
-

@@ -49,12 +49,12 @@ class DiscoverFragment : BaseFragment() {
         observeViewModel()
 
         viewModel.clearTemporaryMatchedAllowances()
-        
+
         val currentCards = viewModel.matchCards.value
         val firstCardUserId = currentCards.firstOrNull()?.userId ?: ""
         val isMatchedUser = viewModel.isUserMatched(firstCardUserId)
         val hasOnlyMatchedUser = currentCards.size == 1 && isMatchedUser
-        
+
         if (hasOnlyMatchedUser || currentCards.isEmpty()) {
             viewModel.loadMatchCards(showLoading = true)
         } else if (currentCards.isNotEmpty() && viewModel.hasMoreCards()) {

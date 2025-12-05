@@ -5,9 +5,9 @@ import com.intern001.dating.BuildConfig
 import com.intern001.dating.data.model.MessageModel
 import io.socket.client.IO
 import io.socket.client.Socket
+import java.net.URISyntaxException
 import org.json.JSONArray
 import org.json.JSONObject
-import java.net.URISyntaxException
 
 class ChatSocketService(private val token: String) {
     private var socket: Socket? = null
@@ -30,7 +30,7 @@ class ChatSocketService(private val token: String) {
             socket?.on(Socket.EVENT_CONNECT) {
                 Log.d(TAG, "Socket connected successfully")
                 onConnectionStatusChanged?.invoke(true)
-                
+
                 // Join room if there's a pending join request
                 pendingJoinRoom?.let { (matchId, userId) ->
                     val data = JSONObject().apply {
@@ -64,13 +64,13 @@ class ChatSocketService(private val token: String) {
     }
 
     private var pendingJoinRoom: Pair<String, String>? = null
-    
+
     fun joinRoom(matchId: String, userId: String) {
         if (socket == null) {
             Log.e(TAG, "Socket is null, cannot join room")
             return
         }
-        
+
         val joinRoomData = {
             val data = JSONObject().apply {
                 put("matchId", matchId)
@@ -79,7 +79,7 @@ class ChatSocketService(private val token: String) {
             socket?.emit("join_room", data)
             Log.d(TAG, "Joined room: matchId=$matchId, userId=$userId")
         }
-        
+
         if (socket!!.connected()) {
             // Socket already connected, join immediately
             joinRoomData()
@@ -87,7 +87,7 @@ class ChatSocketService(private val token: String) {
             // Socket not connected yet, store join request and wait for connection
             Log.w(TAG, "Socket not connected yet, will join room after connection")
             pendingJoinRoom = Pair(matchId, userId)
-            
+
             // This will be handled by EVENT_CONNECT listener
             if (pendingJoinRoom != null) {
                 socket?.once(Socket.EVENT_CONNECT) {
@@ -147,12 +147,12 @@ class ChatSocketService(private val token: String) {
             Log.e(TAG, "Socket is null, cannot send message")
             return
         }
-        
+
         if (!socket!!.connected()) {
             Log.e(TAG, "Socket not connected, cannot send message")
             return
         }
-        
+
         val data = JSONObject().apply {
             put("matchId", matchId)
             put("senderId", senderId)
@@ -205,4 +205,3 @@ class ChatSocketService(private val token: String) {
         return messages
     }
 }
-

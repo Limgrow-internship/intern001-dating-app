@@ -114,7 +114,7 @@ class ChatDetailFragment : BaseFragment() {
         }
 
         isAIConversation = AIConstants.isAIUser(targetUserId)
-        
+
         if (isAIConversation && matchedUserName.isNullOrBlank()) {
             matchedUserName = AIConstants.AI_FAKE_NAME
         }
@@ -126,11 +126,11 @@ class ChatDetailFragment : BaseFragment() {
             viewModel.currentUserId = myUserId
             viewModel.currentMatchId = matchId
             viewModel.isAIConversation = isAIConversation
-            
+
             viewModel.initializeSocket()
             kotlinx.coroutines.delay(500)
             viewModel.joinChatRoom(matchId, myUserId, isAIConversation)
-            
+
             android.util.Log.d("ChatDetailFragment", "Initialized socket and joined room: matchId=$matchId, userId=$myUserId, isAI=$isAIConversation")
         }
 
@@ -214,7 +214,7 @@ class ChatDetailFragment : BaseFragment() {
             if (content.isNotEmpty()) {
                 lifecycleScope.launch {
                     val confirmedUserId = getMyUserIdAsync()
-                    
+
                     val messageModel = MessageModel(
                         senderId = confirmedUserId,
                         matchId = matchId,
@@ -308,15 +308,15 @@ class ChatDetailFragment : BaseFragment() {
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                     val sent = stopRecording()
                     setRecordingUI(false)
-                            if (sent) {
-                                lifecycleScope.launch {
-                                    val confirmedUserId = getMyUserIdAsync()
-                                    val duration = getAudioDurationSeconds(audioFilePath)
-                                    viewModel.sendAudioViaSocket(audioFilePath, duration)
-                                }
-                            } else {
-                                Toast.makeText(context, "Bản ghi quá ngắn!", Toast.LENGTH_SHORT).show()
-                            }
+                    if (sent) {
+                        lifecycleScope.launch {
+                            val confirmedUserId = getMyUserIdAsync()
+                            val duration = getAudioDurationSeconds(audioFilePath)
+                            viewModel.sendAudioViaSocket(audioFilePath, duration)
+                        }
+                    } else {
+                        Toast.makeText(context, "Bản ghi quá ngắn!", Toast.LENGTH_SHORT).show()
+                    }
                     true
                 }
                 else -> false
@@ -527,7 +527,6 @@ class ChatDetailFragment : BaseFragment() {
             .setNegativeButton("Hủy", null)
             .show()
     }
-
 
     private fun setupTypingIndicatorAnimation() {
         val lottieView = binding.aiTypingIndicator.findViewById<LottieAnimationView>(R.id.lottieTypingIndicator)

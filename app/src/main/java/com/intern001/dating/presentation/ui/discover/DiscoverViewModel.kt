@@ -122,7 +122,7 @@ class DiscoverViewModel @Inject constructor(
                         applyRealtimeDistances(cards, it)
                     } ?: cards
                     val filteredCards = applyMatchFilters(adjustedCards)
-                    
+
                     if (append && _matchCards.value.isNotEmpty()) {
                         // Append new cards to existing list, avoiding duplicates
                         val existingUserIds = _matchCards.value.map { it.userId }.toSet()
@@ -236,7 +236,7 @@ class DiscoverViewModel @Inject constructor(
     fun hasMoreCards(): Boolean {
         return _currentCardIndex.value < _matchCards.value.size
     }
-    
+
     fun isUserMatched(userId: String): Boolean {
         return matchedUserIds.value.contains(userId)
     }
@@ -288,12 +288,12 @@ class DiscoverViewModel @Inject constructor(
         return try {
             // Check if user is already matched
             val isMatched = matchedUserIds.value.contains(userId)
-            
+
             // If user is matched but not allowed, don't fetch
             if (isMatched && !allowMatched) {
                 return Result.failure(Exception("User is already matched"))
             }
-            
+
             if (allowMatched) {
                 allowMatchedUser(userId)
             }
@@ -323,7 +323,7 @@ class DiscoverViewModel @Inject constructor(
                         _currentCardIndex.value = 0
                         setSuccess(filteredCards)
                     }
-                    
+
                     Result.success(fixed)
                 },
                 onFailure = { error ->
@@ -431,15 +431,15 @@ class DiscoverViewModel @Inject constructor(
         if (userId.isBlank()) return
         val updated = matchedUserIds.value + userId
         matchedUserIds.value = updated
-        
+
         // Immediately remove matched user from current cards
         _matchCards.value = _matchCards.value.filterNot { it.userId == userId }
-        
+
         // Adjust current index if needed
         if (_currentCardIndex.value >= _matchCards.value.size && _matchCards.value.isNotEmpty()) {
             _currentCardIndex.value = _matchCards.value.size - 1
         }
-        
+
         refreshCardsAfterMatchFilter()
     }
 
