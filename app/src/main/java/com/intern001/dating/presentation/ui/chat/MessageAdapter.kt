@@ -1,7 +1,6 @@
 package com.intern001.dating.presentation.ui.chat
 
 import android.media.MediaPlayer
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +15,7 @@ import com.intern001.dating.data.model.MessageModel
 
 class MessageAdapter(
     private val myUserId: String,
-    private val blockerId: String? = null
+    private val blockerId: String? = null,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var messages = listOf<MessageModel>()

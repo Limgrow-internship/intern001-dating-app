@@ -8,5 +8,5 @@ data class MessageModel(
     val audioPath: String? = null,
     val imgChat: String? = null,
     val duration: Int? = null,
-    val delivered: Boolean? = null
+    val delivered: Boolean? = null,
 )

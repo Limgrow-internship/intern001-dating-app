@@ -27,5 +27,4 @@ interface MatchRepository {
     suspend fun getMatchedUsers(token: String): List<MatchList>
 
     suspend fun blockUser(targetUserId: String): Result<Unit>
-
 }

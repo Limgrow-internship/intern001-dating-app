@@ -47,18 +47,31 @@ class ChatMoreBottomSheet(
         tvBlock.visibility = if (canBlock) View.VISIBLE else View.GONE
         tvUnBlock.visibility = if (canUnblock) View.VISIBLE else View.GONE
 
-        tvBlock.setOnClickListener { dismiss(); onBlock() }
-        tvUnBlock.setOnClickListener { dismiss(); onUnblock() }
+        tvBlock.setOnClickListener {
+            dismiss()
+            onBlock()
+        }
+        tvUnBlock.setOnClickListener {
+            dismiss()
+            onUnblock()
+        }
 
         if (onUnmatch != null) {
-            tvUnmatch.setOnClickListener { dismiss(); onUnmatch() }
-        } else tvUnmatch.visibility = View.GONE
+            tvUnmatch.setOnClickListener {
+                dismiss()
+                onUnmatch()
+            }
+        } else {
+            tvUnmatch.visibility = View.GONE
+        }
 
         view.findViewById<TextView>(R.id.tvReport).setOnClickListener {
-            dismiss(); onReport()
+            dismiss()
+            onReport()
         }
         view.findViewById<TextView>(R.id.tvDeleteConversation).setOnClickListener {
-            dismiss(); onDeleteConversation()
+            dismiss()
+            onDeleteConversation()
         }
     }
 }

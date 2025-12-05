@@ -1,6 +1,5 @@
 package com.intern001.dating.presentation.ui.chat
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.intern001.dating.data.model.MessageModel

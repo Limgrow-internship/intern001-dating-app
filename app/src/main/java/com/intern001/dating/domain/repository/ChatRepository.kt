@@ -6,7 +6,6 @@ import com.intern001.dating.data.model.response.UploadImageResponse
 import com.intern001.dating.domain.entity.LastMessageEntity
 import okhttp3.MultipartBody
 
-
 interface ChatRepository {
     suspend fun sendMessage(message: MessageModel): MessageModel
     suspend fun getHistory(matchId: String): List<MessageModel>

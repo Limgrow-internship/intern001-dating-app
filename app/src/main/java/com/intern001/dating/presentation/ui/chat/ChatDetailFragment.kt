@@ -38,12 +38,12 @@ import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import java.io.File
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import org.json.JSONObject
-import kotlinx.coroutines.flow.combine
 
 @AndroidEntryPoint
 class ChatDetailFragment : BaseFragment() {
@@ -141,33 +141,33 @@ class ChatDetailFragment : BaseFragment() {
             binding.messageInputLayout.visibility = View.VISIBLE
             binding.tvUnmatched.visibility = View.GONE
         }
-            lifecycleScope.launch {
-                combine(viewModel.matchStatus, viewModel.blockerId) { status, blockerId ->
-                    Pair(status, blockerId)
-                }.collectLatest { (status, blockerId) ->
-                    val myUserId = getMyUserIdAsync()
-                    _binding?.let { binding ->
-                        if (status == "unmatched") {
+        lifecycleScope.launch {
+            combine(viewModel.matchStatus, viewModel.blockerId) { status, blockerId ->
+                Pair(status, blockerId)
+            }.collectLatest { (status, blockerId) ->
+                val myUserId = getMyUserIdAsync()
+                _binding?.let { binding ->
+                    if (status == "unmatched") {
+                        binding.messageInputLayout.visibility = View.GONE
+                        binding.tvUnmatched.visibility = View.VISIBLE
+                        binding.tvBlocked.visibility = View.GONE
+                        binding.btnMore.visibility = View.GONE
+                    } else if (status == "blocked") {
+                        if (blockerId == myUserId) {
                             binding.messageInputLayout.visibility = View.GONE
-                            binding.tvUnmatched.visibility = View.VISIBLE
-                            binding.tvBlocked.visibility = View.GONE
-                            binding.btnMore.visibility = View.GONE
-                        } else if (status == "blocked") {
-                            if (blockerId == myUserId) {
-                                binding.messageInputLayout.visibility = View.GONE
-                                binding.tvBlocked.visibility = View.VISIBLE
-                            } else {
-                                binding.messageInputLayout.visibility = View.VISIBLE
-                                binding.tvBlocked.visibility = View.GONE
-                            }
+                            binding.tvBlocked.visibility = View.VISIBLE
                         } else {
                             binding.messageInputLayout.visibility = View.VISIBLE
-                            binding.tvUnmatched.visibility = View.GONE
                             binding.tvBlocked.visibility = View.GONE
                         }
+                    } else {
+                        binding.messageInputLayout.visibility = View.VISIBLE
+                        binding.tvUnmatched.visibility = View.GONE
+                        binding.tvBlocked.visibility = View.GONE
                     }
                 }
             }
+        }
         viewModel.fetchHistory(matchId)
         lifecycleScope.launch {
             val myUserId = getMyUserIdAsync()
@@ -268,7 +268,11 @@ class ChatDetailFragment : BaseFragment() {
                 ChatMoreBottomSheet(
                     canBlock = canBlock,
                     canUnblock = canUnblock,
-                    onUnmatch = if (!isAIConversation) { { showUnmatchDialog() } } else null,
+                    onUnmatch = if (!isAIConversation) {
+                        { showUnmatchDialog() }
+                    } else {
+                        null
+                    },
                     onReport = { },
                     onDeleteConversation = { showDeleteConversationDialog() },
                     onBlock = { showBlockUserDialog() },
@@ -497,8 +501,11 @@ class ChatDetailFragment : BaseFragment() {
                 viewModel.unmatch(targetUserId) { success ->
                     if (success) {
                         viewModel.fetchMatchStatus(targetUserId)
-                        Toast.makeText(context, "Unmatch thành công!",
-                            Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            "Unmatch thành công!",
+                            Toast.LENGTH_SHORT,
+                        ).show()
                         requireActivity().onBackPressedDispatcher.onBackPressed()
                     } else {
                         Toast.makeText(context, "Unmatch thất bại!", Toast.LENGTH_SHORT).show()
@@ -570,7 +577,7 @@ class ChatDetailFragment : BaseFragment() {
                     }
                     mSocket?.emit("join_room", obj)
                 }
-            }
+            },
         )
 
         // Xử lý khi socket disconnect
@@ -611,7 +618,7 @@ class ChatDetailFragment : BaseFragment() {
                         imgChat = if (imgChatValue.isNullOrBlank()) null else imgChatValue,
                         audioPath = if (audioPathValue.isNullOrBlank()) null else audioPathValue,
                         duration = if (obj.has("duration") && obj.optInt("duration") > 0) obj.optInt("duration") else null,
-                        delivered = if (obj.has("delivered")) obj.optBoolean("delivered") else null
+                        delivered = if (obj.has("delivered")) obj.optBoolean("delivered") else null,
                     )
 
                     if (AIConstants.isMessageFromAI(newMsg.senderId)) {
