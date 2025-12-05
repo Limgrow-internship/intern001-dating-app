@@ -106,6 +106,7 @@ class DiscoverViewModel @Inject constructor(
     fun loadMatchCards(
         limit: Int = 10,
         showLoading: Boolean = true,
+        append: Boolean = false,
     ) {
         viewModelScope.launch {
             runCatching { refreshLocationUseCase() }
@@ -121,9 +122,18 @@ class DiscoverViewModel @Inject constructor(
                         applyRealtimeDistances(cards, it)
                     } ?: cards
                     val filteredCards = applyMatchFilters(adjustedCards)
-                    _matchCards.value = filteredCards
-                    _currentCardIndex.value = 0
-                    setSuccess(filteredCards)
+
+                    if (append && _matchCards.value.isNotEmpty()) {
+                        // Append new cards to existing list, avoiding duplicates
+                        val existingUserIds = _matchCards.value.map { it.userId }.toSet()
+                        val newCards = filteredCards.filterNot { existingUserIds.contains(it.userId) }
+                        _matchCards.value = _matchCards.value + newCards
+                    } else {
+                        // Replace entire list (initial load)
+                        _matchCards.value = filteredCards
+                        _currentCardIndex.value = 0
+                    }
+                    setSuccess(_matchCards.value)
                 },
                 onFailure = { error ->
                     if (showLoading) {
@@ -211,7 +221,7 @@ class DiscoverViewModel @Inject constructor(
         // Load more cards if running low
         val remaining = _matchCards.value.size - _currentCardIndex.value
         if (remaining <= 2) {
-            loadMatchCards(showLoading = false)
+            loadMatchCards(showLoading = false, append = true)
         }
     }
 
@@ -225,6 +235,10 @@ class DiscoverViewModel @Inject constructor(
 
     fun hasMoreCards(): Boolean {
         return _currentCardIndex.value < _matchCards.value.size
+    }
+
+    fun isUserMatched(userId: String): Boolean {
+        return matchedUserIds.value.contains(userId)
     }
 
     fun setCurrentCardIndex(index: Int) {
@@ -272,6 +286,14 @@ class DiscoverViewModel @Inject constructor(
         allowMatched: Boolean = false,
     ): Result<MatchCard> {
         return try {
+            // Check if user is already matched
+            val isMatched = matchedUserIds.value.contains(userId)
+
+            // If user is matched but not allowed, don't fetch
+            if (isMatched && !allowMatched) {
+                return Result.failure(Exception("User is already matched"))
+            }
+
             if (allowMatched) {
                 allowMatchedUser(userId)
             }
@@ -280,10 +302,28 @@ class DiscoverViewModel @Inject constructor(
                 onSuccess = { card ->
                     val fixed = card.copy(userId = userId)
 
-                    _matchCards.value = listOf(fixed)
-                    _currentCardIndex.value = 0
+                    // If navigating to matched user (from match list), only show that user
+                    // Don't load recommendations to avoid showing matched users
+                    if (allowMatched && isMatched) {
+                        _matchCards.value = listOf(fixed)
+                        _currentCardIndex.value = 0
+                        setSuccess(listOf(fixed))
+                    } else {
+                        // For non-matched users or when allowMatched is true but user not matched yet
+                        // Load recommendations and add this user to the top
+                        val currentCards = _matchCards.value.toMutableList()
+                        val existingIndex = currentCards.indexOfFirst { it.userId == userId }
+                        if (existingIndex >= 0) {
+                            currentCards.removeAt(existingIndex)
+                        }
+                        currentCards.add(0, fixed)
+                        // Apply filters to remove any matched users
+                        val filteredCards = applyMatchFilters(currentCards)
+                        _matchCards.value = filteredCards
+                        _currentCardIndex.value = 0
+                        setSuccess(filteredCards)
+                    }
 
-                    setSuccess(listOf(fixed))
                     Result.success(fixed)
                 },
                 onFailure = { error ->
@@ -391,6 +431,15 @@ class DiscoverViewModel @Inject constructor(
         if (userId.isBlank()) return
         val updated = matchedUserIds.value + userId
         matchedUserIds.value = updated
+
+        // Immediately remove matched user from current cards
+        _matchCards.value = _matchCards.value.filterNot { it.userId == userId }
+
+        // Adjust current index if needed
+        if (_currentCardIndex.value >= _matchCards.value.size && _matchCards.value.isNotEmpty()) {
+            _currentCardIndex.value = _matchCards.value.size - 1
+        }
+
         refreshCardsAfterMatchFilter()
     }
 

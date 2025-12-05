@@ -2,7 +2,9 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="121dp"
     android:layout_height="216dp"
-    android:layout_marginEnd="8dp">
+    android:layout_marginEnd="8dp"
+    android:background="@drawable/bg_match_item"
+    android:clipToOutline="true">
 
     <ImageView
         android:id="@+id/imvAvatar"

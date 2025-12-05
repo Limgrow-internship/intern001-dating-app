@@ -1,4 +1,3 @@
-// ChatListFragment.kt
 package com.intern001.dating.presentation.ui.chat
 
 import android.os.Bundle
@@ -16,11 +15,14 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentChatListBinding
+import com.intern001.dating.domain.model.MatchList
+import com.intern001.dating.domain.model.UserProfileMatch
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.common.viewmodel.ChatListViewModel
 import com.intern001.dating.presentation.ui.chat.AIConstants
 import com.intern001.dating.presentation.ui.chat.MatchAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.Instant
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.combine
@@ -68,7 +70,10 @@ class ChatListFragment : BaseFragment() {
             val clickedUserId = match.matchedUser.userId
             findNavController().navigate(
                 R.id.action_chatList_to_datingMode,
-                bundleOf("targetListUserId" to clickedUserId),
+                bundleOf(
+                    "targetListUserId" to clickedUserId,
+                    "allowMatchedProfile" to true,
+                ),
             )
         }
 
@@ -93,7 +98,6 @@ class ChatListFragment : BaseFragment() {
 
         binding.rvConversations.adapter = conversationAdapter
 
-        // --- OBSERVE DATA
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 vm.isLoading.combine(vm.matches) { isLoading, matches ->
@@ -109,25 +113,63 @@ class ChatListFragment : BaseFragment() {
                         return@collect
                     }
 
-                    val hasMatches = matches.isNotEmpty()
+                    val aiMatchFromBackend = matches.firstOrNull {
+                        AIConstants.isAIUser(it.matchedUser.userId)
+                    }
 
-                    // Show / hide UI components
+                    val filteredMatches = matches.filterNot {
+                        AIConstants.isAIUser(it.matchedUser.userId)
+                    }
+
+                    val aiMatch = if (aiMatchFromBackend != null) {
+                        aiMatchFromBackend.copy(
+                            matchedUser = aiMatchFromBackend.matchedUser.copy(
+                                name = AIConstants.AI_FAKE_NAME,
+                                avatarUrl = AIConstants.AI_FAKE_AVATAR_URL,
+                                age = aiMatchFromBackend.matchedUser.age ?: AIConstants.AI_FAKE_AGE,
+                                city = aiMatchFromBackend.matchedUser.city ?: AIConstants.AI_FAKE_CITY,
+                            ),
+                        )
+                    } else {
+                        MatchList(
+                            matchId = AIConstants.AI_FAKE_MATCH_ID,
+                            lastActivityAt = Instant.now().toString(),
+                            matchedUser = UserProfileMatch(
+                                userId = AIConstants.AI_ASSISTANT_USER_ID,
+                                name = AIConstants.AI_FAKE_NAME,
+                                avatarUrl = AIConstants.AI_FAKE_AVATAR_URL,
+                                age = AIConstants.AI_FAKE_AGE,
+                                city = AIConstants.AI_FAKE_CITY,
+                            ),
+                        )
+                    }
+
+                    val allMatches = listOf(aiMatch) + filteredMatches
+                    val hasMatches = allMatches.isNotEmpty()
+
                     binding.rvMatches.isVisible = hasMatches
                     binding.matchPlaceholder.isVisible = false
                     binding.noMatchesCard?.isVisible = !hasMatches
 
-                    matchAdapter.submitList(matches)
+                    matchAdapter.submitList(allMatches)
 
-                    // --- Build conversations
-                    val conversations = matches.map { match ->
+                    val conversations = allMatches.map { match ->
                         async {
                             val lastMsg = vm.getLastMessage(match.matchId)
 
                             Conversation(
                                 matchId = match.matchId,
-                                userId = match.matchedUser.userId, // ✔ LẤY userId ở đây
-                                avatarUrl = match.matchedUser.avatarUrl,
-                                userName = match.matchedUser.name,
+                                userId = match.matchedUser.userId,
+                                avatarUrl = if (AIConstants.isAIUser(match.matchedUser.userId)) {
+                                    AIConstants.AI_FAKE_AVATAR_URL
+                                } else {
+                                    match.matchedUser.avatarUrl
+                                },
+                                userName = if (AIConstants.isAIUser(match.matchedUser.userId)) {
+                                    AIConstants.AI_FAKE_NAME
+                                } else {
+                                    match.matchedUser.name
+                                },
                                 lastMessage = lastMsg?.message,
                                 timestamp = lastMsg?.timestamp,
                                 isOnline = null,
@@ -136,9 +178,8 @@ class ChatListFragment : BaseFragment() {
                         }
                     }.awaitAll()
 
-                    // Sort conversations: AI conversation first, then others sorted by lastActivityAt
                     val sortedConversations = conversations.sortedWith(
-                        compareBy<Conversation> { !AIConstants.isAIConversation(it.userId) }
+                        compareBy<Conversation> { !AIConstants.isAIUser(it.userId) }
                             .thenByDescending { it.timestamp ?: "" },
                     )
 
@@ -150,7 +191,6 @@ class ChatListFragment : BaseFragment() {
             }
         }
 
-        // Fetch data
         vm.fetchMatches("YourTokenHere")
     }
 }

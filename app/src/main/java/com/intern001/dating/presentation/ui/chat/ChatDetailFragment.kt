@@ -24,7 +24,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.LottieCompositionFactory
 import com.bumptech.glide.Glide
-import com.intern001.dating.BuildConfig
 import com.intern001.dating.R
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.data.model.MessageModel
@@ -33,9 +32,6 @@ import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.ui.chat.AIConstants
 import com.intern001.dating.presentation.ui.chat.MessageAdapter
 import dagger.hilt.android.AndroidEntryPoint
-import io.socket.client.IO
-import io.socket.client.Socket
-import io.socket.emitter.Emitter
 import java.io.File
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -43,7 +39,6 @@ import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import org.json.JSONObject
 
 @AndroidEntryPoint
 class ChatDetailFragment : BaseFragment() {
@@ -67,17 +62,12 @@ class ChatDetailFragment : BaseFragment() {
         "😠", "🤬", "😷", "🤒", "🤕", "🤢", "🤮", "🤧", "😇", "🥳", "🥰", "🤠", "🤡", "🥺",
     )
 
-    private var mSocket: Socket? = null
-    private var isSocketConnected = false
-
     private var recorder: MediaRecorder? = null
     private var audioFilePath: String = ""
     private var isRecording = false
     private var recordStartTime: Long = 0
 
     private var isAIConversation = false
-    private var aiTypingTimeout: android.os.Handler? = null
-    private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
 
     private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { handlePickedImage(it) }
@@ -108,12 +98,6 @@ class ChatDetailFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        aiTypingTimeout?.removeCallbacksAndMessages(null)
-        aiTypingTimeout = null
-
-        mSocket?.disconnect()
-        mSocket?.off()
-        mSocket = null
         _binding = null
         recorder?.release()
         recorder = null
@@ -129,11 +113,26 @@ class ChatDetailFragment : BaseFragment() {
             targetUserId = it.getString("targetUserId", "")
         }
 
-        isAIConversation = AIConstants.isAIConversation(targetUserId)
+        isAIConversation = AIConstants.isAIUser(targetUserId)
+
+        if (isAIConversation && matchedUserName.isNullOrBlank()) {
+            matchedUserName = AIConstants.AI_FAKE_NAME
+        }
 
         setupTypingIndicatorAnimation()
 
-        initSocketAndJoinRoom(matchId)
+        lifecycleScope.launch {
+            val myUserId = getMyUserIdAsync()
+            viewModel.currentUserId = myUserId
+            viewModel.currentMatchId = matchId
+            viewModel.isAIConversation = isAIConversation
+
+            viewModel.initializeSocket()
+            kotlinx.coroutines.delay(500)
+            viewModel.joinChatRoom(matchId, myUserId, isAIConversation)
+
+            android.util.Log.d("ChatDetailFragment", "Initialized socket and joined room: matchId=$matchId, userId=$myUserId, isAI=$isAIConversation")
+        }
 
         if (!isAIConversation) {
             viewModel.fetchMatchStatus(targetUserId)
@@ -213,24 +212,9 @@ class ChatDetailFragment : BaseFragment() {
         binding.btnSend.setOnClickListener {
             val content = binding.edtMessage.text.toString().trim()
             if (content.isNotEmpty()) {
-                // Kiểm tra socket connection trước khi gửi
-                if (!isSocketConnected) {
-                    Toast.makeText(context, "Đang kết nối... Vui lòng đợi!", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-
                 lifecycleScope.launch {
                     val confirmedUserId = getMyUserIdAsync()
-                    val msg = JSONObject().apply {
-                        put("matchId", matchId)
-                        put("senderId", confirmedUserId)
-                        put("message", content)
-                        put("imgChat", "")
-                        put("audioPath", "")
-                        put("duration", 0)
-                    }
 
-                    // Optimistic update: Thêm message vào UI ngay lập tức
                     val messageModel = MessageModel(
                         senderId = confirmedUserId,
                         matchId = matchId,
@@ -238,27 +222,21 @@ class ChatDetailFragment : BaseFragment() {
                         imgChat = null,
                         audioPath = null,
                         duration = null,
+                        timestamp = java.time.Instant.now().toString(),
+                        delivered = true,
                     )
 
-                    // Cập nhật ViewModel để hiển thị message ngay
                     viewModel.addMessage(messageModel)
-
-                    // Gửi message qua socket
-                    mSocket?.emit("send_message", msg)
-
-                    // Xóa input
+                    android.util.Log.d("ChatDetailFragment", "Added optimistic message: $content")
+                    viewModel.sendMessageViaSocket(content)
                     binding.edtMessage.setText("")
-
-                    if (isAIConversation) {
-                        showAITypingIndicator()
-                    }
                 }
             }
         }
 
         binding.btnMore.setOnClickListener {
             lifecycleScope.launch {
-                val myUserId = getMyUserIdAsync() // OK, gọi suspend bên trong coroutine
+                val myUserId = getMyUserIdAsync()
                 val matchStatus = viewModel.matchStatus.value
                 val blockerId = viewModel.blockerId.value
 
@@ -334,12 +312,7 @@ class ChatDetailFragment : BaseFragment() {
                         lifecycleScope.launch {
                             val confirmedUserId = getMyUserIdAsync()
                             val duration = getAudioDurationSeconds(audioFilePath)
-                            viewModel.sendVoiceMessage(
-                                matchId = matchId,
-                                senderId = confirmedUserId,
-                                localAudioPath = audioFilePath,
-                                duration = duration,
-                            )
+                            viewModel.sendAudioViaSocket(audioFilePath, duration)
                         }
                     } else {
                         Toast.makeText(context, "Bản ghi quá ngắn!", Toast.LENGTH_SHORT).show()
@@ -354,7 +327,7 @@ class ChatDetailFragment : BaseFragment() {
     private fun setRecordingUI(isRecording: Boolean) {
         binding.tvRecording.visibility = if (isRecording) View.VISIBLE else View.GONE
         if (isRecording) {
-            hideAITypingIndicator()
+            viewModel.hideAITypingIndicator()
         }
     }
     private fun startRecording(): Boolean {
@@ -555,80 +528,6 @@ class ChatDetailFragment : BaseFragment() {
             .show()
     }
 
-    private fun initSocketAndJoinRoom(matchId: String) {
-        val opts = IO.Options().apply { forceNew = true }
-        val baseUrl = BuildConfig.BASE_URL
-        val socketUrl = "$baseUrl/chat"
-
-        mSocket = IO.socket(socketUrl, opts)
-
-        mSocket?.on(
-            Socket.EVENT_CONNECT,
-            Emitter.Listener {
-                isSocketConnected = true
-                android.util.Log.d("ChatDetailFragment", "Socket connected successfully")
-                // Join room sau khi kết nối thành công
-                lifecycleScope.launch {
-                    val myUserId = getMyUserIdAsync()
-                    val obj = JSONObject().apply {
-                        put("matchId", matchId)
-                        put("userId", myUserId)
-                    }
-                    mSocket?.emit("join_room", obj)
-                }
-            },
-        )
-
-        mSocket?.on(
-            Socket.EVENT_DISCONNECT,
-            Emitter.Listener {
-                isSocketConnected = false
-                android.util.Log.d("ChatDetailFragment", "Socket disconnected")
-            },
-        )
-
-        mSocket?.on(
-            Socket.EVENT_CONNECT_ERROR,
-            Emitter.Listener { args ->
-                isSocketConnected = false
-                val error = args[0] as? Throwable
-                android.util.Log.e("ChatDetailFragment", "Socket connection error", error)
-                requireActivity().runOnUiThread {
-                    Toast.makeText(context, "Lỗi kết nối chat! Đang thử lại...", Toast.LENGTH_SHORT).show()
-                }
-            },
-        )
-
-        mSocket?.on(
-            "receive_message",
-            Emitter.Listener { args ->
-                val obj = args[0] as JSONObject
-                requireActivity().runOnUiThread {
-                    val audioPathValue = obj.optString("audioPath", null)
-                    val imgChatValue = obj.optString("imgChat", null)
-
-                    val newMsg = MessageModel(
-                        senderId = obj.optString("senderId"),
-                        matchId = obj.optString("matchId"),
-                        message = obj.optString("message"),
-                        imgChat = if (imgChatValue.isNullOrBlank()) null else imgChatValue,
-                        audioPath = if (audioPathValue.isNullOrBlank()) null else audioPathValue,
-                        duration = if (obj.has("duration") && obj.optInt("duration") > 0) obj.optInt("duration") else null,
-                        delivered = if (obj.has("delivered")) obj.optBoolean("delivered") else null,
-                    )
-
-                    if (AIConstants.isMessageFromAI(newMsg.senderId)) {
-                        hideAITypingIndicator()
-                    }
-
-                    viewModel.addMessage(newMsg)
-                    binding.rvMessages.scrollToPosition(adapter.itemCount - 1)
-                }
-            },
-        )
-        mSocket?.connect()
-    }
-
     private fun setupTypingIndicatorAnimation() {
         val lottieView = binding.aiTypingIndicator.findViewById<LottieAnimationView>(R.id.lottieTypingIndicator)
         lottieView?.let { view ->
@@ -648,12 +547,6 @@ class ChatDetailFragment : BaseFragment() {
 
         val lottieView = binding.aiTypingIndicator.findViewById<LottieAnimationView>(R.id.lottieTypingIndicator)
         lottieView?.playAnimation()
-
-        aiTypingTimeout?.removeCallbacksAndMessages(null)
-        aiTypingTimeout = android.os.Handler(android.os.Looper.getMainLooper())
-        aiTypingTimeout?.postDelayed({
-            hideAITypingIndicator()
-        }, AIConstants.AI_TYPING_TIMEOUT_MS)
     }
 
     private fun hideAITypingIndicator() {
@@ -661,7 +554,5 @@ class ChatDetailFragment : BaseFragment() {
 
         val lottieView = binding.aiTypingIndicator.findViewById<LottieAnimationView>(R.id.lottieTypingIndicator)
         lottieView?.pauseAnimation()
-
-        aiTypingTimeout?.removeCallbacksAndMessages(null)
     }
 }

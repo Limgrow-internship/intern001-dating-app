@@ -193,6 +193,25 @@ constructor(
 
     override suspend fun getProfileByUserId(userId: String): Result<MatchCard> {
         return try {
+            if (userId == com.intern001.dating.presentation.ui.chat.AIConstants.AI_ASSISTANT_USER_ID) {
+                try {
+                    val response = apiService.getProfileByUserId(userId)
+                    if (response.isSuccessful) {
+                        val matchCard = response.body()?.toMatchCard()
+                        if (matchCard != null) {
+                            Log.d(TAG, "Successfully fetched AI profile from API")
+                            return Result.success(matchCard)
+                        }
+                    }
+                    Log.w(TAG, "API call for AI profile failed (${response.code()}), using fake data")
+                } catch (e: Exception) {
+                    Log.w(TAG, "Exception fetching AI profile from API, using fake data", e)
+                }
+
+                val aiProfile = com.intern001.dating.presentation.ui.chat.AIConstants.createAIFakeProfile()
+                return Result.success(aiProfile)
+            }
+
             val response = apiService.getProfileByUserId(userId)
             if (response.isSuccessful) {
                 val matchCard = response.body()?.toMatchCard()

@@ -43,14 +43,21 @@ class DiscoverFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Show bottom navigation when in DiscoverFragment
         (activity as? MainActivity)?.hideBottomNavigation(false)
 
         setupListeners()
         observeViewModel()
 
-        // Show current card if data already loaded (e.g., when returning from DatingMode)
-        if (viewModel.matchCards.value.isNotEmpty() && viewModel.hasMoreCards()) {
+        viewModel.clearTemporaryMatchedAllowances()
+
+        val currentCards = viewModel.matchCards.value
+        val firstCardUserId = currentCards.firstOrNull()?.userId ?: ""
+        val isMatchedUser = viewModel.isUserMatched(firstCardUserId)
+        val hasOnlyMatchedUser = currentCards.size == 1 && isMatchedUser
+
+        if (hasOnlyMatchedUser || currentCards.isEmpty()) {
+            viewModel.loadMatchCards(showLoading = true)
+        } else if (currentCards.isNotEmpty() && viewModel.hasMoreCards()) {
             showCurrentCard()
         }
     }
@@ -89,7 +96,6 @@ class DiscoverFragment : BaseFragment() {
                     is UiState.Error -> {
                         binding.progressBar.isVisible = false
                         binding.noMoreCardsLayout.isVisible = false
-                        // Show error message
                         Toast.makeText(
                             requireContext(),
                             state.message ?: "An error occurred while loading cards",
@@ -130,7 +136,6 @@ class DiscoverFragment : BaseFragment() {
             }
         }
 
-        // Observe card index changes to update UI
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.currentCardIndex.collect {
                 showNextCard()
@@ -224,13 +229,11 @@ class DiscoverFragment : BaseFragment() {
 
         cardView.setOnPhotoClickListener(object : MatchCardView.OnPhotoClickListener {
             override fun onLongPress() {
-                // Show full screen photo view
             }
         })
 
         cardView.setOnOverlayTapListener(object : MatchCardView.OnOverlayTapListener {
             override fun onOverlayTap() {
-                // Get current user's mode and navigate to appropriate screen
                 val currentCard = viewModel.getCurrentCard()
                 val mode = currentCard?.relationshipMode ?: "dating"
                 navigateToModeScreen(mode)
@@ -259,7 +262,6 @@ class DiscoverFragment : BaseFragment() {
     }
 
     private fun showMatchOverlay(matchId: String, matchedUserId: String) {
-        // Check if dialog is already showing
         val existingDialog = parentFragmentManager.findFragmentByTag("MatchOverlayDialog")
         if (existingDialog != null && existingDialog.isAdded) {
             return
@@ -272,6 +274,14 @@ class DiscoverFragment : BaseFragment() {
             matchedUserId = matchedUserId,
             matchedUserPhotoUrl = matchedUser?.photos?.firstOrNull()?.url,
         )
+
+        dialog.dialog?.setOnDismissListener {
+            if (viewModel.hasMoreCards()) {
+                showCurrentCard()
+            } else {
+                viewModel.loadMatchCards(showLoading = false)
+            }
+        }
 
         if (isAdded && parentFragmentManager != null) {
             dialog.show(parentFragmentManager, "MatchOverlayDialog")
