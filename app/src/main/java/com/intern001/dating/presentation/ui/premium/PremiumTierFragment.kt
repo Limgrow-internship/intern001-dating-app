@@ -46,17 +46,38 @@ class PremiumTierFragment : Fragment() {
             TierType.BASIC -> {
                 binding.ivTierIcon.setImageResource(R.drawable.ic_basic)
                 binding.tvTagline.text = "Perfect for new users starting their journey."
-                binding.tvMonthlySave.text = "Save 21.000 VND"
+                binding.cardMonthly.visibility = View.GONE
+                binding.tvWeeklyLabel.text = "No Ads"
+                binding.tvWeeklyPrice.visibility = View.VISIBLE
+                binding.ivWeeklySelect.visibility = View.GONE
+                selectedPlan = PlanType.WEEKLY
+                val params = binding.btnUpgrade.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
+                params.topToBottom = binding.cardWeekly.id
+                binding.btnUpgrade.layoutParams = params
             }
             TierType.GOLD -> {
                 binding.ivTierIcon.setImageResource(R.drawable.ic_gold)
                 binding.tvTagline.text = "Great if you want faster matches and more control."
                 binding.tvMonthlySave.text = "Save 31.000 VND"
+                binding.cardMonthly.visibility = View.VISIBLE
+                binding.tvWeeklyLabel.text = "Weekly"
+                binding.tvWeeklyPrice.visibility = View.VISIBLE
+                binding.ivWeeklySelect.visibility = View.VISIBLE
+                val params = binding.btnUpgrade.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
+                params.topToBottom = binding.cardMonthly.id
+                binding.btnUpgrade.layoutParams = params
             }
             TierType.ELITE -> {
                 binding.ivTierIcon.setImageResource(R.drawable.ic_elite)
                 binding.tvTagline.text = "The ultimate experience for those who want maximum visibility & connection."
                 binding.tvMonthlySave.text = "Save 21.000 VND"
+                binding.cardMonthly.visibility = View.VISIBLE
+                binding.tvWeeklyLabel.text = "Weekly"
+                binding.tvWeeklyPrice.visibility = View.VISIBLE
+                binding.ivWeeklySelect.visibility = View.VISIBLE
+                val params = binding.btnUpgrade.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
+                params.topToBottom = binding.cardMonthly.id
+                binding.btnUpgrade.layoutParams = params
             }
         }
     }
@@ -92,7 +113,6 @@ class PremiumTierFragment : Fragment() {
     }
 
     private fun getFeatures(): List<Pair<Boolean, Boolean>> {
-        // Pair = (Basic có hay không, Free có hay không)
         return when (tierType) {
             TierType.BASIC -> listOf(
                 true to true, // Match
@@ -106,26 +126,26 @@ class PremiumTierFragment : Fragment() {
                 false to false, // Send before match - không có cho cả 2
             )
             TierType.GOLD -> listOf(
-                true to true, // Match
-                true to true, // Send message
-                true to false, // Video & voice
-                true to false, // Unlimited Like
-                true to false, // Rewind
-                true to false, // Super Like
-                true to false, // Hide Ads
-                true to false, // View list - chỉ có Basic, không có Free
-                false to false, // Send before match - không có cho cả 2
+                true to true,
+                true to true,
+                true to false,
+                true to false,
+                true to false,
+                true to false,
+                true to false,
+                true to false,
+                false to false,
             )
             TierType.ELITE -> listOf(
-                true to true, // Match
-                true to true, // Send message
-                true to false, // Video & voice
-                true to false, // Unlimited Like
-                true to false, // Rewind
-                true to false, // Super Like
-                true to false, // Hide Ads
-                true to false, // View list - chỉ có Basic, không có Free
-                true to false, // Send before match - chỉ có Basic, không có Free
+                true to true,
+                true to true,
+                true to false,
+                true to false,
+                true to false,
+                true to false,
+                true to false,
+                true to false,
+                true to false,
             )
         }
     }

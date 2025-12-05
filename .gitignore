@@ -52,3 +52,8 @@ captures/
 
 # Google Services (contains Firebase config)
 google-services.json
+**/google-services.json
+app/src/*/google-services.json
+app/src/*App/google-services.json
+app/src/main/res/raw/google_services_premium.json
+app/src/main/res/raw/google_services_dating.json

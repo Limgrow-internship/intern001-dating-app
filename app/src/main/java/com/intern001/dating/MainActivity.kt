@@ -9,6 +9,8 @@ import android.util.Log
 import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.intern001.dating.data.billing.BillingManager
+import com.intern001.dating.data.firebase.FirebaseConfigHelper
 import com.intern001.dating.databinding.ActivityMainBinding
 import com.intern001.dating.domain.model.Notification
 import com.intern001.dating.domain.usecase.notification.SaveNotificationUseCase
@@ -33,6 +35,9 @@ class MainActivity : BaseActivity() {
     @Inject
     lateinit var saveNotificationUseCase: SaveNotificationUseCase
 
+    @Inject
+    lateinit var billingManager: BillingManager
+
     private lateinit var binding: ActivityMainBinding
     private var isNavigatingProgrammatically = false
     private val activityScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -48,6 +53,7 @@ class MainActivity : BaseActivity() {
         setupNavigation()
         setupBottomNavigation()
         setupDestinationListener()
+        initializePremiumFirebaseIfNeeded()
 
         activityScope.launch {
             delay(100)
@@ -450,5 +456,18 @@ class MainActivity : BaseActivity() {
 
     fun hideBottomNavigation(hide: Boolean) {
         binding.bottomNavigation.visibility = if (hide) View.GONE else View.VISIBLE
+    }
+
+    private fun initializePremiumFirebaseIfNeeded() {
+        activityScope.launch(Dispatchers.IO) {
+            try {
+                delay(2000)
+                if (billingManager.hasActiveSubscription()) {
+                    FirebaseConfigHelper.initializeFirebaseForPremium(this@MainActivity)
+                }
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Failed to initialize premium Firebase on startup", e)
+            }
+        }
     }
 }

@@ -100,9 +100,11 @@ class BillingManager @Inject constructor(
     }
 
     private fun queryInAppProducts() {
+        val inAppProductId = BillingConfig.InAppProducts.getNoAdsProductId()
+
         val inAppProductList = listOf(
             QueryProductDetailsParams.Product.newBuilder()
-                .setProductId(BillingConfig.InAppProducts.getNoAdsProductId())
+                .setProductId(inAppProductId)
                 .setProductType(BillingClient.ProductType.INAPP)
                 .build(),
         )
@@ -115,7 +117,9 @@ class BillingManager @Inject constructor(
             if (inAppResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 val inAppList = inAppProducts.productDetailsList
 
-                val subscriptionProductList = BillingConfig.Subscriptions.getAllSubscriptionIds().map {
+                val subscriptionIds = BillingConfig.Subscriptions.getAllSubscriptionIds()
+
+                val subscriptionProductList = subscriptionIds.map {
                     QueryProductDetailsParams.Product.newBuilder()
                         .setProductId(it)
                         .setProductType(BillingClient.ProductType.SUBS)
@@ -259,6 +263,16 @@ class BillingManager @Inject constructor(
 
     fun hasActiveSubscription(): Boolean {
         return _purchaseState.value is PurchaseState.Purchased
+    }
+
+    fun isInitialized(): Boolean {
+        return isInitialized
+    }
+
+    fun refreshProducts() {
+        if (isInitialized && billingClient?.isReady == true) {
+            queryInAppProducts()
+        }
     }
 
     fun restorePurchases() {

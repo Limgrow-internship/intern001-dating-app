@@ -491,19 +491,16 @@ class ChatDetailFragment : BaseFragment() {
 
         mSocket = IO.socket(socketUrl, opts)
 
-        // Xử lý khi socket kết nối thành công
         mSocket?.on(
             Socket.EVENT_CONNECT,
             Emitter.Listener {
                 isSocketConnected = true
                 android.util.Log.d("ChatDetailFragment", "Socket connected successfully")
-                // Join room sau khi kết nối thành công
                 val obj = JSONObject().put("matchId", matchId)
                 mSocket?.emit("join_room", obj)
             },
         )
 
-        // Xử lý khi socket disconnect
         mSocket?.on(
             Socket.EVENT_DISCONNECT,
             Emitter.Listener {
@@ -512,7 +509,6 @@ class ChatDetailFragment : BaseFragment() {
             },
         )
 
-        // Xử lý lỗi kết nối
         mSocket?.on(
             Socket.EVENT_CONNECT_ERROR,
             Emitter.Listener { args ->
@@ -525,7 +521,6 @@ class ChatDetailFragment : BaseFragment() {
             },
         )
 
-        // Xử lý khi nhận message từ socket (real-time)
         mSocket?.on(
             "receive_message",
             Emitter.Listener { args ->
@@ -547,14 +542,10 @@ class ChatDetailFragment : BaseFragment() {
                         hideAITypingIndicator()
                     }
 
-                    // Đồng bộ với ViewModel để đảm bảo data consistency
                     viewModel.addMessage(newMsg)
-                    // Adapter sẽ tự động cập nhật qua Flow từ ViewModel
                 }
             },
         )
-
-        // Bắt đầu kết nối socket
         mSocket?.connect()
     }
 
