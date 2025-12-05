@@ -728,7 +728,7 @@ constructor(
             profileCompleteness = 0,
             profileViews = 0,
             goals = this.goals ?: emptyList(), // goals is now List<String>, not nullable
-            openQuestionAnswers = null,
+            openQuestionAnswers = this.openQuestionAnswers ?: emptyMap(),
             createdAt = currentDate,
             updatedAt = currentDate,
         )

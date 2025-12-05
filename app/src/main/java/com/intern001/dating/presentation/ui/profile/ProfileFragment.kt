@@ -19,6 +19,7 @@ import com.intern001.dating.R
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.databinding.FragmentProfileBinding
 import com.intern001.dating.domain.model.UpdateProfile
+import com.intern001.dating.domain.model.UserProfile
 import com.intern001.dating.presentation.common.ads.AdManager
 import com.intern001.dating.presentation.common.ads.NativeAdHelper
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
@@ -107,6 +108,7 @@ class ProfileFragment : BaseFragment() {
         val gender = tokenManager.getGender()
         val mode = tokenManager.getMode()
         val avatar = tokenManager.getAvatar()
+        val picture = tokenManager.getPicture()
 
         if (firstName != null || lastName != null || gender != null || mode != null) {
             val profile = UpdateProfile.fromLocal(
@@ -114,7 +116,7 @@ class ProfileFragment : BaseFragment() {
                 lastName = lastName,
                 gender = gender,
                 mode = mode,
-                avatar = avatar,
+                avatar = avatar ?: picture,
             )
             bindProfileData(profile)
         }
@@ -126,11 +128,18 @@ class ProfileFragment : BaseFragment() {
         lifecycleScope.launch {
             viewModel1.userProfileState.collectLatest { state ->
                 when (state) {
-                    is EditProfileViewModel.UiState.Loading -> Unit
-
                     is EditProfileViewModel.UiState.Success<*> -> {
-                        val profile = state.data as UpdateProfile
-                        bindProfileData(profile)
+                        val profile = state.data as UserProfile
+
+                        val finalAvatar = when {
+                            !profile.avatar.isNullOrBlank() -> profile.avatar
+                            !profile.photos.firstOrNull()?.url.isNullOrBlank() -> profile.photos.first().url
+                            else -> ""
+                        }
+
+                        bindProfileData(profile.copy(avatar = finalAvatar))
+
+                        val picture = profile.photos.firstOrNull()?.url ?: ""
 
                         tokenManager.saveUserProfile(
                             firstName = profile.firstName ?: "",
@@ -138,6 +147,7 @@ class ProfileFragment : BaseFragment() {
                             gender = profile.gender ?: "",
                             mode = profile.mode ?: "",
                             avatar = profile.avatar ?: "",
+                            picture = picture,
                         )
                     }
 
@@ -151,24 +161,26 @@ class ProfileFragment : BaseFragment() {
         }
     }
 
-    private fun bindProfileData(profile: UpdateProfile) {
-        val currentBinding = _binding ?: return
-        val fullName = listOfNotNull(profile.firstName, profile.lastName).joinToString(" ")
-        currentBinding.tvName.text = fullName
-        currentBinding.tvGender.text = profile.gender ?: getString(R.string.profile_gender_placeholder)
-        currentBinding.tvMode.text = profile.mode ?: getString(R.string.dating)
+    private fun bindProfileData(profile: UserProfile) {
+        val b = _binding ?: return
 
-        val avatarUrl = profile.avatar
-        if (!avatarUrl.isNullOrEmpty()) {
-            Glide.with(currentBinding.avatarImageView.context)
-                .load(avatarUrl)
+        val finalAvatar = profile.avatar
+
+        if (!finalAvatar.isNullOrEmpty()) {
+            Glide.with(b.avatarImageView.context)
+                .load(finalAvatar)
                 .placeholder(R.drawable.ic_person)
                 .error(R.drawable.ic_person)
                 .circleCrop()
-                .into(currentBinding.avatarImageView)
+                .into(b.avatarImageView)
         } else {
-            currentBinding.avatarImageView.setImageResource(R.drawable.ic_person)
+            b.avatarImageView.setImageResource(R.drawable.ic_person)
         }
+
+        val fullName = listOfNotNull(profile.firstName, profile.lastName).joinToString(" ")
+        b.tvName.text = fullName
+        b.tvGender.text = profile.gender ?: getString(R.string.profile_gender_placeholder)
+        b.tvMode.text = profile.mode ?: getString(R.string.dating)
     }
 
     private fun showLogOutBottomSheet() {

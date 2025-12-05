@@ -148,11 +148,31 @@ class ViewProfileFragment : BaseFragment() {
 
         val questionMap = profile.openQuestionAnswers
         if (!questionMap.isNullOrEmpty()) {
-            val firstQuestion = questionMap.keys.first()
-            val firstAnswer = questionMap[firstQuestion] ?: ""
+            val firstKey = questionMap.keys.first()
+            val firstAnswer = questionMap[firstKey] ?: ""
 
-            binding.tvQuestion.text = firstQuestion
+            val whatQuestions = resources.getStringArray(R.array.open_question_list_what)
+                .map {
+                    val parts = it.split("|", limit = 2)
+                    parts[0] to parts[1]
+                }
+
+            val idealQuestions = resources.getStringArray(R.array.open_question_list_ideal)
+                .map {
+                    val parts = it.split("|", limit = 2)
+                    parts[0] to parts[1]
+                }
+
+            val questionText =
+                whatQuestions.firstOrNull { it.first == firstKey }?.second
+                    ?: idealQuestions.firstOrNull { it.first == firstKey }?.second
+                    ?: firstKey
+
+            binding.tvQuestion.text = questionText
             binding.tvAnswer.text = firstAnswer
+
+            binding.tvQuestion.visibility = View.VISIBLE
+            binding.tvAnswer.visibility = View.VISIBLE
         } else {
             binding.tvQuestion.visibility = View.GONE
             binding.tvAnswer.visibility = View.GONE

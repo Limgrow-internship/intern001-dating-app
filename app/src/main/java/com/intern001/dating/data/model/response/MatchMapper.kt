@@ -97,6 +97,7 @@ fun MatchCardResponse.toMatchCard(): MatchCard {
 fun UserProfileResponse.toUserProfile(): UserProfile {
     // Get ID from either _id or id field (backend may use either)
     val profileId = id ?: idAlt ?: userId
+    val qaMap = openQuestionAnswers ?: emptyMap()
 
     return UserProfile(
         id = profileId,
@@ -186,7 +187,7 @@ fun UserProfileResponse.toUserProfile(): UserProfile {
         profileViews = profileViews ?: 0,
         goals = goals ?: emptyList(),
         job = job,
-        openQuestionAnswers = openQuestionAnswers,
+        openQuestionAnswers = qaMap,
         createdAt =
         try {
             dateFormat.parse(createdAt) ?: Date()
