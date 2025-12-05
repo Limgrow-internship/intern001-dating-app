@@ -16,8 +16,6 @@ interface MatchRepository {
 
     suspend fun superLikeUser(targetUserId: String): Result<MatchResult>
 
-    suspend fun blockUser(targetUserId: String, reason: String? = null): Result<Unit>
-
     suspend fun getMatches(page: Int = 1, limit: Int = 20): Result<List<Match>>
 
     suspend fun getMatchById(matchId: String): Result<Match>
@@ -27,4 +25,6 @@ interface MatchRepository {
     suspend fun getProfileByUserId(userId: String): Result<MatchCard>
 
     suspend fun getMatchedUsers(token: String): List<MatchList>
+
+    suspend fun blockUser(targetUserId: String): Result<Unit>
 }

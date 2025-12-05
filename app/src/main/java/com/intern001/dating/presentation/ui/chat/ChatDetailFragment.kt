@@ -38,6 +38,7 @@ import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import java.io.File
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -141,13 +142,29 @@ class ChatDetailFragment : BaseFragment() {
             binding.tvUnmatched.visibility = View.GONE
         }
         lifecycleScope.launch {
-            viewModel.matchStatus.collectLatest { status ->
-                if (status == "unmatched") {
-                    binding.messageInputLayout.visibility = View.GONE
-                    binding.tvUnmatched.visibility = View.VISIBLE
-                } else {
-                    binding.messageInputLayout.visibility = View.VISIBLE
-                    binding.tvUnmatched.visibility = View.GONE
+            combine(viewModel.matchStatus, viewModel.blockerId) { status, blockerId ->
+                Pair(status, blockerId)
+            }.collectLatest { (status, blockerId) ->
+                val myUserId = getMyUserIdAsync()
+                _binding?.let { binding ->
+                    if (status == "unmatched") {
+                        binding.messageInputLayout.visibility = View.GONE
+                        binding.tvUnmatched.visibility = View.VISIBLE
+                        binding.tvBlocked.visibility = View.GONE
+                        binding.btnMore.visibility = View.GONE
+                    } else if (status == "blocked") {
+                        if (blockerId == myUserId) {
+                            binding.messageInputLayout.visibility = View.GONE
+                            binding.tvBlocked.visibility = View.VISIBLE
+                        } else {
+                            binding.messageInputLayout.visibility = View.VISIBLE
+                            binding.tvBlocked.visibility = View.GONE
+                        }
+                    } else {
+                        binding.messageInputLayout.visibility = View.VISIBLE
+                        binding.tvUnmatched.visibility = View.GONE
+                        binding.tvBlocked.visibility = View.GONE
+                    }
                 }
             }
         }
@@ -204,8 +221,6 @@ class ChatDetailFragment : BaseFragment() {
 
                 lifecycleScope.launch {
                     val confirmedUserId = getMyUserIdAsync()
-
-                    // Tạo message object để gửi qua socket
                     val msg = JSONObject().apply {
                         put("matchId", matchId)
                         put("senderId", confirmedUserId)
@@ -242,16 +257,28 @@ class ChatDetailFragment : BaseFragment() {
         }
 
         binding.btnMore.setOnClickListener {
-            ChatMoreBottomSheet(
-                onUnmatch = if (!isAIConversation) {
-                    { showUnmatchDialog() }
-                } else {
-                    null
-                },
-                onReport = { },
-                onDeleteConversation = { showDeleteConversationDialog() },
-                onBlock = { },
-            ).show(childFragmentManager, "moreSheet")
+            lifecycleScope.launch {
+                val myUserId = getMyUserIdAsync() // OK, gọi suspend bên trong coroutine
+                val matchStatus = viewModel.matchStatus.value
+                val blockerId = viewModel.blockerId.value
+
+                val canUnblock = matchStatus == "blocked" && blockerId == myUserId
+                val canBlock = matchStatus != "blocked" || (matchStatus == "blocked" && blockerId != myUserId)
+
+                ChatMoreBottomSheet(
+                    canBlock = canBlock,
+                    canUnblock = canUnblock,
+                    onUnmatch = if (!isAIConversation) {
+                        { showUnmatchDialog() }
+                    } else {
+                        null
+                    },
+                    onReport = { },
+                    onDeleteConversation = { showDeleteConversationDialog() },
+                    onBlock = { showBlockUserDialog() },
+                    onUnblock = { showUnblockUserDialog() },
+                ).show(childFragmentManager, "moreSheet")
+            }
         }
 
         val emojiRecycler = RecyclerView(requireContext()).apply {
@@ -474,9 +501,53 @@ class ChatDetailFragment : BaseFragment() {
                 viewModel.unmatch(targetUserId) { success ->
                     if (success) {
                         viewModel.fetchMatchStatus(targetUserId)
-                        Toast.makeText(context, "Unmatch thành công!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            "Unmatch thành công!",
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                        requireActivity().onBackPressedDispatcher.onBackPressed()
                     } else {
                         Toast.makeText(context, "Unmatch thất bại!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .setNegativeButton("Hủy", null)
+            .show()
+    }
+
+    private fun showBlockUserDialog() {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Block")
+            .setMessage("Sau khi chặn, bạn sẽ không thể gửi tin nhắn hoặc tương tác với người này.")
+            .setPositiveButton("Block") { _, _ ->
+                lifecycleScope.launch {
+                    viewModel.blockUser(targetUserId) { success ->
+                        if (success) {
+                            Toast.makeText(context, "Đã chặn người này!", Toast.LENGTH_SHORT).show()
+                            viewModel.fetchMatchStatus(targetUserId)
+                            requireActivity().onBackPressedDispatcher.onBackPressed()
+                        } else {
+                            Toast.makeText(context, "Chặn thất bại!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+            .setNegativeButton("Hủy", null)
+            .show()
+    }
+    private fun showUnblockUserDialog() {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Unblock")
+            .setMessage("Bạn chắc chắn muốn bỏ chặn người này?")
+            .setPositiveButton("Unblock") { _, _ ->
+                viewModel.unblockUser(targetUserId) { success ->
+                    if (success) {
+                        Toast.makeText(context, "Đã bỏ chặn!", Toast.LENGTH_SHORT).show()
+                        viewModel.fetchMatchStatus(targetUserId)
+                        requireActivity().onBackPressedDispatcher.onBackPressed()
+                    } else {
+                        Toast.makeText(context, "Bỏ chặn thất bại!", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -496,8 +567,15 @@ class ChatDetailFragment : BaseFragment() {
             Emitter.Listener {
                 isSocketConnected = true
                 android.util.Log.d("ChatDetailFragment", "Socket connected successfully")
-                val obj = JSONObject().put("matchId", matchId)
-                mSocket?.emit("join_room", obj)
+                // Join room sau khi kết nối thành công
+                lifecycleScope.launch {
+                    val myUserId = getMyUserIdAsync()
+                    val obj = JSONObject().apply {
+                        put("matchId", matchId)
+                        put("userId", myUserId)
+                    }
+                    mSocket?.emit("join_room", obj)
+                }
             },
         )
 
@@ -536,6 +614,7 @@ class ChatDetailFragment : BaseFragment() {
                         imgChat = if (imgChatValue.isNullOrBlank()) null else imgChatValue,
                         audioPath = if (audioPathValue.isNullOrBlank()) null else audioPathValue,
                         duration = if (obj.has("duration") && obj.optInt("duration") > 0) obj.optInt("duration") else null,
+                        delivered = if (obj.has("delivered")) obj.optBoolean("delivered") else null,
                     )
 
                     if (AIConstants.isMessageFromAI(newMsg.senderId)) {
@@ -543,6 +622,7 @@ class ChatDetailFragment : BaseFragment() {
                     }
 
                     viewModel.addMessage(newMsg)
+                    binding.rvMessages.scrollToPosition(adapter.itemCount - 1)
                 }
             },
         )

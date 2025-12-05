@@ -66,4 +66,14 @@
         android:text="Block"
         android:textSize="18sp"
         android:textColor="#000000"/>
+
+    <TextView
+        android:id="@+id/tvUnBlock"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:gravity="center"
+        android:text="Unblock"
+        android:textSize="18sp"
+        android:textColor="#000000"
+        android:visibility="gone"/>
 </LinearLayout>

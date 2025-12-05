@@ -119,6 +119,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         />
+    <TextView
+        android:id="@+id/tvBlocked"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Blocked this user."
+        android:textColor="#FF7700"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:background="#FFF9F4"
+        android:gravity="center"
+        android:padding="20dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/emojiContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/messageInputLayout"
