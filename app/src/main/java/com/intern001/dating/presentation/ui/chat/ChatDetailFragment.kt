@@ -562,7 +562,6 @@ class ChatDetailFragment : BaseFragment() {
 
         mSocket = IO.socket(socketUrl, opts)
 
-        // Xử lý khi socket kết nối thành công
         mSocket?.on(
             Socket.EVENT_CONNECT,
             Emitter.Listener {
@@ -580,7 +579,6 @@ class ChatDetailFragment : BaseFragment() {
             },
         )
 
-        // Xử lý khi socket disconnect
         mSocket?.on(
             Socket.EVENT_DISCONNECT,
             Emitter.Listener {
@@ -589,7 +587,6 @@ class ChatDetailFragment : BaseFragment() {
             },
         )
 
-        // Xử lý lỗi kết nối
         mSocket?.on(
             Socket.EVENT_CONNECT_ERROR,
             Emitter.Listener { args ->
@@ -602,7 +599,6 @@ class ChatDetailFragment : BaseFragment() {
             },
         )
 
-        // Xử lý khi nhận message từ socket (real-time)
         mSocket?.on(
             "receive_message",
             Emitter.Listener { args ->

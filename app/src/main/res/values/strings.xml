@@ -271,25 +271,26 @@
     </string-array>
 
     <string-array name="open_question_list_what">
-        <item>What is something that always makes you smile?</item>
-        <item>What is something that always improves your day?</item>
-        <item>What is something that always surprises people about you?</item>
-        <item>What is something that always brings you peace?</item>
-        <item>What is something that always motivates you?</item>
-        <item>What is something that always makes you laugh?</item>
-        <item>What is something that always impresses you?</item>
-        <item>What is something that always inspires you?</item>
-        <item>What is something that always relaxes you?</item>
-        <item>What is something that always reminds you of home?</item>
+        <item>q1|What is something that always makes you smile?</item>
+        <item>q2|What is something that always improves your day?</item>
+        <item>q3|What is something that always surprises people about you?</item>
+        <item>q4|What is something that always brings you peace?</item>
+        <item>q5|What is something that always motivates you?</item>
+        <item>q6|What is something that always makes you laugh?</item>
+        <item>q7|What is something that always impresses you?</item>
+        <item>q8|What is something that always inspires you?</item>
+        <item>q9|What is something that always relaxes you?</item>
+        <item>q10|What is something that always reminds you of home?</item>
     </string-array>
 
     <string-array name="open_question_list_ideal">
-        <item>My ideal weekend is...</item>
-        <item>My ideal vacation looks like...</item>
-        <item>My perfect morning starts with...</item>
-        <item>My ideal date is...</item>
-        <item>My ideal night out includes...</item>
+        <item>i1|My ideal weekend is...</item>
+        <item>i2|My ideal vacation looks like...</item>
+        <item>i3|My perfect morning starts with...</item>
+        <item>i4|My ideal date is...</item>
+        <item>i5|My ideal night out includes...</item>
     </string-array>
+
     <string name="location_warning_title">Bật vị trí để nhận gợi ý tốt hơn</string>
     <string name="location_warning_message">Khi tắt vị trí, bạn sẽ nhận được ít gợi ý phù hợp hơn. Hãy bật GPS để khám phá những người gần bạn.</string>
     <string name="location_permission_message">Hãy cấp quyền truy cập vị trí để chúng tôi đề xuất chính xác hơn.</string>
