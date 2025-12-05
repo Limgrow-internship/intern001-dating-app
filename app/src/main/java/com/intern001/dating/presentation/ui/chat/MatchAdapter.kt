@@ -19,7 +19,7 @@ class MatchAdapter(
         fun bind(item: MatchList, onClick: (MatchList) -> Unit) {
             binding.tvNameAge.text = "${item.matchedUser.name}, ${item.matchedUser.age ?: ""}"
             binding.tvLocation.text = item.matchedUser.city.orEmpty()
-            val radius = (30 * binding.imvAvatar.resources.displayMetrics.density).toInt()
+            val radius = (16 * binding.imvAvatar.resources.displayMetrics.density).toInt()
             Glide.with(binding.imvAvatar)
                 .load(item.matchedUser.avatarUrl)
                 .placeholder(R.drawable.bg_avatar_round)

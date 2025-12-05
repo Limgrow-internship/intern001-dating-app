@@ -1,4 +1,3 @@
-// ConversationAdapter.kt
 package com.intern001.dating.presentation.ui.chat
 
 import android.view.LayoutInflater
@@ -42,29 +41,23 @@ class ConversationAdapter(
         return ConversationViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ConversationViewHolder, position: Int) {
-        val c = conversations[position]
-        val isAIConversation = AIConstants.isAIConversation(c.userId)
+           override fun onBindViewHolder(holder: ConversationViewHolder, position: Int) {
+               val c = conversations[position]
+               val isAIConversation = AIConstants.isAIUser(c.userId)
 
-        if (isAIConversation) {
-            holder.imvAvatar.setImageResource(R.drawable.ic_chatbot)
-        } else {
-            Glide.with(holder.itemView.context)
-                .load(c.avatarUrl)
-                .placeholder(R.drawable.bg_avatar_round)
-                .circleCrop()
-                .into(holder.imvAvatar)
-        }
+               Glide.with(holder.itemView.context)
+                   .load(if (isAIConversation) AIConstants.AI_FAKE_AVATAR_URL else c.avatarUrl)
+                   .placeholder(R.drawable.bg_avatar_round)
+                   .circleCrop()
+                   .into(holder.imvAvatar)
 
-        holder.tvUserName.text = c.userName
-        holder.tvLastMessage.text = c.lastMessage ?: if (isAIConversation) "Start chatting with AI!" else "Say hi match!"
+               holder.tvUserName.text = if (isAIConversation) AIConstants.AI_FAKE_NAME else c.userName
+        holder.tvLastMessage.text = c.lastMessage ?: "Say hi match!"
         holder.tvTimestamp.text = c.timestamp?.let { formatChatTimestamp(it) } ?: ""
 
-        // Hide online dot for AI conversation
         holder.onlineDot.visibility = if (isAIConversation || c.isOnline != true) View.INVISIBLE else View.VISIBLE
 
-        // Show AI badge for AI conversation
-        holder.tvAIBadge.visibility = if (isAIConversation) View.VISIBLE else View.GONE
+        holder.tvAIBadge.visibility = View.GONE
 
         holder.itemView.setOnClickListener { onClick(c) }
     }
