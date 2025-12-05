@@ -41,7 +41,7 @@ android {
         }
         create("debugApp") {
             dimension = "distribution"
-            applicationId = "com.intern001.dating"
+            applicationId = "com.led.keyboard.neon.classic"
         }
     }
 
@@ -58,6 +58,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
@@ -199,5 +200,26 @@ tasks.register("generateSupportedLangs") {
 }
 
 tasks.named("preBuild") {
-    dependsOn("generateSupportedLangs")
+    dependsOn("generateSupportedLangs", "copyGoogleServicesFiles")
+}
+
+tasks.register("copyGoogleServicesFiles") {
+    doLast {
+        val rawPremiumFile = File("$projectDir/src/main/res/raw/google_services_premium.json")
+        val rawDatingFile = File("$projectDir/src/main/res/raw/google_services_dating.json")
+
+        if (rawPremiumFile.exists()) {
+            val debugAppDir = File("$projectDir/src/debugApp")
+            debugAppDir.mkdirs()
+            val debugAppFile = File(debugAppDir, "google-services.json")
+            rawPremiumFile.copyTo(debugAppFile, overwrite = true)
+        }
+
+        if (rawDatingFile.exists()) {
+            val releaseAppDir = File("$projectDir/src/releaseApp")
+            releaseAppDir.mkdirs()
+            val releaseAppFile = File(releaseAppDir, "google-services.json")
+            rawDatingFile.copyTo(releaseAppFile, overwrite = true)
+        }
+    }
 }

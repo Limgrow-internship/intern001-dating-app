@@ -14,6 +14,8 @@ import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.ProductDetails.SubscriptionOfferDetails
 import com.intern001.dating.data.billing.BillingConfig
 import com.intern001.dating.data.billing.BillingManager
+import com.intern001.dating.data.firebase.FirebaseConfigHelper
+import com.intern001.dating.data.service.NotificationService
 import com.intern001.dating.databinding.ActivityPremiumBinding
 import com.intern001.dating.presentation.common.state.PurchaseState
 import dagger.hilt.android.AndroidEntryPoint
@@ -29,6 +31,9 @@ class PremiumActivity : AppCompatActivity() {
     @Inject
     lateinit var billingManager: BillingManager
 
+    @Inject
+    lateinit var notificationService: NotificationService
+
     private var selectedTier: TierType = TierType.BASIC
     private var selectedPlan: PlanType = PlanType.MONTHLY
     private var productsMap: Map<String, ProductDetails> = emptyMap()
@@ -38,6 +43,10 @@ class PremiumActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityPremiumBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        if (viewModel.subscriptionProducts.value.isEmpty() && billingManager.isInitialized()) {
+            billingManager.refreshProducts()
+        }
 
         setupViewPager()
         setupListeners()
@@ -88,6 +97,7 @@ class PremiumActivity : AppCompatActivity() {
                         }
                         is PurchaseState.Purchased -> {
                             showLoading(false)
+                            initializePremiumFirebase()
                             showPurchaseSuccessDialog()
                         }
                         is PurchaseState.Error -> {
@@ -122,7 +132,24 @@ class PremiumActivity : AppCompatActivity() {
             return
         }
 
-        val offerToken = tierPricingMap[selectedTier]?.offerTokenFor(selectedPlan)
+        val productDetails = productsMap[productId]
+        if (productDetails == null) {
+            Toast.makeText(this, "Product not loaded yet. Please wait...", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val tierPricing = tierPricingMap[selectedTier]
+        if (tierPricing == null) {
+            Toast.makeText(this, "Pricing not available. Please wait...", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val offerToken = tierPricing.offerTokenFor(selectedPlan)
+        if (offerToken == null) {
+            Toast.makeText(this, "Offer not available for selected plan", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         billingManager.launchPurchaseFlow(this, productId, offerToken)
     }
 
@@ -136,6 +163,19 @@ class PremiumActivity : AppCompatActivity() {
 
     private fun showLoading(show: Boolean) {
         // You can show/hide a loading indicator here if needed
+    }
+
+    private fun initializePremiumFirebase() {
+        lifecycleScope.launch {
+            try {
+                val success = FirebaseConfigHelper.initializeFirebaseForPremium(this@PremiumActivity)
+                if (success) {
+                    notificationService.initializeFCMToken()
+                }
+            } catch (e: Exception) {
+                // Failed to initialize premium Firebase
+            }
+        }
     }
 
     private fun showPurchaseSuccessDialog() {
@@ -152,7 +192,11 @@ class PremiumActivity : AppCompatActivity() {
 
     private fun updateTierPricing() {
         TierType.values().forEach { tier ->
-            val productId = getProductId(tier) ?: return@forEach
+            val productId = getProductId(tier)
+            if (productId == null) {
+                return@forEach
+            }
+
             val pricing = buildTierPricing(productId)
             tierPricingMap[tier] = pricing
             notifyPriceChange(tier, pricing)
@@ -171,7 +215,11 @@ class PremiumActivity : AppCompatActivity() {
     }
 
     private fun buildTierPricing(productId: String): TierPricing {
-        val productDetails = productsMap[productId] ?: return TierPricing()
+        val productDetails = productsMap[productId]
+        if (productDetails == null) {
+            return TierPricing()
+        }
+
         val weeklyOffer = productDetails.findOfferByTag("weekly")
         val monthlyOffer = productDetails.findOfferByTag("monthly")
         val fallbackOffer = productDetails.subscriptionOfferDetails?.firstOrNull()
