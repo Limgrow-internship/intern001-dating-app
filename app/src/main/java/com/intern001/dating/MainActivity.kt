@@ -7,18 +7,22 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.intern001.dating.data.billing.BillingManager
 import com.intern001.dating.data.firebase.FirebaseConfigHelper
+import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.databinding.ActivityMainBinding
 import com.intern001.dating.domain.model.Notification
 import com.intern001.dating.domain.usecase.notification.SaveNotificationUseCase
 import com.intern001.dating.presentation.common.viewmodel.BaseActivity
+import com.intern001.dating.presentation.common.viewmodel.ChatListViewModel
 import com.intern001.dating.presentation.navigation.navigateToChatDetail
 import com.intern001.dating.presentation.navigation.navigateToDatingMode
 import com.intern001.dating.presentation.navigation.navigateToNotification
 import com.intern001.dating.presentation.navigation.navigateToProfileDetail
+import com.intern001.dating.presentation.ui.chat.ChatSharedViewModel
 import com.intern001.dating.presentation.ui.home.HomeFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Date
@@ -38,9 +42,16 @@ class MainActivity : BaseActivity() {
     @Inject
     lateinit var billingManager: BillingManager
 
+    @Inject
+    lateinit var tokenManager: TokenManager
+
     private lateinit var binding: ActivityMainBinding
     private var isNavigatingProgrammatically = false
     private val activityScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
+    // Activity-scoped ViewModels để preload data
+    private val chatListViewModel: ChatListViewModel by viewModels()
+    private val chatSharedViewModel: ChatSharedViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +65,9 @@ class MainActivity : BaseActivity() {
         setupBottomNavigation()
         setupDestinationListener()
         initializePremiumFirebaseIfNeeded()
+
+        // Preload chat list data khi app khởi động
+        preloadChatListData()
 
         activityScope.launch {
             delay(100)
@@ -467,6 +481,54 @@ class MainActivity : BaseActivity() {
                 }
             } catch (e: Exception) {
                 Log.e("MainActivity", "Failed to initialize premium Firebase on startup", e)
+            }
+        }
+    }
+
+    /**
+     * Preload chat list data (matches và conversations) khi app khởi động
+     */
+    private fun preloadChatListData() {
+        activityScope.launch(Dispatchers.IO) {
+            try {
+                // Đợi một chút để đảm bảo token đã sẵn sàng
+                delay(500)
+
+                val token = tokenManager.getAccessTokenAsync()
+                if (token != null) {
+                    Log.d("MainActivity", "Preloading chat list data...")
+
+                    // Preload matches
+                    chatListViewModel.preloadMatches()
+
+                    // Đợi matches load xong (tối đa 3 giây)
+                    var attempts = 0
+                    while (attempts < 30 && chatListViewModel.matches.value.isEmpty() && chatListViewModel.isLoading.value) {
+                        delay(100)
+                        attempts++
+                    }
+
+                    val matches = chatListViewModel.matches.value
+                    if (matches.isNotEmpty()) {
+                        Log.d("MainActivity", "Matches loaded, preloading messages for ${matches.size} matches...")
+
+                        // Preload messages cho mỗi match (giới hạn 5 matches đầu tiên để tránh quá tải)
+                        matches.take(5).forEachIndexed { index, match ->
+                            chatSharedViewModel.preloadMessages(match.matchId)
+                            if (index < 4) { // Không delay cho match cuối cùng
+                                delay(200) // Delay giữa các preload để tránh quá tải
+                            }
+                        }
+
+                        Log.d("MainActivity", "Chat list data preloaded successfully")
+                    } else {
+                        Log.d("MainActivity", "No matches found or still loading")
+                    }
+                } else {
+                    Log.d("MainActivity", "No token available, skipping chat list preload")
+                }
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Failed to preload chat list data", e)
             }
         }
     }

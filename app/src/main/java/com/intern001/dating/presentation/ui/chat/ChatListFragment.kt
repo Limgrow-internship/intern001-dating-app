@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -23,8 +23,6 @@ import com.intern001.dating.presentation.ui.chat.AIConstants
 import com.intern001.dating.presentation.ui.chat.MatchAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Instant
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
@@ -45,7 +43,11 @@ class ChatListFragment : BaseFragment() {
     private var _binding: FragmentChatListBinding? = null
     private val binding get() = _binding!!
 
-    private val vm: ChatListViewModel by viewModels()
+    // Activity-scoped ViewModel để có thể preload từ MainActivity
+    private val vm: ChatListViewModel by activityViewModels()
+
+    // Activity-scoped ViewModel để preload messages
+    private val chatSharedViewModel: ChatSharedViewModel by activityViewModels()
     private lateinit var matchAdapter: MatchAdapter
     private lateinit var conversationAdapter: ConversationAdapter
 
@@ -85,15 +87,24 @@ class ChatListFragment : BaseFragment() {
         binding.rvConversations.layoutManager = LinearLayoutManager(requireContext())
 
         conversationAdapter = ConversationAdapter(listOf()) { conversation ->
-            findNavController().navigate(
-                R.id.action_chatList_to_chatDetail,
-                bundleOf(
-                    "matchId" to conversation.matchId,
-                    "matchedUserName" to conversation.userName,
-                    "matchedUserAvatar" to (conversation.avatarUrl ?: ""),
-                    "targetUserId" to conversation.targetUserId,
-                ),
-            )
+            // Preload messages trước khi navigate
+            chatSharedViewModel.preloadMessages(conversation.matchId)
+
+            // Đợi một chút để preload có thời gian bắt đầu (non-blocking)
+            viewLifecycleOwner.lifecycleScope.launch {
+                // Đợi 100ms để preload có cơ hội bắt đầu
+                kotlinx.coroutines.delay(100)
+
+                findNavController().navigate(
+                    R.id.action_chatList_to_chatDetail,
+                    bundleOf(
+                        "matchId" to conversation.matchId,
+                        "matchedUserName" to conversation.userName,
+                        "matchedUserAvatar" to (conversation.avatarUrl ?: ""),
+                        "targetUserId" to conversation.targetUserId,
+                    ),
+                )
+            }
         }
 
         binding.rvConversations.adapter = conversationAdapter
@@ -102,7 +113,9 @@ class ChatListFragment : BaseFragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 vm.isLoading.combine(vm.matches) { isLoading, matches ->
                     isLoading to matches
-                }.collect { (isLoading, matches) ->
+                }.combine(vm.lastMessagesCache) { (isLoading, matches), lastMessagesCache ->
+                    Triple(isLoading, matches, lastMessagesCache)
+                }.collect { (isLoading, matches, lastMessagesCache) ->
 
                     if (isLoading) {
                         binding.matchPlaceholder.isVisible = true
@@ -153,30 +166,29 @@ class ChatListFragment : BaseFragment() {
 
                     matchAdapter.submitList(allMatches)
 
+                    // Tạo conversations với last messages từ cache
                     val conversations = allMatches.map { match ->
-                        async {
-                            val lastMsg = vm.getLastMessage(match.matchId)
+                        val lastMsg = lastMessagesCache[match.matchId]
 
-                            Conversation(
-                                matchId = match.matchId,
-                                userId = match.matchedUser.userId,
-                                avatarUrl = if (AIConstants.isAIUser(match.matchedUser.userId)) {
-                                    AIConstants.AI_FAKE_AVATAR_URL
-                                } else {
-                                    match.matchedUser.avatarUrl
-                                },
-                                userName = if (AIConstants.isAIUser(match.matchedUser.userId)) {
-                                    AIConstants.AI_FAKE_NAME
-                                } else {
-                                    match.matchedUser.name
-                                },
-                                lastMessage = lastMsg?.message,
-                                timestamp = lastMsg?.timestamp,
-                                isOnline = null,
-                                targetUserId = match.matchedUser.userId,
-                            )
-                        }
-                    }.awaitAll()
+                        Conversation(
+                            matchId = match.matchId,
+                            userId = match.matchedUser.userId,
+                            avatarUrl = if (AIConstants.isAIUser(match.matchedUser.userId)) {
+                                AIConstants.AI_FAKE_AVATAR_URL
+                            } else {
+                                match.matchedUser.avatarUrl
+                            },
+                            userName = if (AIConstants.isAIUser(match.matchedUser.userId)) {
+                                AIConstants.AI_FAKE_NAME
+                            } else {
+                                match.matchedUser.name
+                            },
+                            lastMessage = lastMsg?.message,
+                            timestamp = lastMsg?.timestamp,
+                            isOnline = null,
+                            targetUserId = match.matchedUser.userId,
+                        )
+                    }
 
                     val sortedConversations = conversations.sortedWith(
                         compareBy<Conversation> { !AIConstants.isAIUser(it.userId) }
@@ -187,10 +199,24 @@ class ChatListFragment : BaseFragment() {
 
                     binding.rvConversations.isVisible = conversations.isNotEmpty()
                     binding.noChatsLayout.isVisible = conversations.isEmpty()
+
+                    // Nếu có matches chưa có last message trong cache, fetch async (không block UI)
+                    // Khi fetch xong, lastMessagesCache sẽ update và flow sẽ tự động trigger lại
+                    val matchesWithoutCache = allMatches.filter { !lastMessagesCache.containsKey(it.matchId) }
+                    if (matchesWithoutCache.isNotEmpty()) {
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            matchesWithoutCache.forEach { match ->
+                                vm.getLastMessage(match.matchId) // Sẽ tự động cache khi fetch xong
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        vm.fetchMatches("YourTokenHere")
+        // Nếu chưa có data, fetch ngay
+        if (!vm.hasData()) {
+            vm.fetchMatches()
+        }
     }
 }

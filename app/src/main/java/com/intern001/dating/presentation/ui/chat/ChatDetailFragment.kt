@@ -16,6 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -43,6 +44,9 @@ import okhttp3.RequestBody.Companion.asRequestBody
 @AndroidEntryPoint
 class ChatDetailFragment : BaseFragment() {
     private val viewModel: ChatViewModel by viewModels()
+
+    // Activity-scoped ViewModel để lấy messages đã được preload
+    private val chatSharedViewModel: ChatSharedViewModel by activityViewModels()
     private var matchId: String = ""
     private var matchedUserName: String? = null
     private lateinit var adapter: MessageAdapter
@@ -167,16 +171,83 @@ class ChatDetailFragment : BaseFragment() {
                 }
             }
         }
-        viewModel.fetchHistory(matchId)
+        // Setup adapter và observe messages trong cùng một coroutine để đảm bảo adapter được khởi tạo trước
         lifecycleScope.launch {
+            // Setup adapter trước
             val myUserId = getMyUserIdAsync()
             adapter = MessageAdapter(myUserId)
             binding.rvMessages.layoutManager = LinearLayoutManager(requireContext())
             binding.rvMessages.adapter = adapter
 
+            // Sau khi adapter đã được setup, kiểm tra cache và load messages
+            // Flow: Memory cache → Local DB → Server
+
+            // Bước 1: Kiểm tra memory cache
+            val preloadedMessages = chatSharedViewModel.getCachedMessages(matchId)
+            val isPreloading = chatSharedViewModel.preloadingMatchIds.value.contains(matchId)
+
+            if (preloadedMessages.isNotEmpty()) {
+                // Có trong memory cache, sử dụng luôn
+                android.util.Log.d("ChatDetailFragment", "Using preloaded messages from memory: ${preloadedMessages.size}")
+                viewModel.updateMessagesFromCache(preloadedMessages)
+            } else {
+                // Bước 2: Thử load từ local database (offline support)
+                try {
+                    val localMessages = chatSharedViewModel.getCachedMessagesAsync(matchId)
+                    if (localMessages.isNotEmpty()) {
+                        android.util.Log.d("ChatDetailFragment", "Using messages from local DB: ${localMessages.size}")
+                        viewModel.updateMessagesFromCache(localMessages)
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("ChatDetailFragment", "Failed to load from local DB", e)
+                }
+
+                // Bước 3: Fetch từ server nếu cần
+                if (isPreloading) {
+                    // Đang preload, đợi một chút
+                    android.util.Log.d("ChatDetailFragment", "Waiting for preload to complete...")
+                    kotlinx.coroutines.delay(200)
+
+                    val cachedAfterWait = chatSharedViewModel.getCachedMessages(matchId)
+                    if (cachedAfterWait.isNotEmpty()) {
+                        android.util.Log.d("ChatDetailFragment", "Using preloaded messages after wait: ${cachedAfterWait.size}")
+                        viewModel.updateMessagesFromCache(cachedAfterWait)
+                    } else {
+                        // Preload chậm, fetch trực tiếp
+                        android.util.Log.d("ChatDetailFragment", "Preload taking too long, fetching directly...")
+                        viewModel.fetchHistory(matchId)
+                    }
+                } else {
+                    // Không đang preload, fetch từ server
+                    android.util.Log.d("ChatDetailFragment", "No cache, fetching from server...")
+                    viewModel.fetchHistory(matchId)
+                }
+            }
+
+            // Observe messages từ ViewModel để update UI (sau khi adapter đã được setup)
             viewModel.messages.collectLatest { msgs ->
                 adapter.setMessages(msgs)
                 if (msgs.isNotEmpty()) binding.rvMessages.scrollToPosition(msgs.size - 1)
+                // Update cache khi có messages mới (cả memory và local DB)
+                chatSharedViewModel.updateMessages(matchId, msgs)
+            }
+        }
+
+        // Observe cache để tự động update khi preload xong (nếu chưa có messages)
+        lifecycleScope.launch {
+            chatSharedViewModel.messagesCache.collectLatest { cache ->
+                val cachedMessages = cache[matchId]
+                // Chỉ update nếu có cache và ViewModel chưa có messages hoặc có ít messages hơn
+                if (cachedMessages != null && cachedMessages.isNotEmpty()) {
+                    val currentMessages = viewModel.messages.value
+                    if (currentMessages.isEmpty() || currentMessages.size < cachedMessages.size) {
+                        // Kiểm tra adapter đã được khởi tạo chưa
+                        if (::adapter.isInitialized) {
+                            android.util.Log.d("ChatDetailFragment", "Cache updated, updating messages: ${cachedMessages.size}")
+                            viewModel.updateMessagesFromCache(cachedMessages)
+                        }
+                    }
+                }
             }
         }
 
