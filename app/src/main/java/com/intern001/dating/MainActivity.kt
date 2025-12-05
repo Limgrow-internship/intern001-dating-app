@@ -49,7 +49,6 @@ class MainActivity : BaseActivity() {
     private var isNavigatingProgrammatically = false
     private val activityScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
-    // Activity-scoped ViewModels để preload data
     private val chatListViewModel: ChatListViewModel by viewModels()
     private val chatSharedViewModel: ChatSharedViewModel by viewModels()
 
@@ -66,7 +65,6 @@ class MainActivity : BaseActivity() {
         setupDestinationListener()
         initializePremiumFirebaseIfNeeded()
 
-        // Preload chat list data khi app khởi động
         preloadChatListData()
 
         activityScope.launch {
@@ -498,10 +496,8 @@ class MainActivity : BaseActivity() {
                 if (token != null) {
                     Log.d("MainActivity", "Preloading chat list data...")
 
-                    // Preload matches
                     chatListViewModel.preloadMatches()
 
-                    // Đợi matches load xong (tối đa 3 giây)
                     var attempts = 0
                     while (attempts < 30 && chatListViewModel.matches.value.isEmpty() && chatListViewModel.isLoading.value) {
                         delay(100)
@@ -512,11 +508,10 @@ class MainActivity : BaseActivity() {
                     if (matches.isNotEmpty()) {
                         Log.d("MainActivity", "Matches loaded, preloading messages for ${matches.size} matches...")
 
-                        // Preload messages cho mỗi match (giới hạn 5 matches đầu tiên để tránh quá tải)
                         matches.take(5).forEachIndexed { index, match ->
                             chatSharedViewModel.preloadMessages(match.matchId)
-                            if (index < 4) { // Không delay cho match cuối cùng
-                                delay(200) // Delay giữa các preload để tránh quá tải
+                            if (index < 4) {
+                                delay(200)
                             }
                         }
 

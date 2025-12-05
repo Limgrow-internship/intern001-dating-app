@@ -43,10 +43,7 @@ class ChatListFragment : BaseFragment() {
     private var _binding: FragmentChatListBinding? = null
     private val binding get() = _binding!!
 
-    // Activity-scoped ViewModel để có thể preload từ MainActivity
     private val vm: ChatListViewModel by activityViewModels()
-
-    // Activity-scoped ViewModel để preload messages
     private val chatSharedViewModel: ChatSharedViewModel by activityViewModels()
     private lateinit var matchAdapter: MatchAdapter
     private lateinit var conversationAdapter: ConversationAdapter
@@ -87,12 +84,9 @@ class ChatListFragment : BaseFragment() {
         binding.rvConversations.layoutManager = LinearLayoutManager(requireContext())
 
         conversationAdapter = ConversationAdapter(listOf()) { conversation ->
-            // Preload messages trước khi navigate
             chatSharedViewModel.preloadMessages(conversation.matchId)
 
-            // Đợi một chút để preload có thời gian bắt đầu (non-blocking)
             viewLifecycleOwner.lifecycleScope.launch {
-                // Đợi 100ms để preload có cơ hội bắt đầu
                 kotlinx.coroutines.delay(100)
 
                 findNavController().navigate(
@@ -166,7 +160,6 @@ class ChatListFragment : BaseFragment() {
 
                     matchAdapter.submitList(allMatches)
 
-                    // Tạo conversations với last messages từ cache
                     val conversations = allMatches.map { match ->
                         val lastMsg = lastMessagesCache[match.matchId]
 
@@ -200,13 +193,11 @@ class ChatListFragment : BaseFragment() {
                     binding.rvConversations.isVisible = conversations.isNotEmpty()
                     binding.noChatsLayout.isVisible = conversations.isEmpty()
 
-                    // Nếu có matches chưa có last message trong cache, fetch async (không block UI)
-                    // Khi fetch xong, lastMessagesCache sẽ update và flow sẽ tự động trigger lại
                     val matchesWithoutCache = allMatches.filter { !lastMessagesCache.containsKey(it.matchId) }
                     if (matchesWithoutCache.isNotEmpty()) {
                         viewLifecycleOwner.lifecycleScope.launch {
                             matchesWithoutCache.forEach { match ->
-                                vm.getLastMessage(match.matchId) // Sẽ tự động cache khi fetch xong
+                                vm.getLastMessage(match.matchId)
                             }
                         }
                     }
@@ -214,7 +205,6 @@ class ChatListFragment : BaseFragment() {
             }
         }
 
-        // Nếu chưa có data, fetch ngay
         if (!vm.hasData()) {
             vm.fetchMatches()
         }

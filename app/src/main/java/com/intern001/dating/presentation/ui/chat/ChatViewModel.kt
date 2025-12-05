@@ -22,7 +22,7 @@ class ChatViewModel @Inject constructor(
     private val repo: ChatRepository,
     private val sendVoiceMessageUseCase: SendVoiceMessageUseCase,
     private val tokenManager: TokenManager,
-    private val localRepo: ChatLocalRepository, // Inject local repository để persist messages
+    private val localRepo: ChatLocalRepository,
 ) : ViewModel() {
     private val _messages = MutableStateFlow<List<MessageModel>>(emptyList())
     val messages: StateFlow<List<MessageModel>> = _messages
@@ -60,7 +60,6 @@ class ChatViewModel @Inject constructor(
                 val mergedMsgs = mergeMessages(currentMsgs, deliveredMsgs)
                 _messages.value = mergedMsgs
 
-                // Persist messages vào local database để có thể xem offline sau này
                 try {
                     localRepo.saveMessages(mergedMsgs)
                     android.util.Log.d("ChatViewModel", "Saved ${mergedMsgs.size} messages to local DB")
@@ -69,7 +68,6 @@ class ChatViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 android.util.Log.e("ChatViewModel", "Failed to fetch history", e)
-                // Nếu server lỗi, thử load từ local DB
                 try {
                     val localMessages = localRepo.getMessagesByMatchIdSync(matchId)
                     if (localMessages.isNotEmpty()) {
@@ -83,9 +81,6 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Update messages từ cache (được gọi khi có messages đã được preload)
-     */
     fun updateMessagesFromCache(cachedMessages: List<MessageModel>) {
         val currentMsgs = _messages.value
         val mergedMsgs = mergeMessages(currentMsgs, cachedMessages)
@@ -337,13 +332,11 @@ class ChatViewModel @Inject constructor(
         )
     }
 
-    // Typing indicator management
     fun showAITypingIndicator() {
         if (!isAIConversation) return
 
         _isAITyping.value = true
 
-        // Auto hide after timeout
         typingTimeoutRunnable?.let { typingTimeoutHandler.removeCallbacks(it) }
         typingTimeoutRunnable = Runnable {
             hideAITypingIndicator()
