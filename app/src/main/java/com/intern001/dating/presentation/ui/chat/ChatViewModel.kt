@@ -4,6 +4,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.intern001.dating.data.local.ChatLocalRepository
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.data.model.MessageModel
 import com.intern001.dating.data.service.ChatSocketService
@@ -21,6 +22,7 @@ class ChatViewModel @Inject constructor(
     private val repo: ChatRepository,
     private val sendVoiceMessageUseCase: SendVoiceMessageUseCase,
     private val tokenManager: TokenManager,
+    private val localRepo: ChatLocalRepository,
 ) : ViewModel() {
     private val _messages = MutableStateFlow<List<MessageModel>>(emptyList())
     val messages: StateFlow<List<MessageModel>> = _messages
@@ -57,8 +59,33 @@ class ChatViewModel @Inject constructor(
                 val currentMsgs = _messages.value
                 val mergedMsgs = mergeMessages(currentMsgs, deliveredMsgs)
                 _messages.value = mergedMsgs
-            } catch (_: Exception) { }
+
+                try {
+                    localRepo.saveMessages(mergedMsgs)
+                    android.util.Log.d("ChatViewModel", "Saved ${mergedMsgs.size} messages to local DB")
+                } catch (e: Exception) {
+                    android.util.Log.e("ChatViewModel", "Failed to save messages to local DB", e)
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("ChatViewModel", "Failed to fetch history", e)
+                try {
+                    val localMessages = localRepo.getMessagesByMatchIdSync(matchId)
+                    if (localMessages.isNotEmpty()) {
+                        android.util.Log.d("ChatViewModel", "Loaded ${localMessages.size} messages from local DB (offline)")
+                        _messages.value = localMessages
+                    }
+                } catch (localError: Exception) {
+                    android.util.Log.e("ChatViewModel", "Failed to load from local DB", localError)
+                }
+            }
         }
+    }
+
+    fun updateMessagesFromCache(cachedMessages: List<MessageModel>) {
+        val currentMsgs = _messages.value
+        val mergedMsgs = mergeMessages(currentMsgs, cachedMessages)
+        _messages.value = mergedMsgs
+        android.util.Log.d("ChatViewModel", "Updated messages from cache: ${mergedMsgs.size} messages")
     }
 
     private fun mergeMessages(current: List<MessageModel>, new: List<MessageModel>): List<MessageModel> {
@@ -305,13 +332,11 @@ class ChatViewModel @Inject constructor(
         )
     }
 
-    // Typing indicator management
     fun showAITypingIndicator() {
         if (!isAIConversation) return
 
         _isAITyping.value = true
 
-        // Auto hide after timeout
         typingTimeoutRunnable?.let { typingTimeoutHandler.removeCallbacks(it) }
         typingTimeoutRunnable = Runnable {
             hideAITypingIndicator()

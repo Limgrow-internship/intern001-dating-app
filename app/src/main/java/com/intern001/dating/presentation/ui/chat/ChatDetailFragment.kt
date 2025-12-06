@@ -16,6 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -43,6 +44,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 @AndroidEntryPoint
 class ChatDetailFragment : BaseFragment() {
     private val viewModel: ChatViewModel by viewModels()
+    private val chatSharedViewModel: ChatSharedViewModel by activityViewModels()
     private var matchId: String = ""
     private var matchedUserName: String? = null
     private lateinit var adapter: MessageAdapter
@@ -167,16 +169,66 @@ class ChatDetailFragment : BaseFragment() {
                 }
             }
         }
-        viewModel.fetchHistory(matchId)
         lifecycleScope.launch {
             val myUserId = getMyUserIdAsync()
             adapter = MessageAdapter(myUserId)
             binding.rvMessages.layoutManager = LinearLayoutManager(requireContext())
             binding.rvMessages.adapter = adapter
 
+            val preloadedMessages = chatSharedViewModel.getCachedMessages(matchId)
+            val isPreloading = chatSharedViewModel.preloadingMatchIds.value.contains(matchId)
+
+            if (preloadedMessages.isNotEmpty()) {
+                android.util.Log.d("ChatDetailFragment", "Using preloaded messages from memory: ${preloadedMessages.size}")
+                viewModel.updateMessagesFromCache(preloadedMessages)
+            } else {
+                try {
+                    val localMessages = chatSharedViewModel.getCachedMessagesAsync(matchId)
+                    if (localMessages.isNotEmpty()) {
+                        android.util.Log.d("ChatDetailFragment", "Using messages from local DB: ${localMessages.size}")
+                        viewModel.updateMessagesFromCache(localMessages)
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("ChatDetailFragment", "Failed to load from local DB", e)
+                }
+
+                if (isPreloading) {
+                    android.util.Log.d("ChatDetailFragment", "Waiting for preload to complete...")
+                    kotlinx.coroutines.delay(200)
+
+                    val cachedAfterWait = chatSharedViewModel.getCachedMessages(matchId)
+                    if (cachedAfterWait.isNotEmpty()) {
+                        android.util.Log.d("ChatDetailFragment", "Using preloaded messages after wait: ${cachedAfterWait.size}")
+                        viewModel.updateMessagesFromCache(cachedAfterWait)
+                    } else {
+                        android.util.Log.d("ChatDetailFragment", "Preload taking too long, fetching directly...")
+                        viewModel.fetchHistory(matchId)
+                    }
+                } else {
+                    android.util.Log.d("ChatDetailFragment", "No cache, fetching from server...")
+                    viewModel.fetchHistory(matchId)
+                }
+            }
+
             viewModel.messages.collectLatest { msgs ->
                 adapter.setMessages(msgs)
                 if (msgs.isNotEmpty()) binding.rvMessages.scrollToPosition(msgs.size - 1)
+                chatSharedViewModel.updateMessages(matchId, msgs)
+            }
+        }
+
+        lifecycleScope.launch {
+            chatSharedViewModel.messagesCache.collectLatest { cache ->
+                val cachedMessages = cache[matchId]
+                if (cachedMessages != null && cachedMessages.isNotEmpty()) {
+                    val currentMessages = viewModel.messages.value
+                    if (currentMessages.isEmpty() || currentMessages.size < cachedMessages.size) {
+                        if (::adapter.isInitialized) {
+                            android.util.Log.d("ChatDetailFragment", "Cache updated, updating messages: ${cachedMessages.size}")
+                            viewModel.updateMessagesFromCache(cachedMessages)
+                        }
+                    }
+                }
             }
         }
 
