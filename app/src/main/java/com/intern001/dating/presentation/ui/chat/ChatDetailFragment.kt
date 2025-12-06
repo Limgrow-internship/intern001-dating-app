@@ -16,6 +16,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -29,7 +32,9 @@ import com.intern001.dating.R
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.data.model.MessageModel
 import com.intern001.dating.databinding.FragmentChatScreenBinding
+import com.intern001.dating.domain.entity.LastMessageEntity
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
+import com.intern001.dating.presentation.common.viewmodel.ChatListViewModel
 import com.intern001.dating.presentation.ui.chat.AIConstants
 import com.intern001.dating.presentation.ui.chat.MessageAdapter
 import dagger.hilt.android.AndroidEntryPoint
@@ -45,6 +50,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 class ChatDetailFragment : BaseFragment() {
     private val viewModel: ChatViewModel by viewModels()
     private val chatSharedViewModel: ChatSharedViewModel by activityViewModels()
+    private val chatListViewModel: ChatListViewModel by activityViewModels()
     private var matchId: String = ""
     private var matchedUserName: String? = null
     private lateinit var adapter: MessageAdapter
@@ -109,6 +115,25 @@ class ChatDetailFragment : BaseFragment() {
         requireActivity().window.setSoftInputMode(
             android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE,
         )
+        val baseInputPadding = binding.messageInputLayout.paddingBottom
+        val baseListPadding = binding.rvMessages.paddingBottom
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            val sysBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+            val inputBottom = if (imeBottom > 0) imeBottom else sysBottom
+
+            binding.messageInputLayout.updatePadding(bottom = baseInputPadding + inputBottom)
+            binding.rvMessages.updatePadding(bottom = baseListPadding + sysBottom)
+
+            insets
+        }
+        binding.root.setOnClickListener {
+            hideKeyboardAndEmoji()
+        }
+        binding.rvMessages.setOnTouchListener { _, _ ->
+            hideKeyboardAndEmoji()
+            false
+        }
         arguments?.let {
             matchId = it.getString("matchId", "")
             matchedUserName = it.getString("matchedUserName")
@@ -214,6 +239,25 @@ class ChatDetailFragment : BaseFragment() {
                 adapter.setMessages(msgs)
                 if (msgs.isNotEmpty()) binding.rvMessages.scrollToPosition(msgs.size - 1)
                 chatSharedViewModel.updateMessages(matchId, msgs)
+
+                val latest = msgs.maxByOrNull { it.timestamp ?: "" }
+                latest?.let { msg ->
+                    val preview = when {
+                        msg.message.isNotBlank() -> msg.message
+                        !msg.imgChat.isNullOrBlank() -> "[image]"
+                        !msg.audioPath.isNullOrBlank() -> "[audio]"
+                        else -> ""
+                    }
+                    val ts = msg.timestamp ?: ""
+                    chatListViewModel.updateLastMessage(
+                        matchId,
+                        LastMessageEntity(
+                            message = preview,
+                            senderId = msg.senderId,
+                            timestamp = ts,
+                        ),
+                    )
+                }
             }
         }
 
@@ -606,5 +650,12 @@ class ChatDetailFragment : BaseFragment() {
 
         val lottieView = binding.aiTypingIndicator.findViewById<LottieAnimationView>(R.id.lottieTypingIndicator)
         lottieView?.pauseAnimation()
+    }
+
+    private fun hideKeyboardAndEmoji() {
+        binding.emojiContainer.visibility = View.GONE
+        binding.edtMessage.clearFocus()
+        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(binding.edtMessage.windowToken, 0)
     }
 }

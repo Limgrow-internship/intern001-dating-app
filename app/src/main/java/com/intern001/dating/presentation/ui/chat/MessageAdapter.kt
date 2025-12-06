@@ -118,7 +118,6 @@ class MessageAdapter(
         }
     }
 
-    // Shared logic for both audio left/right
     private fun bindAudioViewHolder(holder: AudioViewHolder, msg: MessageModel, position: Int) {
         holder.tvAudioDuration.text = formatDuration(msg.duration?.toInt() ?: 0)
         holder.btnTogglePlay.setImageResource(R.drawable.ic_audio_play)
@@ -132,7 +131,6 @@ class MessageAdapter(
         }
     }
 
-    // ViewHolders
     inner class LeftMessageVH(view: View) : RecyclerView.ViewHolder(view) {
         val tvContent: TextView = view.findViewById(R.id.tvContent)
         val imgChat: ImageView = view.findViewById(R.id.imgChat)
@@ -149,7 +147,6 @@ class MessageAdapter(
     class AudioRightViewHolder(itemView: View) : AudioViewHolder(itemView)
     class AudioLeftViewHolder(itemView: View) : AudioViewHolder(itemView)
 
-    // Audio control
     private fun playAudio(audioPath: String?, holder: AudioViewHolder, pos: Int) {
         mediaPlayer?.stop()
         mediaPlayer?.release()
@@ -170,7 +167,7 @@ class MessageAdapter(
                 prepare()
                 start()
                 isAdapterAudioPlaying = true
-                holder.btnTogglePlay.setImageResource(R.drawable.ic_stop) // pause icon
+                holder.btnTogglePlay.setImageResource(R.drawable.ic_stop)
                 setOnCompletionListener {
                     isAdapterAudioPlaying = false
                     holder.btnTogglePlay.setImageResource(R.drawable.ic_audio_play)

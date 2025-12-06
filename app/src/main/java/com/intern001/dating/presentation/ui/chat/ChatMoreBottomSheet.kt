@@ -30,7 +30,6 @@ class ChatMoreBottomSheet(
                 onUnmatch()
             }
         } else {
-            // Hide unmatch option if null (e.g., for AI conversation)
             tvUnmatch.visibility = View.GONE
         }
         view.findViewById<TextView>(R.id.tvReport).setOnClickListener {

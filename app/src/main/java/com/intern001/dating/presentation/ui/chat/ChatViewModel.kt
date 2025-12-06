@@ -24,6 +24,9 @@ class ChatViewModel @Inject constructor(
     private val tokenManager: TokenManager,
     private val localRepo: ChatLocalRepository,
 ) : ViewModel() {
+    private var lastSentContentKey: String? = null
+    private var lastSentAtMs: Long = 0L
+
     private val _messages = MutableStateFlow<List<MessageModel>>(emptyList())
     val messages: StateFlow<List<MessageModel>> = _messages
 
@@ -56,13 +59,11 @@ class ChatViewModel @Inject constructor(
                 val allMsgs = repo.getHistory(matchId)
                 val deliveredMsgs = allMsgs.filter { it.delivered == true }
 
-                val currentMsgs = _messages.value
-                val mergedMsgs = mergeMessages(currentMsgs, deliveredMsgs)
-                _messages.value = mergedMsgs
+                _messages.value = deliveredMsgs.sortedBy { it.timestamp ?: "" }
 
                 try {
-                    localRepo.saveMessages(mergedMsgs)
-                    android.util.Log.d("ChatViewModel", "Saved ${mergedMsgs.size} messages to local DB")
+                    localRepo.saveMessages(deliveredMsgs)
+                    android.util.Log.d("ChatViewModel", "Saved ${deliveredMsgs.size} messages to local DB")
                 } catch (e: Exception) {
                     android.util.Log.e("ChatViewModel", "Failed to save messages to local DB", e)
                 }
@@ -88,27 +89,48 @@ class ChatViewModel @Inject constructor(
         android.util.Log.d("ChatViewModel", "Updated messages from cache: ${mergedMsgs.size} messages")
     }
 
-    private fun mergeMessages(current: List<MessageModel>, new: List<MessageModel>): List<MessageModel> {
-        val merged = mutableListOf<MessageModel>()
-        val seen = mutableSetOf<String>()
+    private fun messageKey(msg: MessageModel): String {
+        return "${msg.senderId}_${msg.message}_${msg.matchId}_${msg.imgChat}_${msg.audioPath}_${msg.timestamp ?: ""}"
+    }
 
-        new.forEach { msg ->
-            val key = "${msg.senderId}_${msg.message}_${msg.matchId}_${msg.imgChat}_${msg.audioPath}"
-            if (!seen.contains(key)) {
-                merged.add(msg)
-                seen.add(key)
+    private fun contentKey(msg: MessageModel): String {
+        return "${msg.senderId}_${msg.message}_${msg.matchId}_${msg.imgChat}_${msg.audioPath}"
+    }
+
+    private fun mergeMessages(current: List<MessageModel>, new: List<MessageModel>): List<MessageModel> {
+        val merged = LinkedHashMap<String, MessageModel>()
+
+        fun prefer(existing: MessageModel, incoming: MessageModel): MessageModel {
+            val incomingHasTimestamp = !incoming.timestamp.isNullOrBlank()
+            val existingHasTimestamp = !existing.timestamp.isNullOrBlank()
+            val incomingDelivered = incoming.delivered == true
+            val existingDelivered = existing.delivered == true
+
+            return when {
+                existingDelivered && !incomingDelivered -> existing
+                incomingDelivered && !existingDelivered -> incoming
+                incomingHasTimestamp && !existingHasTimestamp -> incoming
+                existingHasTimestamp && !incomingHasTimestamp -> existing
+                else -> {
+                    val incTs = incoming.timestamp ?: ""
+                    val exTs = existing.timestamp ?: ""
+                    if (incTs > exTs) incoming else existing
+                }
             }
         }
 
         current.forEach { msg ->
-            val key = "${msg.senderId}_${msg.message}_${msg.matchId}_${msg.imgChat}_${msg.audioPath}"
-            if (!seen.contains(key)) {
-                merged.add(msg)
-                seen.add(key)
-            }
+            val key = contentKey(msg)
+            merged[key] = msg
         }
 
-        return merged.sortedBy { it.timestamp ?: "" }
+        new.forEach { msg ->
+            val key = contentKey(msg)
+            val existing = merged[key]
+            merged[key] = if (existing == null) msg else prefer(existing, msg)
+        }
+
+        return merged.values.sortedBy { it.timestamp ?: "" }
     }
 
     fun sendMessage(message: MessageModel) {
@@ -202,22 +224,20 @@ class ChatViewModel @Inject constructor(
 
     fun addMessage(message: MessageModel) {
         val currentMessages = _messages.value
-        val key = "${message.senderId}_${message.message}_${message.matchId}_${message.imgChat}_${message.audioPath}"
-        val exists = currentMessages.any {
-            "${it.senderId}_${it.message}_${it.matchId}_${it.imgChat}_${it.audioPath}" == key
+        val key = messageKey(message)
+        val exists = currentMessages.any { messageKey(it) == key }
+        if (exists) {
+            android.util.Log.d("ChatViewModel", "Message already exists, skipping: ${message.message.take(50)}...")
+            return
         }
 
-        if (!exists) {
-            val updatedMessages = currentMessages + message
-            _messages.value = updatedMessages.sortedBy { it.timestamp ?: "" }
+        val updatedMessages = currentMessages + message
+        _messages.value = updatedMessages.sortedBy { it.timestamp ?: "" }
 
-            android.util.Log.d("ChatViewModel", "Added message: ${message.message.take(50)}... Total: ${_messages.value.size}")
+        android.util.Log.d("ChatViewModel", "Added message: ${message.message.take(50)}... Total: ${_messages.value.size}")
 
-            if (isAIConversation && com.intern001.dating.presentation.ui.chat.AIConstants.isMessageFromAI(message.senderId)) {
-                hideAITypingIndicator()
-            }
-        } else {
-            android.util.Log.d("ChatViewModel", "Message already exists, skipping: ${message.message.take(50)}...")
+        if (isAIConversation && com.intern001.dating.presentation.ui.chat.AIConstants.isMessageFromAI(message.senderId)) {
+            hideAITypingIndicator()
         }
     }
 
@@ -262,6 +282,18 @@ class ChatViewModel @Inject constructor(
 
             service.onReceiveMessage { message ->
                 android.util.Log.d("ChatViewModel", "Received new message: senderId=${message.senderId}, isFromAI=${AIConstants.isMessageFromAI(message.senderId)}")
+                val isOwnMessage = message.senderId == currentUserId
+                val incomingKey = contentKey(message)
+                val exists = _messages.value.any { contentKey(it) == incomingKey }
+                val withinRecentSend =
+                    isOwnMessage &&
+                        lastSentContentKey == incomingKey &&
+                        (System.currentTimeMillis() - lastSentAtMs) <= 2000
+
+                if (isOwnMessage && exists && withinRecentSend) {
+                    return@onReceiveMessage
+                }
+
                 addMessage(message)
             }
 
@@ -294,6 +326,9 @@ class ChatViewModel @Inject constructor(
         if (isAIConversation) {
             showAITypingIndicator()
         }
+
+        lastSentContentKey = "${currentUserId}_${text}_${currentMatchId}_null_null"
+        lastSentAtMs = System.currentTimeMillis()
 
         socketService?.sendMessage(
             matchId = currentMatchId,

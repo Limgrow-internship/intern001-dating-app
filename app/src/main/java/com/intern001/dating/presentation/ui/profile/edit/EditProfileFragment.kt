@@ -548,15 +548,12 @@ class EditProfileFragment : BaseFragment() {
 
     private fun setupBioGeneration() {
         binding.includeAbout.ivMagicPen.setOnClickListener {
-            // Check xem đã có bio chưa
             val currentBio = binding.includeAbout.etIntroduce.text.toString().trim()
             val hasBio = currentBio.isNotEmpty() || currentProfile?.bio?.isNotEmpty() == true
 
             if (hasBio) {
-                // Đã có bio → Show confirmation dialog để enhance
                 showEnhanceBioConfirmationDialog()
             } else {
-                // Chưa có bio → Show dialog nhập prompt để generate
                 showGenerateBioDialog()
             }
         }
@@ -590,16 +587,13 @@ class EditProfileFragment : BaseFragment() {
                 return@setOnClickListener
             }
 
-            // Show loading
             etPrompt.isEnabled = false
             btnGenerate.isEnabled = false
             btnCancel.isEnabled = false
             loadingLayout.visibility = View.VISIBLE
 
-            // Start animated loading text
             startLoadingTextAnimation(tvLoadingText)
 
-            // Generate bio
             viewModel.generateBio(prompt)
         }
 
@@ -657,13 +651,11 @@ class EditProfileFragment : BaseFragment() {
         val tvLoadingText = dialogView.findViewById<TextView>(R.id.tvLoadingText)
         val etPrompt = dialogView.findViewById<EditText>(R.id.etPrompt)
 
-        // Hide prompt input, chỉ show loading
         etPrompt.visibility = View.GONE
         loadingLayout.visibility = View.VISIBLE
 
         generateBioDialog = dialog
 
-        // Start animated loading text với messages khác cho enhance
         startEnhanceLoadingTextAnimation(tvLoadingText)
 
         dialog.show()

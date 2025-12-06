@@ -27,7 +27,6 @@ class LikedYouAdapter(
             }
 
             if (imageUrl == null) {
-                // Không có URL → load default
                 Glide.with(imgAvatar.context)
                     .load(R.drawable.bg_avatar_round)
                     .centerCrop()
