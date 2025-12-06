@@ -51,10 +51,6 @@ object AIConstants {
         return senderId == AI_ASSISTANT_USER_ID
     }
 
-    /**
-     * Kiểm tra xem userId có phải AI user không
-     * Alias cho isAIConversation để phù hợp với hướng dẫn
-     */
     fun isAIUser(userId: String?): Boolean {
         return userId == AI_ASSISTANT_USER_ID
     }

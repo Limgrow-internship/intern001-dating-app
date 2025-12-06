@@ -483,13 +483,9 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    /**
-     * Preload chat list data (matches và conversations) khi app khởi động
-     */
     private fun preloadChatListData() {
         activityScope.launch(Dispatchers.IO) {
             try {
-                // Đợi một chút để đảm bảo token đã sẵn sàng
                 delay(500)
 
                 val token = tokenManager.getAccessTokenAsync()
