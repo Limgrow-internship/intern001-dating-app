@@ -6,5 +6,5 @@ import javax.inject.Inject
 class VerifyProfileUseCase @Inject constructor(
     private val userRepository: UserRepository,
 ) {
-    suspend fun execute(imageBytes: ByteArray) = userRepository.verifyFace(imageBytes)
+    suspend fun execute(imageBytes: ByteArray) = userRepository.uploadSelfie(imageBytes)
 }

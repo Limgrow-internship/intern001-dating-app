@@ -64,9 +64,9 @@ class VerifyCameraFragment : BaseFragment() {
             findNavController().navigate(R.id.verifyAccountFragment)
         }
 
-        verifyViewModel.verificationResult.observe(viewLifecycleOwner) { result ->
+        verifyViewModel.uploadResult.observe(viewLifecycleOwner) { result ->
             binding.progressBar.visibility = View.GONE
-            if (result != null && result.success) {
+            if (result?.isVerified == true) {
                 Toast.makeText(requireContext(), "Verification Successful", Toast.LENGTH_SHORT).show()
                 findNavController().navigate(R.id.action_verifyCameraFragment_to_verificationSuccessFragment)
             } else {
@@ -128,7 +128,7 @@ class VerifyCameraFragment : BaseFragment() {
                     android.util.Log.d("VerifyCamera", "Selfie bytes size: ${byteArray.size}")
 
                     android.util.Log.d("VerifyCamera", "Selfie path: ${file.absolutePath}")
-                    verifyViewModel.verifyFace(byteArray)
+                    verifyViewModel.uploadSelfie(byteArray)
                 }
 
                 override fun onError(exc: ImageCaptureException) {
