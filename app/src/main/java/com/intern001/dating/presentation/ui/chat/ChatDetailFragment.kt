@@ -22,6 +22,7 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -347,7 +348,9 @@ class ChatDetailFragment : BaseFragment() {
                     } else {
                         null
                     },
-                    onReport = { },
+                    onReport = {
+                        findNavController().navigate(R.id.action_chatDetail_to_reportFragment)
+                    },
                     onDeleteConversation = { showDeleteConversationDialog() },
                     onBlock = { showBlockUserDialog() },
                     onUnblock = { showUnblockUserDialog() },
