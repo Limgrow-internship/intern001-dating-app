@@ -87,7 +87,6 @@ class DiscoverFragment : BaseFragment() {
                         val b = _binding ?: return@collect
                         when (state) {
                             is UiState.Loading -> {
-                                // Chỉ hiển thị loading nếu chưa có dữ liệu nào để show.
                                 val shouldShowLoading = viewModel.matchCards.value.isEmpty()
                                 b.progressBar.isVisible = shouldShowLoading
                                 if (shouldShowLoading) {
