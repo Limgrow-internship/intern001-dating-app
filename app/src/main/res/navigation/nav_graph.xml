@@ -245,6 +245,11 @@
     </fragment>
 
     <fragment
+        android:id="@+id/notificationSettingFragment"
+        android:name="com.intern001.dating.presentation.ui.notification.NotificationSettingFragment"
+        android:label="NotificationSettingFragment" />
+
+    <fragment
         android:id="@+id/profileFragment"
         android:name="com.intern001.dating.presentation.ui.profile.ProfileFragment"
         android:label="ProfileFragment">
@@ -268,6 +273,13 @@
             app:destination="@id/verifyAccountFragment"
             app:popUpTo="@id/profileFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_profile_to_notificationSetting"
+            app:destination="@id/notificationSettingFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment

@@ -4,10 +4,13 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="16dp"
-    android:background="?attr/colorSurface"
+    android:background="@drawable/bg_notification_item"
+    android:foreground="?attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
-    android:backgroundTint="?attr/colorSurface">
+    android:layout_marginStart="24dp"
+    android:layout_marginEnd="24dp"
+    android:layout_marginTop="10dp">
 
     <!-- Icon Container -->
     <FrameLayout
