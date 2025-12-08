@@ -1,125 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:background="#FFF4BC"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#FFF4BC">
 
-    <LinearLayout
-        android:id="@+id/imgContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="60dp"
-        android:gravity="center"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/onboardScroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        app:layout_constraintBottom_toTopOf="@id/btnContinue"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/tvTitle">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/imgOnboard"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="372dp"
-            android:layout_gravity="center"
-            android:src="@drawable/onboard3" />
-    </LinearLayout>
+            android:layout_height="wrap_content"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:paddingTop="@dimen/onboard_vertical_padding"
+            android:paddingBottom="@dimen/onboard_vertical_padding">
 
+            <FrameLayout
+                android:id="@+id/imgContainer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/onboard_image_margin_top"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="245dp"
-        android:layout_height="78dp"
-        android:layout_marginStart="35dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="140dp"
-        android:text="@string/find_your_vibe_not_just_a_match"
-        android:textColor="@android:color/black"
-        android:textSize="32sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/imgContainer" />
+                <ImageView
+                    android:id="@+id/imgOnboard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@null"
+                    android:maxHeight="@dimen/onboard_image_max_height"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/onboard3" />
+            </FrameLayout>
 
-    <TextView
-        android:id="@+id/tvDesc"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:text="@string/we_help_you_meet_people_who_feel_right_not_just_look_right"
-        android:textSize="18sp"
-        android:textColor="@android:color/black"
-        android:layout_marginTop="15dp"
-        android:layout_marginStart="35dp"
-        android:layout_marginEnd="32dp"/>
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/onboard_spacing_large"
+                android:layout_marginStart="@dimen/onboard_horizontal_padding"
+                android:layout_marginEnd="@dimen/onboard_horizontal_padding"
+                android:gravity="start"
+                android:text="@string/find_your_vibe_not_just_a_match"
+                android:textAlignment="viewStart"
+                android:textColor="@android:color/black"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/imgContainer" />
 
-    <LinearLayout
-        android:id="@+id/layoutIndicator"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@id/tvDesc"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp">
+            <TextView
+                android:id="@+id/tvDesc"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/onboard_spacing_small"
+                android:layout_marginStart="@dimen/onboard_horizontal_padding"
+                android:layout_marginEnd="@dimen/onboard_horizontal_padding"
+                android:gravity="start"
+                android:text="@string/we_help_you_meet_people_who_feel_right_not_just_look_right"
+                android:textAlignment="viewStart"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
-        <View android:layout_width="12dp" android:layout_height="12dp" android:background="@drawable/indicator_inactive" />
-        <View android:layout_width="12dp" android:layout_height="12dp" android:background="@drawable/indicator_inactive" android:layout_marginStart="6dp"/>
-        <View android:layout_width="48dp" android:layout_height="12dp" android:background="@drawable/indicator_active" android:layout_marginStart="6dp"/>
-    </LinearLayout>
+            <LinearLayout
+                android:id="@+id/layoutIndicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/onboard_indicator_spacing"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/onboard_horizontal_padding"
+                android:paddingEnd="@dimen/onboard_horizontal_padding"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvDesc">
 
+                <View
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:background="@drawable/indicator_inactive" />
 
-    <FrameLayout
-        android:id="@+id/grayBox"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="#E0E0E0"
-        app:layout_constraintTop_toBottomOf="@id/layoutIndicator"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/btnContinue"/>
+                <View
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/indicator_inactive" />
 
+                <View
+                    android:layout_width="48dp"
+                    android:layout_height="12dp"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/indicator_active" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/grayBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/onboard_spacing_large"
+                android:background="#F7F7F7"
+                android:minHeight="@dimen/onboard_ad_min_height"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layoutIndicator" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <LinearLayout
         android:id="@+id/btnContinue"
         android:layout_width="0dp"
-        android:layout_height="54dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="30dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginBottom="40dp"
-
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/onboard_button_horizontal_margin"
+        android:layout_marginEnd="@dimen/onboard_button_horizontal_margin"
+        android:layout_marginBottom="@dimen/onboard_button_bottom_margin"
         android:background="@drawable/bg_button_black"
-        android:gravity="center"
-        android:orientation="horizontal"
         android:clickable="true"
-        android:focusable="true">
+        android:focusable="true"
+        android:gravity="center"
+        android:minHeight="@dimen/onboard_button_min_height"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <TextView
             android:id="@+id/tvBtnText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:text="@string/btn_continue"
             android:textColor="@android:color/white"
             android:textSize="18sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            />
+            android:textStyle="bold" />
 
         <ImageView
             android:id="@+id/imgArrow"
             android:layout_width="9dp"
             android:layout_height="16dp"
-            android:src="@drawable/ic_arrow"
             android:layout_marginStart="10dp"
-            />
+            android:src="@drawable/ic_arrow" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

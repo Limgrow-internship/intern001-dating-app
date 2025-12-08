@@ -31,6 +31,6 @@ class PrefetchHomeDataUseCase @Inject constructor(
     }
 
     companion object {
-        private const val DEFAULT_MATCH_LIMIT = 10
+        private const val DEFAULT_MATCH_LIMIT = 20
     }
 }
