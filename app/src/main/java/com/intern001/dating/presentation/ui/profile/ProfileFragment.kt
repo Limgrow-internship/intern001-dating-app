@@ -73,6 +73,10 @@ class ProfileFragment : BaseFragment() {
             findNavController().navigate(R.id.action_profile_to_verifyAccount)
         }
 
+        binding.btnNotificationSetting.setOnClickListener {
+            findNavController().navigate(R.id.action_profile_to_notificationSetting)
+        }
+
         binding.btnContinuePremium.setOnClickListener {
             navigateToPremium()
         }
