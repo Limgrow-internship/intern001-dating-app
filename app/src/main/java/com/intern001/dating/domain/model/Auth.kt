@@ -154,6 +154,13 @@ data class TargetProfile(
     val height: Int?,
 )
 
+data class Report(
+    val userIdReport: String,
+    val userIdIsReported: String,
+    val reason: String,
+    val createdAt: Date,
+)
+
 // Type alias for backward compatibility
 // UpdateProfile is the same as UserProfile
 typealias UpdateProfile = UserProfile

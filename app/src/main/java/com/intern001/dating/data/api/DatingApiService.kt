@@ -12,6 +12,7 @@ import com.intern001.dating.data.model.request.LoginRequest
 import com.intern001.dating.data.model.request.MatchActionRequest
 import com.intern001.dating.data.model.request.RecommendationCriteriaRequest
 import com.intern001.dating.data.model.request.ReorderPhotosRequest
+import com.intern001.dating.data.model.request.ReportRequest
 import com.intern001.dating.data.model.request.RequestOtpRequest
 import com.intern001.dating.data.model.request.SignupRequest
 import com.intern001.dating.data.model.request.UnmatchRequest
@@ -39,6 +40,7 @@ import com.intern001.dating.data.model.response.PhotoListResponse
 import com.intern001.dating.data.model.response.PhotoResponse
 import com.intern001.dating.data.model.response.RecommendationCriteriaResponse
 import com.intern001.dating.data.model.response.RefreshTokenRequest
+import com.intern001.dating.data.model.response.ReportResponse
 import com.intern001.dating.data.model.response.UploadAudioResponse
 import com.intern001.dating.data.model.response.UploadImageResponse
 import com.intern001.dating.data.model.response.UserData
@@ -75,6 +77,9 @@ interface DatingApiService {
 
     @GET("api/profile")
     suspend fun getCurrentUserProfile(): Response<UserData>
+
+    @POST("api/report/create")
+    suspend fun createReport(@Body body: ReportRequest): ReportResponse
 
     @GET("api/profile/{userId}")
     suspend fun getProfileByUserId(@Path("userId") userId: String): Response<MatchCardResponse>

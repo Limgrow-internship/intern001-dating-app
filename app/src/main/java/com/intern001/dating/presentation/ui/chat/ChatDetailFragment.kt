@@ -349,7 +349,16 @@ class ChatDetailFragment : BaseFragment() {
                         null
                     },
                     onReport = {
-                        findNavController().navigate(R.id.action_chatDetail_to_reportFragment)
+                        if (isAIConversation) {
+                            Toast.makeText(context, "Không thể báo cáo AI", Toast.LENGTH_SHORT).show()
+                            return@ChatMoreBottomSheet
+                        }
+                        findNavController().navigate(
+                            R.id.action_chatDetail_to_reportFragment,
+                            Bundle().apply {
+                                putString("targetUserId", targetUserId)
+                            },
+                        )
                     },
                     onDeleteConversation = { showDeleteConversationDialog() },
                     onBlock = { showBlockUserDialog() },

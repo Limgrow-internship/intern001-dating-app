@@ -393,5 +393,10 @@
         android:id="@+id/reportFragment"
         android:name="com.intern001.dating.presentation.ui.chat.report.ReportFragment"
         android:label="ReportFragment">
+
+        <argument
+            android:name="matchedUserId"
+            app:argType="string"
+            android:defaultValue="" />
     </fragment>
 </navigation>
