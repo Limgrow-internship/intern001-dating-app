@@ -17,7 +17,9 @@ import com.intern001.dating.presentation.common.ads.NativeAdHelper
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 @AndroidEntryPoint
 class NativeFullFragment : BaseFragment() {
@@ -30,6 +32,7 @@ class NativeFullFragment : BaseFragment() {
 
     private val autoCloseHandler = Handler(Looper.getMainLooper())
     private var autoCloseRunnable: Runnable? = null
+    private var prefetchJob: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,8 +44,18 @@ class NativeFullFragment : BaseFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        // Warm up home data before navigating away.
+        prefetchJob =
+            lifecycleScope.launch {
+                withTimeoutOrNull(PREFETCH_TIMEOUT_MS) {
+                    viewModel.prefetchHomeData()
+                }
+            }
+
         val navigateToNextScreen: () -> Unit = {
             lifecycleScope.launch {
+                // Give prefetch a short window to finish before navigating.
+                withTimeoutOrNull(PREFETCH_JOIN_TIMEOUT_MS) { prefetchJob?.join() }
                 val isLoggedIn = authRepository.isLoggedIn()
 
                 if (!isLoggedIn) {
@@ -73,6 +86,12 @@ class NativeFullFragment : BaseFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         autoCloseRunnable?.let { autoCloseHandler.removeCallbacks(it) }
+        prefetchJob?.cancel()
         _binding = null
+    }
+
+    companion object {
+        private const val PREFETCH_TIMEOUT_MS = 5_000L
+        private const val PREFETCH_JOIN_TIMEOUT_MS = 1_500L
     }
 }

@@ -4,26 +4,29 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.intern001.dating.domain.model.VerificationResult
-import com.intern001.dating.domain.usecase.profile.VerifyProfileUseCase
+import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.model.response.PhotoResponse
+import com.intern001.dating.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class VerifyViewModel @Inject constructor(
-    private val verifyProfileUseCase: VerifyProfileUseCase,
+    private val userRepository: UserRepository,
+    private val tokenManager: TokenManager,
 ) : ViewModel() {
-    private val _verificationResult = MutableLiveData<VerificationResult>()
-    val verificationResult: LiveData<VerificationResult> = _verificationResult
+    private val _uploadResult = MutableLiveData<PhotoResponse?>()
+    val uploadResult: LiveData<PhotoResponse?> get() = _uploadResult
 
-    fun verifyFace(imageBytes: ByteArray) {
+    fun uploadSelfie(imageBytes: ByteArray) {
+        val token = tokenManager.getAccessToken() ?: return
         viewModelScope.launch {
-            val result = verifyProfileUseCase.execute(imageBytes)
+            val result = userRepository.uploadSelfie(imageBytes)
             if (result.isSuccess) {
-                _verificationResult.postValue(result.getOrNull())
+                _uploadResult.postValue(result.getOrNull())
             } else {
-                _verificationResult.postValue(VerificationResult(false, result.exceptionOrNull()?.message))
+                _uploadResult.postValue(null)
             }
         }
     }

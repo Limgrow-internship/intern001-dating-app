@@ -5,6 +5,9 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.room.Room
+import com.intern001.dating.data.local.ChatDatabase
+import com.intern001.dating.data.local.ChatLocalRepository
 import com.intern001.dating.data.repository.ChatRepositoryImpl
 import com.intern001.dating.domain.repository.ChatRepository
 import dagger.Binds
@@ -35,6 +38,24 @@ object AppModule {
     @Provides
     fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
         return context.userPreferencesDataStore
+    }
+
+    @Singleton
+    @Provides
+    fun provideChatDatabase(@ApplicationContext context: Context): ChatDatabase {
+        return Room.databaseBuilder(
+            context,
+            ChatDatabase::class.java,
+            ChatDatabase.DATABASE_NAME,
+        )
+            .fallbackToDestructiveMigration()
+            .build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideChatLocalRepository(database: ChatDatabase): ChatLocalRepository {
+        return ChatLocalRepository(database.messageDao())
     }
 }
 

@@ -13,7 +13,11 @@ import com.bumptech.glide.Glide
 import com.intern001.dating.R
 import com.intern001.dating.data.model.MessageModel
 
-class MessageAdapter(private val myUserId: String) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class MessageAdapter(
+    private val myUserId: String,
+    private val blockerId: String? = null,
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
     private var messages = listOf<MessageModel>()
 
     companion object {
@@ -28,10 +32,17 @@ class MessageAdapter(private val myUserId: String) : RecyclerView.Adapter<Recycl
     private var currentMsgPos: Int = -1
 
     fun setMessages(list: List<MessageModel>) {
-        messages = list.filter {
-            it.message?.isNotBlank() == true ||
-                !it.imgChat.isNullOrBlank() ||
-                !it.audioPath.isNullOrBlank()
+        messages = list.filter { msg ->
+            val hasContent = msg.message?.isNotBlank() == true ||
+                !msg.imgChat.isNullOrBlank() ||
+                !msg.audioPath.isNullOrBlank()
+            if (!hasContent) return@filter false
+
+            if (blockerId != null && myUserId == blockerId) {
+                msg.delivered != false || msg.senderId == myUserId
+            } else {
+                true
+            }
         }
         notifyDataSetChanged()
     }
@@ -107,7 +118,6 @@ class MessageAdapter(private val myUserId: String) : RecyclerView.Adapter<Recycl
         }
     }
 
-    // Shared logic for both audio left/right
     private fun bindAudioViewHolder(holder: AudioViewHolder, msg: MessageModel, position: Int) {
         holder.tvAudioDuration.text = formatDuration(msg.duration?.toInt() ?: 0)
         holder.btnTogglePlay.setImageResource(R.drawable.ic_audio_play)
@@ -121,7 +131,6 @@ class MessageAdapter(private val myUserId: String) : RecyclerView.Adapter<Recycl
         }
     }
 
-    // -- ViewHolders --
     inner class LeftMessageVH(view: View) : RecyclerView.ViewHolder(view) {
         val tvContent: TextView = view.findViewById(R.id.tvContent)
         val imgChat: ImageView = view.findViewById(R.id.imgChat)
@@ -138,7 +147,6 @@ class MessageAdapter(private val myUserId: String) : RecyclerView.Adapter<Recycl
     class AudioRightViewHolder(itemView: View) : AudioViewHolder(itemView)
     class AudioLeftViewHolder(itemView: View) : AudioViewHolder(itemView)
 
-    // -- Audio control --
     private fun playAudio(audioPath: String?, holder: AudioViewHolder, pos: Int) {
         mediaPlayer?.stop()
         mediaPlayer?.release()
@@ -159,7 +167,7 @@ class MessageAdapter(private val myUserId: String) : RecyclerView.Adapter<Recycl
                 prepare()
                 start()
                 isAdapterAudioPlaying = true
-                holder.btnTogglePlay.setImageResource(R.drawable.ic_stop) // pause icon
+                holder.btnTogglePlay.setImageResource(R.drawable.ic_stop)
                 setOnCompletionListener {
                     isAdapterAudioPlaying = false
                     holder.btnTogglePlay.setImageResource(R.drawable.ic_audio_play)

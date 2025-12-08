@@ -459,8 +459,6 @@ constructor(
                     android.util.Log.d("AuthRepository", "Bio generated: ${bioResponse.generatedBio}")
                     android.util.Log.d("AuthRepository", "Provider: ${bioResponse.provider}")
 
-                    // API chỉ generate bio, chưa save vào profile
-                    // Cần update profile với bio mới
                     val updateRequest = UpdateProfileRequest(bio = bioResponse.generatedBio)
                     val updateResult = updateUserProfile(updateRequest)
 
@@ -489,7 +487,6 @@ constructor(
                 return Result.failure(Exception("User not logged in"))
             }
 
-            // Gọi API enhance-bio (không cần body, backend tự lấy bio hiện tại)
             val response = apiService.enhanceBio()
 
             if (response.isSuccessful) {
@@ -498,8 +495,6 @@ constructor(
                     android.util.Log.d("AuthRepository", "Bio enhanced: ${bioResponse.generatedBio}")
                     android.util.Log.d("AuthRepository", "Provider: ${bioResponse.provider}")
 
-                    // API chỉ enhance bio, chưa save vào profile
-                    // Cần update profile với bio mới
                     val updateRequest = UpdateProfileRequest(bio = bioResponse.generatedBio)
                     val updateResult = updateUserProfile(updateRequest)
 
@@ -728,7 +723,7 @@ constructor(
             profileCompleteness = 0,
             profileViews = 0,
             goals = this.goals ?: emptyList(), // goals is now List<String>, not nullable
-            openQuestionAnswers = null,
+            openQuestionAnswers = this.openQuestionAnswers ?: emptyMap(),
             createdAt = currentDate,
             updatedAt = currentDate,
         )

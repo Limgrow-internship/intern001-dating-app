@@ -16,6 +16,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -24,29 +28,29 @@ import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.LottieCompositionFactory
 import com.bumptech.glide.Glide
-import com.intern001.dating.BuildConfig
 import com.intern001.dating.R
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.data.model.MessageModel
 import com.intern001.dating.databinding.FragmentChatScreenBinding
+import com.intern001.dating.domain.entity.LastMessageEntity
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
+import com.intern001.dating.presentation.common.viewmodel.ChatListViewModel
 import com.intern001.dating.presentation.ui.chat.AIConstants
 import com.intern001.dating.presentation.ui.chat.MessageAdapter
 import dagger.hilt.android.AndroidEntryPoint
-import io.socket.client.IO
-import io.socket.client.Socket
-import io.socket.emitter.Emitter
 import java.io.File
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import org.json.JSONObject
 
 @AndroidEntryPoint
 class ChatDetailFragment : BaseFragment() {
     private val viewModel: ChatViewModel by viewModels()
+    private val chatSharedViewModel: ChatSharedViewModel by activityViewModels()
+    private val chatListViewModel: ChatListViewModel by activityViewModels()
     private var matchId: String = ""
     private var matchedUserName: String? = null
     private lateinit var adapter: MessageAdapter
@@ -66,17 +70,12 @@ class ChatDetailFragment : BaseFragment() {
         "😠", "🤬", "😷", "🤒", "🤕", "🤢", "🤮", "🤧", "😇", "🥳", "🥰", "🤠", "🤡", "🥺",
     )
 
-    private var mSocket: Socket? = null
-    private var isSocketConnected = false
-
     private var recorder: MediaRecorder? = null
     private var audioFilePath: String = ""
     private var isRecording = false
     private var recordStartTime: Long = 0
 
     private var isAIConversation = false
-    private var aiTypingTimeout: android.os.Handler? = null
-    private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
 
     private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { handlePickedImage(it) }
@@ -107,12 +106,6 @@ class ChatDetailFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        aiTypingTimeout?.removeCallbacksAndMessages(null)
-        aiTypingTimeout = null
-
-        mSocket?.disconnect()
-        mSocket?.off()
-        mSocket = null
         _binding = null
         recorder?.release()
         recorder = null
@@ -122,17 +115,51 @@ class ChatDetailFragment : BaseFragment() {
         requireActivity().window.setSoftInputMode(
             android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE,
         )
+        val baseInputPadding = binding.messageInputLayout.paddingBottom
+        val baseListPadding = binding.rvMessages.paddingBottom
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            val sysBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+            val inputBottom = if (imeBottom > 0) imeBottom else sysBottom
+
+            binding.messageInputLayout.updatePadding(bottom = baseInputPadding + inputBottom)
+            binding.rvMessages.updatePadding(bottom = baseListPadding + sysBottom)
+
+            insets
+        }
+        binding.root.setOnClickListener {
+            hideKeyboardAndEmoji()
+        }
+        binding.rvMessages.setOnTouchListener { _, _ ->
+            hideKeyboardAndEmoji()
+            false
+        }
         arguments?.let {
             matchId = it.getString("matchId", "")
             matchedUserName = it.getString("matchedUserName")
             targetUserId = it.getString("targetUserId", "")
         }
 
-        isAIConversation = AIConstants.isAIConversation(targetUserId)
+        isAIConversation = AIConstants.isAIUser(targetUserId)
+
+        if (isAIConversation && matchedUserName.isNullOrBlank()) {
+            matchedUserName = AIConstants.AI_FAKE_NAME
+        }
 
         setupTypingIndicatorAnimation()
 
-        initSocketAndJoinRoom(matchId)
+        lifecycleScope.launch {
+            val myUserId = getMyUserIdAsync()
+            viewModel.currentUserId = myUserId
+            viewModel.currentMatchId = matchId
+            viewModel.isAIConversation = isAIConversation
+
+            viewModel.initializeSocket()
+            kotlinx.coroutines.delay(500)
+            viewModel.joinChatRoom(matchId, myUserId, isAIConversation)
+
+            android.util.Log.d("ChatDetailFragment", "Initialized socket and joined room: matchId=$matchId, userId=$myUserId, isAI=$isAIConversation")
+        }
 
         if (!isAIConversation) {
             viewModel.fetchMatchStatus(targetUserId)
@@ -141,26 +168,111 @@ class ChatDetailFragment : BaseFragment() {
             binding.tvUnmatched.visibility = View.GONE
         }
         lifecycleScope.launch {
-            viewModel.matchStatus.collectLatest { status ->
-                if (status == "unmatched") {
-                    binding.messageInputLayout.visibility = View.GONE
-                    binding.tvUnmatched.visibility = View.VISIBLE
-                } else {
-                    binding.messageInputLayout.visibility = View.VISIBLE
-                    binding.tvUnmatched.visibility = View.GONE
+            combine(viewModel.matchStatus, viewModel.blockerId) { status, blockerId ->
+                Pair(status, blockerId)
+            }.collectLatest { (status, blockerId) ->
+                val myUserId = getMyUserIdAsync()
+                _binding?.let { binding ->
+                    if (status == "unmatched") {
+                        binding.messageInputLayout.visibility = View.GONE
+                        binding.tvUnmatched.visibility = View.VISIBLE
+                        binding.tvBlocked.visibility = View.GONE
+                        binding.btnMore.visibility = View.GONE
+                    } else if (status == "blocked") {
+                        if (blockerId == myUserId) {
+                            binding.messageInputLayout.visibility = View.GONE
+                            binding.tvBlocked.visibility = View.VISIBLE
+                        } else {
+                            binding.messageInputLayout.visibility = View.VISIBLE
+                            binding.tvBlocked.visibility = View.GONE
+                        }
+                    } else {
+                        binding.messageInputLayout.visibility = View.VISIBLE
+                        binding.tvUnmatched.visibility = View.GONE
+                        binding.tvBlocked.visibility = View.GONE
+                    }
                 }
             }
         }
-        viewModel.fetchHistory(matchId)
         lifecycleScope.launch {
             val myUserId = getMyUserIdAsync()
             adapter = MessageAdapter(myUserId)
             binding.rvMessages.layoutManager = LinearLayoutManager(requireContext())
             binding.rvMessages.adapter = adapter
 
+            val preloadedMessages = chatSharedViewModel.getCachedMessages(matchId)
+            val isPreloading = chatSharedViewModel.preloadingMatchIds.value.contains(matchId)
+
+            if (preloadedMessages.isNotEmpty()) {
+                android.util.Log.d("ChatDetailFragment", "Using preloaded messages from memory: ${preloadedMessages.size}")
+                viewModel.updateMessagesFromCache(preloadedMessages)
+            } else {
+                try {
+                    val localMessages = chatSharedViewModel.getCachedMessagesAsync(matchId)
+                    if (localMessages.isNotEmpty()) {
+                        android.util.Log.d("ChatDetailFragment", "Using messages from local DB: ${localMessages.size}")
+                        viewModel.updateMessagesFromCache(localMessages)
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("ChatDetailFragment", "Failed to load from local DB", e)
+                }
+
+                if (isPreloading) {
+                    android.util.Log.d("ChatDetailFragment", "Waiting for preload to complete...")
+                    kotlinx.coroutines.delay(200)
+
+                    val cachedAfterWait = chatSharedViewModel.getCachedMessages(matchId)
+                    if (cachedAfterWait.isNotEmpty()) {
+                        android.util.Log.d("ChatDetailFragment", "Using preloaded messages after wait: ${cachedAfterWait.size}")
+                        viewModel.updateMessagesFromCache(cachedAfterWait)
+                    } else {
+                        android.util.Log.d("ChatDetailFragment", "Preload taking too long, fetching directly...")
+                        viewModel.fetchHistory(matchId)
+                    }
+                } else {
+                    android.util.Log.d("ChatDetailFragment", "No cache, fetching from server...")
+                    viewModel.fetchHistory(matchId)
+                }
+            }
+
             viewModel.messages.collectLatest { msgs ->
                 adapter.setMessages(msgs)
                 if (msgs.isNotEmpty()) binding.rvMessages.scrollToPosition(msgs.size - 1)
+                chatSharedViewModel.updateMessages(matchId, msgs)
+
+                val latest = msgs.maxByOrNull { it.timestamp ?: "" }
+                latest?.let { msg ->
+                    val preview = when {
+                        msg.message.isNotBlank() -> msg.message
+                        !msg.imgChat.isNullOrBlank() -> "[image]"
+                        !msg.audioPath.isNullOrBlank() -> "[audio]"
+                        else -> ""
+                    }
+                    val ts = msg.timestamp ?: ""
+                    chatListViewModel.updateLastMessage(
+                        matchId,
+                        LastMessageEntity(
+                            message = preview,
+                            senderId = msg.senderId,
+                            timestamp = ts,
+                        ),
+                    )
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            chatSharedViewModel.messagesCache.collectLatest { cache ->
+                val cachedMessages = cache[matchId]
+                if (cachedMessages != null && cachedMessages.isNotEmpty()) {
+                    val currentMessages = viewModel.messages.value
+                    if (currentMessages.isEmpty() || currentMessages.size < cachedMessages.size) {
+                        if (::adapter.isInitialized) {
+                            android.util.Log.d("ChatDetailFragment", "Cache updated, updating messages: ${cachedMessages.size}")
+                            viewModel.updateMessagesFromCache(cachedMessages)
+                        }
+                    }
+                }
             }
         }
 
@@ -198,35 +310,49 @@ class ChatDetailFragment : BaseFragment() {
             if (content.isNotEmpty()) {
                 lifecycleScope.launch {
                     val confirmedUserId = getMyUserIdAsync()
-                    val msg = JSONObject().apply {
-                        put("matchId", matchId)
-                        put("senderId", confirmedUserId)
-                        put("message", content)
-                        put("imgChat", "")
-                        put("audioPath", "")
-                        put("duration", 0)
-                    }
-                    mSocket?.emit("send_message", msg)
-                    binding.edtMessage.setText("")
 
-                    if (isAIConversation) {
-                        showAITypingIndicator()
-                    }
+                    val messageModel = MessageModel(
+                        senderId = confirmedUserId,
+                        matchId = matchId,
+                        message = content,
+                        imgChat = null,
+                        audioPath = null,
+                        duration = null,
+                        timestamp = java.time.Instant.now().toString(),
+                        delivered = true,
+                    )
+
+                    viewModel.addMessage(messageModel)
+                    android.util.Log.d("ChatDetailFragment", "Added optimistic message: $content")
+                    viewModel.sendMessageViaSocket(content)
+                    binding.edtMessage.setText("")
                 }
             }
         }
 
         binding.btnMore.setOnClickListener {
-            ChatMoreBottomSheet(
-                onUnmatch = if (!isAIConversation) {
-                    { showUnmatchDialog() }
-                } else {
-                    null
-                },
-                onReport = { },
-                onDeleteConversation = { showDeleteConversationDialog() },
-                onBlock = { },
-            ).show(childFragmentManager, "moreSheet")
+            lifecycleScope.launch {
+                val myUserId = getMyUserIdAsync()
+                val matchStatus = viewModel.matchStatus.value
+                val blockerId = viewModel.blockerId.value
+
+                val canUnblock = matchStatus == "blocked" && blockerId == myUserId
+                val canBlock = matchStatus != "blocked" || (matchStatus == "blocked" && blockerId != myUserId)
+
+                ChatMoreBottomSheet(
+                    canBlock = canBlock,
+                    canUnblock = canUnblock,
+                    onUnmatch = if (!isAIConversation) {
+                        { showUnmatchDialog() }
+                    } else {
+                        null
+                    },
+                    onReport = { },
+                    onDeleteConversation = { showDeleteConversationDialog() },
+                    onBlock = { showBlockUserDialog() },
+                    onUnblock = { showUnblockUserDialog() },
+                ).show(childFragmentManager, "moreSheet")
+            }
         }
 
         val emojiRecycler = RecyclerView(requireContext()).apply {
@@ -282,12 +408,7 @@ class ChatDetailFragment : BaseFragment() {
                         lifecycleScope.launch {
                             val confirmedUserId = getMyUserIdAsync()
                             val duration = getAudioDurationSeconds(audioFilePath)
-                            viewModel.sendVoiceMessage(
-                                matchId = matchId,
-                                senderId = confirmedUserId,
-                                localAudioPath = audioFilePath,
-                                duration = duration,
-                            )
+                            viewModel.sendAudioViaSocket(audioFilePath, duration)
                         }
                     } else {
                         Toast.makeText(context, "Bản ghi quá ngắn!", Toast.LENGTH_SHORT).show()
@@ -302,7 +423,7 @@ class ChatDetailFragment : BaseFragment() {
     private fun setRecordingUI(isRecording: Boolean) {
         binding.tvRecording.visibility = if (isRecording) View.VISIBLE else View.GONE
         if (isRecording) {
-            hideAITypingIndicator()
+            viewModel.hideAITypingIndicator()
         }
     }
     private fun startRecording(): Boolean {
@@ -449,7 +570,12 @@ class ChatDetailFragment : BaseFragment() {
                 viewModel.unmatch(targetUserId) { success ->
                     if (success) {
                         viewModel.fetchMatchStatus(targetUserId)
-                        Toast.makeText(context, "Unmatch thành công!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            "Unmatch thành công!",
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                        requireActivity().onBackPressedDispatcher.onBackPressed()
                     } else {
                         Toast.makeText(context, "Unmatch thất bại!", Toast.LENGTH_SHORT).show()
                     }
@@ -459,48 +585,43 @@ class ChatDetailFragment : BaseFragment() {
             .show()
     }
 
-    private fun initSocketAndJoinRoom(matchId: String) {
-        val opts = IO.Options().apply { forceNew = true }
-        val baseUrl = BuildConfig.BASE_URL
-        val socketUrl = "$baseUrl/chat"
-
-        mSocket = IO.socket(socketUrl, opts)
-
-        mSocket?.on(
-            Socket.EVENT_CONNECT,
-            Emitter.Listener {
-                val obj = JSONObject().put("matchId", matchId)
-                mSocket?.emit("join_room", obj)
-            },
-        )
-
-        mSocket?.on(
-            "receive_message",
-            Emitter.Listener { args ->
-                val obj = args[0] as JSONObject
-                requireActivity().runOnUiThread {
-                    val audioPathValue = obj.optString("audioPath", null)
-                    val imgChatValue = obj.optString("imgChat", null)
-
-                    val newMsg = MessageModel(
-                        senderId = obj.optString("senderId"),
-                        matchId = obj.optString("matchId"),
-                        message = obj.optString("message"),
-                        imgChat = if (imgChatValue.isNullOrBlank()) null else imgChatValue,
-                        audioPath = if (audioPathValue.isNullOrBlank()) null else audioPathValue,
-                        duration = if (obj.has("duration") && obj.optInt("duration") > 0) obj.optInt("duration") else null,
-                    )
-
-                    if (AIConstants.isMessageFromAI(newMsg.senderId)) {
-                        hideAITypingIndicator()
+    private fun showBlockUserDialog() {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Block")
+            .setMessage("Sau khi chặn, bạn sẽ không thể gửi tin nhắn hoặc tương tác với người này.")
+            .setPositiveButton("Block") { _, _ ->
+                lifecycleScope.launch {
+                    viewModel.blockUser(targetUserId) { success ->
+                        if (success) {
+                            Toast.makeText(context, "Đã chặn người này!", Toast.LENGTH_SHORT).show()
+                            viewModel.fetchMatchStatus(targetUserId)
+                            requireActivity().onBackPressedDispatcher.onBackPressed()
+                        } else {
+                            Toast.makeText(context, "Chặn thất bại!", Toast.LENGTH_SHORT).show()
+                        }
                     }
-
-                    adapter.setMessages(adapter.getAllMessages() + newMsg)
-                    binding.rvMessages.scrollToPosition(adapter.itemCount - 1)
                 }
-            },
-        )
-        mSocket?.connect()
+            }
+            .setNegativeButton("Hủy", null)
+            .show()
+    }
+    private fun showUnblockUserDialog() {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Unblock")
+            .setMessage("Bạn chắc chắn muốn bỏ chặn người này?")
+            .setPositiveButton("Unblock") { _, _ ->
+                viewModel.unblockUser(targetUserId) { success ->
+                    if (success) {
+                        Toast.makeText(context, "Đã bỏ chặn!", Toast.LENGTH_SHORT).show()
+                        viewModel.fetchMatchStatus(targetUserId)
+                        requireActivity().onBackPressedDispatcher.onBackPressed()
+                    } else {
+                        Toast.makeText(context, "Bỏ chặn thất bại!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .setNegativeButton("Hủy", null)
+            .show()
     }
 
     private fun setupTypingIndicatorAnimation() {
@@ -522,12 +643,6 @@ class ChatDetailFragment : BaseFragment() {
 
         val lottieView = binding.aiTypingIndicator.findViewById<LottieAnimationView>(R.id.lottieTypingIndicator)
         lottieView?.playAnimation()
-
-        aiTypingTimeout?.removeCallbacksAndMessages(null)
-        aiTypingTimeout = android.os.Handler(android.os.Looper.getMainLooper())
-        aiTypingTimeout?.postDelayed({
-            hideAITypingIndicator()
-        }, AIConstants.AI_TYPING_TIMEOUT_MS)
     }
 
     private fun hideAITypingIndicator() {
@@ -535,7 +650,12 @@ class ChatDetailFragment : BaseFragment() {
 
         val lottieView = binding.aiTypingIndicator.findViewById<LottieAnimationView>(R.id.lottieTypingIndicator)
         lottieView?.pauseAnimation()
+    }
 
-        aiTypingTimeout?.removeCallbacksAndMessages(null)
+    private fun hideKeyboardAndEmoji() {
+        binding.emojiContainer.visibility = View.GONE
+        binding.edtMessage.clearFocus()
+        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(binding.edtMessage.windowToken, 0)
     }
 }

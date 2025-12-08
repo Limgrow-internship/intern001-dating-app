@@ -140,22 +140,12 @@ constructor(
         }
     }
 
-    override suspend fun blockUser(
-        targetUserId: String,
-        reason: String?,
-    ): Result<Unit> {
+    override suspend fun blockUser(targetUserId: String): Result<Unit> {
         return try {
-            val request = BlockUserRequest(targetUserId = targetUserId, reason = reason)
-            val response = apiService.discoveryBlock(request)
-            if (response.isSuccessful) {
-                Result.success(Unit)
-            } else {
-                val errorMessage = response.errorBody()?.string() ?: "Failed to block user"
-                Log.e(TAG, "blockUser error: $errorMessage")
-                Result.failure(Exception(errorMessage))
-            }
+            val req = BlockUserRequest(targetUserId)
+            apiService.block(req)
+            Result.success(Unit)
         } catch (e: Exception) {
-            Log.e(TAG, "blockUser exception", e)
             Result.failure(e)
         }
     }
@@ -203,6 +193,25 @@ constructor(
 
     override suspend fun getProfileByUserId(userId: String): Result<MatchCard> {
         return try {
+            if (userId == com.intern001.dating.presentation.ui.chat.AIConstants.AI_ASSISTANT_USER_ID) {
+                try {
+                    val response = apiService.getProfileByUserId(userId)
+                    if (response.isSuccessful) {
+                        val matchCard = response.body()?.toMatchCard()
+                        if (matchCard != null) {
+                            Log.d(TAG, "Successfully fetched AI profile from API")
+                            return Result.success(matchCard)
+                        }
+                    }
+                    Log.w(TAG, "API call for AI profile failed (${response.code()}), using fake data")
+                } catch (e: Exception) {
+                    Log.w(TAG, "Exception fetching AI profile from API, using fake data", e)
+                }
+
+                val aiProfile = com.intern001.dating.presentation.ui.chat.AIConstants.createAIFakeProfile()
+                return Result.success(aiProfile)
+            }
+
             val response = apiService.getProfileByUserId(userId)
             if (response.isSuccessful) {
                 val matchCard = response.body()?.toMatchCard()

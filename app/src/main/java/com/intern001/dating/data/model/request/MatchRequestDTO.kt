@@ -7,12 +7,7 @@ data class MatchActionRequest(
     val targetUserId: String,
 )
 
-data class BlockUserRequest(
-    @SerializedName("targetUserId")
-    val targetUserId: String,
-    @SerializedName("reason")
-    val reason: String? = null,
-)
+data class BlockUserRequest(val targetUserId: String)
 
 data class UnmatchRequest(
     @SerializedName("matchId")

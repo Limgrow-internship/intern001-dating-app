@@ -6,4 +6,17 @@
     <dimen name="premium_indicator_active_width">48dp</dimen>
     <dimen name="premium_indicator_inactive_width">12dp</dimen>
     <dimen name="premium_indicator_height">12dp</dimen>
+    <!-- Onboarding -->
+    <dimen name="onboard_horizontal_padding">24dp</dimen>
+    <dimen name="onboard_vertical_padding">24dp</dimen>
+    <dimen name="onboard_image_margin_top">32dp</dimen>
+    <dimen name="onboard_image_max_height">380dp</dimen>
+    <dimen name="onboard_spacing_large">24dp</dimen>
+    <dimen name="onboard_spacing_medium">12dp</dimen>
+    <dimen name="onboard_spacing_small">8dp</dimen>
+    <dimen name="onboard_indicator_spacing">20dp</dimen>
+    <dimen name="onboard_button_bottom_margin">24dp</dimen>
+    <dimen name="onboard_button_horizontal_margin">24dp</dimen>
+    <dimen name="onboard_button_min_height">54dp</dimen>
+    <dimen name="onboard_ad_min_height">88dp</dimen>
 </resources>

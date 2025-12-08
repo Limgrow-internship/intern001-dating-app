@@ -6,16 +6,20 @@ import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.data.model.response.FacebookLoginResponse
 import com.intern001.dating.data.model.response.GoogleLoginResponse
 import com.intern001.dating.domain.model.AuthState
+import com.intern001.dating.domain.usecase.PrefetchHomeDataUseCase
 import com.intern001.dating.domain.usecase.auth.FacebookLoginUseCase
 import com.intern001.dating.domain.usecase.auth.GoogleLoginUseCase
 import com.intern001.dating.domain.usecase.auth.LoginUseCase
 import com.intern001.dating.presentation.common.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -23,6 +27,7 @@ class LoginViewModel @Inject constructor(
     private val googleLoginUseCase: GoogleLoginUseCase,
     private val tokenManager: TokenManager,
     private val facebookLoginUseCase: FacebookLoginUseCase,
+    private val prefetchHomeDataUseCase: PrefetchHomeDataUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<UiState<AuthState>>(UiState.Idle)
@@ -41,6 +46,7 @@ class LoginViewModel @Inject constructor(
             val result = loginUseCase(email, password)
 
             _uiState.value = if (result.isSuccess) {
+                prefetchHomeDataBlocking()
                 UiState.Success(result.getOrThrow())
             } else {
                 UiState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
@@ -52,6 +58,7 @@ class LoginViewModel @Inject constructor(
             _fbUiState.value = UiState.Loading
             val result = facebookLoginUseCase(fbToken)
             _fbUiState.value = if (result.isSuccess) {
+                prefetchHomeDataBlocking()
                 UiState.Success(result.getOrThrow())
             } else {
                 UiState.Error(result.exceptionOrNull()?.message ?: "Facebook login error")
@@ -66,10 +73,25 @@ class LoginViewModel @Inject constructor(
             val result = googleLoginUseCase(accessToken)
 
             _googleUiState.value = if (result.isSuccess) {
+                prefetchHomeDataBlocking()
                 UiState.Success(result.getOrThrow())
             } else {
                 UiState.Error(result.exceptionOrNull()?.message ?: "Google login failed")
             }
         }
+    }
+
+    private suspend fun prefetchHomeDataBlocking() {
+        withContext(Dispatchers.IO) {
+            runCatching {
+                withTimeoutOrNull(PREFETCH_TIMEOUT_MS) {
+                    prefetchHomeDataUseCase()
+                }
+            }
+        }
+    }
+
+    companion object {
+        private const val PREFETCH_TIMEOUT_MS = 2_500L
     }
 }

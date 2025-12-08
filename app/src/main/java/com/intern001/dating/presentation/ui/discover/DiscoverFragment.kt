@@ -9,7 +9,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
@@ -43,14 +45,21 @@ class DiscoverFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Show bottom navigation when in DiscoverFragment
         (activity as? MainActivity)?.hideBottomNavigation(false)
 
         setupListeners()
         observeViewModel()
 
-        // Show current card if data already loaded (e.g., when returning from DatingMode)
-        if (viewModel.matchCards.value.isNotEmpty() && viewModel.hasMoreCards()) {
+        viewModel.clearTemporaryMatchedAllowances()
+
+        val currentCards = viewModel.matchCards.value
+        val firstCardUserId = currentCards.firstOrNull()?.userId ?: ""
+        val isMatchedUser = viewModel.isUserMatched(firstCardUserId)
+        val hasOnlyMatchedUser = currentCards.size == 1 && isMatchedUser
+
+        if (hasOnlyMatchedUser || currentCards.isEmpty()) {
+            viewModel.loadMatchCards(showLoading = false)
+        } else if (currentCards.isNotEmpty() && viewModel.hasMoreCards()) {
             showCurrentCard()
         }
     }
@@ -72,74 +81,80 @@ class DiscoverFragment : BaseFragment() {
 
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.uiState.collect { state ->
-                when (state) {
-                    is UiState.Loading -> {
-                        binding.progressBar.isVisible = true
-                        binding.noMoreCardsLayout.isVisible = false
-                    }
-                    is UiState.Success -> {
-                        binding.progressBar.isVisible = false
-                        if (state.data.isNotEmpty()) {
-                            showCurrentCard()
-                        } else {
-                            binding.noMoreCardsLayout.isVisible = true
-                        }
-                    }
-                    is UiState.Error -> {
-                        binding.progressBar.isVisible = false
-                        binding.noMoreCardsLayout.isVisible = false
-                        // Show error message
-                        Toast.makeText(
-                            requireContext(),
-                            state.message ?: "An error occurred while loading cards",
-                            Toast.LENGTH_LONG,
-                        ).show()
-                    }
-                    is UiState.Idle -> {
-                        binding.progressBar.isVisible = false
-                    }
-                }
-            }
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.matchCards.collect { cards ->
-                if (cards.isNotEmpty()) {
-                    viewModel.getCurrentCard()?.let { currentCard ->
-                        currentCardView?.updateDistance(currentCard.distance)
-                    }
-                    val nextIndex = viewModel.currentCardIndex.value + 1
-                    if (nextIndex < cards.size) {
-                        nextCardView?.updateDistance(cards[nextIndex].distance)
-                    }
-                    prepareNextCard()
-                }
-            }
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.matchResult.collect { result ->
-                if (result?.isMatch == true) {
-                    result.matchedUser?.let { matchedUser ->
-                        result.matchId?.let { matchId ->
-                            showMatchOverlay(matchId, matchedUser.userId)
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.uiState.collect { state ->
+                        val b = _binding ?: return@collect
+                        when (state) {
+                            is UiState.Loading -> {
+                                val shouldShowLoading = viewModel.matchCards.value.isEmpty()
+                                b.progressBar.isVisible = shouldShowLoading
+                                if (shouldShowLoading) {
+                                    b.noMoreCardsLayout.isVisible = false
+                                }
+                            }
+                            is UiState.Success -> {
+                                b.progressBar.isVisible = false
+                                if (state.data.isNotEmpty()) {
+                                    showCurrentCard()
+                                } else {
+                                    b.noMoreCardsLayout.isVisible = true
+                                }
+                            }
+                            is UiState.Error -> {
+                                b.progressBar.isVisible = false
+                                b.noMoreCardsLayout.isVisible = false
+                                Toast.makeText(
+                                    requireContext(),
+                                    state.message ?: "An error occurred while loading cards",
+                                    Toast.LENGTH_LONG,
+                                ).show()
+                            }
+                            is UiState.Idle -> {
+                                b.progressBar.isVisible = false
+                            }
                         }
                     }
                 }
-            }
-        }
 
-        // Observe card index changes to update UI
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.currentCardIndex.collect {
-                showNextCard()
-            }
-        }
+                launch {
+                    viewModel.matchCards.collect { cards ->
+                        if (cards.isNotEmpty()) {
+                            viewModel.getCurrentCard()?.let { currentCard ->
+                                currentCardView?.updateDistance(currentCard.distance)
+                            }
+                            val nextIndex = viewModel.currentCardIndex.value + 1
+                            if (nextIndex < cards.size) {
+                                nextCardView?.updateDistance(cards[nextIndex].distance)
+                            }
+                            prepareNextCard()
+                        }
+                    }
+                }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.alreadyLikedEvent.collect { card ->
-                showAlreadyLikedDialog(card.displayName)
+                launch {
+                    viewModel.matchResult.collect { result ->
+                        if (result?.isMatch == true) {
+                            result.matchedUser?.let { matchedUser ->
+                                result.matchId?.let { matchId ->
+                                    showMatchOverlay(matchId, matchedUser.userId)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.currentCardIndex.collect {
+                        showNextCard()
+                    }
+                }
+
+                launch {
+                    viewModel.alreadyLikedEvent.collect { card ->
+                        showAlreadyLikedDialog(card.displayName)
+                    }
+                }
             }
         }
     }
@@ -224,13 +239,11 @@ class DiscoverFragment : BaseFragment() {
 
         cardView.setOnPhotoClickListener(object : MatchCardView.OnPhotoClickListener {
             override fun onLongPress() {
-                // Show full screen photo view
             }
         })
 
         cardView.setOnOverlayTapListener(object : MatchCardView.OnOverlayTapListener {
             override fun onOverlayTap() {
-                // Get current user's mode and navigate to appropriate screen
                 val currentCard = viewModel.getCurrentCard()
                 val mode = currentCard?.relationshipMode ?: "dating"
                 navigateToModeScreen(mode)
@@ -259,7 +272,6 @@ class DiscoverFragment : BaseFragment() {
     }
 
     private fun showMatchOverlay(matchId: String, matchedUserId: String) {
-        // Check if dialog is already showing
         val existingDialog = parentFragmentManager.findFragmentByTag("MatchOverlayDialog")
         if (existingDialog != null && existingDialog.isAdded) {
             return
@@ -272,6 +284,14 @@ class DiscoverFragment : BaseFragment() {
             matchedUserId = matchedUserId,
             matchedUserPhotoUrl = matchedUser?.photos?.firstOrNull()?.url,
         )
+
+        dialog.dialog?.setOnDismissListener {
+            if (viewModel.hasMoreCards()) {
+                showCurrentCard()
+            } else {
+                viewModel.loadMatchCards(showLoading = false)
+            }
+        }
 
         if (isAdded && parentFragmentManager != null) {
             dialog.show(parentFragmentManager, "MatchOverlayDialog")

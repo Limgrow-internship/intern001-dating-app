@@ -10,13 +10,12 @@ constructor(
 ) {
     suspend operator fun invoke(
         targetUserId: String,
-        reason: String? = null,
     ): Result<Unit> {
         return try {
             if (targetUserId.isBlank()) {
                 return Result.failure(IllegalArgumentException("Target user ID cannot be empty"))
             }
-            matchRepository.blockUser(targetUserId, reason)
+            matchRepository.blockUser(targetUserId)
         } catch (e: Exception) {
             Result.failure(e)
         }

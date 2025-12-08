@@ -2,7 +2,9 @@ package com.intern001.dating.data.repository
 
 import com.intern001.dating.data.api.DatingApiService
 import com.intern001.dating.data.model.MessageModel
+import com.intern001.dating.data.model.request.BlockUserRequest
 import com.intern001.dating.data.model.request.UnmatchUserRequest
+import com.intern001.dating.data.model.response.MatchStatusResponse
 import com.intern001.dating.data.model.response.UploadImageResponse
 import com.intern001.dating.data.model.response.toEntity
 import com.intern001.dating.domain.entity.LastMessageEntity
@@ -52,5 +54,19 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun getMatchStatus(targetUserId: String): String {
         val resp = api.getMatchStatus(targetUserId)
         return resp.status
+    }
+
+    override suspend fun block(targetUserId: String) {
+        val req = BlockUserRequest(targetUserId)
+        api.block(req)
+    }
+
+    override suspend fun unblock(targetUserId: String) {
+        val req = BlockUserRequest(targetUserId)
+        api.unblock(req)
+    }
+
+    override suspend fun getMatchStatusResponse(targetUserId: String): MatchStatusResponse {
+        return api.getMatchStatus(targetUserId)
     }
 }

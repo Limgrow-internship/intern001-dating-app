@@ -1,140 +1,162 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#FFF7E6">
 
-
-    <LinearLayout
-        android:id="@+id/imgContainer"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/onboardScroll"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:layout_marginTop="30dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/tvTitle">
-
-        <ImageView
-            android:id="@+id/imgOnboard"
-            android:layout_width="match_parent"
-            android:layout_height="450dp"
-            android:layout_gravity="center"
-            android:scaleType="fitXY"
-            android:src="@drawable/ob2img" />
-    </LinearLayout>
-
-
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="337dp"
-        android:layout_height="38dp"
-        android:layout_marginStart="30dp"
-        android:layout_marginEnd="67dp"
-        android:text="@string/it_all_starts_with_a_swipe"
-        android:textColor="@android:color/black"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/imgContainer" />
-
-
-    <TextView
-        android:id="@+id/tvDesc"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="35dp"
-        android:text="@string/a_single_swipe_can_open_a_whole_new_story_discover_people_nearby_who_share_your_vibe"
-        android:textColor="@android:color/black"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
-
-
-    <LinearLayout
-        android:id="@+id/layoutIndicator"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvDesc">
-
-        <View
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            android:background="@drawable/indicator_inactive" />
-
-        <View
-            android:layout_width="48dp"
-            android:layout_height="12dp"
-            android:layout_marginStart="6dp"
-            android:background="@drawable/indicator_active" />
-
-        <View
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            android:layout_marginStart="6dp"
-            android:background="@drawable/indicator_inactive" />
-    </LinearLayout>
-
-    <ImageView
-        android:id="@+id/grayBox"
-        android:layout_width="0dp"
-        android:layout_height="130dp"
-        android:layout_marginBottom="24dp"
-        android:src="@drawable/imgob2"
-        android:scaleType="fitXY"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:overScrollMode="never"
         app:layout_constraintBottom_toTopOf="@id/btnContinue"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layoutIndicator"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:paddingTop="@dimen/onboard_vertical_padding"
+            android:paddingBottom="@dimen/onboard_vertical_padding">
+
+            <FrameLayout
+                android:id="@+id/imgContainer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/onboard_image_margin_top"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/imgOnboard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@null"
+                    android:maxHeight="@dimen/onboard_image_max_height"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ob2img" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/onboard_spacing_large"
+                android:layout_marginStart="@dimen/onboard_horizontal_padding"
+                android:layout_marginEnd="@dimen/onboard_horizontal_padding"
+                android:gravity="start"
+                android:text="@string/it_all_starts_with_a_swipe"
+                android:textAlignment="viewStart"
+                android:textColor="@android:color/black"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/imgContainer" />
+
+            <TextView
+                android:id="@+id/tvDesc"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/onboard_spacing_small"
+                android:layout_marginStart="@dimen/onboard_horizontal_padding"
+                android:layout_marginEnd="@dimen/onboard_horizontal_padding"
+                android:gravity="start"
+                android:text="@string/a_single_swipe_can_open_a_whole_new_story_discover_people_nearby_who_share_your_vibe"
+                android:textAlignment="viewStart"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+
+            <LinearLayout
+                android:id="@+id/layoutIndicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/onboard_indicator_spacing"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/onboard_horizontal_padding"
+                android:paddingEnd="@dimen/onboard_horizontal_padding"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvDesc">
+
+                <View
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:background="@drawable/indicator_inactive" />
+
+                <View
+                    android:layout_width="48dp"
+                    android:layout_height="12dp"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/indicator_active" />
+
+                <View
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/indicator_inactive" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/grayBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/onboard_spacing_large"
+                android:adjustViewBounds="true"
+                android:contentDescription="@null"
+                android:maxHeight="@dimen/onboard_image_max_height"
+                android:scaleType="fitCenter"
+                android:src="@drawable/imgob2"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layoutIndicator" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <LinearLayout
         android:id="@+id/btnContinue"
         android:layout_width="0dp"
-        android:layout_height="54dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="40dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/onboard_button_horizontal_margin"
+        android:layout_marginEnd="@dimen/onboard_button_horizontal_margin"
+        android:layout_marginBottom="@dimen/onboard_button_bottom_margin"
         android:background="@drawable/bg_button_black"
-        android:gravity="center"
-        android:orientation="horizontal"
         android:clickable="true"
-        android:focusable="true">
+        android:focusable="true"
+        android:gravity="center"
+        android:minHeight="@dimen/onboard_button_min_height"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <TextView
             android:id="@+id/tvBtnText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:text="@string/btn_continue"
             android:textColor="@android:color/white"
             android:textSize="18sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            />
+            android:textStyle="bold" />
 
         <ImageView
             android:id="@+id/imgArrow"
             android:layout_width="9dp"
             android:layout_height="16dp"
-            android:src="@drawable/ic_arrow"
             android:layout_marginStart="10dp"
-            />
+            android:src="@drawable/ic_arrow" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

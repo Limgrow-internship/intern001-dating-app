@@ -18,6 +18,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.google.gson.Gson
 import com.intern001.dating.R
 import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.databinding.FragmentEditProfileBinding
@@ -119,16 +120,14 @@ class EditProfileFragment : BaseFragment() {
     }
 
     private fun bindProfileData(profile: UpdateProfile) {
-        // Store current profile to preserve firstName, lastName, dateOfBirth, gender when updating
         currentProfile = profile
 
         binding.includeAbout.etIntroduce.setText(profile.bio ?: "")
 
-        // profile.photos is now List<Photo> (objects), not List<String>
         profile.photos.forEachIndexed { index, photo ->
             if (index < 6) {
-                photoUrls[index] = photo.url // Extract URL from Photo object
-                photoIds[index] = photo.id // Store photo ID
+                photoUrls[index] = photo.url
+                photoIds[index] = photo.id
                 photoUris[index] = null
             }
         }
@@ -186,12 +185,10 @@ class EditProfileFragment : BaseFragment() {
             g.tvGoalFiguring.text.toString() to g.tvGoalFiguring,
         )
 
-        // goals is now List<String>, not String - no need to split
         profile.goals.forEach { goal ->
             goalMap[goal]?.let { toggleGoalSelection(it) }
         }
 
-        // Store goals in selectedGoals for later use
         selectedGoals.clear()
         selectedGoals.addAll(profile.goals)
 
@@ -215,7 +212,6 @@ class EditProfileFragment : BaseFragment() {
         selectedInterests.clear()
         selectedInterests.addAll(profile.interests)
 
-        // Bind personal details
         val details = binding.includeDetails
         details.comboEducation.setText(profile.education ?: "", false)
         details.comboAddress.setText(profile.city ?: profile.location?.city ?: "", false)
@@ -278,57 +274,61 @@ class EditProfileFragment : BaseFragment() {
         }
 
         val question = binding.includeQuestions
-        val answers = profile.openQuestionAnswers ?: emptyMap()
-        Log.d("QA_DEBUG", "🔹 Server answers = $answers")
-        answers.keys.forEach { Log.d("QA_DEBUG", "🔸 Server key = '$it'") }
 
-        val whatQuestions = resources.getStringArray(R.array.open_question_list_what).toList()
-        val idealQuestions = resources.getStringArray(R.array.open_question_list_ideal).toList()
+        val whatQuestions = resources.getStringArray(R.array.open_question_list_what)
+            .map {
+                val parts = it.split("|", limit = 2)
+                parts[0] to parts[1]
+            }
+
+        val idealQuestions = resources.getStringArray(R.array.open_question_list_ideal)
+            .map {
+                val parts = it.split("|", limit = 2)
+                parts[0] to parts[1]
+            }
+
+        val whatDisplayList = whatQuestions.map { it.second }
+        val idealDisplayList = idealQuestions.map { it.second }
+
+        val answers = profile.openQuestionAnswers ?: emptyMap()
+
+        Log.d("QA_DEBUG", "Loaded answers = $answers")
 
         question.comboWhat.setAdapter(
-            ArrayAdapter(requireContext(), R.layout.dropdown_item, whatQuestions),
+            ArrayAdapter(requireContext(), R.layout.dropdown_item, whatDisplayList),
         )
         question.comboWeekend.setAdapter(
-            ArrayAdapter(requireContext(), R.layout.dropdown_item, idealQuestions),
+            ArrayAdapter(requireContext(), R.layout.dropdown_item, idealDisplayList),
         )
 
-        val whatMatch = finxldExactKeyFromServer(answers.keys, whatQuestions)
-        if (whatMatch != null) {
-            val (displayQ, serverQ) = whatMatch
-            question.comboWhat.setText(displayQ, false)
-            question.etWhat.setText(answers[serverQ])
-        } else {
+        findExactKeyFromServer(answers.keys, whatQuestions)?.let { (displayText, key) ->
+            question.comboWhat.setText(displayText, false)
+            question.etWhat.setText(answers[key])
+        } ?: run {
             question.comboWhat.setText("", false)
             question.etWhat.setText("")
         }
 
-        val idealMatch = finxldExactKeyFromServer(answers.keys, idealQuestions)
-        if (idealMatch != null) {
-            val (displayQ, serverQ) = idealMatch
-            question.comboWeekend.setText(displayQ, false)
-            question.etWeekend.setText(answers[serverQ])
-        } else {
+        findExactKeyFromServer(answers.keys, idealQuestions)?.let { (displayText, key) ->
+            question.comboWeekend.setText(displayText, false)
+            question.etWeekend.setText(answers[key])
+        } ?: run {
             question.comboWeekend.setText("", false)
             question.etWeekend.setText("")
         }
 
         question.comboWhat.setOnClickListener { question.comboWhat.showDropDown() }
         question.comboWeekend.setOnClickListener { question.comboWeekend.showDropDown() }
-
-        whatQuestions.forEach { Log.d("QA_DEBUG", "WHAT item = '$it'") }
-        idealQuestions.forEach { Log.d("QA_DEBUG", "IDEAL item = '$it'") }
     }
-
-    private fun finxldExactKeyFromServer(
+    private fun findExactKeyFromServer(
         serverKeys: Set<String>,
-        questionList: List<String>,
+        questionList: List<Pair<String, String>>,
     ): Pair<String, String>? {
-        for (serverKey in serverKeys) {
-            for (q in questionList) {
-                if (serverKey == q) {
-                    Log.d("QA_DEBUG", "MATCH FOUND: server='$serverKey' xml='$q'")
-                    return q to serverKey
-                }
+        for (key in serverKeys) {
+            val found = questionList.find { it.first == key }
+            if (found != null) {
+                val (k, text) = found
+                return text to k
             }
         }
         return null
@@ -461,13 +461,13 @@ class EditProfileFragment : BaseFragment() {
         binding.btnSave.setOnClickListener {
             val bio = binding.includeAbout.etIntroduce.text.toString().trim()
 
-            // Get personal details
+            // Personal details
             val details = binding.includeDetails
             val job = details.comboJob.text.toString().trim().takeIf { it.isNotEmpty() }
             val education = details.comboEducation.text.toString().trim().takeIf { it.isNotEmpty() }
             val address = details.comboAddress.text.toString().trim().takeIf { it.isNotEmpty() }
-            val heightStr = details.etHeight.text.toString().trim()
-            val weightStr = details.etWeight.text.toString().trim()
+            val height = details.etHeight.text.toString().trim().toIntOrNull()
+            val weight = details.etWeight.text.toString().trim().toIntOrNull()
             val zodiacSign = details.comboZodiac.text.toString().trim().takeIf { it.isNotEmpty() }
 
             val info = binding.includeInfo
@@ -475,51 +475,72 @@ class EditProfileFragment : BaseFragment() {
             val birthday = info.etBirthday.text.toString().trim()
             val gender = info.etGender.text.toString().trim()
 
-            // Parse height and weight
-            val height = heightStr.toIntOrNull()
-            val weight = weightStr.toIntOrNull()
-
-            // Note: Photos are managed separately via photo management API
-            // Do not include photos in UpdateProfileRequest
-
-            // Preserve firstName, lastName, dateOfBirth, gender from current profile
-            // These fields are not editable in EditProfileFragment but should be preserved
             val profile = currentProfile
+
+            val whatQuestions = resources.getStringArray(R.array.open_question_list_what)
+                .map {
+                    val parts = it.split("|", limit = 2)
+                    parts[0] to parts[1] // key → text
+                }
+
+            val idealQuestions = resources.getStringArray(R.array.open_question_list_ideal)
+                .map {
+                    val parts = it.split("|", limit = 2)
+                    parts[0] to parts[1]
+                }
 
             val question = binding.includeQuestions
             val openQuestionMap = mutableMapOf<String, String>()
 
-            val selectedWhat = question.comboWhat.text.toString()
+            // =============================
+            // HANDLE WHAT QUESTION
+            // =============================
+            val selectedWhatText = question.comboWhat.text.toString()
             val answerWhat = question.etWhat.text.toString().trim()
-            if (selectedWhat.isNotEmpty() && answerWhat.isNotEmpty()) {
-                openQuestionMap[selectedWhat] = answerWhat
+
+            if (selectedWhatText.isNotEmpty() && answerWhat.isNotEmpty()) {
+                val entry = whatQuestions.find { it.second == selectedWhatText }
+                if (entry != null) {
+                    val key = entry.first // q1, q2, q3…
+                    openQuestionMap[key] = answerWhat
+                }
             }
 
-            val selectedIdeal = question.comboWeekend.text.toString()
+            // =============================
+            // HANDLE IDEAL QUESTION
+            // =============================
+            val selectedIdealText = question.comboWeekend.text.toString()
             val answerIdeal = question.etWeekend.text.toString().trim()
-            if (selectedIdeal.isNotEmpty() && answerIdeal.isNotEmpty()) {
-                openQuestionMap[selectedIdeal] = answerIdeal
+
+            if (selectedIdealText.isNotEmpty() && answerIdeal.isNotEmpty()) {
+                val entry = idealQuestions.find { it.second == selectedIdealText }
+                if (entry != null) {
+                    val key = entry.first // i1, i2, i3…
+                    openQuestionMap[key] = answerIdeal
+                }
             }
 
             val request = UpdateProfileRequest(
-                firstName = profile?.firstName, // Preserve firstName
-                lastName = profile?.lastName, // Preserve lastName
-                dateOfBirth = birthday, // Preserve dateOfBirth (convert Date to String)
-                gender = gender, // Preserve gender
+                firstName = profile?.firstName,
+                lastName = profile?.lastName,
+                dateOfBirth = birthday,
+                gender = gender,
                 bio = bio,
-                goals = selectedGoals.toList(), // goals is now List<String>, not String
+                goals = selectedGoals.toList(),
                 interests = selectedInterests.toList(),
                 job = job,
-                occupation = job, // Also set occupation if job is provided
+                occupation = job,
                 education = education,
-                city = address, // Address maps to city
+                city = address,
                 zodiacSign = zodiacSign,
                 height = height,
                 weight = weight,
                 displayName = profile?.displayName,
                 relationshipMode = profile?.relationshipMode,
-                openQuestionAnswers = if (openQuestionMap.isEmpty()) null else openQuestionMap,
+                openQuestionAnswers =
+                if (openQuestionMap.isEmpty()) emptyMap() else openQuestionMap,
             )
+            Log.e("DEBUG_SAVE", "Sending request = ${Gson().toJson(request)}")
 
             viewModel.updateUserProfile(request)
         }
@@ -527,15 +548,12 @@ class EditProfileFragment : BaseFragment() {
 
     private fun setupBioGeneration() {
         binding.includeAbout.ivMagicPen.setOnClickListener {
-            // Check xem đã có bio chưa
             val currentBio = binding.includeAbout.etIntroduce.text.toString().trim()
             val hasBio = currentBio.isNotEmpty() || currentProfile?.bio?.isNotEmpty() == true
 
             if (hasBio) {
-                // Đã có bio → Show confirmation dialog để enhance
                 showEnhanceBioConfirmationDialog()
             } else {
-                // Chưa có bio → Show dialog nhập prompt để generate
                 showGenerateBioDialog()
             }
         }
@@ -569,16 +587,13 @@ class EditProfileFragment : BaseFragment() {
                 return@setOnClickListener
             }
 
-            // Show loading
             etPrompt.isEnabled = false
             btnGenerate.isEnabled = false
             btnCancel.isEnabled = false
             loadingLayout.visibility = View.VISIBLE
 
-            // Start animated loading text
             startLoadingTextAnimation(tvLoadingText)
 
-            // Generate bio
             viewModel.generateBio(prompt)
         }
 
@@ -615,7 +630,6 @@ class EditProfileFragment : BaseFragment() {
             .setTitle("Cải thiện Bio")
             .setMessage("Bạn muốn AI cải thiện bio hiện tại của bạn không?")
             .setPositiveButton("Cải thiện") { _, _ ->
-                // Show loading và gọi enhance
                 showEnhanceBioLoading()
                 viewModel.enhanceBio()
             }
@@ -636,13 +650,11 @@ class EditProfileFragment : BaseFragment() {
         val tvLoadingText = dialogView.findViewById<TextView>(R.id.tvLoadingText)
         val etPrompt = dialogView.findViewById<EditText>(R.id.etPrompt)
 
-        // Hide prompt input, chỉ show loading
         etPrompt.visibility = View.GONE
         loadingLayout.visibility = View.VISIBLE
 
         generateBioDialog = dialog
 
-        // Start animated loading text với messages khác cho enhance
         startEnhanceLoadingTextAnimation(tvLoadingText)
 
         dialog.show()
@@ -703,7 +715,6 @@ class EditProfileFragment : BaseFragment() {
             viewModel.enhanceBioState.collect { state ->
                 when (state) {
                     is EditProfileViewModel.UiState.Loading -> {
-                        // Loading đã được hiển thị trong dialog
                     }
                     is EditProfileViewModel.UiState.Success<*> -> {
                         stopLoadingTextAnimation()

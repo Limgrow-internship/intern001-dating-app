@@ -44,6 +44,8 @@ class SplashFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         (activity as? MainActivity)?.hideBottomNavigation(true)
 
+        viewModel.prefetchLanguages()
+
         AdManager.preloadNativeAds(requireContext()) {
             // Use lifecycleScope instead of viewLifecycleOwner to avoid crash when view is destroyed
             lifecycleScope.launch {

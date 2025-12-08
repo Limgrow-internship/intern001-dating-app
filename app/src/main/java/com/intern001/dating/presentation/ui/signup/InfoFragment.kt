@@ -49,7 +49,6 @@ class InfoFragment : BaseFragment() {
         return view
     }
 
-    /** Hiển thị/ẩn mật khẩu khi click icon */
     private fun setupPasswordVisibilityToggle() {
         binding.etPassword.setOnTouchListener { _, event ->
             val drawableEnd = 2

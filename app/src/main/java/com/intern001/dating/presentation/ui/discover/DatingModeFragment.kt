@@ -447,6 +447,17 @@ class DatingModeFragment : BaseFragment() {
             matchedUserPhotoUrl = matchedUser?.photos?.firstOrNull()?.url,
         )
 
+        // Set listener to refresh UI after dialog dismisses
+        dialog.dialog?.setOnDismissListener {
+            // Refresh UI to show next card after dialog closes
+            if (viewModel.hasMoreCards()) {
+                showCurrentCard()
+            } else {
+                // Load more cards if no more cards available
+                viewModel.loadMatchCards(showLoading = false)
+            }
+        }
+
         if (isAdded && parentFragmentManager != null) {
             dialog.show(parentFragmentManager, "MatchOverlayDialog")
         }

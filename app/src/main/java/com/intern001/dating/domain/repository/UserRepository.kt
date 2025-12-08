@@ -1,8 +1,8 @@
 package com.intern001.dating.domain.repository
 
-import com.intern001.dating.domain.model.VerificationResult
+import com.intern001.dating.data.model.response.PhotoResponse
 
 interface UserRepository {
     suspend fun deleteAccount(): Result<Unit>
-    suspend fun verifyFace(imageBytes: ByteArray): Result<VerificationResult>
+    suspend fun uploadSelfie(imageBytes: ByteArray): Result<PhotoResponse>
 }
