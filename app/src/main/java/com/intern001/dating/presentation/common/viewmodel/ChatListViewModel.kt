@@ -91,13 +91,22 @@ class ChatListViewModel @Inject constructor(
     fun fetchMatches() {
         viewModelScope.launch {
             val token = tokenManager.getAccessTokenAsync() ?: return@launch
-            fetchMatches(token)
+            // Only show loading state if we have nothing to display yet
+            fetchMatches(token, showLoading = _matches.value.isEmpty())
         }
     }
 
-    fun fetchMatches(token: String) {
+    fun refreshMatches() {
         viewModelScope.launch {
-            _isLoading.value = true
+            val token = tokenManager.getAccessTokenAsync() ?: return@launch
+            // Silent refresh to avoid UI flicker when data already exists
+            fetchMatches(token, showLoading = false)
+        }
+    }
+
+    fun fetchMatches(token: String, showLoading: Boolean = true) {
+        viewModelScope.launch {
+            if (showLoading) _isLoading.value = true
             try {
                 val result = getMatchedUsersUseCase(token)
                 _matches.value = result
@@ -107,9 +116,9 @@ class ChatListViewModel @Inject constructor(
                 preloadLastMessages()
             } catch (e: Exception) {
                 android.util.Log.e("ChatListViewModel", "Failed to fetch matches", e)
-                _matches.value = emptyList()
+                if (showLoading) _matches.value = emptyList()
             } finally {
-                _isLoading.value = false
+                if (showLoading) _isLoading.value = false
             }
         }
     }

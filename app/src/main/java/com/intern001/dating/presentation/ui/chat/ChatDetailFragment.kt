@@ -310,8 +310,10 @@ class ChatDetailFragment : BaseFragment() {
             if (content.isNotEmpty()) {
                 lifecycleScope.launch {
                     val confirmedUserId = getMyUserIdAsync()
+                    val clientId = viewModel.newClientMessageId()
 
                     val messageModel = MessageModel(
+                        clientMessageId = clientId,
                         senderId = confirmedUserId,
                         matchId = matchId,
                         message = content,
@@ -324,7 +326,7 @@ class ChatDetailFragment : BaseFragment() {
 
                     viewModel.addMessage(messageModel)
                     android.util.Log.d("ChatDetailFragment", "Added optimistic message: $content")
-                    viewModel.sendMessageViaSocket(content)
+                    viewModel.sendMessageViaSocket(content, clientId)
                     binding.edtMessage.setText("")
                 }
             }
@@ -408,7 +410,8 @@ class ChatDetailFragment : BaseFragment() {
                         lifecycleScope.launch {
                             val confirmedUserId = getMyUserIdAsync()
                             val duration = getAudioDurationSeconds(audioFilePath)
-                            viewModel.sendAudioViaSocket(audioFilePath, duration)
+                            val clientId = viewModel.newClientMessageId()
+                            viewModel.sendAudioViaSocket(audioFilePath, duration, clientId)
                         }
                     } else {
                         Toast.makeText(context, "Bản ghi quá ngắn!", Toast.LENGTH_SHORT).show()

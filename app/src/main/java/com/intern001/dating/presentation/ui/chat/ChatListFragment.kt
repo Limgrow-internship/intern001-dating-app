@@ -205,8 +205,12 @@ class ChatListFragment : BaseFragment() {
             }
         }
 
-        if (!vm.hasData()) {
-            vm.fetchMatches()
-        }
+        vm.fetchMatches()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Silent refresh to pick up new matches without UI flicker
+        vm.refreshMatches()
     }
 }

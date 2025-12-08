@@ -47,6 +47,7 @@ class ChatLocalRepository @Inject constructor(
 
 private fun MessageEntity.toMessageModel(): MessageModel {
     return MessageModel(
+        clientMessageId = clientMessageId,
         senderId = senderId,
         matchId = matchId,
         message = message ?: "",
@@ -59,12 +60,16 @@ private fun MessageEntity.toMessageModel(): MessageModel {
 }
 
 private fun MessageModel.toMessageEntity(): MessageEntity {
-    val id = "${senderId}_${message ?: ""}_${matchId}_${imgChat ?: ""}_${audioPath ?: ""}_${timestamp ?: ""}"
-        .hashCode()
-        .toString()
+    val resolvedClientId = clientMessageId
+    val id =
+        resolvedClientId
+            ?: "${senderId}_${message ?: ""}_${matchId}_${imgChat ?: ""}_${audioPath ?: ""}_${timestamp ?: ""}"
+                .hashCode()
+                .toString()
 
     return MessageEntity(
         id = id,
+        clientMessageId = resolvedClientId,
         senderId = senderId,
         matchId = matchId,
         message = message,

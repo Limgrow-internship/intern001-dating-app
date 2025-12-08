@@ -14,11 +14,13 @@ import com.google.firebase.messaging.RemoteMessage
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import com.intern001.dating.common.notification.resolveTargetUserId
+import com.intern001.dating.data.local.NotificationSettingsStorage
 import com.intern001.dating.data.local.TokenManager
 import com.intern001.dating.domain.model.Notification
 import com.intern001.dating.domain.usecase.notification.SaveNotificationUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +38,21 @@ class HeartOnMessagingService : FirebaseMessagingService() {
     @Inject
     lateinit var tokenManager: TokenManager
 
+    @Inject
+    lateinit var notificationSettingsStorage: NotificationSettingsStorage
+
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    private val defaultSettings: Map<String, Boolean> = mapOf(
+        NotificationSettingsStorage.KEY_SHOW_NOTIFICATIONS to true,
+        NotificationSettingsStorage.KEY_NEW_MATCH to true,
+        NotificationSettingsStorage.KEY_NEW_MESSAGE to true,
+        NotificationSettingsStorage.KEY_LIKES to false,
+        NotificationSettingsStorage.KEY_DISCOVERY_SUGGESTED to false,
+        NotificationSettingsStorage.KEY_DISCOVERY_NEARBY to false,
+        NotificationSettingsStorage.KEY_APP_INFO_SUGGESTED to false,
+        NotificationSettingsStorage.KEY_APP_INFO_NEARBY to false,
+    )
 
     companion object {
         private const val TAG = "HeartOnMessagingService"
@@ -52,6 +68,11 @@ class HeartOnMessagingService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        if (!isNotificationEnabled(remoteMessage.data)) {
+            Log.d(TAG, "Skipping notification due to user settings")
+            return
+        }
+
         if (remoteMessage.data.isNotEmpty()) {
             val shouldShow = shouldShowNotification(remoteMessage.data)
 
@@ -90,6 +111,15 @@ class HeartOnMessagingService : FirebaseMessagingService() {
                 sendNotification(
                     title = "It's a Match!",
                     message = "You and $matchedUserName liked each other — now it's time to say hi. Start your first chat!",
+                    data = data,
+                )
+            }
+            "message", "chat_message" -> {
+                val senderName = data["senderName"] ?: data["title"] ?: "New message"
+                val body = data["message"] ?: "You have a new message"
+                sendNotification(
+                    title = senderName,
+                    message = body,
                     data = data,
                 )
             }
@@ -205,6 +235,7 @@ class HeartOnMessagingService : FirebaseMessagingService() {
                     "like" -> Notification.NotificationType.LIKE
                     "superlike" -> Notification.NotificationType.SUPERLIKE
                     "match" -> Notification.NotificationType.MATCH
+                    "message", "chat_message" -> Notification.NotificationType.OTHER
                     "verification_success" -> Notification.NotificationType.VERIFICATION_SUCCESS
                     "verification_failed" -> Notification.NotificationType.VERIFICATION_FAILED
                     "premium_upgrade" -> Notification.NotificationType.PREMIUM_UPGRADE
@@ -216,17 +247,19 @@ class HeartOnMessagingService : FirebaseMessagingService() {
                     Notification.NotificationType.SUPERLIKE,
                     -> Notification.NotificationIconType.HEART
                     Notification.NotificationType.MATCH -> Notification.NotificationIconType.MATCH
-                    else -> Notification.NotificationIconType.SETTINGS
+                    else -> Notification.NotificationIconType.MATCH
                 }
 
                 val actionData = Notification.NotificationActionData(
                     navigateTo = when (type) {
                         "like", "superlike" -> data["navigate_to"] ?: "notification"
                         "match" -> "chat"
+                        "message", "chat_message" -> "chat"
                         else -> null
                     },
                     userId = when (type) {
                         "match" -> data["matchedUserId"] ?: data["userId"]
+                        "message", "chat_message" -> data["senderId"] ?: data["userId"]
                         else -> data["userId"]
                     },
                     matchId = data["matchId"],
@@ -234,10 +267,15 @@ class HeartOnMessagingService : FirebaseMessagingService() {
                     extraData = data,
                 )
 
-                val notificationId = "notif_${System.currentTimeMillis()}_${type ?: "other"}"
+                // Group by matchId to avoid spamming multiple system notifications for the same chat
+                val notificationId = when {
+                    data["matchId"] != null -> data["matchId"]!!.hashCode().let { if (it < 0) -it else it }
+                    type != null -> (type.hashCode()).let { if (it < 0) -it else it }
+                    else -> System.currentTimeMillis().toInt()
+                }
 
                 val notification = Notification(
-                    id = notificationId,
+                    id = notificationId.toString(),
                     type = notificationType,
                     title = title ?: "HeartOn",
                     message = message ?: "",
@@ -265,6 +303,11 @@ class HeartOnMessagingService : FirebaseMessagingService() {
                 } ?: System.currentTimeMillis().toInt()
             }
             "match" -> {
+                data["matchId"]?.hashCode()?.let {
+                    if (it < 0) -it else it
+                } ?: System.currentTimeMillis().toInt()
+            }
+            "message", "chat_message" -> {
                 data["matchId"]?.hashCode()?.let {
                     if (it < 0) -it else it
                 } ?: System.currentTimeMillis().toInt()
@@ -306,6 +349,29 @@ class HeartOnMessagingService : FirebaseMessagingService() {
         }
 
         return shouldShow
+    }
+
+    private fun isNotificationEnabled(data: Map<String, String>): Boolean {
+        val masterEnabled = getSettingOrDefault(NotificationSettingsStorage.KEY_SHOW_NOTIFICATIONS)
+        if (!masterEnabled) return false
+
+        val normalizedType = data["type"]?.trim()?.lowercase(Locale.ROOT)
+
+        val keyForType = when (normalizedType) {
+            "match" -> NotificationSettingsStorage.KEY_NEW_MATCH
+            "message", "chat", "chat_message" -> NotificationSettingsStorage.KEY_NEW_MESSAGE
+            "like", "superlike" -> NotificationSettingsStorage.KEY_LIKES
+            else -> null
+        }
+
+        val typeEnabled = keyForType?.let { getSettingOrDefault(it) } ?: true
+        return typeEnabled
+    }
+
+    private fun getSettingOrDefault(key: String): Boolean {
+        return notificationSettingsStorage.getSetting(key)
+            ?: defaultSettings[key]
+            ?: true
     }
 
     private fun createNotificationChannel() {
