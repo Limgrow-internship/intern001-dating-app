@@ -630,7 +630,6 @@ class EditProfileFragment : BaseFragment() {
             .setTitle("Cải thiện Bio")
             .setMessage("Bạn muốn AI cải thiện bio hiện tại của bạn không?")
             .setPositiveButton("Cải thiện") { _, _ ->
-                // Show loading và gọi enhance
                 showEnhanceBioLoading()
                 viewModel.enhanceBio()
             }
@@ -716,7 +715,6 @@ class EditProfileFragment : BaseFragment() {
             viewModel.enhanceBioState.collect { state ->
                 when (state) {
                     is EditProfileViewModel.UiState.Loading -> {
-                        // Loading đã được hiển thị trong dialog
                     }
                     is EditProfileViewModel.UiState.Success<*> -> {
                         stopLoadingTextAnimation()
