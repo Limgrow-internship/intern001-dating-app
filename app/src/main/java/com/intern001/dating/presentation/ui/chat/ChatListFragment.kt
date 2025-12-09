@@ -1,9 +1,15 @@
 package com.intern001.dating.presentation.ui.chat
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
@@ -14,6 +20,8 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.intern001.dating.R
+import com.intern001.dating.data.model.MessageModel
+import com.intern001.dating.data.service.HeartOnMessagingService
 import com.intern001.dating.databinding.FragmentChatListBinding
 import com.intern001.dating.domain.model.MatchList
 import com.intern001.dating.domain.model.UserProfileMatch
@@ -23,6 +31,7 @@ import com.intern001.dating.presentation.ui.chat.AIConstants
 import com.intern001.dating.presentation.ui.chat.MatchAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Instant
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
@@ -47,6 +56,32 @@ class ChatListFragment : BaseFragment() {
     private val chatSharedViewModel: ChatSharedViewModel by activityViewModels()
     private lateinit var matchAdapter: MatchAdapter
     private lateinit var conversationAdapter: ConversationAdapter
+    private val chatBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val action = intent?.action ?: return
+            if (action == HeartOnMessagingService.ACTION_CHAT_MESSAGE) {
+                val matchId = intent.getStringExtra(HeartOnMessagingService.EXTRA_MATCH_ID)
+                val lastMsg = intent.getStringExtra(HeartOnMessagingService.EXTRA_MESSAGE) ?: ""
+                val senderId = intent.getStringExtra(HeartOnMessagingService.EXTRA_SENDER_ID) ?: ""
+                val ts = intent.getStringExtra(HeartOnMessagingService.EXTRA_TIMESTAMP)
+                    ?: java.time.Instant.now().toString()
+
+                if (!matchId.isNullOrBlank()) {
+                    vm.updateLastMessage(
+                        matchId,
+                        com.intern001.dating.domain.entity.LastMessageEntity(
+                            message = lastMsg,
+                            senderId = senderId,
+                            timestamp = ts,
+                        ),
+                    )
+                    vm.refreshMatches()
+                } else {
+                    vm.refreshMatches()
+                }
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -201,6 +236,25 @@ class ChatListFragment : BaseFragment() {
                             }
                         }
                     }
+
+                    // Listen to shared message cache (socket/FCM) to update last message previews
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                            chatSharedViewModel.messagesCache.collectLatest { cache ->
+                                cache.forEach { (matchId, messages) ->
+                                    val latest = messages.maxByOrNull { it.timestamp ?: "" } ?: return@forEach
+                                    vm.updateLastMessage(
+                                        matchId,
+                                        com.intern001.dating.domain.entity.LastMessageEntity(
+                                            message = latest.previewText(),
+                                            senderId = latest.senderId ?: "",
+                                            timestamp = latest.timestamp ?: "",
+                                        ),
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -212,5 +266,38 @@ class ChatListFragment : BaseFragment() {
         super.onResume()
         // Silent refresh to pick up new matches without UI flicker
         vm.refreshMatches()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val filter = IntentFilter(HeartOnMessagingService.ACTION_CHAT_MESSAGE)
+        val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        } else {
+            0
+        }
+        ContextCompat.registerReceiver(
+            requireContext(),
+            chatBroadcastReceiver,
+            filter,
+            flags,
+        )
+    }
+
+    override fun onStop() {
+        super.onStop()
+        try {
+            requireContext().unregisterReceiver(chatBroadcastReceiver)
+        } catch (_: Exception) {
+        }
+    }
+
+    private fun MessageModel.previewText(): String {
+        return when {
+            message.isNotBlank() -> message
+            !imgChat.isNullOrBlank() -> "[image]"
+            !audioPath.isNullOrBlank() -> "[audio]"
+            else -> ""
+        }
     }
 }

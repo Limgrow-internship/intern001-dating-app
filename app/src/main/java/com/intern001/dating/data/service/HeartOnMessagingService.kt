@@ -60,6 +60,13 @@ class HeartOnMessagingService : FirebaseMessagingService() {
         private const val CHANNEL_ID_MATCHES = "matches"
         private const val CHANNEL_ID_DEFAULT = "hearton_notifications"
         private const val CHANNEL_NAME_DEFAULT = "HeartOn Notifications"
+
+        const val ACTION_CHAT_MESSAGE = "com.intern001.dating.ACTION_CHAT_MESSAGE"
+        const val EXTRA_MATCH_ID = "matchId"
+        const val EXTRA_SENDER_ID = "senderId"
+        const val EXTRA_SENDER_NAME = "senderName"
+        const val EXTRA_MESSAGE = "message"
+        const val EXTRA_TIMESTAMP = "timestamp"
     }
 
     override fun onCreate() {
@@ -117,6 +124,7 @@ class HeartOnMessagingService : FirebaseMessagingService() {
             "message", "chat_message" -> {
                 val senderName = data["senderName"] ?: data["title"] ?: "New message"
                 val body = data["message"] ?: "You have a new message"
+                broadcastNewChatMessage(data)
                 sendNotification(
                     title = senderName,
                     message = body,
@@ -313,6 +321,22 @@ class HeartOnMessagingService : FirebaseMessagingService() {
                 } ?: System.currentTimeMillis().toInt()
             }
             else -> System.currentTimeMillis().toInt()
+        }
+    }
+
+    private fun broadcastNewChatMessage(data: Map<String, String>) {
+        val matchId = data["matchId"] ?: return
+        val intent = Intent(ACTION_CHAT_MESSAGE).apply {
+            putExtra(EXTRA_MATCH_ID, matchId)
+            putExtra(EXTRA_SENDER_ID, data["senderId"])
+            putExtra(EXTRA_SENDER_NAME, data["senderName"])
+            putExtra(EXTRA_MESSAGE, data["message"])
+            putExtra(EXTRA_TIMESTAMP, data["timestamp"])
+        }
+        try {
+            sendBroadcast(intent)
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to broadcast chat message update", e)
         }
     }
 

@@ -42,18 +42,12 @@ class NotificationLocalStorage @Inject constructor(
         }
     }
 
-    /**
-     * Save a notification to local storage
-     */
     fun saveNotification(notification: Notification) {
         val notifications = getAllNotifications().toMutableList()
         notifications.add(0, notification) // Add to top
         saveAllNotifications(notifications)
     }
 
-    /**
-     * Get all notifications, sorted by timestamp (newest first)
-     */
     fun getAllNotifications(): List<Notification> {
         val json = prefs.getString(KEY_NOTIFICATIONS, null) ?: return emptyList()
         val type = object : TypeToken<List<NotificationStorageDTO>>() {}.type
@@ -66,16 +60,10 @@ class NotificationLocalStorage @Inject constructor(
         }
     }
 
-    /**
-     * Get unread notifications count
-     */
     fun getUnreadCount(): Int {
         return getAllNotifications().count { !it.isRead }
     }
 
-    /**
-     * Mark notification as read
-     */
     fun markAsRead(notificationId: String) {
         val notifications = getAllNotifications().toMutableList()
         val index = notifications.indexOfFirst { it.id == notificationId }
@@ -85,33 +73,21 @@ class NotificationLocalStorage @Inject constructor(
         }
     }
 
-    /**
-     * Mark all notifications as read
-     */
     fun markAllAsRead() {
         val notifications = getAllNotifications().map { it.copy(isRead = true) }
         saveAllNotifications(notifications)
     }
 
-    /**
-     * Delete a notification
-     */
     fun deleteNotification(notificationId: String) {
         val notifications = getAllNotifications().toMutableList()
         notifications.removeAll { it.id == notificationId }
         saveAllNotifications(notifications)
     }
 
-    /**
-     * Delete all notifications
-     */
     fun deleteAllNotifications() {
         prefs.edit().remove(KEY_NOTIFICATIONS).apply()
     }
 
-    /**
-     * Get next notification ID
-     */
     fun getNextNotificationId(): String {
         val nextId = prefs.getLong(KEY_NEXT_ID, 1)
         prefs.edit().putLong(KEY_NEXT_ID, nextId + 1).apply()
