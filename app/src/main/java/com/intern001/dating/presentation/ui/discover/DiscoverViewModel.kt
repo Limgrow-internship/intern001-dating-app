@@ -3,6 +3,7 @@ package com.intern001.dating.presentation.ui.discover
 import android.location.Location
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.intern001.dating.data.billing.BillingManager
 import com.intern001.dating.data.local.prefs.TokenManager
 import com.intern001.dating.domain.cache.InitialDataCache
 import com.intern001.dating.domain.model.MatchCard
@@ -40,6 +41,7 @@ class DiscoverViewModel @Inject constructor(
     private val initialDataCache: InitialDataCache,
     private val getMatchedUsersUseCase: GetMatchedUsersUseCase,
     private val tokenManager: TokenManager,
+    private val billingManager: BillingManager,
 ) : BaseStateViewModel<List<MatchCard>>() {
 
     private val _matchCards = MutableStateFlow<List<MatchCard>>(emptyList())
@@ -66,6 +68,7 @@ class DiscoverViewModel @Inject constructor(
 
     private var latestUserLocation: UserLocation? = null
     private var swipeCountSinceNativeAd = 0
+    private var isNativeAdPending = false
 
     init {
         preloadMatchedUsers()
@@ -487,11 +490,33 @@ class DiscoverViewModel @Inject constructor(
     }
 
     private fun handleSwipeProgression() {
+        if (billingManager.hasActiveSubscription()) {
+            Log.d(TAG, "handleSwipeProgression: premium user, skip ads")
+            return
+        }
+        if (isNativeAdPending) {
+            Log.d(TAG, "handleSwipeProgression: ad already pending, count=$swipeCountSinceNativeAd")
+            return
+        }
         swipeCountSinceNativeAd += 1
+        Log.d(TAG, "handleSwipeProgression: swipeCount=$swipeCountSinceNativeAd/$SWIPES_PER_NATIVE_AD")
         if (swipeCountSinceNativeAd >= SWIPES_PER_NATIVE_AD) {
-            swipeCountSinceNativeAd = 0
+            isNativeAdPending = true
+            Log.d(TAG, "handleSwipeProgression: threshold reached, emit showNativeAdEvent")
             viewModelScope.launch { _showNativeAdEvent.emit(Unit) }
         }
+    }
+
+    fun hasActiveSubscription(): Boolean = billingManager.hasActiveSubscription()
+
+    fun onNativeAdDisplayed() {
+        swipeCountSinceNativeAd = 0
+        isNativeAdPending = false
+    }
+
+    fun resetNativeAdCounter() {
+        swipeCountSinceNativeAd = 0
+        isNativeAdPending = false
     }
 
     companion object {

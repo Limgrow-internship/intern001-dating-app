@@ -45,6 +45,7 @@ class SplashFragment : BaseFragment() {
         (activity as? MainActivity)?.hideBottomNavigation(true)
 
         viewModel.prefetchLanguages()
+        AdManager.ensurePreloaded(requireContext())
 
         if (viewModel.hasActiveSubscription()) {
             lifecycleScope.launch {
@@ -54,7 +55,7 @@ class SplashFragment : BaseFragment() {
                 }
             }
         } else {
-            AdManager.preloadNativeAds(requireContext()) {
+            AdManager.ensurePreloaded(requireContext()) {
                 // Use lifecycleScope instead of viewLifecycleOwner to avoid crash when view is destroyed
                 lifecycleScope.launch {
                     delay(1500)
