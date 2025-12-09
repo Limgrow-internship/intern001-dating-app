@@ -68,6 +68,11 @@ class NativeFullFragment : BaseFragment() {
             }
         }
 
+        if (viewModel.hasActiveSubscription()) {
+            navigateToNextScreen()
+            return
+        }
+
         // Always show full screen ad (mandatory)
         val adContainer = binding.nativeAdContainer
         NativeAdHelper.bindNativeAdFull(

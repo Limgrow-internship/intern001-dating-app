@@ -1,6 +1,9 @@
 package com.intern001.dating.presentation.ui.discover
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,9 +19,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentDiscoverBinding
+import com.intern001.dating.presentation.common.ads.AdManager
 import com.intern001.dating.presentation.common.state.UiState
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.ui.discover.view.MatchCardView
+import com.intern001.dating.presentation.ui.discover.view.NativeAdCardView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -32,6 +37,13 @@ class DiscoverFragment : BaseFragment() {
     private var currentCardView: MatchCardView? = null
     private var nextCardView: MatchCardView? = null
     private var alreadyLikedDialog: AlertDialog? = null
+    private var nativeAdCardView: NativeAdCardView? = null
+    private var shouldShowNativeAd = false
+    private var isNativeAdVisible = false
+    private val nativeAdHandler = Handler(Looper.getMainLooper())
+    private var nativeAdAutoSkipRunnable: Runnable? = null
+    private var nativeAdRetryRunnable: Runnable? = null
+    private val logTag = "DiscoverFragment"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,8 +59,11 @@ class DiscoverFragment : BaseFragment() {
 
         (activity as? MainActivity)?.hideBottomNavigation(false)
 
+        AdManager.ensurePreloaded(requireContext())
+
         setupListeners()
         observeViewModel()
+        viewModel.resetNativeAdCounter()
 
         viewModel.clearTemporaryMatchedAllowances()
 
@@ -73,6 +88,7 @@ class DiscoverFragment : BaseFragment() {
         super.onDestroyView()
         alreadyLikedDialog?.dismiss()
         alreadyLikedDialog = null
+        removeNativeAdCard()
         _binding = null
     }
 
@@ -155,6 +171,14 @@ class DiscoverFragment : BaseFragment() {
                         showAlreadyLikedDialog(card.displayName)
                     }
                 }
+
+                launch {
+                    viewModel.showNativeAdEvent.collect {
+                        shouldShowNativeAd = true
+                        Log.d(logTag, "showNativeAdEvent received -> shouldShowNativeAd=true")
+                        maybeShowNativeAd()
+                    }
+                }
             }
         }
     }
@@ -199,8 +223,13 @@ class DiscoverFragment : BaseFragment() {
     }
 
     private fun showNextCard() {
+        if (maybeShowNativeAd()) {
+            return
+        }
+
         if (!viewModel.hasMoreCards()) {
             binding.noMoreCardsLayout.isVisible = true
+            shouldShowNativeAd = false
             return
         }
         showCurrentCard()
@@ -258,6 +287,118 @@ class DiscoverFragment : BaseFragment() {
         })
     }
 
+    private fun maybeShowNativeAd(): Boolean {
+        Log.d(
+            logTag,
+            "maybeShowNativeAd enter: shouldShowNativeAd=$shouldShowNativeAd, isNativeAdVisible=$isNativeAdVisible, hasMore=${viewModel.hasMoreCards()}",
+        )
+        if (!shouldShowNativeAd || isNativeAdVisible) return false
+        if (!viewModel.hasMoreCards()) {
+            Log.d(logTag, "maybeShowNativeAd: no more cards, skip")
+            return false
+        }
+
+        val nativeAd = AdManager.nativeAdFull
+        if (nativeAd == null) {
+            Log.d(logTag, "maybeShowNativeAd: nativeAdFull null -> schedule retry")
+            scheduleNativeAdRetry()
+            return false
+        }
+
+        val adCard = nativeAdCardView ?: NativeAdCardView(requireContext()).also {
+            nativeAdCardView = it
+        }
+
+        adCard.setOnAdSwipeListener(object : NativeAdCardView.OnAdSwipeListener {
+            override fun onDismissed() {
+                dismissNativeAdCard()
+            }
+        })
+
+        adCard.bindNativeAd(nativeAd)
+
+        if (adCard.parent == null) {
+            // Add to top of stack so it stays above current match card
+            binding.cardContainer.addView(adCard)
+        }
+        adCard.visibility = View.VISIBLE
+        currentCardView?.visibility = View.GONE
+        nextCardView?.visibility = View.GONE
+
+        isNativeAdVisible = true
+        shouldShowNativeAd = false
+        viewModel.onNativeAdDisplayed()
+        Log.d(logTag, "maybeShowNativeAd: ad shown")
+
+        startNativeAdAutoSkip()
+        clearNativeAdRetry()
+        return true
+    }
+
+    private fun dismissNativeAdCard() {
+        if (!isNativeAdVisible) return
+        clearNativeAdAutoSkip()
+        nativeAdCardView?.let { adCard ->
+            (adCard.parent as? ViewGroup)?.removeView(adCard)
+        }
+        isNativeAdVisible = false
+        currentCardView?.visibility = View.VISIBLE
+        nextCardView?.visibility = View.VISIBLE
+        Log.d(logTag, "dismissNativeAdCard: ad dismissed")
+
+        if (!viewModel.hasMoreCards()) {
+            binding.noMoreCardsLayout.isVisible = true
+        } else {
+            showCurrentCard()
+        }
+    }
+
+    private fun removeNativeAdCard() {
+        clearNativeAdAutoSkip()
+        clearNativeAdRetry()
+        nativeAdCardView?.setOnAdSwipeListener(null)
+        nativeAdCardView?.let { adCard ->
+            (adCard.parent as? ViewGroup)?.removeView(adCard)
+        }
+        isNativeAdVisible = false
+        shouldShowNativeAd = false
+        Log.d(logTag, "removeNativeAdCard: cleared")
+    }
+
+    private fun startNativeAdAutoSkip() {
+        clearNativeAdAutoSkip()
+        nativeAdAutoSkipRunnable = Runnable { dismissNativeAdCard() }
+        nativeAdAutoSkipRunnable?.let { runnable ->
+            nativeAdHandler.postDelayed(runnable, NATIVE_AD_AUTO_SKIP_MS)
+        }
+    }
+
+    private fun clearNativeAdAutoSkip() {
+        nativeAdAutoSkipRunnable?.let { nativeAdHandler.removeCallbacks(it) }
+        nativeAdAutoSkipRunnable = null
+    }
+
+    private fun scheduleNativeAdRetry() {
+        if (nativeAdRetryRunnable != null) return
+        nativeAdRetryRunnable = Runnable {
+            nativeAdRetryRunnable = null
+            if (shouldShowNativeAd && !isNativeAdVisible) {
+                maybeShowNativeAd()
+                if (shouldShowNativeAd && !isNativeAdVisible) {
+                    scheduleNativeAdRetry()
+                }
+            }
+        }
+        nativeAdRetryRunnable?.let { nativeAdHandler.postDelayed(it, NATIVE_AD_RETRY_MS) }
+        Log.d(logTag, "scheduleNativeAdRetry: scheduled in $NATIVE_AD_RETRY_MS ms")
+    }
+
+    private fun clearNativeAdRetry() {
+        nativeAdRetryRunnable?.let { nativeAdHandler.removeCallbacks(it) }
+        nativeAdRetryRunnable = null
+        Log.d(logTag, "clearNativeAdRetry")
+    }
+
     private fun navigateToModeScreen(mode: String) {
         val fragment = if (mode.lowercase() == "friend") {
             DatingModeFragment()
@@ -311,5 +452,10 @@ class DiscoverFragment : BaseFragment() {
                 )
                 .setPositiveButton(android.R.string.ok, null)
                 .show()
+    }
+
+    companion object {
+        private const val NATIVE_AD_AUTO_SKIP_MS = 5_000L
+        private const val NATIVE_AD_RETRY_MS = 500L
     }
 }

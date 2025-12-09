@@ -22,6 +22,14 @@ object AdManager {
 
     enum class AdType { SMALL, FULL }
 
+    fun ensurePreloaded(context: Context, onAllLoaded: (() -> Unit)? = null) {
+        if (nativeAdSmall != null && nativeAdFull != null) {
+            onAllLoaded?.invoke()
+            return
+        }
+        preloadNativeAds(context.applicationContext, onAllLoaded)
+    }
+
     fun preloadNativeAds(context: Context, onAllLoaded: (() -> Unit)? = null) {
         var loadedCount = 0
 
