@@ -1,4 +1,4 @@
-package com.intern001.dating.data.local
+package com.intern001.dating.data.local.prefs
 
 import android.content.Context
 import android.content.SharedPreferences

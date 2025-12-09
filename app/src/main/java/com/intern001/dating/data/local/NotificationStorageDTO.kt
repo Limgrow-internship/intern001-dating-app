@@ -3,10 +3,6 @@ package com.intern001.dating.data.local
 import com.intern001.dating.domain.model.Notification
 import java.util.Date
 
-/**
- * DTO for storing notifications in local storage
- * Uses Long timestamp instead of Date for Gson compatibility
- */
 data class NotificationStorageDTO(
     val id: String,
     val type: String, // NotificationType enum name

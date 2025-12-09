@@ -1,4 +1,4 @@
-package com.intern001.dating.data.local
+package com.intern001.dating.data.local.repository
 
 import com.intern001.dating.data.local.dao.MessageDao
 import com.intern001.dating.data.local.entity.MessageEntity

@@ -14,8 +14,8 @@ import com.google.firebase.messaging.RemoteMessage
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import com.intern001.dating.common.notification.resolveTargetUserId
-import com.intern001.dating.data.local.NotificationSettingsStorage
-import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.local.prefs.NotificationSettingsStorage
+import com.intern001.dating.data.local.prefs.TokenManager
 import com.intern001.dating.domain.model.Notification
 import com.intern001.dating.domain.usecase.notification.SaveNotificationUseCase
 import dagger.hilt.android.AndroidEntryPoint

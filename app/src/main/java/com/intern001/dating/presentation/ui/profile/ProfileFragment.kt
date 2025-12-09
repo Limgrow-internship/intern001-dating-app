@@ -16,7 +16,7 @@ import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
-import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.local.prefs.TokenManager
 import com.intern001.dating.databinding.FragmentProfileBinding
 import com.intern001.dating.domain.model.UpdateProfile
 import com.intern001.dating.domain.model.UserProfile

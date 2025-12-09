@@ -3,7 +3,7 @@ package com.intern001.dating.presentation.common.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.local.prefs.TokenManager
 import com.intern001.dating.domain.entity.LastMessageEntity
 import com.intern001.dating.domain.model.MatchList
 import com.intern001.dating.domain.usecase.GetLastMessageUseCase

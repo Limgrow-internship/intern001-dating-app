@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.navigation.fragment.findNavController
 import com.intern001.dating.R
-import com.intern001.dating.data.local.NotificationSettingsStorage
+import com.intern001.dating.data.local.prefs.NotificationSettingsStorage
 import com.intern001.dating.databinding.FragmentNotificationSettingBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint

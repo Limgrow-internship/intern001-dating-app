@@ -1,7 +1,7 @@
 package com.intern001.dating.data.repository
 
 import com.intern001.dating.data.api.DatingApiService
-import com.intern001.dating.data.local.NotificationLocalStorage
+import com.intern001.dating.data.local.prefs.NotificationLocalStorage
 import com.intern001.dating.domain.model.Notification
 import com.intern001.dating.domain.repository.NotificationRepository
 import javax.inject.Inject

@@ -2,7 +2,7 @@ package com.intern001.dating.presentation.ui.chat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.intern001.dating.data.local.ChatLocalRepository
+import com.intern001.dating.data.local.repository.ChatLocalRepository
 import com.intern001.dating.data.model.MessageModel
 import com.intern001.dating.domain.repository.ChatRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

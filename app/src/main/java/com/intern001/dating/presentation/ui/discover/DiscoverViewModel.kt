@@ -3,7 +3,7 @@ package com.intern001.dating.presentation.ui.discover
 import android.location.Location
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.local.prefs.TokenManager
 import com.intern001.dating.domain.cache.InitialDataCache
 import com.intern001.dating.domain.model.MatchCard
 import com.intern001.dating.domain.model.MatchResult

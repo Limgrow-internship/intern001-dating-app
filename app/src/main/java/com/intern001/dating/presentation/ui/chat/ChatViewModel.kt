@@ -4,8 +4,8 @@ import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.intern001.dating.data.local.ChatLocalRepository
-import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.local.prefs.TokenManager
+import com.intern001.dating.data.local.repository.ChatLocalRepository
 import com.intern001.dating.data.model.MessageModel
 import com.intern001.dating.data.service.ChatSocketService
 import com.intern001.dating.domain.repository.ChatRepository
