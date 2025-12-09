@@ -228,6 +228,11 @@
             app:destination="@id/profileDetailFragment"
             app:enterAnim="@android:anim/fade_in"
             app:exitAnim="@android:anim/fade_out" />
+        <action
+            android:id="@+id/action_chatDetail_to_reportFragment"
+            app:destination="@id/reportFragment"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@android:anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -395,4 +400,15 @@
         android:id="@+id/filterFragment"
         android:name="com.intern001.dating.presentation.ui.discover.filter.DatingFilterFragment"
         android:label="Filter" />
+
+    <fragment
+        android:id="@+id/reportFragment"
+        android:name="com.intern001.dating.presentation.ui.chat.report.ReportFragment"
+        android:label="ReportFragment">
+
+        <argument
+            android:name="matchedUserId"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
 </navigation>

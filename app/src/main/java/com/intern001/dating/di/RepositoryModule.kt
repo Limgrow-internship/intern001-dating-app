@@ -9,6 +9,7 @@ import com.intern001.dating.data.repository.MatchStatusRepositoryImpl
 import com.intern001.dating.data.repository.NotificationRepositoryImpl
 import com.intern001.dating.data.repository.PhotoRepositoryImpl
 import com.intern001.dating.data.repository.RecommendationRepositoryImpl
+import com.intern001.dating.data.repository.ReportRepositoryImpl
 import com.intern001.dating.data.repository.UserRepositoryImpl
 import com.intern001.dating.domain.repository.AuthRepository
 import com.intern001.dating.domain.repository.LanguageRepository
@@ -19,6 +20,7 @@ import com.intern001.dating.domain.repository.MatchStatusRepository
 import com.intern001.dating.domain.repository.NotificationRepository
 import com.intern001.dating.domain.repository.PhotoRepository
 import com.intern001.dating.domain.repository.RecommendationRepository
+import com.intern001.dating.domain.repository.ReportRepository
 import com.intern001.dating.domain.repository.UserRepository
 import dagger.Binds
 import dagger.Module
@@ -87,4 +89,10 @@ abstract class RepositoryModule {
     abstract fun bindLikedYouRepository(
         impl: LikedYouRepositoryImpl,
     ): LikedYouRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindReportRepository(
+        impl: ReportRepositoryImpl,
+    ): ReportRepository
 }

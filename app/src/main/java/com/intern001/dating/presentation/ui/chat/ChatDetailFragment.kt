@@ -22,6 +22,7 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -349,7 +350,18 @@ class ChatDetailFragment : BaseFragment() {
                     } else {
                         null
                     },
-                    onReport = { },
+                    onReport = {
+                        if (isAIConversation) {
+                            Toast.makeText(context, "Không thể báo cáo AI", Toast.LENGTH_SHORT).show()
+                            return@ChatMoreBottomSheet
+                        }
+                        findNavController().navigate(
+                            R.id.action_chatDetail_to_reportFragment,
+                            Bundle().apply {
+                                putString("targetUserId", targetUserId)
+                            },
+                        )
+                    },
                     onDeleteConversation = { showDeleteConversationDialog() },
                     onBlock = { showBlockUserDialog() },
                     onUnblock = { showUnblockUserDialog() },
