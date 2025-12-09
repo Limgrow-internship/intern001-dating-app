@@ -142,6 +142,7 @@ class ChatSocketService(private val token: String) {
         audioPath: String? = null,
         duration: Int? = null,
         imgChat: String? = null,
+        clientMessageId: String? = null,
     ) {
         if (socket == null) {
             Log.e(TAG, "Socket is null, cannot send message")
@@ -160,6 +161,7 @@ class ChatSocketService(private val token: String) {
             audioPath?.let { put("audioPath", it) } ?: put("audioPath", "")
             imgChat?.let { put("imgChat", it) } ?: put("imgChat", "")
             duration?.let { put("duration", it) } ?: put("duration", 0)
+            clientMessageId?.let { put("clientMessageId", it) }
         }
         socket?.emit("send_message", data)
         Log.d(TAG, "Sent message: matchId=$matchId, senderId=$senderId, message=${message?.take(50)}...")
@@ -181,6 +183,7 @@ class ChatSocketService(private val token: String) {
         val imgChatValue = json.optString("imgChat", null)
 
         return MessageModel(
+            clientMessageId = json.optString("clientMessageId", null).takeIf { it?.isNotBlank() == true },
             senderId = json.optString("senderId"),
             matchId = json.optString("matchId"),
             message = json.optString("message", ""),

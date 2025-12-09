@@ -10,9 +10,11 @@ class SendVoiceMessageUseCase @Inject constructor(private val repository: ChatRe
         senderId: String,
         localAudioPath: String,
         duration: Int,
+        clientMessageId: String,
     ): MessageModel? {
         val audioUrl = repository.uploadAudio(localAudioPath) ?: return null
         val message = MessageModel(
+            clientMessageId = clientMessageId,
             senderId = senderId,
             matchId = matchId,
             message = "",

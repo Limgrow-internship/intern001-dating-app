@@ -4,11 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.intern001.dating.MainActivity
+import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentNotificationBinding
 import com.intern001.dating.domain.model.Notification
 import com.intern001.dating.presentation.common.state.UiState
@@ -152,7 +154,19 @@ class NotificationFragment : BaseFragment() {
         val actionData = notification.actionData
         when (notification.type) {
             Notification.NotificationType.MATCH -> {
-                actionData?.userId?.let { userId ->
+                val matchId = actionData?.matchId
+                val userId = actionData?.userId
+                val matchedName = actionData?.extraData?.get("matchedUserName") ?: notification.title
+                val matchedAvatar = actionData?.extraData?.get("matchedUserAvatar") ?: ""
+
+                if (matchId != null) {
+                    val args = bundleOf(
+                        "matchId" to matchId,
+                        "matchedUserName" to matchedName,
+                        "matchedUserAvatar" to matchedAvatar,
+                    )
+                    navController.navigate(R.id.action_notification_to_chatDetail, args)
+                } else if (userId != null) {
                     navController.navigateToChatDetail(userId)
                 }
             }

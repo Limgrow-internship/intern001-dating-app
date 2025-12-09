@@ -16,7 +16,7 @@ import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
-import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.local.prefs.TokenManager
 import com.intern001.dating.databinding.ActivityChangePasswordBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
@@ -39,7 +39,8 @@ class ChangePasswordActivity : BaseActivity() {
         binding = ActivityChangePasswordBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        tokenManager = TokenManager(this)
+        val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
+        tokenManager = TokenManager(prefs)
 
         tvPasswordMismatch = binding.passwordFields.getChildAt(2) as TextView
         tvWeakPassword = binding.passwordFields.getChildAt(3) as TextView

@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.intern001.dating.BuildConfig
 import com.intern001.dating.data.api.DatingApiService
-import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.local.prefs.TokenManager
 import com.intern001.dating.data.model.response.PhotoListDeserializer
 import com.intern001.dating.data.model.response.PhotoResponse
 import dagger.Module

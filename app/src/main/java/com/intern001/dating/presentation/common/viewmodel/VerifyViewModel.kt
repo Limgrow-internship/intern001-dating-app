@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.local.prefs.TokenManager
 import com.intern001.dating.data.model.response.PhotoResponse
 import com.intern001.dating.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

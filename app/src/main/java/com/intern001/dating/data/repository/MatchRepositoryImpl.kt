@@ -2,7 +2,7 @@ package com.intern001.dating.data.repository
 
 import android.util.Log
 import com.intern001.dating.data.api.DatingApiService
-import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.local.prefs.TokenManager
 import com.intern001.dating.data.model.request.BlockUserRequest
 import com.intern001.dating.data.model.request.MatchActionRequest
 import com.intern001.dating.data.model.request.UnmatchRequest

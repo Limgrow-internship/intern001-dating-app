@@ -30,7 +30,7 @@ import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.LottieCompositionFactory
 import com.bumptech.glide.Glide
 import com.intern001.dating.R
-import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.local.prefs.TokenManager
 import com.intern001.dating.data.model.MessageModel
 import com.intern001.dating.databinding.FragmentChatScreenBinding
 import com.intern001.dating.domain.entity.LastMessageEntity
@@ -58,7 +58,10 @@ class ChatDetailFragment : BaseFragment() {
 
     private var _binding: FragmentChatScreenBinding? = null
     private val binding get() = _binding!!
-    private val tokenManager by lazy { TokenManager(requireContext()) }
+    private val tokenManager by lazy {
+        val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        TokenManager(prefs)
+    }
 
     private var targetUserId: String = ""
 
@@ -93,7 +96,7 @@ class ChatDetailFragment : BaseFragment() {
         }
 
     private suspend fun getMyUserIdAsync(): String {
-        return tokenManager.getUserIdAsync() ?: ""
+        return tokenManager.getUserId() ?: ""
     }
 
     override fun onCreateView(
@@ -311,8 +314,10 @@ class ChatDetailFragment : BaseFragment() {
             if (content.isNotEmpty()) {
                 lifecycleScope.launch {
                     val confirmedUserId = getMyUserIdAsync()
+                    val clientId = viewModel.newClientMessageId()
 
                     val messageModel = MessageModel(
+                        clientMessageId = clientId,
                         senderId = confirmedUserId,
                         matchId = matchId,
                         message = content,
@@ -325,7 +330,7 @@ class ChatDetailFragment : BaseFragment() {
 
                     viewModel.addMessage(messageModel)
                     android.util.Log.d("ChatDetailFragment", "Added optimistic message: $content")
-                    viewModel.sendMessageViaSocket(content)
+                    viewModel.sendMessageViaSocket(content, clientId)
                     binding.edtMessage.setText("")
                 }
             }
@@ -420,7 +425,8 @@ class ChatDetailFragment : BaseFragment() {
                         lifecycleScope.launch {
                             val confirmedUserId = getMyUserIdAsync()
                             val duration = getAudioDurationSeconds(audioFilePath)
-                            viewModel.sendAudioViaSocket(audioFilePath, duration)
+                            val clientId = viewModel.newClientMessageId()
+                            viewModel.sendAudioViaSocket(audioFilePath, duration, clientId)
                         }
                     } else {
                         Toast.makeText(context, "Bản ghi quá ngắn!", Toast.LENGTH_SHORT).show()

@@ -3,7 +3,7 @@ package com.intern001.dating.data.repository
 import android.content.Context
 import android.net.Uri
 import com.intern001.dating.data.api.DatingApiService
-import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.local.prefs.TokenManager
 import com.intern001.dating.data.model.request.FacebookLoginRequest
 import com.intern001.dating.data.model.request.GenerateBioDto
 import com.intern001.dating.data.model.request.GoogleLoginRequest
