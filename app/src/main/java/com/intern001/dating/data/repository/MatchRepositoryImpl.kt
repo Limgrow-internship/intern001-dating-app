@@ -16,6 +16,7 @@ import com.intern001.dating.domain.model.MatchList
 import com.intern001.dating.domain.model.MatchResult
 import com.intern001.dating.domain.repository.LocationRepository
 import com.intern001.dating.domain.repository.MatchRepository
+import com.intern001.dating.presentation.util.AIConstants
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -193,7 +194,7 @@ constructor(
 
     override suspend fun getProfileByUserId(userId: String): Result<MatchCard> {
         return try {
-            if (userId == com.intern001.dating.presentation.ui.chat.AIConstants.AI_ASSISTANT_USER_ID) {
+            if (userId == AIConstants.AI_ASSISTANT_USER_ID) {
                 try {
                     val response = apiService.getProfileByUserId(userId)
                     if (response.isSuccessful) {
@@ -208,7 +209,7 @@ constructor(
                     Log.w(TAG, "Exception fetching AI profile from API, using fake data", e)
                 }
 
-                val aiProfile = com.intern001.dating.presentation.ui.chat.AIConstants.createAIFakeProfile()
+                val aiProfile = AIConstants.createAIFakeProfile()
                 return Result.success(aiProfile)
             }
 

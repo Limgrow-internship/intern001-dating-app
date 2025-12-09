@@ -10,6 +10,7 @@ import com.intern001.dating.data.model.MessageModel
 import com.intern001.dating.data.service.ChatSocketService
 import com.intern001.dating.domain.repository.ChatRepository
 import com.intern001.dating.domain.usecase.SendVoiceMessageUseCase
+import com.intern001.dating.presentation.util.AIConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.Instant
 import java.util.ArrayDeque
@@ -248,7 +249,7 @@ class ChatViewModel @Inject constructor(
 
         android.util.Log.d("ChatViewModel", "Added message: ${message.message.take(50)}... Total: ${_messages.value.size}")
 
-        if (isAIConversation && com.intern001.dating.presentation.ui.chat.AIConstants.isMessageFromAI(message.senderId)) {
+        if (isAIConversation && AIConstants.isMessageFromAI(message.senderId)) {
             hideAITypingIndicator()
         }
     }
@@ -408,7 +409,7 @@ class ChatViewModel @Inject constructor(
         }
         typingTimeoutHandler.postDelayed(
             typingTimeoutRunnable!!,
-            com.intern001.dating.presentation.ui.chat.AIConstants.AI_TYPING_TIMEOUT_MS,
+            AIConstants.AI_TYPING_TIMEOUT_MS,
         )
     }
 

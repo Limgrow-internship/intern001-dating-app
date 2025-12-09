@@ -54,6 +54,9 @@ class DiscoverViewModel @Inject constructor(
     private val _alreadyLikedEvent = MutableSharedFlow<MatchCard>()
     val alreadyLikedEvent: SharedFlow<MatchCard> = _alreadyLikedEvent.asSharedFlow()
 
+    private val _showNativeAdEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val showNativeAdEvent: SharedFlow<Unit> = _showNativeAdEvent.asSharedFlow()
+
     private val _undoStack = MutableStateFlow<List<MatchCard>>(emptyList())
 
     private val matchedUserIds = MutableStateFlow<Set<String>>(emptySet())
@@ -62,6 +65,7 @@ class DiscoverViewModel @Inject constructor(
     private var isInitialized = false
 
     private var latestUserLocation: UserLocation? = null
+    private var swipeCountSinceNativeAd = 0
 
     init {
         preloadMatchedUsers()
@@ -223,6 +227,8 @@ class DiscoverViewModel @Inject constructor(
         if (remaining <= 2) {
             loadMatchCards(showLoading = false, append = true)
         }
+
+        handleSwipeProgression()
     }
 
     fun undoLastAction() {
@@ -480,8 +486,17 @@ class DiscoverViewModel @Inject constructor(
         return cards.filterNot { matched.contains(it.userId) && !allowlist.contains(it.userId) }
     }
 
+    private fun handleSwipeProgression() {
+        swipeCountSinceNativeAd += 1
+        if (swipeCountSinceNativeAd >= SWIPES_PER_NATIVE_AD) {
+            swipeCountSinceNativeAd = 0
+            viewModelScope.launch { _showNativeAdEvent.emit(Unit) }
+        }
+    }
+
     companion object {
         private const val TAG = "DiscoverViewModel"
         private const val DISTANCE_DIFF_THRESHOLD_KM = 0.05
+        private const val SWIPES_PER_NATIVE_AD = 4
     }
 }

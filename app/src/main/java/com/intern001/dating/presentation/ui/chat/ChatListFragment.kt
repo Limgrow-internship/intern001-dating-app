@@ -16,7 +16,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.intern001.dating.R
@@ -27,8 +26,7 @@ import com.intern001.dating.domain.model.MatchList
 import com.intern001.dating.domain.model.UserProfileMatch
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.common.viewmodel.ChatListViewModel
-import com.intern001.dating.presentation.ui.chat.AIConstants
-import com.intern001.dating.presentation.ui.chat.MatchAdapter
+import com.intern001.dating.presentation.util.AIConstants
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Instant
 import kotlinx.coroutines.flow.collectLatest

@@ -46,13 +46,22 @@ class SplashFragment : BaseFragment() {
 
         viewModel.prefetchLanguages()
 
-        AdManager.preloadNativeAds(requireContext()) {
-            // Use lifecycleScope instead of viewLifecycleOwner to avoid crash when view is destroyed
+        if (viewModel.hasActiveSubscription()) {
             lifecycleScope.launch {
-                delay(1500)
-                // Check if fragment is still attached and view exists before navigation
+                delay(500)
                 if (isAdded && view != null) {
                     navigateToNextScreen()
+                }
+            }
+        } else {
+            AdManager.preloadNativeAds(requireContext()) {
+                // Use lifecycleScope instead of viewLifecycleOwner to avoid crash when view is destroyed
+                lifecycleScope.launch {
+                    delay(1500)
+                    // Check if fragment is still attached and view exists before navigation
+                    if (isAdded && view != null) {
+                        navigateToNextScreen()
+                    }
                 }
             }
         }

@@ -36,8 +36,7 @@ import com.intern001.dating.databinding.FragmentChatScreenBinding
 import com.intern001.dating.domain.entity.LastMessageEntity
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.common.viewmodel.ChatListViewModel
-import com.intern001.dating.presentation.ui.chat.AIConstants
-import com.intern001.dating.presentation.ui.chat.MessageAdapter
+import com.intern001.dating.presentation.util.AIConstants
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import kotlinx.coroutines.flow.collectLatest
