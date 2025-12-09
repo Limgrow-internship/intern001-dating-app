@@ -139,3 +139,11 @@ data class UpdateFCMTokenRequest(
     @SerializedName("fcmToken")
     val fcmToken: String,
 )
+
+data class ReportRequest(
+    @SerializedName("userIdIsReported")
+    val userIdIsReported: String,
+
+    @SerializedName("reason")
+    val reason: String,
+)

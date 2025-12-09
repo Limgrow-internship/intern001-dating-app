@@ -2,6 +2,7 @@ package com.intern001.dating.data.model.response
 
 import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
+import java.util.Date
 
 data class AuthResponse(
     @SerializedName("accessToken")
@@ -215,4 +216,18 @@ data class LikedYouResponseDto(
     val city: String?,
     @SerializedName("age")
     val age: Int?,
+)
+
+data class ReportResponse(
+    @SerializedName("userIdReport")
+    val userIdReport: String,
+
+    @SerializedName("userIdIsReported")
+    val userIdIsReported: String,
+
+    @SerializedName("reason")
+    val reason: String,
+
+    @SerializedName("createdAt")
+    val createdAt: Date,
 )

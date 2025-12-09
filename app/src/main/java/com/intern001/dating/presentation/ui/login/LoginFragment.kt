@@ -143,6 +143,7 @@ class LoginFragment : BaseFragment() {
 
                 Log.d("GoogleLogin", "idToken=${idToken?.take(20)}... length=${idToken?.length}")
                 Log.d("GoogleLogin", "account.email=${account?.email}, account.id=${account?.id}")
+                Log.d("GoogleLogin", "FULL_TOKEN = $idToken")
 
                 if (!idToken.isNullOrEmpty()) {
                     viewModel.googleLogin(idToken)

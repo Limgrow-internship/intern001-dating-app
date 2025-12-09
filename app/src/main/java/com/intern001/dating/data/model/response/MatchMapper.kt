@@ -10,6 +10,7 @@ import com.intern001.dating.domain.model.MatchStatus
 import com.intern001.dating.domain.model.MatchStatusGet
 import com.intern001.dating.domain.model.Photo
 import com.intern001.dating.domain.model.Range
+import com.intern001.dating.domain.model.Report
 import com.intern001.dating.domain.model.TargetProfile
 import com.intern001.dating.domain.model.UserLocation
 import com.intern001.dating.domain.model.UserProfile
@@ -302,5 +303,14 @@ fun LikedYouResponseDto.toDomain(): LikedYouUser {
         avatar = avatar,
         city = city,
         picture = picture,
+    )
+}
+
+fun ReportResponse.toDomain(): Report {
+    return Report(
+        userIdReport = userIdReport,
+        userIdIsReported = userIdIsReported,
+        reason = reason,
+        createdAt = createdAt,
     )
 }
