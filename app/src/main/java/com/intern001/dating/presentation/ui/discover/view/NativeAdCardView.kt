@@ -137,4 +137,3 @@ class NativeAdCardView @JvmOverloads constructor(
         UP,
     }
 }
-
