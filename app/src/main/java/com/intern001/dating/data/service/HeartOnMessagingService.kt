@@ -116,7 +116,7 @@ class HeartOnMessagingService : FirebaseMessagingService() {
             "match" -> {
                 val matchedUserName = data["matchedUserName"] ?: "Someone"
                 sendNotification(
-                    title = data["title"] ?: "It's a Match! 💕",
+                    title = data["title"] ?: "It's a Match!",
                     message = data["message"]
                         ?: "You and $matchedUserName liked each other — now it's time to say hi. Start your first chat!",
                     data = data,
@@ -211,7 +211,7 @@ class HeartOnMessagingService : FirebaseMessagingService() {
         val title = when (type) {
             "like" -> data["title"] ?: "New Like!"
             "superlike" -> data["title"] ?: "New Super Like!"
-            "match" -> data["title"] ?: "It's a Match! 💕"
+            "match" -> data["title"] ?: "It's a Match!"
             else -> data["title"] ?: "New Notification"
         }
         val message = when (type) {
