@@ -66,11 +66,11 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun googleLogin(accessToken: String) {
+    fun googleLogin(idToken: String) {
         viewModelScope.launch {
             _googleUiState.value = UiState.Loading
 
-            val result = googleLoginUseCase(accessToken)
+            val result = googleLoginUseCase(idToken)
 
             _googleUiState.value = if (result.isSuccess) {
                 prefetchHomeDataBlocking()
@@ -80,6 +80,7 @@ class LoginViewModel @Inject constructor(
             }
         }
     }
+
 
     private suspend fun prefetchHomeDataBlocking() {
         withContext(Dispatchers.IO) {

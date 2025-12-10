@@ -12,8 +12,8 @@ data class LoginRequest(
 )
 
 data class GoogleLoginRequest(
-    @SerializedName("accessToken")
-    val accessToken: String,
+    @SerializedName("idToken")
+    val idToken: String,
 )
 
 data class SignupRequest(

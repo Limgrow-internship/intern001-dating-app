@@ -145,9 +145,9 @@ constructor(
         }
     }
 
-    override suspend fun googleLogin(accessToken: String): Result<GoogleLoginResponse> {
+    override suspend fun googleLogin(idToken: String): Result<GoogleLoginResponse> {
         return try {
-            val response = apiService.googleLogin(GoogleLoginRequest(accessToken))
+            val response = apiService.googleLogin(GoogleLoginRequest(idToken))
 
             tokenManager.saveTokens(
                 accessToken = response.accessToken,
@@ -168,6 +168,7 @@ constructor(
             Result.failure(e)
         }
     }
+
 
     override suspend fun clearUserCache() {
         cachedUser = null
