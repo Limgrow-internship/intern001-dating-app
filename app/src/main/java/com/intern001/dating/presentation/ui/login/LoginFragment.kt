@@ -28,6 +28,9 @@ import com.intern001.dating.presentation.ui.signup.SignUpActivity
 import com.intern001.dating.presentation.util.ValidationHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
+
 
 @AndroidEntryPoint
 class LoginFragment : BaseFragment() {
@@ -65,12 +68,16 @@ class LoginFragment : BaseFragment() {
     }
 
     private fun setupGoogleSignIn() {
+        val webClientId = getString(R.string.default_web_client_id)
+
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestIdToken(webClientId)
             .requestEmail()
             .build()
+
         googleSignInClient = GoogleSignIn.getClient(requireContext(), gso)
     }
+
 
     private fun setupClickListeners() {
         binding.btnLogin.setOnClickListener {
@@ -145,12 +152,24 @@ class LoginFragment : BaseFragment() {
                 Log.d("GoogleLogin", "account.email=${account?.email}, account.id=${account?.id}")
                 Log.d("GoogleLogin", "FULL_TOKEN = $idToken")
 
-                if (!idToken.isNullOrEmpty()) {
-                    viewModel.googleLogin(idToken)
-                } else {
-                    googleSignInClient.signOut()
-                    logError("Google login failed: idToken null, force sign out")
-                }
+                FirebaseAuth.getInstance()
+                    .signInWithCredential(GoogleAuthProvider.getCredential(account.idToken, null))
+                    .addOnCompleteListener { authTask ->
+                        if (authTask.isSuccessful) {
+                            FirebaseAuth.getInstance().currentUser?.getIdToken(true)
+                                ?.addOnCompleteListener { tokenTask ->
+                                    val firebaseIdToken = tokenTask.result?.token
+                                    if (firebaseIdToken != null) {
+                                        viewModel.googleLogin(firebaseIdToken)
+                                    } else {
+                                        logError("Firebase idToken null")
+                                    }
+                                }
+                        } else {
+                            logError("Firebase signIn failed")
+                        }
+                    }
+
             } catch (e: ApiException) {
                 logError("Google login ApiException code=${e.statusCode}, message=${e.message}")
                 if (e.statusCode == 401) googleSignInClient.signOut()

@@ -47,7 +47,7 @@ interface AuthRepository {
     fun getStoredUser(): User?
 
     suspend fun googleLogin(
-        accessToken: String,
+        idToken: String,
     ): Result<GoogleLoginResponse>
 
     suspend fun clearUserCache()
