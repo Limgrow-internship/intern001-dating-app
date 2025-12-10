@@ -7,7 +7,7 @@
     <dimen name="premium_indicator_inactive_width">12dp</dimen>
     <dimen name="premium_indicator_height">12dp</dimen>
     <!-- Onboarding -->
-    <dimen name="onboard_horizontal_padding">24dp</dimen>
+    <dimen name="onboard_horizontal_padding">20dp</dimen>
     <dimen name="onboard_vertical_padding">24dp</dimen>
     <dimen name="onboard_image_margin_top">32dp</dimen>
     <dimen name="onboard_image_max_height">380dp</dimen>

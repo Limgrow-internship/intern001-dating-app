@@ -19,6 +19,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentLoginBinding
@@ -28,9 +30,6 @@ import com.intern001.dating.presentation.ui.signup.SignUpActivity
 import com.intern001.dating.presentation.util.ValidationHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
-
 
 @AndroidEntryPoint
 class LoginFragment : BaseFragment() {
@@ -77,7 +76,6 @@ class LoginFragment : BaseFragment() {
 
         googleSignInClient = GoogleSignIn.getClient(requireContext(), gso)
     }
-
 
     private fun setupClickListeners() {
         binding.btnLogin.setOnClickListener {
@@ -169,7 +167,6 @@ class LoginFragment : BaseFragment() {
                             logError("Firebase signIn failed")
                         }
                     }
-
             } catch (e: ApiException) {
                 logError("Google login ApiException code=${e.statusCode}, message=${e.message}")
                 if (e.statusCode == 401) googleSignInClient.signOut()
