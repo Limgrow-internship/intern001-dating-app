@@ -2,9 +2,6 @@ package com.intern001.dating.domain.model
 
 import java.util.Date
 
-/**
- * Domain model for Notification
- */
 data class Notification(
     val id: String,
     val type: NotificationType,
@@ -13,7 +10,7 @@ data class Notification(
     val timestamp: Date,
     val isRead: Boolean = false,
     val iconType: NotificationIconType = NotificationIconType.SETTINGS,
-    val actionData: NotificationActionData? = null, // Data for navigation/action
+    val actionData: NotificationActionData? = null,
 ) {
     enum class NotificationType {
         LIKE,
@@ -26,13 +23,13 @@ data class Notification(
     }
 
     enum class NotificationIconType {
-        HEART, // Orange heart for likes/superlikes
-        MATCH, // Yellow chat bubble for matches
-        SETTINGS, // Black gear for verification/system
+        HEART,
+        MATCH,
+        SETTINGS,
     }
 
     data class NotificationActionData(
-        val navigateTo: String? = null, // "chat", "profile", "premium", etc.
+        val navigateTo: String? = null,
         val userId: String? = null,
         val matchId: String? = null,
         val likerId: String? = null,

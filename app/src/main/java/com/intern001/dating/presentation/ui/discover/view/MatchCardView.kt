@@ -115,6 +115,9 @@ class MatchCardView @JvmOverloads constructor(
     }
 
     fun bindCard(card: MatchCard) {
+        resetSwipeOverlay()
+        this.rotation = 0f
+
         // Setup photo viewpager
         val photoAdapter = PhotoPagerAdapter(card.photos)
         binding.viewPagerPhotos.adapter = photoAdapter

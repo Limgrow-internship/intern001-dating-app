@@ -1,0 +1,37 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="36dp"
+    android:height="20dp"
+    android:viewportWidth="36"
+    android:viewportHeight="20">
+
+    <!-- Nền bo cong fill -->
+    <path
+        android:fillColor="#FF6500"
+        android:pathData="M0.5,10
+                          a9.5,9.5 0 0 1 9.5,-9.5
+                          h16
+                          a9.5,9.5 0 0 1 9.5,9.5
+                          a9.5,9.5 0 0 1 -9.5,9.5
+                          h-16
+                          a9.5,9.5 0 0 1 -9.5,-9.5z" />
+
+    <!-- Stroke bo cong -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#D9D9D9"
+        android:strokeWidth="1"
+        android:pathData="M0.5,10
+                          a9.5,9.5 0 0 1 9.5,-9.5
+                          h16
+                          a9.5,9.5 0 0 1 9.5,9.5
+                          a9.5,9.5 0 0 1 -9.5,9.5
+                          h-16
+                          a9.5,9.5 0 0 1 -9.5,-9.5z" />
+
+    <!-- Circle -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M26,2
+                          a8,8 0 1,1 0,16
+                          a8,8 0 1,1 0,-16" />
+</vector>

@@ -1,6 +1,7 @@
 package com.intern001.dating.data.model
 
 data class MessageModel(
+    val clientMessageId: String? = null,
     val senderId: String,
     val matchId: String,
     val message: String,

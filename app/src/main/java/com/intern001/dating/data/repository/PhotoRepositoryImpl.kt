@@ -6,7 +6,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import com.intern001.dating.data.api.DatingApiService
-import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.local.prefs.TokenManager
 import com.intern001.dating.data.model.request.ReorderPhotosRequest
 import com.intern001.dating.data.model.response.PhotoResponse
 import com.intern001.dating.domain.model.Photo

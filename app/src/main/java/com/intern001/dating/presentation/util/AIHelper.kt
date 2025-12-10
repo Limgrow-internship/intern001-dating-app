@@ -1,4 +1,4 @@
-package com.intern001.dating.presentation.ui.chat
+package com.intern001.dating.presentation.util
 
 import com.intern001.dating.domain.model.MatchCard
 

@@ -7,7 +7,7 @@ import com.intern001.dating.data.local.entity.MessageEntity
 
 @Database(
     entities = [MessageEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false,
 )
 abstract class ChatDatabase : RoomDatabase() {

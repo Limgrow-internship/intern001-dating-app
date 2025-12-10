@@ -2,7 +2,7 @@ package com.intern001.dating.presentation.ui.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.local.prefs.TokenManager
 import com.intern001.dating.data.model.response.FacebookLoginResponse
 import com.intern001.dating.data.model.response.GoogleLoginResponse
 import com.intern001.dating.domain.model.AuthState
