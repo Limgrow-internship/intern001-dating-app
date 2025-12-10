@@ -55,7 +55,7 @@
                 android:text="@string/find_your_vibe_not_just_a_match"
                 android:textAlignment="viewStart"
                 android:textColor="@android:color/black"
-                android:textSize="22sp"
+                android:textSize="32sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -72,7 +72,7 @@
                 android:text="@string/we_help_you_meet_people_who_feel_right_not_just_look_right"
                 android:textAlignment="viewStart"
                 android:textColor="@android:color/black"
-                android:textSize="14sp"
+                android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvTitle" />

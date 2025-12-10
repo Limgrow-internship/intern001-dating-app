@@ -108,16 +108,17 @@ class HeartOnMessagingService : FirebaseMessagingService() {
             "like" -> {
                 val likerName = data["likerName"] ?: "Someone"
                 sendNotification(
-                    title = "New Like!",
-                    message = "$likerName liked you",
+                    title = data["title"] ?: "New Like!",
+                    message = data["message"] ?: "$likerName liked you",
                     data = data,
                 )
             }
             "match" -> {
                 val matchedUserName = data["matchedUserName"] ?: "Someone"
                 sendNotification(
-                    title = "It's a Match!",
-                    message = "You and $matchedUserName liked each other — now it's time to say hi. Start your first chat!",
+                    title = data["title"] ?: "It's a Match! 💕",
+                    message = data["message"]
+                        ?: "You and $matchedUserName liked each other — now it's time to say hi. Start your first chat!",
                     data = data,
                 )
             }
@@ -126,7 +127,7 @@ class HeartOnMessagingService : FirebaseMessagingService() {
                 val body = data["message"] ?: "You have a new message"
                 broadcastNewChatMessage(data)
                 sendNotification(
-                    title = senderName,
+                    title = data["title"] ?: senderName,
                     message = body,
                     data = data,
                 )
@@ -208,24 +209,17 @@ class HeartOnMessagingService : FirebaseMessagingService() {
     private fun saveNotificationToLocalStorageOnly(data: Map<String, String>) {
         val type = data["type"]
         val title = when (type) {
-            "like" -> "New Like!"
-            "superlike" -> "New Super Like!"
-            "match" -> "It's a Match!"
+            "like" -> data["title"] ?: "New Like!"
+            "superlike" -> data["title"] ?: "New Super Like!"
+            "match" -> data["title"] ?: "It's a Match! 💕"
             else -> data["title"] ?: "New Notification"
         }
         val message = when (type) {
-            "like" -> {
-                val likerName = data["likerName"] ?: "Someone"
-                "$likerName liked you"
-            }
-            "superlike" -> {
-                val likerName = data["likerName"] ?: "Someone"
-                "$likerName super liked you"
-            }
-            "match" -> {
-                val matchedUserName = data["matchedUserName"] ?: "Someone"
-                "You and $matchedUserName liked each other — now it's time to say hi. Start your first chat!"
-            }
+            "like" -> data["message"] ?: data["likerName"]?.let { "$it liked you" } ?: "You have a new like"
+            "superlike" -> data["message"] ?: data["likerName"]?.let { "$it super liked you" } ?: "You have a new super like"
+            "match" -> data["message"]
+                ?: data["matchedUserName"]?.let { "You and $it liked each other — now it's time to say hi. Start your first chat!" }
+                ?: "You have a new match"
             else -> data["message"] ?: "You have a new notification"
         }
         saveNotificationToLocalStorage(title, message, data)

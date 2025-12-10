@@ -31,18 +31,20 @@
 
     <LinearLayout
         android:id="@+id/ll_date_picker"
-        android:layout_width="356dp"
-        android:layout_height="55dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="60dp"
         android:orientation="horizontal"
+        android:weightSum="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_title">
 
         <LinearLayout
-            android:layout_width="136dp"
+            android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_marginEnd="8dp"
+            android:layout_weight="0.45"
             android:background="@drawable/bg_edittext"
             android:gravity="center_vertical"
             android:orientation="horizontal"
@@ -66,9 +68,10 @@
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="88dp"
+            android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_marginEnd="8dp"
+            android:layout_weight="0.23"
             android:background="@drawable/bg_edittext"
             android:gravity="center_vertical"
             android:orientation="horizontal"
@@ -92,8 +95,9 @@
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="95dp"
+            android:layout_width="0dp"
             android:layout_height="48dp"
+            android:layout_weight="0.32"
             android:background="@drawable/bg_edittext"
             android:gravity="center_vertical"
             android:orientation="horizontal"
@@ -124,6 +128,7 @@
         android:layout_marginBottom="16dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
+        android:weightSum="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@id/btn_next">
@@ -132,7 +137,7 @@
             android:id="@+id/tv_progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="1.5dp"
+            android:layout_marginEnd="8dp"
             android:text="30%"
             android:textColor="#FF6500"
             android:textSize="12sp"
@@ -140,8 +145,9 @@
 
         <com.intern001.dating.presentation.common.ui.StepProgressBar
             android:id="@+id/progress_bar"
-            android:layout_width="330dp"
-            android:layout_height="16dp" />
+            android:layout_width="0dp"
+            android:layout_height="16dp"
+            android:layout_weight="1" />
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
