@@ -167,11 +167,12 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/btnChangePassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-            android:paddingVertical="8dp">
+                android:paddingVertical="8dp">
 
                 <ImageView
                     android:layout_width="22dp"
@@ -312,6 +313,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/btnContact"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
