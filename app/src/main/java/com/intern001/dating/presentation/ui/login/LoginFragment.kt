@@ -68,7 +68,7 @@ class LoginFragment : BaseFragment() {
     }
 
     private fun setupGoogleSignIn() {
-        val webClientId = "657435569191-g1d7oab6k8n7pamh89fik2fsgpk7h6sr.apps.googleusercontent.com"
+        val webClientId = getString(R.string.default_web_client_id)
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(webClientId)
