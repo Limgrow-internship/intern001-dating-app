@@ -262,7 +262,6 @@ class ChatListFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        // Silent refresh to pick up new matches without UI flicker
         vm.refreshMatches()
     }
 
