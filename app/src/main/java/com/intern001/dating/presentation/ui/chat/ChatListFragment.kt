@@ -157,9 +157,9 @@ class ChatListFragment : BaseFragment() {
                         AIConstants.isAIUser(it.matchedUser.userId)
                     }
 
-                    val filteredMatches = matches.filterNot {
-                        AIConstants.isAIUser(it.matchedUser.userId)
-                    }
+                    val filteredMatchesForMatchList = matches
+                        .filterNot { AIConstants.isAIUser(it.matchedUser.userId) }
+                        .filter { it.status.equals("active", ignoreCase = true) }
 
                     val aiMatch = if (aiMatchFromBackend != null) {
                         aiMatchFromBackend.copy(
@@ -173,6 +173,7 @@ class ChatListFragment : BaseFragment() {
                     } else {
                         MatchList(
                             matchId = AIConstants.AI_FAKE_MATCH_ID,
+                            status = "active",
                             lastActivityAt = Instant.now().toString(),
                             matchedUser = UserProfileMatch(
                                 userId = AIConstants.AI_ASSISTANT_USER_ID,
@@ -184,49 +185,43 @@ class ChatListFragment : BaseFragment() {
                         )
                     }
 
-                    val allMatches = listOf(aiMatch) + filteredMatches
-                    val hasMatches = allMatches.isNotEmpty()
+                    val matchesForAdapter = listOf(aiMatch) + filteredMatchesForMatchList
+                    android.util.Log.d("MatchAdapterTest", "Submit matches: ${matchesForAdapter.size}")
+                    matchesForAdapter.forEach { m ->
+                        android.util.Log.d("MatchAdapterTest", "submit match: ${m.matchId}, ${m.matchedUser.name}, status=${m.status}")
+                    }
+                    matchAdapter.submitList(matchesForAdapter)
 
+                    val hasMatches = matchesForAdapter.isNotEmpty()
                     binding.rvMatches.isVisible = hasMatches
-                    binding.matchPlaceholder.isVisible = false
+                    binding.matchPlaceholder.isVisible = !hasMatches
                     binding.noMatchesCard?.isVisible = !hasMatches
 
-                    matchAdapter.submitList(allMatches)
+                    val matchesForConversation = matches.filterNot { AIConstants.isAIUser(it.matchedUser.userId) }
+                    val allConversations = listOf(aiMatch) + matchesForConversation
 
-                    val conversations = allMatches.map { match ->
+                    val conversations = allConversations.map { match ->
                         val lastMsg = lastMessagesCache[match.matchId]
-
                         Conversation(
                             matchId = match.matchId,
                             userId = match.matchedUser.userId,
-                            avatarUrl = if (AIConstants.isAIUser(match.matchedUser.userId)) {
-                                AIConstants.AI_FAKE_AVATAR_URL
-                            } else {
-                                match.matchedUser.avatarUrl
-                            },
-                            userName = if (AIConstants.isAIUser(match.matchedUser.userId)) {
-                                AIConstants.AI_FAKE_NAME
-                            } else {
-                                match.matchedUser.name
-                            },
+                            avatarUrl = if (AIConstants.isAIUser(match.matchedUser.userId)) AIConstants.AI_FAKE_AVATAR_URL else match.matchedUser.avatarUrl,
+                            userName = if (AIConstants.isAIUser(match.matchedUser.userId)) AIConstants.AI_FAKE_NAME else match.matchedUser.name,
                             lastMessage = lastMsg?.message,
                             timestamp = lastMsg?.timestamp,
                             isOnline = null,
                             targetUserId = match.matchedUser.userId,
                         )
                     }
-
                     val sortedConversations = conversations.sortedWith(
                         compareBy<Conversation> { !AIConstants.isAIUser(it.userId) }
                             .thenByDescending { it.timestamp ?: "" },
                     )
-
                     conversationAdapter.setData(sortedConversations)
-
                     binding.rvConversations.isVisible = conversations.isNotEmpty()
                     binding.noChatsLayout.isVisible = conversations.isEmpty()
 
-                    val matchesWithoutCache = allMatches.filter { !lastMessagesCache.containsKey(it.matchId) }
+                    val matchesWithoutCache = allConversations.filter { !lastMessagesCache.containsKey(it.matchId) }
                     if (matchesWithoutCache.isNotEmpty()) {
                         viewLifecycleOwner.lifecycleScope.launch {
                             matchesWithoutCache.forEach { match ->
