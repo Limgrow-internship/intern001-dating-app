@@ -183,6 +183,17 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    fun clearMessagesForMyself(matchId: String, onDone: (() -> Unit)? = null) {
+        viewModelScope.launch {
+            try {
+                repo.clearMessagesForUser(matchId)
+                localRepo.deleteMessagesByMatchId(matchId)
+                fetchHistory(matchId)
+                onDone?.invoke()
+            } catch (_: Exception) {}
+        }
+    }
+
     fun unmatch(targetUserId: String, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             try {
