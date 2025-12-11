@@ -46,6 +46,10 @@ class ChatRepositoryImpl @Inject constructor(
         api.deleteAllMessages(matchId)
     }
 
+    override suspend fun clearMessagesForUser(matchId: String) {
+        api.clearMessagesForUser(matchId)
+    }
+
     override suspend fun unmatch(targetUserId: String) {
         val req = UnmatchUserRequest(targetUserId)
         api.unmatch(req)

@@ -272,6 +272,8 @@ interface DatingApiService {
     @GET("api/chat/rooms/{matchId}/last-message")
     suspend fun getLastMessage(@Path("matchId") matchId: String): LastMessageResponse
 
+    @DELETE("api/chat/{matchId}/clear")
+    suspend fun clearMessagesForUser(@Path("matchId") matchId: String): retrofit2.Response<Unit>
     @Multipart
     @POST("api/upload/audio")
     suspend fun uploadAudio(
