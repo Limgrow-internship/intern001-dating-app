@@ -22,6 +22,7 @@ import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.data.model.request.VerifyOtpRequest
 import com.intern001.dating.data.model.response.AuthResponse
 import com.intern001.dating.data.model.response.ChangePasswordResponse
+import com.intern001.dating.data.model.response.EnhanceBioResponse
 import com.intern001.dating.data.model.response.FacebookLoginResponse
 import com.intern001.dating.data.model.response.GenerateBioResponse
 import com.intern001.dating.data.model.response.GoogleLoginResponse
@@ -91,7 +92,7 @@ interface DatingApiService {
     suspend fun generateBio(@Body request: GenerateBioDto): Response<GenerateBioResponse>
 
     @POST("api/ai/enhance-bio")
-    suspend fun enhanceBio(): Response<GenerateBioResponse>
+    suspend fun enhanceBio(): Response<EnhanceBioResponse>
 
     @DELETE("api/profile")
     suspend fun deleteProfile(): Response<Unit>
