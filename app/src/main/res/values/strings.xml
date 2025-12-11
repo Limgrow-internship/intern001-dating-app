@@ -59,6 +59,11 @@
     <string name="help_center">Help Center</string>
     <string name="contact_us">Contact Us</string>
     <string name="delete_acc">Delete Account</string>
+    <string name="contact_us_title">You can get in touch with us through below platform. Our Team will reach out to you as soon as it would be possible</string>
+    <string name="contact_us_h1">Customer Support</string>
+    <string name="contact_us_h2">Contact Support</string>
+    <string name="contact_us_phone">Phone Number</string>
+    <string name="contact_us_mail">Email Address</string>
 
     <!-- Home Screen Tabs -->
     <string name="for_you">For you</string>

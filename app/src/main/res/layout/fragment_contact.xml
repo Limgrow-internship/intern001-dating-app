@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:layout_marginBottom="20dp"
         android:layout_marginTop="20dp">
 
         <ImageView
@@ -23,7 +24,7 @@
             android:id="@+id/tvTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Contact US"
+            android:text="@string/contact_us"
             android:textColor="#FF6500"
             android:textSize="20sp"
             android:gravity="center"
@@ -31,20 +32,19 @@
     </LinearLayout>
 
     <TextView
-        android:text="You can get in touch with us through below platform. Our Team will reach out to you as soon as it would be possible"
-        android:layout_marginTop="10dp"
+        android:text="@string/contact_us_title"
         android:layout_marginBottom="20dp"
         android:textSize="18sp"
-        android:textColor="#555"
+        android:textColor="#777777"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <TextView
-        android:text="Customer Support"
+        android:text="@string/contact_us_h1"
         android:textStyle="bold"
         android:textColor="#333"
         android:layout_marginBottom="12dp"
-        android:textSize="15sp"
+        android:textSize="18sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
@@ -58,7 +58,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:text="Customer Support"
+            android:text="@string/contact_us_h2"
             android:textStyle="bold"
             android:textColor="#333"
             android:layout_marginBottom="12dp"
@@ -87,7 +87,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:text="Phone Number"
+                    android:text="@string/contact_us_phone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
@@ -123,7 +123,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:text="Email Address"
+                    android:text="@string/contact_us_mail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
