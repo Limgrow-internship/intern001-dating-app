@@ -263,11 +263,11 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-            android:paddingVertical="8dp"
-            android:id="@+id/btnNotificationSetting"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?attr/selectableItemBackground">
+                android:paddingVertical="8dp"
+                android:id="@+id/btnNotificationSetting"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
 
                 <ImageView
                     android:layout_width="22dp"
@@ -290,6 +290,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/btnHelp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
