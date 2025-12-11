@@ -23,6 +23,7 @@ import com.intern001.dating.R
 import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.databinding.FragmentEditProfileBinding
 import com.intern001.dating.databinding.ItemPhotoProfileBinding
+import com.intern001.dating.domain.model.EnhancedBioResult
 import com.intern001.dating.domain.model.UpdateProfile
 import com.intern001.dating.domain.usecase.photo.UploadPhotoUseCase
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
@@ -721,10 +722,13 @@ class EditProfileFragment : BaseFragment() {
                         generateBioDialog?.dismiss()
                         generateBioDialog = null
 
-                        val profile = state.data as? UpdateProfile
-                        profile?.let {
-                            binding.includeAbout.etIntroduce.setText(it.bio ?: "")
-                            Toast.makeText(requireContext(), "Bio đã được cải thiện thành công!", Toast.LENGTH_SHORT).show()
+                        val preview = state.data as? EnhancedBioResult
+                        if (preview != null) {
+                            // Pre-fill text so user can edit before saving
+                            binding.includeAbout.etIntroduce.setText(preview.enhancedBio)
+                            showEnhancedBioPreview(preview)
+                        } else {
+                            Toast.makeText(requireContext(), "Không đọc được bio mới", Toast.LENGTH_SHORT).show()
                         }
                     }
                     is EditProfileViewModel.UiState.Error -> {
@@ -737,6 +741,18 @@ class EditProfileFragment : BaseFragment() {
                 }
             }
         }
+    }
+
+    private fun showEnhancedBioPreview(result: EnhancedBioResult) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Bio đã được cải thiện")
+            .setMessage(result.enhancedBio)
+            .setPositiveButton("Lưu bio mới") { _, _ ->
+                val updateRequest = UpdateProfileRequest(bio = result.enhancedBio)
+                viewModel.updateUserProfile(updateRequest)
+            }
+            .setNegativeButton("Đóng", null)
+            .show()
     }
 
     private fun observeUpdateState() {
