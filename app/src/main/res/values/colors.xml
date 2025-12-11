@@ -8,4 +8,8 @@
     <color name="gray_100">#FFF5F5F5</color>
     <color name="gray_600">#FF757575</color>
     <color name="orange_500">#FFE85C00</color>
+    <color name="notification_delete_bg">#FFF3E0</color>
+    <color name="notification_unread_text">#333333</color>
+    <color name="notification_read_text">#8A8A8A</color>
+    <color name="notification_read_border">#F0F0F0</color>
 </resources>

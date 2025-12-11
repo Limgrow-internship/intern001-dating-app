@@ -480,13 +480,20 @@ class DiscoverViewModel @Inject constructor(
 
     private fun applyMatchFilters(cards: List<MatchCard>): List<MatchCard> {
         if (cards.isEmpty()) return cards
+        val selfId = normalizedCurrentUserId()
+        val withoutSelf = if (selfId != null) {
+            cards.filterNot { normalizedUserId(it.userId) == selfId }
+        } else {
+            cards
+        }
+        if (withoutSelf.isEmpty()) return withoutSelf
         val matched = matchedUserIds.value
-        if (matched.isEmpty()) return cards
+        if (matched.isEmpty()) return withoutSelf
         val allowlist = allowlistedMatchedUsers.value
         if (allowlist.isEmpty()) {
-            return cards.filterNot { matched.contains(it.userId) }
+            return withoutSelf.filterNot { matched.contains(it.userId) }
         }
-        return cards.filterNot { matched.contains(it.userId) && !allowlist.contains(it.userId) }
+        return withoutSelf.filterNot { matched.contains(it.userId) && !allowlist.contains(it.userId) }
     }
 
     private fun handleSwipeProgression() {
@@ -518,6 +525,12 @@ class DiscoverViewModel @Inject constructor(
         swipeCountSinceNativeAd = 0
         isNativeAdPending = false
     }
+
+    private fun normalizedCurrentUserId(): String? = normalizedUserId(tokenManager.getUserId())
+
+    private fun normalizedUserId(userId: String?): String? = userId?.trim()
+        ?.takeIf { it.isNotBlank() }
+        ?.lowercase()
 
     companion object {
         private const val TAG = "DiscoverViewModel"

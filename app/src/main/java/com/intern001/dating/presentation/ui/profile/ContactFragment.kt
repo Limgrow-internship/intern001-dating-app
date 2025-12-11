@@ -1,16 +1,15 @@
 package com.intern001.dating.presentation.ui.profile
 
-import android.app.Activity.RESULT_OK
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
 import com.intern001.dating.databinding.FragmentContactBinding
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
-import android.net.Uri
-import androidx.navigation.fragment.findNavController
 
 @AndroidEntryPoint
 class ContactFragment : BaseFragment() {
@@ -19,7 +18,8 @@ class ContactFragment : BaseFragment() {
     private val binding get() = _binding!!
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentContactBinding.inflate(inflater, container, false)
@@ -55,4 +55,3 @@ class ContactFragment : BaseFragment() {
         _binding = null
     }
 }
-
