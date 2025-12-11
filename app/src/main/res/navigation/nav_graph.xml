@@ -255,6 +255,11 @@
         android:label="NotificationSettingFragment" />
 
     <fragment
+        android:id="@+id/helpFragment"
+        android:name="com.intern001.dating.presentation.ui.profile.HelpFragment"
+        android:label="HelpFragment" />
+
+    <fragment
         android:id="@+id/contactFragment"
         android:name="com.intern001.dating.presentation.ui.profile.ContactFragment"
         android:label="ContactFragment" />
@@ -293,6 +298,13 @@
         <action
             android:id="@+id/action_profile_to_contactFragment"
             app:destination="@id/contactFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_profile_to_help"
+            app:destination="@id/helpFragment"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"

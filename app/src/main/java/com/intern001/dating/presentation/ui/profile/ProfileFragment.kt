@@ -77,6 +77,10 @@ class ProfileFragment : BaseFragment() {
             findNavController().navigate(R.id.action_profile_to_notificationSetting)
         }
 
+        binding.btnHelp.setOnClickListener {
+            findNavController().navigate(R.id.action_profile_to_help)
+        }
+
         binding.btnContinuePremium.setOnClickListener {
             navigateToPremium()
         }

@@ -59,6 +59,13 @@
     <string name="help_center">Help Center</string>
     <string name="contact_us">Contact Us</string>
     <string name="delete_acc">Delete Account</string>
+    <string name="help_center_txt1">Account &amp; Login</string>
+    <string name="help_center_txt2">Profile &amp; Verification</string>
+    <string name="help_center_txt3">Matches &amp; Messages</string>
+    <string name="help_center_txt4">Subscriptions &amp; Payments</string>
+    <string name="help_center_txt5">Safety &amp; Reporting</string>
+    <string name="help_center_h1">Need More Help?</string>
+    <string name="help_center_txt6">Contact Support</string>
     <string name="contact_us_title">You can get in touch with us through below platform. Our Team will reach out to you as soon as it would be possible</string>
     <string name="contact_us_h1">Customer Support</string>
     <string name="contact_us_h2">Contact Support</string>
