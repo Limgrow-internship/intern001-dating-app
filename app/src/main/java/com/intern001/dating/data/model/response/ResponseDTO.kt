@@ -111,9 +111,6 @@ data class ChangePasswordResponse(
     @SerializedName("id")
     val id: String,
 
-    @SerializedName("oldPassword")
-    val oldPassword: String? = null,
-
     @SerializedName("newPassword")
     val newPassword: String? = null,
 

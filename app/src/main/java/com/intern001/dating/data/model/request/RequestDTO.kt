@@ -108,9 +108,6 @@ data class LocationRequest(
 )
 
 data class ChangePasswordRequest(
-    @SerializedName("oldPassword")
-    val oldPassword: String? = null,
-
     @SerializedName("newPassword")
     val newPassword: String? = null,
 
