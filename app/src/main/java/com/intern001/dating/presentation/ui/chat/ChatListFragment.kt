@@ -187,9 +187,6 @@ class ChatListFragment : BaseFragment() {
 
                     val matchesForAdapter = listOf(aiMatch) + filteredMatchesForMatchList
                     android.util.Log.d("MatchAdapterTest", "Submit matches: ${matchesForAdapter.size}")
-                    matchesForAdapter.forEach { m ->
-                        android.util.Log.d("MatchAdapterTest", "submit match: ${m.matchId}, ${m.matchedUser.name}, status=${m.status}")
-                    }
                     matchAdapter.submitList(matchesForAdapter)
 
                     val hasMatches = matchesForAdapter.isNotEmpty()
