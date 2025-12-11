@@ -169,7 +169,6 @@ constructor(
         }
     }
 
-
     override suspend fun clearUserCache() {
         cachedUser = null
         cachedUserProfile = null

@@ -81,7 +81,6 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-
     private suspend fun prefetchHomeDataBlocking() {
         withContext(Dispatchers.IO) {
             runCatching {
