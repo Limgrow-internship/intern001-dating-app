@@ -94,9 +94,18 @@ class ProfileFragment : BaseFragment() {
             startActivity(intent)
         }
 
+        binding.btnChangePassword.setOnClickListener {
+            val intent = Intent(context, ChangePasswordActivity::class.java)
+            startActivity(intent)
+        }
+
         val btnDeleteAccount = view.findViewById<LinearLayout>(R.id.btnDeleteAccount)
         btnDeleteAccount.setOnClickListener {
             showDeleteAccountBottomSheet()
+        }
+
+        binding.btnContact.setOnClickListener {
+            findNavController().navigate(R.id.action_profile_to_contactFragment)
         }
 
         viewModel.deleteResult.observe(viewLifecycleOwner) { result ->
