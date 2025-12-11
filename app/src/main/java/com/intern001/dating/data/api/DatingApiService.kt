@@ -274,6 +274,7 @@ interface DatingApiService {
 
     @DELETE("api/chat/{matchId}/clear")
     suspend fun clearMessagesForUser(@Path("matchId") matchId: String): retrofit2.Response<Unit>
+
     @Multipart
     @POST("api/upload/audio")
     suspend fun uploadAudio(

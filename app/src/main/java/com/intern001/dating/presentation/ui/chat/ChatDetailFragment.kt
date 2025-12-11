@@ -144,6 +144,7 @@ class ChatDetailFragment : BaseFragment() {
         }
 
         isAIConversation = AIConstants.isAIUser(targetUserId)
+        binding.btnMore.visibility = if (isAIConversation) View.GONE else View.VISIBLE
 
         if (isAIConversation && matchedUserName.isNullOrBlank()) {
             matchedUserName = AIConstants.AI_FAKE_NAME
