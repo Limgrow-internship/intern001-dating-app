@@ -47,6 +47,7 @@ class ChatLocalRepository @Inject constructor(
 
 private fun MessageEntity.toMessageModel(): MessageModel {
     return MessageModel(
+        id = serverId ?: id,
         clientMessageId = clientMessageId,
         senderId = senderId,
         matchId = matchId,
@@ -56,19 +57,29 @@ private fun MessageEntity.toMessageModel(): MessageModel {
         duration = duration,
         timestamp = timestamp,
         delivered = delivered,
+        replyToMessageId = replyToMessageId,
+        replyToClientMessageId = replyToClientMessageId,
+        replyToTimestamp = replyToTimestamp,
+        replyPreview = replyPreview,
+        replySenderId = replySenderId,
+        replySenderName = replySenderName,
+        reaction = reaction,
     )
 }
 
 private fun MessageModel.toMessageEntity(): MessageEntity {
     val resolvedClientId = clientMessageId
-    val id =
-        resolvedClientId
+    val resolvedServerId = id
+    val pk =
+        resolvedServerId
+            ?: resolvedClientId
             ?: "${senderId}_${message ?: ""}_${matchId}_${imgChat ?: ""}_${audioPath ?: ""}_${timestamp ?: ""}"
                 .hashCode()
                 .toString()
 
     return MessageEntity(
-        id = id,
+        id = pk,
+        serverId = resolvedServerId,
         clientMessageId = resolvedClientId,
         senderId = senderId,
         matchId = matchId,
@@ -78,5 +89,12 @@ private fun MessageModel.toMessageEntity(): MessageEntity {
         duration = duration,
         timestamp = timestamp,
         delivered = delivered,
+        replyToMessageId = replyToMessageId,
+        replyToClientMessageId = replyToClientMessageId,
+        replyToTimestamp = replyToTimestamp,
+        replyPreview = replyPreview,
+        replySenderId = replySenderId,
+        replySenderName = replySenderName,
+        reaction = reaction,
     )
 }

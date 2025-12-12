@@ -63,13 +63,11 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val allMsgs = repo.getHistory(matchId)
-                val deliveredMsgs = allMsgs.filter { it.delivered == true }
-
-                _messages.value = deliveredMsgs.sortedBy { it.timestamp ?: "" }
+                _messages.value = allMsgs.sortedBy { it.timestamp ?: "" }
 
                 try {
-                    localRepo.saveMessages(deliveredMsgs)
-                    android.util.Log.d("ChatViewModel", "Saved ${deliveredMsgs.size} messages to local DB")
+                    localRepo.saveMessages(allMsgs)
+                    android.util.Log.d("ChatViewModel", "Saved ${allMsgs.size} messages to local DB")
                 } catch (e: Exception) {
                     android.util.Log.e("ChatViewModel", "Failed to save messages to local DB", e)
                 }
@@ -96,13 +94,15 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun messageKey(msg: MessageModel): String {
-        return msg.clientMessageId
-            ?: "${msg.senderId}_${msg.message}_${msg.matchId}_${msg.imgChat}_${msg.audioPath}_${msg.timestamp ?: ""}"
+        msg.id?.let { return "id_$it" }
+        msg.clientMessageId?.let { return "cid_$it" }
+        return "${msg.senderId}_${msg.message}_${msg.matchId}_${msg.imgChat}_${msg.audioPath}_${msg.timestamp ?: ""}"
     }
 
     private fun contentKey(msg: MessageModel): String {
-        return msg.clientMessageId
-            ?: "${msg.senderId}_${msg.message}_${msg.matchId}_${msg.imgChat}_${msg.audioPath}"
+        msg.id?.let { return "id_$it" }
+        msg.clientMessageId?.let { return "cid_$it" }
+        return "${msg.senderId}_${msg.message}_${msg.matchId}_${msg.imgChat}_${msg.audioPath}"
     }
 
     fun newClientMessageId(): String = UUID.randomUUID().toString()
@@ -338,7 +338,17 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun sendMessageViaSocket(text: String, clientMessageId: String? = null) {
+    fun sendMessageViaSocket(
+        text: String,
+        clientMessageId: String? = null,
+        replyToMessageId: String? = null,
+        replyToClientMessageId: String? = null,
+        replyToTimestamp: String? = null,
+        replyPreview: String? = null,
+        replySenderId: String? = null,
+        replySenderName: String? = null,
+        reaction: String? = null,
+    ) {
         if (text.isBlank()) return
 
         android.util.Log.d("ChatViewModel", "sendMessageViaSocket: text=$text, matchId=$currentMatchId, senderId=$currentUserId, isAI=$isAIConversation, connected=${_isSocketConnected.value}")
@@ -368,6 +378,13 @@ class ChatViewModel @Inject constructor(
             senderId = currentUserId,
             message = text,
             clientMessageId = finalClientId,
+            replyToMessageId = replyToMessageId,
+            replyToClientMessageId = replyToClientMessageId,
+            replyToTimestamp = replyToTimestamp,
+            replyPreview = replyPreview,
+            replySenderId = replySenderId,
+            replySenderName = replySenderName,
+            reaction = reaction,
         ) ?: run {
             android.util.Log.e("ChatViewModel", "Socket service is null")
             _error.value = "Socket service not available"
@@ -436,7 +453,7 @@ class ChatViewModel @Inject constructor(
         val incomingDelivered = incoming.delivered == true
         val existingDelivered = existing.delivered == true
 
-        return when {
+        val candidate = when {
             existingDelivered && !incomingDelivered -> existing
             incomingDelivered && !existingDelivered -> incoming
             incomingHasTimestamp && !existingHasTimestamp -> incoming
@@ -447,6 +464,38 @@ class ChatViewModel @Inject constructor(
                 if (incTs > exTs) incoming else existing
             }
         }
+
+        val other = if (candidate === existing) incoming else existing
+        return candidate.copy(
+            replyToMessageId = candidate.replyToMessageId ?: other.replyToMessageId,
+            replyPreview = candidate.replyPreview ?: other.replyPreview,
+            replySenderId = candidate.replySenderId ?: other.replySenderId,
+            replySenderName = candidate.replySenderName ?: other.replySenderName,
+            reaction = candidate.reaction ?: other.reaction,
+        )
+    }
+
+    fun applyReaction(targetId: String?, reaction: String?) {
+        if (targetId.isNullOrBlank()) {
+            android.util.Log.w("ChatViewModel", "applyReaction: targetId is null or blank")
+            return
+        }
+        val currentMessages = _messages.value.toMutableList()
+        var found = false
+        val updated = currentMessages.map { msg ->
+            val match = msg.id == targetId || msg.clientMessageId == targetId
+            if (match) {
+                found = true
+                android.util.Log.d("ChatViewModel", "applyReaction: matched message id=${msg.id}, clientId=${msg.clientMessageId}, setting reaction=$reaction")
+                msg.copy(reaction = reaction)
+            } else {
+                msg
+            }
+        }
+        if (!found) {
+            android.util.Log.w("ChatViewModel", "applyReaction: No message found with id=$targetId")
+        }
+        _messages.value = updated
     }
 
     private fun parseMillis(ts: String?): Long? {

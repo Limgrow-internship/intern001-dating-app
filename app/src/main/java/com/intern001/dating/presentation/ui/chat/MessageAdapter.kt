@@ -15,7 +15,9 @@ import com.intern001.dating.data.model.MessageModel
 
 class MessageAdapter(
     private val myUserId: String,
+    private val matchedUserName: String? = null,
     private val blockerId: String? = null,
+    private val onMessageLongPress: (MessageModel) -> Unit,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var messages = listOf<MessageModel>()
@@ -98,6 +100,18 @@ class MessageAdapter(
                 } else {
                     holder.imgChat.visibility = View.GONE
                 }
+                bindReply(holder.replyContainer, holder.tvReplySender, holder.tvReplyText, msg)
+                bindReaction(
+                    msg = msg,
+                    textReaction = holder.tvReaction,
+                    imageReaction = holder.tvReactionImage,
+                    hasText = !msg.message.isNullOrBlank(),
+                    hasImage = !msg.imgChat.isNullOrBlank(),
+                )
+                holder.itemView.setOnLongClickListener {
+                    onMessageLongPress.invoke(msg)
+                    true
+                }
             }
             is LeftMessageVH -> {
                 holder.tvContent.text = msg.message ?: ""
@@ -108,13 +122,123 @@ class MessageAdapter(
                 } else {
                     holder.imgChat.visibility = View.GONE
                 }
+                bindReply(holder.replyContainer, holder.tvReplySender, holder.tvReplyText, msg)
+                bindReaction(
+                    msg = msg,
+                    textReaction = holder.tvReaction,
+                    imageReaction = holder.tvReactionImage,
+                    hasText = !msg.message.isNullOrBlank(),
+                    hasImage = !msg.imgChat.isNullOrBlank(),
+                )
+                holder.itemView.setOnLongClickListener {
+                    onMessageLongPress.invoke(msg)
+                    true
+                }
             }
             is AudioRightViewHolder -> {
                 bindAudioViewHolder(holder, msg, position)
+                bindReaction(
+                    msg = msg,
+                    textReaction = holder.tvReaction,
+                    imageReaction = null,
+                    hasText = !msg.message.isNullOrBlank(),
+                    hasImage = false,
+                )
+                holder.itemView.setOnLongClickListener {
+                    onMessageLongPress.invoke(msg)
+                    true
+                }
             }
             is AudioLeftViewHolder -> {
                 bindAudioViewHolder(holder, msg, position)
+                bindReaction(
+                    msg = msg,
+                    textReaction = holder.tvReaction,
+                    imageReaction = null,
+                    hasText = !msg.message.isNullOrBlank(),
+                    hasImage = false,
+                )
+                holder.itemView.setOnLongClickListener {
+                    onMessageLongPress.invoke(msg)
+                    true
+                }
             }
+        }
+    }
+
+    private fun bindReply(container: View, sender: TextView, text: TextView, msg: MessageModel) {
+        val preview = when {
+            !msg.replyPreview.isNullOrBlank() -> msg.replyPreview
+            else -> {
+                val ref = msg.replyToMessageId?.let { findReplySource(it) }
+                ref?.let { buildPreviewFromMessage(it) }
+            }
+        }
+
+        if (preview.isNullOrBlank()) {
+            container.visibility = View.GONE
+            return
+        }
+        container.visibility = View.VISIBLE
+
+        val senderName = msg.replySenderName
+            ?: msg.replySenderId?.let { if (it == myUserId) "Bạn" else (matchedUserName ?: "Họ") }
+            ?: run {
+                val replySource = msg.replyToMessageId?.let { findReplySource(it) }
+                when {
+                    replySource == null -> "Reply"
+                    replySource.senderId == myUserId -> "Bạn"
+                    else -> matchedUserName ?: "Họ"
+                }
+            }
+        sender.text = senderName
+        text.text = preview
+    }
+
+    private fun findReplySource(replyId: String): MessageModel? {
+        return messages.firstOrNull {
+            it.id == replyId || it.clientMessageId == replyId || it.timestamp == replyId
+        }
+    }
+
+    private fun buildPreviewFromMessage(source: MessageModel): String {
+        return when {
+            source.message.isNotBlank() -> source.message
+            !source.imgChat.isNullOrBlank() -> "[Hình ảnh]"
+            !source.audioPath.isNullOrBlank() -> "[Ghi âm]"
+            else -> "[Tin nhắn]"
+        }
+    }
+
+    private fun bindReaction(
+        msg: MessageModel,
+        textReaction: TextView,
+        imageReaction: TextView?,
+        hasText: Boolean,
+        hasImage: Boolean,
+    ) {
+        val emoji = msg.reaction
+        android.util.Log.d("MessageAdapter", "bindReaction: emoji=$emoji, hasText=$hasText, hasImage=$hasImage, msgId=${msg.id}, clientId=${msg.clientMessageId}")
+        if (emoji.isNullOrBlank()) {
+            textReaction.visibility = View.GONE
+            imageReaction?.visibility = View.GONE
+            return
+        }
+
+        // Nếu có cả text và image, hiển thị reaction trên text bubble
+        // Nếu chỉ có image (không có text), hiển thị reaction trên image
+        val showOnImage = hasImage && !hasText && imageReaction != null
+
+        if (showOnImage) {
+            imageReaction.text = emoji
+            imageReaction.visibility = View.VISIBLE
+            textReaction.visibility = View.GONE
+            android.util.Log.d("MessageAdapter", "bindReaction: Showing reaction on image")
+        } else {
+            textReaction.text = emoji
+            textReaction.visibility = View.VISIBLE
+            imageReaction?.visibility = View.GONE
+            android.util.Log.d("MessageAdapter", "bindReaction: Showing reaction on text")
         }
     }
 
@@ -134,15 +258,26 @@ class MessageAdapter(
     inner class LeftMessageVH(view: View) : RecyclerView.ViewHolder(view) {
         val tvContent: TextView = view.findViewById(R.id.tvContent)
         val imgChat: ImageView = view.findViewById(R.id.imgChat)
+        val replyContainer: View = view.findViewById(R.id.replyPreview)
+        val tvReplySender: TextView = view.findViewById(R.id.tvReplySender)
+        val tvReplyText: TextView = view.findViewById(R.id.tvReplyText)
+        val tvReaction: TextView = view.findViewById(R.id.tvReaction)
+        val tvReactionImage: TextView = view.findViewById(R.id.tvReactionImage)
     }
     inner class RightMessageVH(view: View) : RecyclerView.ViewHolder(view) {
         val tvContent: TextView = view.findViewById(R.id.tvContent)
         val imgChat: ImageView = view.findViewById(R.id.imgChat)
+        val replyContainer: View = view.findViewById(R.id.replyPreview)
+        val tvReplySender: TextView = view.findViewById(R.id.tvReplySender)
+        val tvReplyText: TextView = view.findViewById(R.id.tvReplyText)
+        val tvReaction: TextView = view.findViewById(R.id.tvReaction)
+        val tvReactionImage: TextView = view.findViewById(R.id.tvReactionImage)
     }
     open class AudioViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val btnTogglePlay: ImageButton = itemView.findViewById(R.id.btnTogglePlay)
         val imgWaveform: ImageView = itemView.findViewById(R.id.imgWaveform)
         val tvAudioDuration: TextView = itemView.findViewById(R.id.tvAudioDuration)
+        val tvReaction: TextView = itemView.findViewById(R.id.tvReaction)
     }
     class AudioRightViewHolder(itemView: View) : AudioViewHolder(itemView)
     class AudioLeftViewHolder(itemView: View) : AudioViewHolder(itemView)
