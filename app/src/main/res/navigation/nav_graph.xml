@@ -100,8 +100,8 @@
             android:id="@+id/action_login_to_signup"
             app:destination="@id/signupFragment" />
         <action
-            android:id="@+id/action_login_to_forgot_password"
-            app:destination="@id/forgotPasswordFragment" />
+            android:id="@+id/action_login_to_checkEmail"
+            app:destination="@id/checkEmailFragment" />
         <action
             android:id="@+id/action_login_to_home"
             app:destination="@id/homeFragment"
@@ -434,5 +434,52 @@
             android:name="matchedUserId"
             app:argType="string"
             android:defaultValue="" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/checkEmailFragment"
+        android:name="com.intern001.dating.presentation.ui.forgot.CheckEmailFragment"
+        android:label="Check Email">
+
+        <action
+            android:id="@+id/action_checkEmailFragment_to_verifyOtpFragment"
+            app:destination="@id/verifyOtpFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/verifyOtpFragment"
+        android:name="com.intern001.dating.presentation.ui.forgot.VerifyOtpFragment"
+        android:label="Verify OTP">
+
+        <argument
+            android:name="email"
+            app:argType="string" />
+
+        <action
+            android:id="@+id/action_verifyOtpFragment_to_resetPasswordFragment"
+            app:destination="@id/resetPasswordFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/resetPasswordFragment"
+        android:name="com.intern001.dating.presentation.ui.forgot.ResetPasswordFragment"
+        android:label="Reset Password">
+
+        <action
+            android:id="@+id/action_resetPasswordFragment_to_resetPasswordSuccessFragment"
+            app:destination="@id/resetPasswordSuccessFragment" />
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/resetPasswordSuccessFragment"
+        android:name="com.intern001.dating.presentation.ui.forgot.ResetPasswordSuccessFragment"
+        android:label="Reset Password Success">
+
+        <action
+            android:id="@+id/action_resetPasswordSuccessFragment_to_loginFragment"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

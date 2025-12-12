@@ -1,6 +1,7 @@
 package com.intern001.dating.di
 
 import com.intern001.dating.data.repository.AuthRepositoryImpl
+import com.intern001.dating.data.repository.ForgotPasswordRepositoryImpl
 import com.intern001.dating.data.repository.LanguageRepositoryImpl
 import com.intern001.dating.data.repository.LikedYouRepositoryImpl
 import com.intern001.dating.data.repository.LocationRepositoryImpl
@@ -12,6 +13,7 @@ import com.intern001.dating.data.repository.RecommendationRepositoryImpl
 import com.intern001.dating.data.repository.ReportRepositoryImpl
 import com.intern001.dating.data.repository.UserRepositoryImpl
 import com.intern001.dating.domain.repository.AuthRepository
+import com.intern001.dating.domain.repository.ForgotPasswordRepository
 import com.intern001.dating.domain.repository.LanguageRepository
 import com.intern001.dating.domain.repository.LikedYouRepository
 import com.intern001.dating.domain.repository.LocationRepository
@@ -95,4 +97,10 @@ abstract class RepositoryModule {
     abstract fun bindReportRepository(
         impl: ReportRepositoryImpl,
     ): ReportRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindForgotPasswordRepository(
+        impl: ForgotPasswordRepositoryImpl,
+    ): ForgotPasswordRepository
 }
