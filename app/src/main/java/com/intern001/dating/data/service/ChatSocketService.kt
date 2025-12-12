@@ -143,6 +143,13 @@ class ChatSocketService(private val token: String) {
         duration: Int? = null,
         imgChat: String? = null,
         clientMessageId: String? = null,
+        replyToMessageId: String? = null,
+        replyToClientMessageId: String? = null,
+        replyToTimestamp: String? = null,
+        replyPreview: String? = null,
+        replySenderId: String? = null,
+        replySenderName: String? = null,
+        reaction: String? = null,
     ) {
         if (socket == null) {
             Log.e(TAG, "Socket is null, cannot send message")
@@ -162,6 +169,13 @@ class ChatSocketService(private val token: String) {
             imgChat?.let { put("imgChat", it) } ?: put("imgChat", "")
             duration?.let { put("duration", it) } ?: put("duration", 0)
             clientMessageId?.let { put("clientMessageId", it) }
+            replyToMessageId?.let { put("replyToMessageId", it) }
+            replyToClientMessageId?.let { put("replyToClientMessageId", it) }
+            replyToTimestamp?.let { put("replyToTimestamp", it) }
+            replyPreview?.let { put("replyPreview", it) }
+            replySenderId?.let { put("replySenderId", it) }
+            replySenderName?.let { put("replySenderName", it) }
+            reaction?.let { put("reaction", it) }
         }
         socket?.emit("send_message", data)
         Log.d(TAG, "Sent message: matchId=$matchId, senderId=$senderId, message=${message?.take(50)}...")
@@ -183,6 +197,8 @@ class ChatSocketService(private val token: String) {
         val imgChatValue = json.optString("imgChat", null)
 
         return MessageModel(
+            id = json.optString("_id", null).takeIf { it?.isNotBlank() == true }
+                ?: json.optString("id", null).takeIf { it?.isNotBlank() == true },
             clientMessageId = json.optString("clientMessageId", null).takeIf { it?.isNotBlank() == true },
             senderId = json.optString("senderId"),
             matchId = json.optString("matchId"),
@@ -192,6 +208,13 @@ class ChatSocketService(private val token: String) {
             audioPath = if (audioPathValue.isNullOrBlank()) null else audioPathValue,
             duration = if (json.has("duration") && json.optInt("duration") > 0) json.optInt("duration") else null,
             delivered = if (json.has("delivered")) json.optBoolean("delivered") else null,
+            replyToMessageId = json.optString("replyToMessageId", null).takeIf { it?.isNotBlank() == true },
+            replyToClientMessageId = json.optString("replyToClientMessageId", null).takeIf { it?.isNotBlank() == true },
+            replyToTimestamp = json.optString("replyToTimestamp", null).takeIf { it?.isNotBlank() == true },
+            replyPreview = json.optString("replyPreview", null).takeIf { it?.isNotBlank() == true },
+            replySenderId = json.optString("replySenderId", null).takeIf { it?.isNotBlank() == true },
+            replySenderName = json.optString("replySenderName", null).takeIf { it?.isNotBlank() == true },
+            reaction = json.optString("reaction", null).takeIf { it?.isNotBlank() == true },
         )
     }
 

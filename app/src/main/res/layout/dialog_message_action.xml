@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/bg_message_action_sheet">
+
+    <View
+        android:layout_width="42dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_bottom_sheet_handle"
+        android:layout_marginBottom="12dp" />
+
+    <LinearLayout
+        android:id="@+id/reactionRow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:id="@+id/tvReactHeart"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:text="❤️"
+            android:textSize="20sp"
+            android:background="@drawable/bg_reaction_chip"
+            android:layout_marginEnd="8dp" />
+        <TextView
+            android:id="@+id/tvReactLike"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:text="👍"
+            android:textSize="20sp"
+            android:background="@drawable/bg_reaction_chip"
+            android:layout_marginEnd="8dp" />
+        <TextView
+            android:id="@+id/tvReactLaugh"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:text="😂"
+            android:textSize="20sp"
+            android:background="@drawable/bg_reaction_chip"
+            android:layout_marginEnd="8dp" />
+        <TextView
+            android:id="@+id/tvReactWow"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:text="😮"
+            android:textSize="20sp"
+            android:background="@drawable/bg_reaction_chip"
+            android:layout_marginEnd="8dp" />
+        <TextView
+            android:id="@+id/tvReactSad"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:text="😢"
+            android:textSize="20sp"
+            android:background="@drawable/bg_reaction_chip"
+            android:layout_marginEnd="8dp" />
+        <TextView
+            android:id="@+id/tvReactAngry"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:text="😡"
+            android:textSize="20sp"
+            android:background="@drawable/bg_reaction_chip" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#EEEEEE" />
+
+    <TextView
+        android:id="@+id/tvReply"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:gravity="center_vertical"
+        android:text="Reply"
+        android:textSize="16sp"
+        android:textColor="#2C2C2C"
+        android:paddingStart="4dp" />
+
+    <TextView
+        android:id="@+id/tvDeleteForMe"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:gravity="center_vertical"
+        android:text="Delete for you"
+        android:textSize="16sp"
+        android:textColor="#2C2C2C"
+        android:paddingStart="4dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#EEEEEE" />
+
+    <TextView
+        android:id="@+id/tvUnsend"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:gravity="center_vertical"
+        android:text="Unsend"
+        android:textSize="16sp"
+        android:textColor="#E53935"
+        android:paddingStart="4dp" />
+
+</LinearLayout>
+

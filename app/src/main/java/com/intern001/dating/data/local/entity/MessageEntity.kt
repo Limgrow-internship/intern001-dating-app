@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 data class MessageEntity(
     @PrimaryKey
     val id: String,
+    val serverId: String? = null,
     val clientMessageId: String?,
     val senderId: String,
     val matchId: String,
@@ -16,5 +17,12 @@ data class MessageEntity(
     val duration: Int?,
     val timestamp: String?,
     val delivered: Boolean?,
+    val replyToMessageId: String? = null,
+    val replyToClientMessageId: String? = null,
+    val replyToTimestamp: String? = null,
+    val replyPreview: String? = null,
+    val replySenderId: String? = null,
+    val replySenderName: String? = null,
+    val reaction: String? = null,
     val createdAt: Long = System.currentTimeMillis(),
 )

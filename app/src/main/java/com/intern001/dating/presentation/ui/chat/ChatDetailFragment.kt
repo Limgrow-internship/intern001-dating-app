@@ -3,6 +3,7 @@ package com.intern001.dating.presentation.ui.chat
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Bundle
@@ -11,6 +12,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
@@ -39,6 +42,7 @@ import com.intern001.dating.presentation.common.viewmodel.ChatListViewModel
 import com.intern001.dating.presentation.util.AIConstants
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
+import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -73,10 +77,19 @@ class ChatDetailFragment : BaseFragment() {
         "😠", "🤬", "😷", "🤒", "🤕", "🤢", "🤮", "🤧", "😇", "🥳", "🥰", "🤠", "🤡", "🥺",
     )
 
+    private val defaultSuggestions = listOf(
+        "Wave to %s",
+        "Hi! Nice to meet you",
+        "How’s your day going?",
+        "Want to grab a coffee?",
+    )
+
     private var recorder: MediaRecorder? = null
     private var audioFilePath: String = ""
     private var isRecording = false
     private var recordStartTime: Long = 0
+    private var pendingReply: MessageModel? = null
+    private var lastMessageCount: Int = 0
 
     private var isAIConversation = false
 
@@ -151,6 +164,7 @@ class ChatDetailFragment : BaseFragment() {
         }
 
         setupTypingIndicatorAnimation()
+        setupSuggestionChips()
 
         lifecycleScope.launch {
             val myUserId = getMyUserIdAsync()
@@ -200,7 +214,14 @@ class ChatDetailFragment : BaseFragment() {
         }
         lifecycleScope.launch {
             val myUserId = getMyUserIdAsync()
-            adapter = MessageAdapter(myUserId)
+            adapter = MessageAdapter(
+                myUserId = myUserId,
+                matchedUserName = matchedUserName,
+                blockerId = null,
+                onMessageLongPress = { msg ->
+                    showMessageActionSheet(msg)
+                },
+            )
             binding.rvMessages.layoutManager = LinearLayoutManager(requireContext())
             binding.rvMessages.adapter = adapter
 
@@ -241,8 +262,12 @@ class ChatDetailFragment : BaseFragment() {
 
             viewModel.messages.collectLatest { msgs ->
                 adapter.setMessages(msgs)
-                if (msgs.isNotEmpty()) binding.rvMessages.scrollToPosition(msgs.size - 1)
+                if (msgs.size > lastMessageCount && msgs.isNotEmpty()) {
+                    binding.rvMessages.scrollToPosition(msgs.size - 1)
+                }
+                lastMessageCount = msgs.size
                 chatSharedViewModel.updateMessages(matchId, msgs)
+                toggleSuggestionVisibility(msgs.isEmpty())
 
                 val latest = msgs.maxByOrNull { it.timestamp ?: "" }
                 latest?.let { msg ->
@@ -310,30 +335,7 @@ class ChatDetailFragment : BaseFragment() {
             takePictureLauncher.launch(cameraImageUri)
         }
         binding.btnSend.setOnClickListener {
-            val content = binding.edtMessage.text.toString().trim()
-            if (content.isNotEmpty()) {
-                lifecycleScope.launch {
-                    val confirmedUserId = getMyUserIdAsync()
-                    val clientId = viewModel.newClientMessageId()
-
-                    val messageModel = MessageModel(
-                        clientMessageId = clientId,
-                        senderId = confirmedUserId,
-                        matchId = matchId,
-                        message = content,
-                        imgChat = null,
-                        audioPath = null,
-                        duration = null,
-                        timestamp = java.time.Instant.now().toString(),
-                        delivered = true,
-                    )
-
-                    viewModel.addMessage(messageModel)
-                    android.util.Log.d("ChatDetailFragment", "Added optimistic message: $content")
-                    viewModel.sendMessageViaSocket(content, clientId)
-                    binding.edtMessage.setText("")
-                }
-            }
+            sendTextMessage(binding.edtMessage.text.toString())
         }
 
         binding.btnMore.setOnClickListener {
@@ -436,6 +438,141 @@ class ChatDetailFragment : BaseFragment() {
                 else -> false
             }
         }
+
+        binding.btnCloseReply.setOnClickListener {
+            clearReplyBar()
+        }
+    }
+
+    private fun setupSuggestionChips() {
+        val displayName = matchedUserName?.takeIf { it.isNotBlank() } ?: "bạn"
+        val suggestions = defaultSuggestions.map { text ->
+            if (text.contains("%s")) text.format(displayName) else text
+        }
+
+        binding.suggestionChipGroup.removeAllViews()
+        suggestions.forEach { text ->
+            binding.suggestionChipGroup.addView(buildChip(text))
+        }
+        toggleSuggestionVisibility(viewModel.messages.value.isEmpty())
+    }
+
+    private fun buildChip(text: String): TextView {
+        val params = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+        ).apply {
+            rightMargin = 8.dp
+        }
+        return TextView(requireContext()).apply {
+            layoutParams = params
+            this.text = text
+            setTextColor(Color.parseColor("#333333"))
+            textSize = 14f
+            setPadding(16.dp, 10.dp, 16.dp, 10.dp)
+            background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_chat_suggestion_chip)
+            setOnClickListener {
+                sendTextMessage(text)
+            }
+        }
+    }
+
+    private fun toggleSuggestionVisibility(show: Boolean) {
+        binding.suggestionContainer.visibility = if (show) View.VISIBLE else View.GONE
+    }
+
+    private val Int.dp: Int
+        get() = (this * resources.displayMetrics.density).roundToInt()
+
+    private fun showMessageActionSheet(message: MessageModel) {
+        val isMine = message.senderId == viewModel.currentUserId
+        MessageActionBottomSheet(
+            message = message,
+            isMine = isMine,
+            onReply = { msg ->
+                pendingReply = msg
+                val snippet = buildReplyPreview(msg)
+                binding.tvReplyText.text = snippet
+                binding.tvReplyName.text = if (msg.senderId == viewModel.currentUserId) "Bạn" else (matchedUserName ?: "Họ")
+                binding.replyBar.visibility = View.VISIBLE
+                binding.edtMessage.requestFocus()
+            },
+            onDeleteForMe = {
+                Toast.makeText(context, "Đang phát triển: Xoá cho bạn", Toast.LENGTH_SHORT).show()
+            },
+            onUnsend = {
+                Toast.makeText(context, "Đang phát triển: Thu hồi tin nhắn", Toast.LENGTH_SHORT).show()
+            },
+            onReact = { targetMsg, reaction ->
+                val targetId = targetMsg.id ?: targetMsg.clientMessageId
+                android.util.Log.d("ChatDetailFragment", "Applying reaction $reaction to message id=$targetId, clientId=${targetMsg.clientMessageId}")
+                viewModel.applyReaction(
+                    targetId = targetId,
+                    reaction = reaction,
+                )
+            },
+        ).show(childFragmentManager, "messageActions")
+    }
+
+    private fun sendTextMessage(content: String) {
+        val message = content.trim()
+        if (message.isEmpty()) return
+
+        lifecycleScope.launch {
+            val confirmedUserId = getMyUserIdAsync()
+            val clientId = viewModel.newClientMessageId()
+            val replyMsg = pendingReply
+
+            val messageModel = MessageModel(
+                id = null,
+                clientMessageId = clientId,
+                senderId = confirmedUserId,
+                matchId = matchId,
+                message = message,
+                imgChat = null,
+                audioPath = null,
+                duration = null,
+                timestamp = java.time.Instant.now().toString(),
+                delivered = true,
+                replyToMessageId = replyMsg?.id,
+                replyToClientMessageId = replyMsg?.clientMessageId,
+                replyToTimestamp = replyMsg?.timestamp,
+                replyPreview = replyMsg?.let { buildReplyPreview(it) },
+                replySenderId = replyMsg?.senderId,
+                replySenderName = replyMsg?.let { if (it.senderId == confirmedUserId) "Bạn" else (matchedUserName ?: "Họ") },
+            )
+
+            viewModel.addMessage(messageModel)
+            android.util.Log.d("ChatDetailFragment", "Added optimistic message: $message")
+            viewModel.sendMessageViaSocket(
+                text = message,
+                clientMessageId = clientId,
+                replyToMessageId = messageModel.replyToMessageId,
+                replyToClientMessageId = messageModel.replyToClientMessageId,
+                replyToTimestamp = messageModel.replyToTimestamp,
+                replyPreview = messageModel.replyPreview,
+                replySenderId = messageModel.replySenderId,
+                replySenderName = messageModel.replySenderName,
+            )
+            binding.edtMessage.setText("")
+            clearReplyBar()
+        }
+    }
+
+    private fun buildReplyPreview(msg: MessageModel): String {
+        return when {
+            msg.message.isNotBlank() -> msg.message
+            !msg.imgChat.isNullOrBlank() -> "[Hình ảnh]"
+            !msg.audioPath.isNullOrBlank() -> "[Ghi âm]"
+            else -> "[Tin nhắn]"
+        }
+    }
+
+    private fun clearReplyBar() {
+        pendingReply = null
+        binding.replyBar.visibility = View.GONE
+        binding.tvReplyText.text = ""
+        binding.tvReplyName.text = ""
     }
 
     private fun setRecordingUI(isRecording: Boolean) {
