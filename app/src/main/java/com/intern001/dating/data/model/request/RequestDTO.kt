@@ -144,3 +144,17 @@ data class ReportRequest(
     @SerializedName("reason")
     val reason: String,
 )
+
+data class RequestOtpRequestForgot(
+    val email: String,
+)
+
+data class VerifyOtpRequestForgot(
+    val email: String,
+    val otp: String,
+)
+
+data class ResetPasswordRequest(
+    val newPassword: String,
+    val confirmPassword: String,
+)

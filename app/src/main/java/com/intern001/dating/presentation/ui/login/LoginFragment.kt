@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
@@ -94,7 +95,9 @@ class LoginFragment : BaseFragment() {
         }
 
         binding.btnForgotPass.setOnClickListener {
-            Snackbar.make(binding.root, "Navigate to Forgot Password", Snackbar.LENGTH_SHORT).show()
+            findNavController().navigate(
+                R.id.action_login_to_checkEmail,
+            )
         }
 
         binding.btnFacebook.setOnClickListener {

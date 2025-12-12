@@ -14,12 +14,15 @@ import com.intern001.dating.data.model.request.RecommendationCriteriaRequest
 import com.intern001.dating.data.model.request.ReorderPhotosRequest
 import com.intern001.dating.data.model.request.ReportRequest
 import com.intern001.dating.data.model.request.RequestOtpRequest
+import com.intern001.dating.data.model.request.RequestOtpRequestForgot
+import com.intern001.dating.data.model.request.ResetPasswordRequest
 import com.intern001.dating.data.model.request.SignupRequest
 import com.intern001.dating.data.model.request.UnmatchRequest
 import com.intern001.dating.data.model.request.UnmatchUserRequest
 import com.intern001.dating.data.model.request.UpdateFCMTokenRequest
 import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.data.model.request.VerifyOtpRequest
+import com.intern001.dating.data.model.request.VerifyOtpRequestForgot
 import com.intern001.dating.data.model.response.AuthResponse
 import com.intern001.dating.data.model.response.ChangePasswordResponse
 import com.intern001.dating.data.model.response.EnhanceBioResponse
@@ -47,6 +50,7 @@ import com.intern001.dating.data.model.response.UploadImageResponse
 import com.intern001.dating.data.model.response.UserData
 import com.intern001.dating.data.model.response.VerifyFaceResponse
 import com.intern001.dating.data.model.response.VerifyOtpResponse
+import com.intern001.dating.data.model.response.VerifyOtpResponseForgot
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -299,4 +303,20 @@ interface DatingApiService {
 
     @POST("api/block/unblock")
     suspend fun unblock(@Body request: BlockUserRequest): Response<Unit>
+
+    @POST("api/user/forgot-password/request-otp")
+    suspend fun requestResetOtp(
+        @Body body: RequestOtpRequestForgot,
+    ): Response<Unit>
+
+    @POST("api/user/forgot-password/verify-otp")
+    suspend fun verifyResetOtp(
+        @Body body: VerifyOtpRequestForgot,
+    ): Response<VerifyOtpResponseForgot>
+
+    @PUT("api/user/forgot-password/reset")
+    suspend fun resetPassword(
+        @Header("Authorization") token: String,
+        @Body body: ResetPasswordRequest,
+    ): Response<Unit>
 }

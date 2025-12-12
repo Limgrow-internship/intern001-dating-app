@@ -228,3 +228,7 @@ data class ReportResponse(
     @SerializedName("createdAt")
     val createdAt: Date,
 )
+
+data class VerifyOtpResponseForgot(
+    val otpToken: String,
+)
