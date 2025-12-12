@@ -23,6 +23,8 @@ interface ChatRepository {
 
     suspend fun getMatchStatusResponse(targetUserId: String): MatchStatusResponse
 
+    suspend fun clearMessagesForUser(matchId: String)
+
     suspend fun block(targetUserId: String)
 
     suspend fun unblock(targetUserId: String)

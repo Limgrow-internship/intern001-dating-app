@@ -144,6 +144,7 @@ class ChatDetailFragment : BaseFragment() {
         }
 
         isAIConversation = AIConstants.isAIUser(targetUserId)
+        binding.btnMore.visibility = if (isAIConversation) View.GONE else View.VISIBLE
 
         if (isAIConversation && matchedUserName.isNullOrBlank()) {
             matchedUserName = AIConstants.AI_FAKE_NAME
@@ -568,8 +569,11 @@ class ChatDetailFragment : BaseFragment() {
             .setTitle("Delete Conversation")
             .setMessage("Are you sure you want to delete all messages in this conversation? This cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
-                viewModel.deleteAllMessages(matchId)
-                requireActivity().onBackPressedDispatcher.onBackPressed()
+                viewModel.clearMessagesForMyself(matchId) {
+                    chatListViewModel.updateLastMessage(matchId, null)
+                    chatListViewModel.refreshMatches()
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                }
             }
             .setNegativeButton("Cancel", null)
             .show()

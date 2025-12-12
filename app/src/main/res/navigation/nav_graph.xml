@@ -340,6 +340,7 @@
 
     <fragment
         android:id="@+id/profileDetailFragment"
+        android:name="com.intern001.dating.presentation.ui.profile.edit.ViewProfileFragment"
         android:label="ProfileDetailFragment">
         <argument
             android:name="userId"

@@ -332,5 +332,10 @@
     <string name="distance_km_format">%d km</string>
     <string name="already_liked_dialog_title">You already liked this profile</string>
     <string name="already_liked_dialog_message">You and %1$s matched earlier. Open your matches list to keep chatting.</string>
+    <string name="not_found_user_liked">Không tìm thấy thông tin người đã like</string>
+    <string name="all">Tất cả</string>
+    <string name="havent_read">Chưa đọc</string>
+    <string name="likes">Lượt thích</string>
+    <string name="filter_notification">Lọc thông báo</string>
 
 </resources>
