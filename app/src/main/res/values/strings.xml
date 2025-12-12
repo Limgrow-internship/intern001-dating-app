@@ -71,7 +71,23 @@
     <string name="contact_us_h2">Contact Support</string>
     <string name="contact_us_phone">Phone Number</string>
     <string name="contact_us_mail">Email Address</string>
-
+    <string name="forgot_pass">Forgot Your Password</string>
+    <string name="forgot_pass_btn">Send OTP Code</string>
+    <string name="forgot_pass_title1">Enter your registered email and we’ll send you a verification code.</string>
+    <string name="forgot_pass_error">Please enter a valid email address</string>
+    <string name="forgot_pass_verify">Enter Verification Code</string>
+    <string name="forgot_pass_verify_text">We have sent a 4-digit code to your email. Please enter it below to reset your password.</string>
+    <string name="forgot_pass_verify_text2">Enter the code send to</string>
+    <string name="forgot_pass_verify_text3">Resend Code</string>
+    <string name="forgot_pass_verify_btn">Verify</string>
+    <string name="forgot_pass_reset">Reset Password</string>
+    <string name="forgot_pass_reset_text">Create a new password for your account. Make sure it’s strong and easy for you to remember.</string>
+    <string name="forgot_pass_reset_text1">Please choose a stronger password. Try a combination of letters, numbers</string>
+    <string name="forgot_pass_reset_text2">Passwords do not match</string>
+    <string name="forgot_pass_reset_btn">Reset Password</string>
+    <string name="forgot_pass_success_text">Password Changed Successfully!</string>
+    <string name="forgot_pass_success_text1">Your password has been updated. Please log in again to continue using your account.</string>
+    <string name="forgot_pass_success_btn">Log in</string>
     <!-- Home Screen Tabs -->
     <string name="for_you">For you</string>
     <string name="liked_you">Liked you</string>

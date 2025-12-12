@@ -110,7 +110,6 @@
                     android:maxLength="1"
                     android:textSize="20sp"
                     android:background="@drawable/bg_verify_otp" />
-
             </LinearLayout>
 
             <LinearLayout
