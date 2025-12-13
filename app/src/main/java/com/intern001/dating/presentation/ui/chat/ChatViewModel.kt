@@ -4,14 +4,19 @@ import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.intern001.dating.data.local.ChatLocalRepository
-import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.local.prefs.TokenManager
+import com.intern001.dating.data.local.repository.ChatLocalRepository
 import com.intern001.dating.data.model.MessageModel
 import com.intern001.dating.data.service.ChatSocketService
 import com.intern001.dating.domain.repository.ChatRepository
 import com.intern001.dating.domain.usecase.SendVoiceMessageUseCase
+import com.intern001.dating.presentation.util.AIConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.Instant
+import java.util.ArrayDeque
+import java.util.UUID
 import javax.inject.Inject
+import kotlin.math.abs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -24,8 +29,12 @@ class ChatViewModel @Inject constructor(
     private val tokenManager: TokenManager,
     private val localRepo: ChatLocalRepository,
 ) : ViewModel() {
-    private var lastSentContentKey: String? = null
+    private var lastSentClientMessageId: String? = null
     private var lastSentAtMs: Long = 0L
+    private val pendingClientMessageIds: ArrayDeque<String> = ArrayDeque()
+
+    // Map to store pending reactions: targetMessageId -> reaction
+    private val pendingReactions: MutableMap<String, String> = mutableMapOf()
 
     private val _messages = MutableStateFlow<List<MessageModel>>(emptyList())
     val messages: StateFlow<List<MessageModel>> = _messages
@@ -57,13 +66,11 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val allMsgs = repo.getHistory(matchId)
-                val deliveredMsgs = allMsgs.filter { it.delivered == true }
-
-                _messages.value = deliveredMsgs.sortedBy { it.timestamp ?: "" }
+                _messages.value = allMsgs.sortedBy { it.timestamp ?: "" }
 
                 try {
-                    localRepo.saveMessages(deliveredMsgs)
-                    android.util.Log.d("ChatViewModel", "Saved ${deliveredMsgs.size} messages to local DB")
+                    localRepo.saveMessages(allMsgs)
+                    android.util.Log.d("ChatViewModel", "Saved ${allMsgs.size} messages to local DB")
                 } catch (e: Exception) {
                     android.util.Log.e("ChatViewModel", "Failed to save messages to local DB", e)
                 }
@@ -90,44 +97,45 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun messageKey(msg: MessageModel): String {
+        msg.id?.let { return "id_$it" }
+        msg.clientMessageId?.let { return "cid_$it" }
         return "${msg.senderId}_${msg.message}_${msg.matchId}_${msg.imgChat}_${msg.audioPath}_${msg.timestamp ?: ""}"
     }
 
     private fun contentKey(msg: MessageModel): String {
+        msg.id?.let { return "id_$it" }
+        msg.clientMessageId?.let { return "cid_$it" }
         return "${msg.senderId}_${msg.message}_${msg.matchId}_${msg.imgChat}_${msg.audioPath}"
     }
+
+    fun newClientMessageId(): String = UUID.randomUUID().toString()
 
     private fun mergeMessages(current: List<MessageModel>, new: List<MessageModel>): List<MessageModel> {
         val merged = LinkedHashMap<String, MessageModel>()
 
-        fun prefer(existing: MessageModel, incoming: MessageModel): MessageModel {
-            val incomingHasTimestamp = !incoming.timestamp.isNullOrBlank()
-            val existingHasTimestamp = !existing.timestamp.isNullOrBlank()
-            val incomingDelivered = incoming.delivered == true
-            val existingDelivered = existing.delivered == true
-
-            return when {
-                existingDelivered && !incomingDelivered -> existing
-                incomingDelivered && !existingDelivered -> incoming
-                incomingHasTimestamp && !existingHasTimestamp -> incoming
-                existingHasTimestamp && !incomingHasTimestamp -> existing
-                else -> {
-                    val incTs = incoming.timestamp ?: ""
-                    val exTs = existing.timestamp ?: ""
-                    if (incTs > exTs) incoming else existing
-                }
+        fun uniqueKey(msg: MessageModel): String {
+            // Prefer clientMessageId; fallback to previous composite keys
+            msg.clientMessageId?.let { return "cid_$it" }
+            return if (!msg.timestamp.isNullOrBlank()) {
+                messageKey(msg)
+            } else {
+                "${contentKey(msg)}_${msg.delivered ?: "unknown"}"
             }
         }
 
         current.forEach { msg ->
-            val key = contentKey(msg)
+            val key = uniqueKey(msg)
             merged[key] = msg
         }
 
         new.forEach { msg ->
-            val key = contentKey(msg)
-            val existing = merged[key]
-            merged[key] = if (existing == null) msg else prefer(existing, msg)
+            val existingEntry = merged.entries.find { isSameEvent(it.value, msg) }
+            if (existingEntry != null) {
+                merged[existingEntry.key] = preferMessage(existingEntry.value, msg)
+            } else {
+                val key = uniqueKey(msg)
+                merged[key] = msg
+            }
         }
 
         return merged.values.sortedBy { it.timestamp ?: "" }
@@ -144,7 +152,7 @@ class ChatViewModel @Inject constructor(
 
     fun sendVoiceMessage(matchId: String, senderId: String, localAudioPath: String, duration: Int) {
         viewModelScope.launch {
-            sendVoiceMessageUseCase(matchId, senderId, localAudioPath, duration)
+            sendVoiceMessageUseCase(matchId, senderId, localAudioPath, duration, newClientMessageId())
             fetchHistory(matchId)
         }
     }
@@ -152,6 +160,7 @@ class ChatViewModel @Inject constructor(
     fun sendImageMessage(imageUrl: String, matchId: String, senderId: String) {
         viewModelScope.launch {
             val message = MessageModel(
+                clientMessageId = newClientMessageId(),
                 senderId = senderId,
                 matchId = matchId,
                 message = "",
@@ -174,6 +183,17 @@ class ChatViewModel @Inject constructor(
                 repo.deleteAllMessages(matchId)
                 fetchHistory(matchId)
             } catch (_: Exception) { }
+        }
+    }
+
+    fun clearMessagesForMyself(matchId: String, onDone: (() -> Unit)? = null) {
+        viewModelScope.launch {
+            try {
+                repo.clearMessagesForUser(matchId)
+                localRepo.deleteMessagesByMatchId(matchId)
+                fetchHistory(matchId)
+                onDone?.invoke()
+            } catch (_: Exception) {}
         }
     }
 
@@ -223,20 +243,93 @@ class ChatViewModel @Inject constructor(
     }
 
     fun addMessage(message: MessageModel) {
-        val currentMessages = _messages.value
-        val key = messageKey(message)
-        val exists = currentMessages.any { messageKey(it) == key }
-        if (exists) {
-            android.util.Log.d("ChatViewModel", "Message already exists, skipping: ${message.message.take(50)}...")
+        val currentMessages = _messages.value.toMutableList()
+
+        if (!message.reaction.isNullOrBlank()) {
+            if (!message.replyToMessageId.isNullOrBlank()) {
+                val targetId = message.replyToMessageId
+                var found = false
+
+                val updated = currentMessages.map { msg ->
+                    if (msg.id == targetId || msg.clientMessageId == targetId) {
+                        found = true
+                        msg.copy(reaction = message.reaction)
+                    } else {
+                        msg
+                    }
+                }
+
+                if (found) {
+                    _messages.value = updated.sortedBy { it.timestamp ?: "" }
+                    return
+                }
+            }
+
+            val existingById = currentMessages.find {
+                (!message.id.isNullOrBlank() && it.id == message.id) ||
+                    (!message.clientMessageId.isNullOrBlank() && it.clientMessageId == message.clientMessageId)
+            }
+
+            if (existingById != null) {
+                val updated = currentMessages.map { msg ->
+                    if ((msg.id == message.id && !message.id.isNullOrBlank()) ||
+                        (msg.clientMessageId == message.clientMessageId && !message.clientMessageId.isNullOrBlank())
+                    ) {
+                        val merged = preferMessage(msg, message)
+                        merged.copy(reaction = message.reaction)
+                    } else {
+                        msg
+                    }
+                }
+                _messages.value = updated.sortedBy { it.timestamp ?: "" }
+                return
+            }
+        }
+
+        val hasNoContent = message.message.isNullOrBlank() &&
+            message.imgChat.isNullOrBlank() &&
+            message.audioPath.isNullOrBlank()
+
+        if (hasNoContent && !message.replyToMessageId.isNullOrBlank()) {
             return
         }
 
-        val updatedMessages = currentMessages + message
-        _messages.value = updatedMessages.sortedBy { it.timestamp ?: "" }
+        val existingById = currentMessages.find {
+            (!message.id.isNullOrBlank() && it.id == message.id) ||
+                (!message.clientMessageId.isNullOrBlank() && it.clientMessageId == message.clientMessageId)
+        }
 
-        android.util.Log.d("ChatViewModel", "Added message: ${message.message.take(50)}... Total: ${_messages.value.size}")
+        if (existingById != null) {
+            val updated = currentMessages.map { msg ->
+                if ((msg.id == message.id && !message.id.isNullOrBlank()) ||
+                    (msg.clientMessageId == message.clientMessageId && !message.clientMessageId.isNullOrBlank())
+                ) {
+                    preferMessage(msg, message)
+                } else {
+                    msg
+                }
+            }
+            _messages.value = updated.sortedBy { it.timestamp ?: "" }
+            return
+        }
 
-        if (isAIConversation && com.intern001.dating.presentation.ui.chat.AIConstants.isMessageFromAI(message.senderId)) {
+        val existing = currentMessages.find { isSameEvent(it, message) }
+        if (existing != null) {
+            val preferred = preferMessage(existing, message)
+            if (preferred == existing) {
+                return
+            }
+            val updated = currentMessages.map { msg ->
+                if (isSameEvent(msg, message)) preferred else msg
+            }
+            _messages.value = updated.sortedBy { it.timestamp ?: "" }
+            return
+        }
+
+        currentMessages.add(message)
+        _messages.value = currentMessages.sortedBy { it.timestamp ?: "" }
+
+        if (isAIConversation && AIConstants.isMessageFromAI(message.senderId)) {
             hideAITypingIndicator()
         }
     }
@@ -271,43 +364,61 @@ class ChatViewModel @Inject constructor(
         currentMatchId = matchId
         currentUserId = userId
         isAIConversation = isAI
+        pendingClientMessageIds.clear()
 
         socketService?.let { service ->
             service.onChatHistory { history ->
-                android.util.Log.d("ChatViewModel", "Received chat history: ${history.size} messages")
-                val currentMsgs = _messages.value
-                val mergedMsgs = mergeMessages(currentMsgs, history)
-                _messages.value = mergedMsgs
+                viewModelScope.launch {
+                    android.util.Log.d("ChatViewModel", "Received chat history: ${history.size} messages")
+                    val currentMsgs = _messages.value
+                    val mergedMsgs = mergeMessages(currentMsgs, history)
+                    _messages.value = mergedMsgs
+                }
             }
 
             service.onReceiveMessage { message ->
-                android.util.Log.d("ChatViewModel", "Received new message: senderId=${message.senderId}, isFromAI=${AIConstants.isMessageFromAI(message.senderId)}")
-                val isOwnMessage = message.senderId == currentUserId
-                val incomingKey = contentKey(message)
-                val exists = _messages.value.any { contentKey(it) == incomingKey }
-                val withinRecentSend =
-                    isOwnMessage &&
-                        lastSentContentKey == incomingKey &&
-                        (System.currentTimeMillis() - lastSentAtMs) <= 2000
+                viewModelScope.launch {
+                    val isOwnMessage = message.senderId == currentUserId
 
-                if (isOwnMessage && exists && withinRecentSend) {
-                    return@onReceiveMessage
+                    val normalizedMessage = if (isOwnMessage) {
+                        when {
+                            !message.clientMessageId.isNullOrBlank() -> {
+                                pendingClientMessageIds.remove(message.clientMessageId)
+                                message
+                            }
+                            pendingClientMessageIds.isNotEmpty() -> {
+                                val mappedId = pendingClientMessageIds.removeFirst()
+                                message.copy(clientMessageId = mappedId)
+                            }
+                            else -> message
+                        }
+                    } else {
+                        message
+                    }
+
+                    addMessage(normalizedMessage)
                 }
-
-                addMessage(message)
             }
 
             service.joinRoom(matchId, userId)
             _isSocketConnected.value = service.isConnected()
-
-            android.util.Log.d("ChatViewModel", "Joined chat room: matchId=$matchId, userId=$userId, isAI=$isAI, connected=${service.isConnected()}")
         } ?: run {
             android.util.Log.e("ChatViewModel", "Socket service not initialized")
             _error.value = "Socket service not initialized"
         }
     }
 
-    fun sendMessageViaSocket(text: String) {
+    fun sendMessageViaSocket(
+        text: String,
+        clientMessageId: String? = null,
+        replyToMessageId: String? = null,
+        replyToClientMessageId: String? = null,
+        replyToTimestamp: String? = null,
+        replyPreview: String? = null,
+        replySenderId: String? = null,
+        replySenderName: String? = null,
+        reaction: String? = null,
+    ) {
         if (text.isBlank()) return
 
         android.util.Log.d("ChatViewModel", "sendMessageViaSocket: text=$text, matchId=$currentMatchId, senderId=$currentUserId, isAI=$isAIConversation, connected=${_isSocketConnected.value}")
@@ -327,43 +438,61 @@ class ChatViewModel @Inject constructor(
             showAITypingIndicator()
         }
 
-        lastSentContentKey = "${currentUserId}_${text}_${currentMatchId}_null_null"
+        val finalClientId = clientMessageId ?: newClientMessageId()
+        lastSentClientMessageId = finalClientId
         lastSentAtMs = System.currentTimeMillis()
+        pendingClientMessageIds.addLast(finalClientId)
 
         socketService?.sendMessage(
             matchId = currentMatchId,
             senderId = currentUserId,
             message = text,
+            clientMessageId = finalClientId,
+            replyToMessageId = replyToMessageId,
+            replyToClientMessageId = replyToClientMessageId,
+            replyToTimestamp = replyToTimestamp,
+            replyPreview = replyPreview,
+            replySenderId = replySenderId,
+            replySenderName = replySenderName,
+            reaction = reaction,
         ) ?: run {
             android.util.Log.e("ChatViewModel", "Socket service is null")
             _error.value = "Socket service not available"
         }
     }
 
-    fun sendAudioViaSocket(audioPath: String, duration: Int) {
+    fun sendAudioViaSocket(audioPath: String, duration: Int, clientMessageId: String? = null) {
         if (!_isSocketConnected.value) {
             _error.value = "Socket not connected"
             return
         }
+
+        val finalClientId = clientMessageId ?: newClientMessageId()
+        pendingClientMessageIds.addLast(finalClientId)
 
         socketService?.sendMessage(
             matchId = currentMatchId,
             senderId = currentUserId,
             audioPath = audioPath,
             duration = duration,
+            clientMessageId = finalClientId,
         )
     }
 
-    fun sendImageViaSocket(imagePath: String) {
+    fun sendImageViaSocket(imagePath: String, clientMessageId: String? = null) {
         if (!_isSocketConnected.value) {
             _error.value = "Socket not connected"
             return
         }
 
+        val finalClientId = clientMessageId ?: newClientMessageId()
+        pendingClientMessageIds.addLast(finalClientId)
+
         socketService?.sendMessage(
             matchId = currentMatchId,
             senderId = currentUserId,
             imgChat = imagePath,
+            clientMessageId = finalClientId,
         )
     }
 
@@ -378,7 +507,7 @@ class ChatViewModel @Inject constructor(
         }
         typingTimeoutHandler.postDelayed(
             typingTimeoutRunnable!!,
-            com.intern001.dating.presentation.ui.chat.AIConstants.AI_TYPING_TIMEOUT_MS,
+            AIConstants.AI_TYPING_TIMEOUT_MS,
         )
     }
 
@@ -386,6 +515,144 @@ class ChatViewModel @Inject constructor(
         _isAITyping.value = false
         typingTimeoutRunnable?.let { typingTimeoutHandler.removeCallbacks(it) }
         typingTimeoutRunnable = null
+    }
+
+    private fun preferMessage(existing: MessageModel, incoming: MessageModel): MessageModel {
+        val incomingHasTimestamp = !incoming.timestamp.isNullOrBlank()
+        val existingHasTimestamp = !existing.timestamp.isNullOrBlank()
+        val incomingDelivered = incoming.delivered == true
+        val existingDelivered = existing.delivered == true
+
+        val candidate = when {
+            existingDelivered && !incomingDelivered -> existing
+            incomingDelivered && !existingDelivered -> incoming
+            incomingHasTimestamp && !existingHasTimestamp -> incoming
+            existingHasTimestamp && !incomingHasTimestamp -> existing
+            else -> {
+                val incTs = incoming.timestamp ?: ""
+                val exTs = existing.timestamp ?: ""
+                if (incTs > exTs) incoming else existing
+            }
+        }
+
+        val other = if (candidate === existing) incoming else existing
+        // For reaction, prefer the non-null one, and if both exist, prefer the incoming one (newer)
+        val preferredReaction = when {
+            !incoming.reaction.isNullOrBlank() -> incoming.reaction
+            !existing.reaction.isNullOrBlank() -> existing.reaction
+            else -> null
+        }
+        return candidate.copy(
+            replyToMessageId = candidate.replyToMessageId ?: other.replyToMessageId,
+            replyPreview = candidate.replyPreview ?: other.replyPreview,
+            replySenderId = candidate.replySenderId ?: other.replySenderId,
+            replySenderName = candidate.replySenderName ?: other.replySenderName,
+            reaction = preferredReaction,
+        )
+    }
+
+    fun applyReaction(targetId: String?, reaction: String?) {
+        if (targetId.isNullOrBlank()) {
+            android.util.Log.w("ChatViewModel", "applyReaction: targetId is null or blank")
+            return
+        }
+        val currentMessages = _messages.value.toMutableList()
+        var found = false
+        var targetMessage: MessageModel? = null
+        val updated = currentMessages.map { msg ->
+            val match = msg.id == targetId || msg.clientMessageId == targetId
+            if (match) {
+                found = true
+                targetMessage = msg
+                msg.copy(reaction = reaction)
+            } else {
+                msg
+            }
+        }
+        if (!found) {
+            android.util.Log.w("ChatViewModel", "applyReaction: No message found with id=$targetId")
+            return
+        }
+        _messages.value = updated
+
+        targetMessage?.let { msg ->
+            val targetMsgId = msg.id ?: targetId
+            val targetClientId = msg.clientMessageId
+            if (targetMsgId != null || targetClientId != null) {
+                if (targetMsgId != null) {
+                    pendingReactions[targetMsgId] = reaction ?: ""
+                }
+                if (targetClientId != null) {
+                    pendingReactions[targetClientId] = reaction ?: ""
+                }
+
+                if (_isSocketConnected.value) {
+                    if (targetMsgId != null || targetClientId != null) {
+                        socketService?.sendMessage(
+                            matchId = currentMatchId,
+                            senderId = currentUserId,
+                            message = "",
+                            clientMessageId = null,
+                            replyToMessageId = targetMsgId,
+                            replyToClientMessageId = targetClientId,
+                            reaction = reaction,
+                        )
+                        android.util.Log.d("ChatViewModel", "Sent reaction to server: reaction=$reaction, targetId=$targetId, serverId=$targetMsgId, clientId=$targetClientId")
+                    } else {
+                        android.util.Log.e("ChatViewModel", "Cannot send reaction: both serverId and clientId are null")
+                    }
+                } else {
+                    android.util.Log.w("ChatViewModel", "Socket not connected, reaction not sent to server")
+                }
+            }
+        }
+    }
+
+    private fun parseMillis(ts: String?): Long? {
+        return try {
+            ts?.let { Instant.parse(it).toEpochMilli() }
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun isSameEvent(existing: MessageModel, incoming: MessageModel): Boolean {
+        val existingCid = existing.clientMessageId
+        val incomingCid = incoming.clientMessageId
+
+        if (!existingCid.isNullOrBlank() || !incomingCid.isNullOrBlank()) {
+            if (!existingCid.isNullOrBlank() && !incomingCid.isNullOrBlank()) {
+                return existingCid == incomingCid
+            }
+
+            if (contentKey(existing) != contentKey(incoming)) return false
+            val exMs = parseMillis(existing.timestamp)
+            val inMs = parseMillis(incoming.timestamp)
+            if (exMs != null && inMs != null) {
+                val diff = abs(exMs - inMs)
+                if (diff <= 5_000) return true
+            }
+            if (exMs == null || inMs == null) {
+                return true
+            }
+            return false
+        }
+
+        if (contentKey(existing) != contentKey(incoming)) return false
+
+        val exMs = parseMillis(existing.timestamp)
+        val inMs = parseMillis(incoming.timestamp)
+
+        if (exMs != null && inMs != null) {
+            val diff = abs(exMs - inMs)
+            if (diff <= 5_000) return true
+        }
+
+        if (exMs == null || inMs == null) {
+            return true
+        }
+
+        return false
     }
 
     fun clearError() {

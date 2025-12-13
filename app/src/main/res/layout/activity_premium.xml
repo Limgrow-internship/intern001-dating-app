@@ -5,7 +5,13 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_premium">
 
-    <!-- Close Button -->
+    <!-- ViewPager for tiers -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Close Button (keep on top of ViewPager) -->
     <ImageView
         android:id="@+id/btnClose"
         android:layout_width="40dp"
@@ -16,11 +22,5 @@
         android:padding="8dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:tint="@android:color/white" />
-
-    <!-- ViewPager for tiers -->
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewPager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 
 </FrameLayout>

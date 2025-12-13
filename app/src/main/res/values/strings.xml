@@ -27,7 +27,7 @@
     <string name="already_have_account">Already have account?</string>
     <string name="_40">40%</string>
     <string name="next">Next</string>
-    <string name="default_web_client_id">657435569191-s3n5md0h818sh72j2u7gls8vla24d90d.apps.googleusercontent.com</string>
+    <string name="default_web_client_id">657435569191-g1d7oab6k8n7pamh89fik2fsgpk7h6sr.apps.googleusercontent.com</string>
     <string name="log_out">Log out</string>
     <string name="billing_sub_week" translatable="false">com.ledkeyboard.weekly</string>
     <string name="billing_sub_month" translatable="false">monthly</string>
@@ -49,7 +49,7 @@
     <string name="dating">Dating Mode</string>
     <string name="friend">Friend Mode</string>
     <string name="upgrade">Upgrade to Heart On</string>
-    <string name="upgrade_text">Upgrade now and spread the love!</string>
+    <string name="upgrade_text">Unlock all your likes with Premium!</string>
     <string name="btn_upgrad">Upgrade Now</string>
     <string name="profile">Profile</string>
     <string name="change_password">Change Password</string>
@@ -59,7 +59,35 @@
     <string name="help_center">Help Center</string>
     <string name="contact_us">Contact Us</string>
     <string name="delete_acc">Delete Account</string>
-
+    <string name="help_center_txt1">Account &amp; Login</string>
+    <string name="help_center_txt2">Profile &amp; Verification</string>
+    <string name="help_center_txt3">Matches &amp; Messages</string>
+    <string name="help_center_txt4">Subscriptions &amp; Payments</string>
+    <string name="help_center_txt5">Safety &amp; Reporting</string>
+    <string name="help_center_h1">Need More Help?</string>
+    <string name="help_center_txt6">Contact Support</string>
+    <string name="contact_us_title">You can get in touch with us through below platform. Our Team will reach out to you as soon as it would be possible</string>
+    <string name="contact_us_h1">Customer Support</string>
+    <string name="contact_us_h2">Contact Support</string>
+    <string name="contact_us_phone">Phone Number</string>
+    <string name="contact_us_mail">Email Address</string>
+    <string name="forgot_pass">Forgot Your Password</string>
+    <string name="forgot_pass_btn">Send OTP Code</string>
+    <string name="forgot_pass_title1">Enter your registered email and we’ll send you a verification code.</string>
+    <string name="forgot_pass_error">Please enter a valid email address</string>
+    <string name="forgot_pass_verify">Enter Verification Code</string>
+    <string name="forgot_pass_verify_text">We have sent a 4-digit code to your email. Please enter it below to reset your password.</string>
+    <string name="forgot_pass_verify_text2">Enter the code send to</string>
+    <string name="forgot_pass_verify_text3">Resend Code</string>
+    <string name="forgot_pass_verify_btn">Verify</string>
+    <string name="forgot_pass_reset">Reset Password</string>
+    <string name="forgot_pass_reset_text">Create a new password for your account. Make sure it’s strong and easy for you to remember.</string>
+    <string name="forgot_pass_reset_text1">Please choose a stronger password. Try a combination of letters, numbers</string>
+    <string name="forgot_pass_reset_text2">Passwords do not match</string>
+    <string name="forgot_pass_reset_btn">Reset Password</string>
+    <string name="forgot_pass_success_text">Password Changed Successfully!</string>
+    <string name="forgot_pass_success_text1">Your password has been updated. Please log in again to continue using your account.</string>
+    <string name="forgot_pass_success_btn">Log in</string>
     <!-- Home Screen Tabs -->
     <string name="for_you">For you</string>
     <string name="liked_you">Liked you</string>
@@ -74,6 +102,8 @@
     <string name="check_back_later">Check back later for new people</string>
     <string name="km_away">%s km away</string>
     <string name="km_format">%d km</string>
+    <string name="native_ad_label">Quảng cáo</string>
+    <string name="native_ad_swipe_hint">Vuốt để tiếp tục khám phá</string>
 
     <!-- Match Found Screen -->
     <string name="its_a_match">It\'s a Match!</string>
@@ -302,5 +332,10 @@
     <string name="distance_km_format">%d km</string>
     <string name="already_liked_dialog_title">You already liked this profile</string>
     <string name="already_liked_dialog_message">You and %1$s matched earlier. Open your matches list to keep chatting.</string>
+    <string name="not_found_user_liked">Không tìm thấy thông tin người đã like</string>
+    <string name="all">Tất cả</string>
+    <string name="havent_read">Chưa đọc</string>
+    <string name="likes">Lượt thích</string>
+    <string name="filter_notification">Lọc thông báo</string>
 
 </resources>

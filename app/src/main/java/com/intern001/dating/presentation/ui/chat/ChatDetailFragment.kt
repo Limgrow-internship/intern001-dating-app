@@ -3,6 +3,7 @@ package com.intern001.dating.presentation.ui.chat
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Bundle
@@ -11,6 +12,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
@@ -22,6 +25,7 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -29,16 +33,16 @@ import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.LottieCompositionFactory
 import com.bumptech.glide.Glide
 import com.intern001.dating.R
-import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.local.prefs.TokenManager
 import com.intern001.dating.data.model.MessageModel
 import com.intern001.dating.databinding.FragmentChatScreenBinding
 import com.intern001.dating.domain.entity.LastMessageEntity
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.common.viewmodel.ChatListViewModel
-import com.intern001.dating.presentation.ui.chat.AIConstants
-import com.intern001.dating.presentation.ui.chat.MessageAdapter
+import com.intern001.dating.presentation.util.AIConstants
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
+import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -57,7 +61,10 @@ class ChatDetailFragment : BaseFragment() {
 
     private var _binding: FragmentChatScreenBinding? = null
     private val binding get() = _binding!!
-    private val tokenManager by lazy { TokenManager(requireContext()) }
+    private val tokenManager by lazy {
+        val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        TokenManager(prefs)
+    }
 
     private var targetUserId: String = ""
 
@@ -70,10 +77,20 @@ class ChatDetailFragment : BaseFragment() {
         "😠", "🤬", "😷", "🤒", "🤕", "🤢", "🤮", "🤧", "😇", "🥳", "🥰", "🤠", "🤡", "🥺",
     )
 
+    private val defaultSuggestions = listOf(
+        "Wave to %s",
+        "Hi! Nice to meet you",
+        "How’s your day going?",
+        "Want to grab a coffee?",
+    )
+
     private var recorder: MediaRecorder? = null
     private var audioFilePath: String = ""
     private var isRecording = false
     private var recordStartTime: Long = 0
+    private var pendingReply: MessageModel? = null
+    private var lastMessageCount: Int = 0
+    private var lastMessageTimestamp: String = ""
 
     private var isAIConversation = false
 
@@ -92,7 +109,7 @@ class ChatDetailFragment : BaseFragment() {
         }
 
     private suspend fun getMyUserIdAsync(): String {
-        return tokenManager.getUserIdAsync() ?: ""
+        return tokenManager.getUserId() ?: ""
     }
 
     override fun onCreateView(
@@ -141,12 +158,14 @@ class ChatDetailFragment : BaseFragment() {
         }
 
         isAIConversation = AIConstants.isAIUser(targetUserId)
+        binding.btnMore.visibility = if (isAIConversation) View.GONE else View.VISIBLE
 
         if (isAIConversation && matchedUserName.isNullOrBlank()) {
             matchedUserName = AIConstants.AI_FAKE_NAME
         }
 
         setupTypingIndicatorAnimation()
+        setupSuggestionChips()
 
         lifecycleScope.launch {
             val myUserId = getMyUserIdAsync()
@@ -196,7 +215,14 @@ class ChatDetailFragment : BaseFragment() {
         }
         lifecycleScope.launch {
             val myUserId = getMyUserIdAsync()
-            adapter = MessageAdapter(myUserId)
+            adapter = MessageAdapter(
+                myUserId = myUserId,
+                matchedUserName = matchedUserName,
+                blockerId = null,
+                onMessageLongPress = { msg ->
+                    showMessageActionSheet(msg)
+                },
+            )
             binding.rvMessages.layoutManager = LinearLayoutManager(requireContext())
             binding.rvMessages.adapter = adapter
 
@@ -236,9 +262,35 @@ class ChatDetailFragment : BaseFragment() {
             }
 
             viewModel.messages.collectLatest { msgs ->
+                val previousCount = lastMessageCount
+                val previousTimestamp = lastMessageTimestamp
+
                 adapter.setMessages(msgs)
-                if (msgs.isNotEmpty()) binding.rvMessages.scrollToPosition(msgs.size - 1)
+
+                if (msgs.isNotEmpty()) {
+                    val latestMsg = msgs.maxByOrNull { it.timestamp ?: "" }
+                    val latestTimestamp = latestMsg?.timestamp ?: ""
+
+                    val sizeIncreased = msgs.size > previousCount
+                    val timestampChanged = latestTimestamp != previousTimestamp && latestTimestamp.isNotBlank()
+                    val isNearBottom = isNearBottom()
+
+                    if (sizeIncreased) {
+                        binding.rvMessages.post {
+                            binding.rvMessages.smoothScrollToPosition(msgs.size - 1)
+                        }
+                    } else if (timestampChanged && isNearBottom) {
+                        binding.rvMessages.post {
+                            binding.rvMessages.smoothScrollToPosition(msgs.size - 1)
+                        }
+                    }
+
+                    lastMessageTimestamp = latestTimestamp
+                }
+
+                lastMessageCount = msgs.size
                 chatSharedViewModel.updateMessages(matchId, msgs)
+                toggleSuggestionVisibility(msgs.isEmpty())
 
                 val latest = msgs.maxByOrNull { it.timestamp ?: "" }
                 latest?.let { msg ->
@@ -306,28 +358,7 @@ class ChatDetailFragment : BaseFragment() {
             takePictureLauncher.launch(cameraImageUri)
         }
         binding.btnSend.setOnClickListener {
-            val content = binding.edtMessage.text.toString().trim()
-            if (content.isNotEmpty()) {
-                lifecycleScope.launch {
-                    val confirmedUserId = getMyUserIdAsync()
-
-                    val messageModel = MessageModel(
-                        senderId = confirmedUserId,
-                        matchId = matchId,
-                        message = content,
-                        imgChat = null,
-                        audioPath = null,
-                        duration = null,
-                        timestamp = java.time.Instant.now().toString(),
-                        delivered = true,
-                    )
-
-                    viewModel.addMessage(messageModel)
-                    android.util.Log.d("ChatDetailFragment", "Added optimistic message: $content")
-                    viewModel.sendMessageViaSocket(content)
-                    binding.edtMessage.setText("")
-                }
-            }
+            sendTextMessage(binding.edtMessage.text.toString())
         }
 
         binding.btnMore.setOnClickListener {
@@ -347,7 +378,18 @@ class ChatDetailFragment : BaseFragment() {
                     } else {
                         null
                     },
-                    onReport = { },
+                    onReport = {
+                        if (isAIConversation) {
+                            Toast.makeText(context, "Không thể báo cáo AI", Toast.LENGTH_SHORT).show()
+                            return@ChatMoreBottomSheet
+                        }
+                        findNavController().navigate(
+                            R.id.action_chatDetail_to_reportFragment,
+                            Bundle().apply {
+                                putString("targetUserId", targetUserId)
+                            },
+                        )
+                    },
                     onDeleteConversation = { showDeleteConversationDialog() },
                     onBlock = { showBlockUserDialog() },
                     onUnblock = { showUnblockUserDialog() },
@@ -408,7 +450,8 @@ class ChatDetailFragment : BaseFragment() {
                         lifecycleScope.launch {
                             val confirmedUserId = getMyUserIdAsync()
                             val duration = getAudioDurationSeconds(audioFilePath)
-                            viewModel.sendAudioViaSocket(audioFilePath, duration)
+                            val clientId = viewModel.newClientMessageId()
+                            viewModel.sendAudioViaSocket(audioFilePath, duration, clientId)
                         }
                     } else {
                         Toast.makeText(context, "Bản ghi quá ngắn!", Toast.LENGTH_SHORT).show()
@@ -418,6 +461,141 @@ class ChatDetailFragment : BaseFragment() {
                 else -> false
             }
         }
+
+        binding.btnCloseReply.setOnClickListener {
+            clearReplyBar()
+        }
+    }
+
+    private fun setupSuggestionChips() {
+        val displayName = matchedUserName?.takeIf { it.isNotBlank() } ?: "bạn"
+        val suggestions = defaultSuggestions.map { text ->
+            if (text.contains("%s")) text.format(displayName) else text
+        }
+
+        binding.suggestionChipGroup.removeAllViews()
+        suggestions.forEach { text ->
+            binding.suggestionChipGroup.addView(buildChip(text))
+        }
+        toggleSuggestionVisibility(viewModel.messages.value.isEmpty())
+    }
+
+    private fun buildChip(text: String): TextView {
+        val params = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+        ).apply {
+            rightMargin = 8.dp
+        }
+        return TextView(requireContext()).apply {
+            layoutParams = params
+            this.text = text
+            setTextColor(Color.parseColor("#333333"))
+            textSize = 14f
+            setPadding(16.dp, 10.dp, 16.dp, 10.dp)
+            background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_chat_suggestion_chip)
+            setOnClickListener {
+                sendTextMessage(text)
+            }
+        }
+    }
+
+    private fun toggleSuggestionVisibility(show: Boolean) {
+        binding.suggestionContainer.visibility = if (show) View.VISIBLE else View.GONE
+    }
+
+    private val Int.dp: Int
+        get() = (this * resources.displayMetrics.density).roundToInt()
+
+    private fun showMessageActionSheet(message: MessageModel) {
+        val isMine = message.senderId == viewModel.currentUserId
+        MessageActionBottomSheet(
+            message = message,
+            isMine = isMine,
+            onReply = { msg ->
+                pendingReply = msg
+                val snippet = buildReplyPreview(msg)
+                binding.tvReplyText.text = snippet
+                binding.tvReplyName.text = if (msg.senderId == viewModel.currentUserId) "Bạn" else (matchedUserName ?: "Họ")
+                binding.replyBar.visibility = View.VISIBLE
+                binding.edtMessage.requestFocus()
+            },
+            onDeleteForMe = {
+                Toast.makeText(context, "Đang phát triển: Xoá cho bạn", Toast.LENGTH_SHORT).show()
+            },
+            onUnsend = {
+                Toast.makeText(context, "Đang phát triển: Thu hồi tin nhắn", Toast.LENGTH_SHORT).show()
+            },
+            onReact = { targetMsg, reaction ->
+                val targetId = targetMsg.id ?: targetMsg.clientMessageId
+                android.util.Log.d("ChatDetailFragment", "Applying reaction $reaction to message id=$targetId, clientId=${targetMsg.clientMessageId}")
+                viewModel.applyReaction(
+                    targetId = targetId,
+                    reaction = reaction,
+                )
+            },
+        ).show(childFragmentManager, "messageActions")
+    }
+
+    private fun sendTextMessage(content: String) {
+        val message = content.trim()
+        if (message.isEmpty()) return
+
+        lifecycleScope.launch {
+            val confirmedUserId = getMyUserIdAsync()
+            val clientId = viewModel.newClientMessageId()
+            val replyMsg = pendingReply
+
+            val messageModel = MessageModel(
+                id = null,
+                clientMessageId = clientId,
+                senderId = confirmedUserId,
+                matchId = matchId,
+                message = message,
+                imgChat = null,
+                audioPath = null,
+                duration = null,
+                timestamp = java.time.Instant.now().toString(),
+                delivered = true,
+                replyToMessageId = replyMsg?.id,
+                replyToClientMessageId = replyMsg?.clientMessageId,
+                replyToTimestamp = replyMsg?.timestamp,
+                replyPreview = replyMsg?.let { buildReplyPreview(it) },
+                replySenderId = replyMsg?.senderId,
+                replySenderName = replyMsg?.let { if (it.senderId == confirmedUserId) "Bạn" else (matchedUserName ?: "Họ") },
+            )
+
+            viewModel.addMessage(messageModel)
+            android.util.Log.d("ChatDetailFragment", "Added optimistic message: $message")
+            viewModel.sendMessageViaSocket(
+                text = message,
+                clientMessageId = clientId,
+                replyToMessageId = messageModel.replyToMessageId,
+                replyToClientMessageId = messageModel.replyToClientMessageId,
+                replyToTimestamp = messageModel.replyToTimestamp,
+                replyPreview = messageModel.replyPreview,
+                replySenderId = messageModel.replySenderId,
+                replySenderName = messageModel.replySenderName,
+            )
+            binding.edtMessage.setText("")
+            clearReplyBar()
+        }
+    }
+
+    private fun buildReplyPreview(msg: MessageModel): String {
+        return when {
+            msg.message.isNotBlank() -> msg.message
+            !msg.imgChat.isNullOrBlank() -> "[Hình ảnh]"
+            !msg.audioPath.isNullOrBlank() -> "[Ghi âm]"
+            else -> "[Tin nhắn]"
+        }
+    }
+
+    private fun clearReplyBar() {
+        pendingReply = null
+        binding.replyBar.visibility = View.GONE
+        binding.tvReplyText.text = ""
+        binding.tvReplyName.text = ""
     }
 
     private fun setRecordingUI(isRecording: Boolean) {
@@ -551,8 +729,11 @@ class ChatDetailFragment : BaseFragment() {
             .setTitle("Delete Conversation")
             .setMessage("Are you sure you want to delete all messages in this conversation? This cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
-                viewModel.deleteAllMessages(matchId)
-                requireActivity().onBackPressedDispatcher.onBackPressed()
+                viewModel.clearMessagesForMyself(matchId) {
+                    chatListViewModel.updateLastMessage(matchId, null)
+                    chatListViewModel.refreshMatches()
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                }
             }
             .setNegativeButton("Cancel", null)
             .show()
@@ -657,5 +838,16 @@ class ChatDetailFragment : BaseFragment() {
         binding.edtMessage.clearFocus()
         val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(binding.edtMessage.windowToken, 0)
+    }
+
+    private fun isNearBottom(): Boolean {
+        val layoutManager = binding.rvMessages.layoutManager as? androidx.recyclerview.widget.LinearLayoutManager
+        if (layoutManager == null || adapter.itemCount == 0) return true
+
+        val lastVisiblePosition = layoutManager.findLastCompletelyVisibleItemPosition()
+        val totalItems = adapter.itemCount
+
+        // Consider "near bottom" if within last 3 items or if last item is visible
+        return lastVisiblePosition >= totalItems - 3 || lastVisiblePosition == totalItems - 1
     }
 }

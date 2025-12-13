@@ -1,7 +1,7 @@
 package com.intern001.dating.data.repository
 
 import com.intern001.dating.data.api.DatingApiService
-import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.local.prefs.TokenManager
 import com.intern001.dating.data.model.response.PhotoResponse
 import com.intern001.dating.domain.repository.AuthRepository
 import com.intern001.dating.domain.repository.NotificationRepository

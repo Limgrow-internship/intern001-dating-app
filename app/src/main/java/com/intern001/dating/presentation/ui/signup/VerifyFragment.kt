@@ -78,6 +78,13 @@ class VerifyFragment : BaseFragment() {
             binding.otp4,
         )
 
+        fun maybeAutoVerify() {
+            val allFilled = otpFields.all { it.text?.length == 1 }
+            if (allFilled && binding.btnVerify.isEnabled) {
+                verifyOtp()
+            }
+        }
+
         for (i in otpFields.indices) {
             otpFields[i].addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -87,51 +94,54 @@ class VerifyFragment : BaseFragment() {
                         s?.length == 1 && i < otpFields.size - 1 -> otpFields[i + 1].requestFocus()
                         s?.isEmpty() == true && i > 0 -> otpFields[i - 1].requestFocus()
                     }
+                    maybeAutoVerify()
                 }
             })
         }
     }
 
     private fun setupVerifyButton() {
-        binding.btnVerify.setOnClickListener {
-            val otp = listOf(
-                binding.otp1,
-                binding.otp2,
-                binding.otp3,
-                binding.otp4,
-            ).joinToString("") { it.text.toString() }
+        binding.btnVerify.setOnClickListener { verifyOtp() }
+    }
 
-            if (otp.length < 4) {
-                Toast.makeText(requireContext(), "Please enter full 4 OTP digits", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+    private fun verifyOtp() {
+        val otp = listOf(
+            binding.otp1,
+            binding.otp2,
+            binding.otp3,
+            binding.otp4,
+        ).joinToString("") { it.text.toString() }
 
-            val emailValue = email ?: run {
-                Toast.makeText(requireContext(), "Email is missing", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+        if (otp.length < 4) {
+            Toast.makeText(requireContext(), "Please enter full 4 OTP digits", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-            val passwordValue = password ?: run {
-                Toast.makeText(requireContext(), "Password is missing", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+        val emailValue = email ?: run {
+            Toast.makeText(requireContext(), "Email is missing", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-            // Disable button during processing
-            binding.btnVerify.isEnabled = false
+        val passwordValue = password ?: run {
+            Toast.makeText(requireContext(), "Password is missing", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-            // Verify OTP then auto-login to get tokens (all in background)
-            viewModel.verifyOtpAndLogin(emailValue, otp, passwordValue) { success, message ->
-                binding.btnVerify.isEnabled = true
+        // Disable button during processing
+        binding.btnVerify.isEnabled = false
 
-                if (success) {
-                    // Tokens saved successfully, navigate to ProfileSetup
-                    listener?.onVerificationSuccess()
-                } else {
-                    setOtpErrorBackground()
-                    binding.tvEmailOtp.visibility = View.GONE
-                    binding.tvSendTo.text = "Invalid or Incorrect code"
-                    binding.tvSendTo.setTextColor(android.graphics.Color.parseColor("#FF0058"))
-                }
+        // Verify OTP then auto-login to get tokens (all in background)
+        viewModel.verifyOtpAndLogin(emailValue, otp, passwordValue) { success, message ->
+            binding.btnVerify.isEnabled = true
+
+            if (success) {
+                // Tokens saved successfully, navigate to ProfileSetup
+                listener?.onVerificationSuccess()
+            } else {
+                setOtpErrorBackground()
+                binding.tvEmailOtp.visibility = View.GONE
+                binding.tvSendTo.text = "Invalid or Incorrect code"
+                binding.tvSendTo.setTextColor(android.graphics.Color.parseColor("#FF0058"))
             }
         }
     }

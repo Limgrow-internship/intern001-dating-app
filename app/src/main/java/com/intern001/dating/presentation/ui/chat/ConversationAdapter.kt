@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.intern001.dating.R
-import com.intern001.dating.presentation.ui.chat.AIConstants
+import com.intern001.dating.presentation.util.AIConstants
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate

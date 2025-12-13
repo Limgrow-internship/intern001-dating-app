@@ -1,28 +1,35 @@
 package com.intern001.dating.presentation.ui.chat
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.intern001.dating.R
+import com.intern001.dating.data.model.MessageModel
+import com.intern001.dating.data.service.HeartOnMessagingService
 import com.intern001.dating.databinding.FragmentChatListBinding
 import com.intern001.dating.domain.model.MatchList
 import com.intern001.dating.domain.model.UserProfileMatch
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.common.viewmodel.ChatListViewModel
-import com.intern001.dating.presentation.ui.chat.AIConstants
-import com.intern001.dating.presentation.ui.chat.MatchAdapter
+import com.intern001.dating.presentation.util.AIConstants
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Instant
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
@@ -47,6 +54,32 @@ class ChatListFragment : BaseFragment() {
     private val chatSharedViewModel: ChatSharedViewModel by activityViewModels()
     private lateinit var matchAdapter: MatchAdapter
     private lateinit var conversationAdapter: ConversationAdapter
+    private val chatBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val action = intent?.action ?: return
+            if (action == HeartOnMessagingService.ACTION_CHAT_MESSAGE) {
+                val matchId = intent.getStringExtra(HeartOnMessagingService.EXTRA_MATCH_ID)
+                val lastMsg = intent.getStringExtra(HeartOnMessagingService.EXTRA_MESSAGE) ?: ""
+                val senderId = intent.getStringExtra(HeartOnMessagingService.EXTRA_SENDER_ID) ?: ""
+                val ts = intent.getStringExtra(HeartOnMessagingService.EXTRA_TIMESTAMP)
+                    ?: java.time.Instant.now().toString()
+
+                if (!matchId.isNullOrBlank()) {
+                    vm.updateLastMessage(
+                        matchId,
+                        com.intern001.dating.domain.entity.LastMessageEntity(
+                            message = lastMsg,
+                            senderId = senderId,
+                            timestamp = ts,
+                        ),
+                    )
+                    vm.refreshMatches()
+                } else {
+                    vm.refreshMatches()
+                }
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -124,9 +157,9 @@ class ChatListFragment : BaseFragment() {
                         AIConstants.isAIUser(it.matchedUser.userId)
                     }
 
-                    val filteredMatches = matches.filterNot {
-                        AIConstants.isAIUser(it.matchedUser.userId)
-                    }
+                    val filteredMatchesForMatchList = matches
+                        .filterNot { AIConstants.isAIUser(it.matchedUser.userId) }
+                        .filter { it.status.equals("active", ignoreCase = true) }
 
                     val aiMatch = if (aiMatchFromBackend != null) {
                         aiMatchFromBackend.copy(
@@ -140,6 +173,7 @@ class ChatListFragment : BaseFragment() {
                     } else {
                         MatchList(
                             matchId = AIConstants.AI_FAKE_MATCH_ID,
+                            status = "active",
                             lastActivityAt = Instant.now().toString(),
                             matchedUser = UserProfileMatch(
                                 userId = AIConstants.AI_ASSISTANT_USER_ID,
@@ -151,49 +185,40 @@ class ChatListFragment : BaseFragment() {
                         )
                     }
 
-                    val allMatches = listOf(aiMatch) + filteredMatches
-                    val hasMatches = allMatches.isNotEmpty()
+                    val matchesForAdapter = listOf(aiMatch) + filteredMatchesForMatchList
+                    android.util.Log.d("MatchAdapterTest", "Submit matches: ${matchesForAdapter.size}")
+                    matchAdapter.submitList(matchesForAdapter)
 
+                    val hasMatches = matchesForAdapter.isNotEmpty()
                     binding.rvMatches.isVisible = hasMatches
-                    binding.matchPlaceholder.isVisible = false
+                    binding.matchPlaceholder.isVisible = !hasMatches
                     binding.noMatchesCard?.isVisible = !hasMatches
 
-                    matchAdapter.submitList(allMatches)
+                    val matchesForConversation = matches.filterNot { AIConstants.isAIUser(it.matchedUser.userId) }
+                    val allConversations = listOf(aiMatch) + matchesForConversation
 
-                    val conversations = allMatches.map { match ->
+                    val conversations = allConversations.map { match ->
                         val lastMsg = lastMessagesCache[match.matchId]
-
                         Conversation(
                             matchId = match.matchId,
                             userId = match.matchedUser.userId,
-                            avatarUrl = if (AIConstants.isAIUser(match.matchedUser.userId)) {
-                                AIConstants.AI_FAKE_AVATAR_URL
-                            } else {
-                                match.matchedUser.avatarUrl
-                            },
-                            userName = if (AIConstants.isAIUser(match.matchedUser.userId)) {
-                                AIConstants.AI_FAKE_NAME
-                            } else {
-                                match.matchedUser.name
-                            },
+                            avatarUrl = if (AIConstants.isAIUser(match.matchedUser.userId)) AIConstants.AI_FAKE_AVATAR_URL else match.matchedUser.avatarUrl,
+                            userName = if (AIConstants.isAIUser(match.matchedUser.userId)) AIConstants.AI_FAKE_NAME else match.matchedUser.name,
                             lastMessage = lastMsg?.message,
                             timestamp = lastMsg?.timestamp,
                             isOnline = null,
                             targetUserId = match.matchedUser.userId,
                         )
                     }
-
                     val sortedConversations = conversations.sortedWith(
                         compareBy<Conversation> { !AIConstants.isAIUser(it.userId) }
                             .thenByDescending { it.timestamp ?: "" },
                     )
-
                     conversationAdapter.setData(sortedConversations)
-
                     binding.rvConversations.isVisible = conversations.isNotEmpty()
                     binding.noChatsLayout.isVisible = conversations.isEmpty()
 
-                    val matchesWithoutCache = allMatches.filter { !lastMessagesCache.containsKey(it.matchId) }
+                    val matchesWithoutCache = allConversations.filter { !lastMessagesCache.containsKey(it.matchId) }
                     if (matchesWithoutCache.isNotEmpty()) {
                         viewLifecycleOwner.lifecycleScope.launch {
                             matchesWithoutCache.forEach { match ->
@@ -201,12 +226,67 @@ class ChatListFragment : BaseFragment() {
                             }
                         }
                     }
+
+                    // Listen to shared message cache (socket/FCM) to update last message previews
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                            chatSharedViewModel.messagesCache.collectLatest { cache ->
+                                cache.forEach { (matchId, messages) ->
+                                    val latest = messages.maxByOrNull { it.timestamp ?: "" } ?: return@forEach
+                                    vm.updateLastMessage(
+                                        matchId,
+                                        com.intern001.dating.domain.entity.LastMessageEntity(
+                                            message = latest.previewText(),
+                                            senderId = latest.senderId ?: "",
+                                            timestamp = latest.timestamp ?: "",
+                                        ),
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        if (!vm.hasData()) {
-            vm.fetchMatches()
+        vm.fetchMatches()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        vm.refreshMatches()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val filter = IntentFilter(HeartOnMessagingService.ACTION_CHAT_MESSAGE)
+        val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        } else {
+            0
+        }
+        ContextCompat.registerReceiver(
+            requireContext(),
+            chatBroadcastReceiver,
+            filter,
+            flags,
+        )
+    }
+
+    override fun onStop() {
+        super.onStop()
+        try {
+            requireContext().unregisterReceiver(chatBroadcastReceiver)
+        } catch (_: Exception) {
+        }
+    }
+
+    private fun MessageModel.previewText(): String {
+        return when {
+            message.isNotBlank() -> message
+            !imgChat.isNullOrBlank() -> "[image]"
+            !audioPath.isNullOrBlank() -> "[audio]"
+            else -> ""
         }
     }
 }

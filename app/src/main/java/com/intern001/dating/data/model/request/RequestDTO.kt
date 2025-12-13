@@ -12,8 +12,8 @@ data class LoginRequest(
 )
 
 data class GoogleLoginRequest(
-    @SerializedName("accessToken")
-    val accessToken: String,
+    @SerializedName("idToken")
+    val idToken: String,
 )
 
 data class SignupRequest(
@@ -108,9 +108,6 @@ data class LocationRequest(
 )
 
 data class ChangePasswordRequest(
-    @SerializedName("oldPassword")
-    val oldPassword: String? = null,
-
     @SerializedName("newPassword")
     val newPassword: String? = null,
 
@@ -138,4 +135,26 @@ data class ReorderPhotosRequest(
 data class UpdateFCMTokenRequest(
     @SerializedName("fcmToken")
     val fcmToken: String,
+)
+
+data class ReportRequest(
+    @SerializedName("userIdIsReported")
+    val userIdIsReported: String,
+
+    @SerializedName("reason")
+    val reason: String,
+)
+
+data class RequestOtpRequestForgot(
+    val email: String,
+)
+
+data class VerifyOtpRequestForgot(
+    val email: String,
+    val otp: String,
+)
+
+data class ResetPasswordRequest(
+    val newPassword: String,
+    val confirmPassword: String,
 )

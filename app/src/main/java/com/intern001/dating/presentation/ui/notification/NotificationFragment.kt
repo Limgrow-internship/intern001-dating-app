@@ -1,21 +1,30 @@
 package com.intern001.dating.presentation.ui.notification
 
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.RectF
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.intern001.dating.MainActivity
+import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentNotificationBinding
 import com.intern001.dating.domain.model.Notification
 import com.intern001.dating.presentation.common.state.UiState
 import com.intern001.dating.presentation.common.viewmodel.BaseFragment
 import com.intern001.dating.presentation.navigation.navigateToChatDetail
 import com.intern001.dating.presentation.navigation.navigateToDatingMode
-import com.intern001.dating.presentation.navigation.navigateToProfileDetail
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -28,6 +37,9 @@ class NotificationFragment : BaseFragment() {
     private val viewModel: NotificationViewModel by viewModels()
 
     private lateinit var notificationAdapter: NotificationAdapter
+
+    private var cachedNotifications: List<Notification> = emptyList()
+    private var currentFilter: NotificationFilter = NotificationFilter.ALL
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,11 +65,6 @@ class NotificationFragment : BaseFragment() {
         _binding = null
     }
 
-    override fun onResume() {
-        super.onResume()
-        hasMarkedAllAsReadOnView = false
-    }
-
     private fun setupRecyclerView() {
         notificationAdapter = NotificationAdapter { notification ->
             handleNotificationClick(notification)
@@ -67,6 +74,8 @@ class NotificationFragment : BaseFragment() {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = notificationAdapter
         }
+
+        attachSwipeToDelete()
     }
 
     private fun setupListeners() {
@@ -75,6 +84,7 @@ class NotificationFragment : BaseFragment() {
         }
 
         binding.ivFilter.setOnClickListener {
+            showFilterDialog()
         }
     }
 
@@ -87,11 +97,7 @@ class NotificationFragment : BaseFragment() {
                     }
                     is UiState.Success -> {
                         hideLoading()
-                        if (state.data.isEmpty()) {
-                            showEmptyState()
-                        } else {
-                            showNotifications(state.data)
-                        }
+                        showNotifications(state.data)
                     }
                     is UiState.Error -> {
                         hideLoading()
@@ -122,19 +128,40 @@ class NotificationFragment : BaseFragment() {
         binding.errorLayout.isVisible = false
     }
 
-    private var hasMarkedAllAsReadOnView = false
-
     private fun showNotifications(notifications: List<Notification>) {
+        cachedNotifications = notifications
+        applyFilterAndShow()
+    }
+
+    private fun applyFilterAndShow() {
+        val filtered = when (currentFilter) {
+            NotificationFilter.ALL -> cachedNotifications
+            NotificationFilter.UNREAD -> cachedNotifications.filter { !it.isRead }
+            NotificationFilter.LIKE -> cachedNotifications.filter {
+                it.type == Notification.NotificationType.LIKE || it.type == Notification.NotificationType.SUPERLIKE
+            }
+            NotificationFilter.MATCH -> cachedNotifications.filter { it.type == Notification.NotificationType.MATCH }
+            NotificationFilter.OTHER -> cachedNotifications.filter {
+                it.type != Notification.NotificationType.LIKE &&
+                    it.type != Notification.NotificationType.SUPERLIKE &&
+                    it.type != Notification.NotificationType.MATCH
+            }
+        }
+        renderFilteredNotifications(filtered)
+    }
+
+    private fun renderFilteredNotifications(filtered: List<Notification>) {
+        if (filtered.isEmpty()) {
+            showEmptyState()
+            notificationAdapter.submitList(emptyList())
+            return
+        }
+
         binding.emptyStateLayout.isVisible = false
         binding.rvNotifications.isVisible = true
         binding.errorLayout.isVisible = false
 
-        notificationAdapter.submitList(notifications) {
-            if (!hasMarkedAllAsReadOnView && notifications.isNotEmpty()) {
-                hasMarkedAllAsReadOnView = true
-                viewModel.markAllAsRead()
-            }
-        }
+        notificationAdapter.submitList(filtered)
     }
 
     private fun showError(message: String) {
@@ -152,38 +179,39 @@ class NotificationFragment : BaseFragment() {
         val actionData = notification.actionData
         when (notification.type) {
             Notification.NotificationType.MATCH -> {
-                actionData?.userId?.let { userId ->
+                val matchId = actionData?.matchId
+                val userId = actionData?.userId
+                val matchedName = actionData?.extraData?.get("matchedUserName") ?: notification.title
+                val matchedAvatar = actionData?.extraData?.get("matchedUserAvatar") ?: ""
+
+                if (matchId != null) {
+                    val args = bundleOf(
+                        "matchId" to matchId,
+                        "matchedUserName" to matchedName,
+                        "matchedUserAvatar" to matchedAvatar,
+                    )
+                    navController.navigate(R.id.action_notification_to_chatDetail, args)
+                } else if (userId != null) {
                     navController.navigateToChatDetail(userId)
                 }
             }
             Notification.NotificationType.LIKE,
             Notification.NotificationType.SUPERLIKE,
             -> {
-                val likerId = actionData?.likerId
-                actionData?.navigateTo?.let { navigateTo ->
-                    when (navigateTo) {
-                        "dating_mode" -> {
-                            navController.navigateToDatingMode(likerId)
-                        }
-                        "profile" -> {
-                            likerId?.let { userId ->
-                                navController.navigateToProfileDetail(userId)
-                            }
-                        }
-                        "premium" -> {
-                            // TODO: Navigate to premium screen
-                        }
-                        else -> {
-                            likerId?.let {
-                                navController.navigateToDatingMode(it)
-                            }
-                        }
-                    }
-                } ?: run {
-                    likerId?.let {
-                        navController.navigateToDatingMode(it)
-                    }
+                val targetId = actionData?.likerId ?: actionData?.userId
+                if (targetId.isNullOrBlank()) {
+                    Toast.makeText(
+                        context,
+                        getString(R.string.not_found_user_liked),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                    return
                 }
+                navController.navigateToDatingMode(
+                    likerId = targetId,
+                    targetUserId = targetId,
+                    allowMatchedProfile = true,
+                )
             }
             Notification.NotificationType.VERIFICATION_SUCCESS,
             Notification.NotificationType.VERIFICATION_FAILED,
@@ -196,5 +224,111 @@ class NotificationFragment : BaseFragment() {
             Notification.NotificationType.OTHER -> {
             }
         }
+    }
+
+    private fun showFilterDialog() {
+        val options = arrayOf(
+            getString(R.string.all),
+            getString(R.string.havent_read),
+            getString(R.string.likes),
+            getString(R.string.match),
+            getString(R.string.other),
+        )
+        val currentIndex = currentFilter.ordinal
+
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.filter_notification))
+            .setSingleChoiceItems(options, currentIndex) { dialog, which ->
+                currentFilter = NotificationFilter.values()[which]
+                dialog.dismiss()
+                applyFilterAndShow()
+            }
+            .setNegativeButton("Đóng", null)
+            .show()
+    }
+
+    private fun attachSwipeToDelete() {
+        val deleteIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_delete)
+        val backgroundPaint = Paint().apply {
+            color = ContextCompat.getColor(requireContext(), R.color.notification_delete_bg)
+            isAntiAlias = true
+        }
+        val buttonWidthPx = (72 * resources.displayMetrics.density).toInt()
+
+        val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder,
+            ): Boolean = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.bindingAdapterPosition
+                val notification = notificationAdapter.currentList.getOrNull(position)
+                if (notification != null) {
+                    cachedNotifications = cachedNotifications.filter { it.id != notification.id }
+                    viewModel.deleteNotification(notification.id)
+                    applyFilterAndShow()
+                } else {
+                    notificationAdapter.notifyItemChanged(position)
+                }
+            }
+
+            override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
+                return 0.2f
+            }
+
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean,
+            ) {
+                val itemView = viewHolder.itemView
+                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE && dX < 0) {
+                    val clampedDx = dX.coerceAtLeast(-buttonWidthPx.toFloat())
+                    val translationX = clampedDx
+
+                    val backgroundRight = itemView.right.toFloat()
+                    val backgroundLeft = backgroundRight + translationX
+                    val background = RectF(
+                        backgroundLeft,
+                        itemView.top.toFloat(),
+                        backgroundRight,
+                        itemView.bottom.toFloat(),
+                    )
+                    c.drawRect(background, backgroundPaint)
+
+                    deleteIcon?.let { icon ->
+                        val iconMargin = (itemView.height - icon.intrinsicHeight) / 2
+                        val iconTop = itemView.top + iconMargin
+                        val iconBottom = iconTop + icon.intrinsicHeight
+                        val iconRight = itemView.right - iconMargin
+                        val iconLeft = iconRight - icon.intrinsicWidth
+                        icon.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                        icon.draw(c)
+                    }
+
+                    itemView.translationX = translationX
+                } else {
+                    itemView.translationX = 0f
+                }
+
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+            }
+        }
+
+        ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(binding.rvNotifications)
+    }
+
+    private enum class NotificationFilter {
+        ALL,
+        UNREAD,
+        LIKE,
+        MATCH,
+        OTHER,
     }
 }

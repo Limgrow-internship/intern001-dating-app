@@ -1,4 +1,4 @@
-package com.intern001.dating.data.local
+package com.intern001.dating.data.local.repository
 
 import com.intern001.dating.data.local.dao.MessageDao
 import com.intern001.dating.data.local.entity.MessageEntity
@@ -47,6 +47,8 @@ class ChatLocalRepository @Inject constructor(
 
 private fun MessageEntity.toMessageModel(): MessageModel {
     return MessageModel(
+        id = serverId ?: id,
+        clientMessageId = clientMessageId,
         senderId = senderId,
         matchId = matchId,
         message = message ?: "",
@@ -55,16 +57,30 @@ private fun MessageEntity.toMessageModel(): MessageModel {
         duration = duration,
         timestamp = timestamp,
         delivered = delivered,
+        replyToMessageId = replyToMessageId,
+        replyToClientMessageId = replyToClientMessageId,
+        replyToTimestamp = replyToTimestamp,
+        replyPreview = replyPreview,
+        replySenderId = replySenderId,
+        replySenderName = replySenderName,
+        reaction = reaction,
     )
 }
 
 private fun MessageModel.toMessageEntity(): MessageEntity {
-    val id = "${senderId}_${message ?: ""}_${matchId}_${imgChat ?: ""}_${audioPath ?: ""}_${timestamp ?: ""}"
-        .hashCode()
-        .toString()
+    val resolvedClientId = clientMessageId
+    val resolvedServerId = id
+    val pk =
+        resolvedServerId
+            ?: resolvedClientId
+            ?: "${senderId}_${message ?: ""}_${matchId}_${imgChat ?: ""}_${audioPath ?: ""}_${timestamp ?: ""}"
+                .hashCode()
+                .toString()
 
     return MessageEntity(
-        id = id,
+        id = pk,
+        serverId = resolvedServerId,
+        clientMessageId = resolvedClientId,
         senderId = senderId,
         matchId = matchId,
         message = message,
@@ -73,5 +89,12 @@ private fun MessageModel.toMessageEntity(): MessageEntity {
         duration = duration,
         timestamp = timestamp,
         delivered = delivered,
+        replyToMessageId = replyToMessageId,
+        replyToClientMessageId = replyToClientMessageId,
+        replyToTimestamp = replyToTimestamp,
+        replyPreview = replyPreview,
+        replySenderId = replySenderId,
+        replySenderName = replySenderName,
+        reaction = reaction,
     )
 }

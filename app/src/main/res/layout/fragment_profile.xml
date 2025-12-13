@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="20dp"
     android:background="#F3F3F3">
 
     <LinearLayout
@@ -166,6 +167,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/btnChangePassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -262,7 +264,11 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingVertical="8dp">
+                android:paddingVertical="8dp"
+                android:id="@+id/btnNotificationSetting"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
 
                 <ImageView
                     android:layout_width="22dp"
@@ -285,6 +291,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/btnHelp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -307,6 +314,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/btnContact"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"

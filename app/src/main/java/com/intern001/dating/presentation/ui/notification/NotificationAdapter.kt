@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -35,6 +36,7 @@ class NotificationAdapter(
         private val tvTime: TextView = itemView.findViewById(R.id.tvNotificationTime)
 
         fun bind(notification: Notification, onClick: (Notification) -> Unit) {
+            val ctx = itemView.context
             // Set icon based on icon type
             val iconRes = when (notification.iconType) {
                 Notification.NotificationIconType.HEART -> R.drawable.ic_heart_notification
@@ -49,11 +51,17 @@ class NotificationAdapter(
 
             // Update appearance based on read status
             if (notification.isRead) {
-                itemView.alpha = 0.7f
-                tvTitle.alpha = 0.8f
+                itemView.setBackgroundResource(R.drawable.bg_notification_item_read)
+                val readColor = ContextCompat.getColor(ctx, R.color.notification_read_text)
+                tvTitle.setTextColor(readColor)
+                tvMessage.setTextColor(readColor)
+                tvTime.setTextColor(readColor)
             } else {
-                itemView.alpha = 1.0f
-                tvTitle.alpha = 1.0f
+                itemView.setBackgroundResource(R.drawable.bg_notification_item)
+                val unreadColor = ContextCompat.getColor(ctx, R.color.notification_unread_text)
+                tvTitle.setTextColor(unreadColor)
+                tvMessage.setTextColor(unreadColor)
+                tvTime.setTextColor(unreadColor)
             }
 
             itemView.setOnClickListener {

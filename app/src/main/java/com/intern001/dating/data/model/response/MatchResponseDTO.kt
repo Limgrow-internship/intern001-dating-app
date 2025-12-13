@@ -241,6 +241,7 @@ data class RangeResponse(
 
 data class MatchResponseDTO(
     val matchId: String,
+    val status: String,
     val lastActivityAt: String,
     val matchedUser: MatchedUserDTO,
 )

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.domain.cache.InitialDataCache
+import com.intern001.dating.domain.model.EnhancedBioResult
 import com.intern001.dating.domain.model.UpdateProfile
 import com.intern001.dating.domain.usecase.auth.GetCurrentUserUseCase
 import com.intern001.dating.domain.usecase.profile.EnhanceBioUseCase
@@ -40,8 +41,8 @@ class EditProfileViewModel @Inject constructor(
     private val _generateBioState = MutableStateFlow<UiState<UpdateProfile>>(UiState.Idle)
     val generateBioState: StateFlow<UiState<UpdateProfile>> = _generateBioState
 
-    private val _enhanceBioState = MutableStateFlow<UiState<UpdateProfile>>(UiState.Idle)
-    val enhanceBioState: StateFlow<UiState<UpdateProfile>> = _enhanceBioState
+    private val _enhanceBioState = MutableStateFlow<UiState<EnhancedBioResult>>(UiState.Idle)
+    val enhanceBioState: StateFlow<UiState<EnhancedBioResult>> = _enhanceBioState
 
     fun getUserProfile(forceRefresh: Boolean = false) {
         if (!forceRefresh) {
@@ -94,10 +95,8 @@ class EditProfileViewModel @Inject constructor(
             _enhanceBioState.value = UiState.Loading
             val result = enhanceBioUseCase()
             result.fold(
-                onSuccess = { updatedProfile ->
-                    initialDataCache.storeUserProfile(updatedProfile)
-                    _enhanceBioState.value = UiState.Success(updatedProfile)
-                    _userProfileState.value = UiState.Success(updatedProfile)
+                onSuccess = { enhanced ->
+                    _enhanceBioState.value = UiState.Success(enhanced)
                 },
                 onFailure = { error ->
                     _enhanceBioState.value = UiState.Error(error.message ?: "Failed to enhance bio")

@@ -3,7 +3,7 @@ package com.intern001.dating.data.repository
 import android.content.Context
 import android.net.Uri
 import com.intern001.dating.data.api.DatingApiService
-import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.local.prefs.TokenManager
 import com.intern001.dating.data.model.request.FacebookLoginRequest
 import com.intern001.dating.data.model.request.GenerateBioDto
 import com.intern001.dating.data.model.request.GoogleLoginRequest
@@ -17,6 +17,7 @@ import com.intern001.dating.data.model.response.LocationResponse
 import com.intern001.dating.data.model.response.UserData
 import com.intern001.dating.data.service.FCMService
 import com.intern001.dating.data.service.NotificationService
+import com.intern001.dating.domain.model.EnhancedBioResult
 import com.intern001.dating.domain.model.User
 import com.intern001.dating.domain.model.UserLocation
 import com.intern001.dating.domain.model.UserProfile
@@ -145,9 +146,9 @@ constructor(
         }
     }
 
-    override suspend fun googleLogin(accessToken: String): Result<GoogleLoginResponse> {
+    override suspend fun googleLogin(idToken: String): Result<GoogleLoginResponse> {
         return try {
-            val response = apiService.googleLogin(GoogleLoginRequest(accessToken))
+            val response = apiService.googleLogin(GoogleLoginRequest(idToken))
 
             tokenManager.saveTokens(
                 accessToken = response.accessToken,
@@ -481,7 +482,7 @@ constructor(
         }
     }
 
-    override suspend fun enhanceBio(): Result<UserProfile> {
+    override suspend fun enhanceBio(): Result<EnhancedBioResult> {
         return try {
             if (tokenManager.getAccessToken() == null) {
                 return Result.failure(Exception("User not logged in"))
@@ -492,17 +493,16 @@ constructor(
             if (response.isSuccessful) {
                 val bioResponse = response.body()
                 if (bioResponse != null) {
-                    android.util.Log.d("AuthRepository", "Bio enhanced: ${bioResponse.generatedBio}")
+                    android.util.Log.d("AuthRepository", "Bio enhanced (preview): ${bioResponse.enhancedBio}")
                     android.util.Log.d("AuthRepository", "Provider: ${bioResponse.provider}")
 
-                    val updateRequest = UpdateProfileRequest(bio = bioResponse.generatedBio)
-                    val updateResult = updateUserProfile(updateRequest)
-
-                    updateResult.onSuccess { profile ->
-                        android.util.Log.d("AuthRepository", "Enhanced bio saved to profile successfully")
-                    }
-
-                    updateResult
+                    val result =
+                        EnhancedBioResult(
+                            originalBio = bioResponse.originalBio,
+                            enhancedBio = bioResponse.enhancedBio,
+                            provider = bioResponse.provider,
+                        )
+                    Result.success(result)
                 } else {
                     Result.failure(Exception("Enhance bio response body is null"))
                 }

@@ -3,7 +3,7 @@ package com.intern001.dating.presentation.ui.signup
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.intern001.dating.data.api.DatingApiService
-import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.local.prefs.TokenManager
 import com.intern001.dating.data.model.request.RequestOtpRequest
 import com.intern001.dating.data.model.request.VerifyOtpRequest
 import com.intern001.dating.data.service.NotificationService

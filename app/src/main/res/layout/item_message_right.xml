@@ -8,23 +8,99 @@
     android:paddingTop="10dp"
     android:paddingBottom="2dp"
     android:paddingStart="32dp"
-    android:paddingEnd="8dp">
+    android:paddingEnd="8dp"
+    android:clipToPadding="false"
+    android:clipChildren="false">
 
-    <TextView
-        android:id="@+id/tvContent"
+    <LinearLayout
+        android:id="@+id/replyPreview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_bubble_right"
-        android:padding="12dp"
-        android:textColor="#404040"
-        android:textSize="17sp"
-        android:elevation="2dp"
-        android:maxWidth="320dp"/>
-    <ImageView
-        android:id="@+id/imgChat"
-        android:layout_width="180dp"
-        android:layout_height="180dp"
+        android:orientation="vertical"
+        android:background="@drawable/bg_reply_preview"
+        android:padding="10dp"
+        android:visibility="gone"
+        android:layout_marginBottom="2dp"
+        android:maxWidth="320dp">
+
+        <TextView
+            android:id="@+id/tvReplySender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sender"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            android:textColor="#555555"/>
+
+        <TextView
+            android:id="@+id/tvReplyText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Preview"
+            android:textSize="13sp"
+            android:textColor="#666666"
+            android:maxLines="2"
+            android:ellipsize="end"/>
+    </LinearLayout>
+
+<RelativeLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:clipToPadding="false"
+    android:clipChildren="false">
+
+        <TextView
+            android:id="@+id/tvContent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_bubble_right"
+            android:padding="12dp"
+            android:textColor="#404040"
+            android:textSize="17sp"
+            android:elevation="2dp"
+            android:maxWidth="320dp" />
+
+        <TextView
+            android:id="@+id/tvReaction"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+            android:background="@drawable/bg_reaction_badge"
+            android:gravity="center"
+        android:textSize="14sp"
+        android:elevation="3dp"
+        android:layout_alignBottom="@id/tvContent"
+        android:layout_alignEnd="@id/tvContent"
+        android:layout_marginEnd="-8dp"
+        android:layout_marginBottom="-10dp"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:scaleType="centerCrop"
-        android:visibility="gone"/>
+        android:clipToPadding="false"
+        android:clipChildren="false">
+
+        <ImageView
+            android:id="@+id/imgChat"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvReactionImage"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:background="@drawable/bg_reaction_badge"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:elevation="3dp"
+            android:layout_alignBottom="@id/imgChat"
+            android:layout_alignEnd="@id/imgChat"
+            android:layout_marginEnd="-17dp"
+            android:layout_marginBottom="-10dp"
+            android:visibility="gone" />
+    </RelativeLayout>
 </LinearLayout>

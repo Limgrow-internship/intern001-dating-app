@@ -4,6 +4,7 @@ import android.net.Uri
 import com.intern001.dating.data.model.request.UpdateProfileRequest
 import com.intern001.dating.data.model.response.FacebookLoginResponse
 import com.intern001.dating.data.model.response.GoogleLoginResponse
+import com.intern001.dating.domain.model.EnhancedBioResult
 import com.intern001.dating.domain.model.User
 import com.intern001.dating.domain.model.UserProfile
 
@@ -38,7 +39,7 @@ interface AuthRepository {
 
     suspend fun generateBio(prompt: String): Result<UserProfile>
 
-    suspend fun enhanceBio(): Result<UserProfile>
+    suspend fun enhanceBio(): Result<EnhancedBioResult>
 
     suspend fun uploadImage(imageUri: Uri): Result<String>
 
@@ -47,7 +48,7 @@ interface AuthRepository {
     fun getStoredUser(): User?
 
     suspend fun googleLogin(
-        accessToken: String,
+        idToken: String,
     ): Result<GoogleLoginResponse>
 
     suspend fun clearUserCache()

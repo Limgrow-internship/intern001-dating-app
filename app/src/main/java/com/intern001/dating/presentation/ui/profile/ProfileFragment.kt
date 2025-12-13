@@ -16,7 +16,7 @@ import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
-import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.local.prefs.TokenManager
 import com.intern001.dating.databinding.FragmentProfileBinding
 import com.intern001.dating.domain.model.UpdateProfile
 import com.intern001.dating.domain.model.UserProfile
@@ -73,6 +73,14 @@ class ProfileFragment : BaseFragment() {
             findNavController().navigate(R.id.action_profile_to_verifyAccount)
         }
 
+        binding.btnNotificationSetting.setOnClickListener {
+            findNavController().navigate(R.id.action_profile_to_notificationSetting)
+        }
+
+        binding.btnHelp.setOnClickListener {
+            findNavController().navigate(R.id.action_profile_to_help)
+        }
+
         binding.btnContinuePremium.setOnClickListener {
             navigateToPremium()
         }
@@ -86,9 +94,18 @@ class ProfileFragment : BaseFragment() {
             startActivity(intent)
         }
 
+        binding.btnChangePassword.setOnClickListener {
+            val intent = Intent(context, ChangePasswordActivity::class.java)
+            startActivity(intent)
+        }
+
         val btnDeleteAccount = view.findViewById<LinearLayout>(R.id.btnDeleteAccount)
         btnDeleteAccount.setOnClickListener {
             showDeleteAccountBottomSheet()
+        }
+
+        binding.btnContact.setOnClickListener {
+            findNavController().navigate(R.id.action_profile_to_contactFragment)
         }
 
         viewModel.deleteResult.observe(viewLifecycleOwner) { result ->

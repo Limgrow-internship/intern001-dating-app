@@ -3,7 +3,8 @@ package com.intern001.dating.presentation.ui.discover
 import android.location.Location
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.billing.BillingManager
+import com.intern001.dating.data.local.prefs.TokenManager
 import com.intern001.dating.domain.cache.InitialDataCache
 import com.intern001.dating.domain.model.MatchCard
 import com.intern001.dating.domain.model.MatchResult
@@ -40,6 +41,7 @@ class DiscoverViewModel @Inject constructor(
     private val initialDataCache: InitialDataCache,
     private val getMatchedUsersUseCase: GetMatchedUsersUseCase,
     private val tokenManager: TokenManager,
+    private val billingManager: BillingManager,
 ) : BaseStateViewModel<List<MatchCard>>() {
 
     private val _matchCards = MutableStateFlow<List<MatchCard>>(emptyList())
@@ -54,6 +56,9 @@ class DiscoverViewModel @Inject constructor(
     private val _alreadyLikedEvent = MutableSharedFlow<MatchCard>()
     val alreadyLikedEvent: SharedFlow<MatchCard> = _alreadyLikedEvent.asSharedFlow()
 
+    private val _showNativeAdEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val showNativeAdEvent: SharedFlow<Unit> = _showNativeAdEvent.asSharedFlow()
+
     private val _undoStack = MutableStateFlow<List<MatchCard>>(emptyList())
 
     private val matchedUserIds = MutableStateFlow<Set<String>>(emptySet())
@@ -62,6 +67,8 @@ class DiscoverViewModel @Inject constructor(
     private var isInitialized = false
 
     private var latestUserLocation: UserLocation? = null
+    private var swipeCountSinceNativeAd = 0
+    private var isNativeAdPending = false
 
     init {
         preloadMatchedUsers()
@@ -223,6 +230,8 @@ class DiscoverViewModel @Inject constructor(
         if (remaining <= 2) {
             loadMatchCards(showLoading = false, append = true)
         }
+
+        handleSwipeProgression()
     }
 
     fun undoLastAction() {
@@ -471,17 +480,61 @@ class DiscoverViewModel @Inject constructor(
 
     private fun applyMatchFilters(cards: List<MatchCard>): List<MatchCard> {
         if (cards.isEmpty()) return cards
+        val selfId = normalizedCurrentUserId()
+        val withoutSelf = if (selfId != null) {
+            cards.filterNot { normalizedUserId(it.userId) == selfId }
+        } else {
+            cards
+        }
+        if (withoutSelf.isEmpty()) return withoutSelf
         val matched = matchedUserIds.value
-        if (matched.isEmpty()) return cards
+        if (matched.isEmpty()) return withoutSelf
         val allowlist = allowlistedMatchedUsers.value
         if (allowlist.isEmpty()) {
-            return cards.filterNot { matched.contains(it.userId) }
+            return withoutSelf.filterNot { matched.contains(it.userId) }
         }
-        return cards.filterNot { matched.contains(it.userId) && !allowlist.contains(it.userId) }
+        return withoutSelf.filterNot { matched.contains(it.userId) && !allowlist.contains(it.userId) }
     }
+
+    private fun handleSwipeProgression() {
+        if (billingManager.hasActiveSubscription()) {
+            Log.d(TAG, "handleSwipeProgression: premium user, skip ads")
+            return
+        }
+        if (isNativeAdPending) {
+            Log.d(TAG, "handleSwipeProgression: ad already pending, count=$swipeCountSinceNativeAd")
+            return
+        }
+        swipeCountSinceNativeAd += 1
+        Log.d(TAG, "handleSwipeProgression: swipeCount=$swipeCountSinceNativeAd/$SWIPES_PER_NATIVE_AD")
+        if (swipeCountSinceNativeAd >= SWIPES_PER_NATIVE_AD) {
+            isNativeAdPending = true
+            Log.d(TAG, "handleSwipeProgression: threshold reached, emit showNativeAdEvent")
+            viewModelScope.launch { _showNativeAdEvent.emit(Unit) }
+        }
+    }
+
+    fun hasActiveSubscription(): Boolean = billingManager.hasActiveSubscription()
+
+    fun onNativeAdDisplayed() {
+        swipeCountSinceNativeAd = 0
+        isNativeAdPending = false
+    }
+
+    fun resetNativeAdCounter() {
+        swipeCountSinceNativeAd = 0
+        isNativeAdPending = false
+    }
+
+    private fun normalizedCurrentUserId(): String? = normalizedUserId(tokenManager.getUserId())
+
+    private fun normalizedUserId(userId: String?): String? = userId?.trim()
+        ?.takeIf { it.isNotBlank() }
+        ?.lowercase()
 
     companion object {
         private const val TAG = "DiscoverViewModel"
         private const val DISTANCE_DIFF_THRESHOLD_KM = 0.05
+        private const val SWIPES_PER_NATIVE_AD = 4
     }
 }

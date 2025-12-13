@@ -1,7 +1,7 @@
 package com.intern001.dating.data.api
 
 import android.util.Log
-import com.intern001.dating.data.local.TokenManager
+import com.intern001.dating.data.local.prefs.TokenManager
 import com.intern001.dating.data.model.response.RefreshTokenRequest
 import javax.inject.Inject
 import javax.inject.Singleton

@@ -118,21 +118,20 @@ class ChatSocketService(private val token: String) {
     }
 
     fun onReceiveMessage(callback: (MessageModel) -> Unit) {
+        // Remove any existing listener first to avoid duplicates
+        socket?.off("receive_message")
+
         socket?.on("receive_message") { args ->
             try {
                 val messageJson = args[0] as? JSONObject
                 val message = messageJson?.let { parseMessage(it) }
                 if (message != null) {
-                    Log.d(TAG, "Received message: senderId=${message.senderId}, matchId=${message.matchId}, message=${message.message?.take(50)}...")
                     callback(message)
-                } else {
-                    Log.w(TAG, "Received message but parsing returned null")
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error parsing message", e)
             }
         }
-        Log.d(TAG, "Registered receive_message listener")
     }
 
     fun sendMessage(
@@ -142,6 +141,14 @@ class ChatSocketService(private val token: String) {
         audioPath: String? = null,
         duration: Int? = null,
         imgChat: String? = null,
+        clientMessageId: String? = null,
+        replyToMessageId: String? = null,
+        replyToClientMessageId: String? = null,
+        replyToTimestamp: String? = null,
+        replyPreview: String? = null,
+        replySenderId: String? = null,
+        replySenderName: String? = null,
+        reaction: String? = null,
     ) {
         if (socket == null) {
             Log.e(TAG, "Socket is null, cannot send message")
@@ -160,9 +167,20 @@ class ChatSocketService(private val token: String) {
             audioPath?.let { put("audioPath", it) } ?: put("audioPath", "")
             imgChat?.let { put("imgChat", it) } ?: put("imgChat", "")
             duration?.let { put("duration", it) } ?: put("duration", 0)
+            clientMessageId?.let { put("clientMessageId", it) }
+            replyToMessageId?.let { put("replyToMessageId", it) }
+            replyToClientMessageId?.let { put("replyToClientMessageId", it) }
+            replyToTimestamp?.let { put("replyToTimestamp", it) }
+            replyPreview?.let { put("replyPreview", it) }
+            replySenderId?.let { put("replySenderId", it) }
+            replySenderName?.let { put("replySenderName", it) }
+            // Always send reaction field if provided (even if empty string)
+            if (reaction != null) {
+                put("reaction", reaction)
+            }
         }
         socket?.emit("send_message", data)
-        Log.d(TAG, "Sent message: matchId=$matchId, senderId=$senderId, message=${message?.take(50)}...")
+        Log.d(TAG, "Sent message: matchId=$matchId, senderId=$senderId, message=${message?.take(50)}..., reaction=$reaction, replyToMessageId=$replyToMessageId")
     }
 
     fun disconnect() {
@@ -180,7 +198,20 @@ class ChatSocketService(private val token: String) {
         val audioPathValue = json.optString("audioPath", null)
         val imgChatValue = json.optString("imgChat", null)
 
+        // Parse reaction carefully
+        val reactionValue = if (json.has("reaction")) {
+            val r = json.optString("reaction", null)
+            if (r.isNullOrBlank() || r == "null") null else r
+        } else {
+            null
+        }
+
+        val replyToMessageId = json.optString("replyToMessageId", null).takeIf { it?.isNotBlank() == true }
+
         return MessageModel(
+            id = json.optString("_id", null).takeIf { it?.isNotBlank() == true }
+                ?: json.optString("id", null).takeIf { it?.isNotBlank() == true },
+            clientMessageId = json.optString("clientMessageId", null).takeIf { it?.isNotBlank() == true },
             senderId = json.optString("senderId"),
             matchId = json.optString("matchId"),
             message = json.optString("message", ""),
@@ -189,6 +220,14 @@ class ChatSocketService(private val token: String) {
             audioPath = if (audioPathValue.isNullOrBlank()) null else audioPathValue,
             duration = if (json.has("duration") && json.optInt("duration") > 0) json.optInt("duration") else null,
             delivered = if (json.has("delivered")) json.optBoolean("delivered") else null,
+            replyToMessageId = replyToMessageId,
+            replyToClientMessageId = json.optString("replyToClientMessageId", null).takeIf { it?.isNotBlank() == true },
+            replyToTimestamp = json.optString("replyToTimestamp", null).takeIf { it?.isNotBlank() == true },
+            replyPreview = json.optString("replyPreview", null).takeIf { it?.isNotBlank() == true },
+            replySenderId = json.optString("replySenderId", null).takeIf { it?.isNotBlank() == true },
+            replySenderName = json.optString("replySenderName", null).takeIf { it?.isNotBlank() == true },
+            reaction = reactionValue,
+            isReactionMessage = if (json.has("isReactionMessage")) json.optBoolean("isReactionMessage") else null,
         )
     }
 

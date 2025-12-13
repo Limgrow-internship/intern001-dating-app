@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
@@ -19,6 +20,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.intern001.dating.MainActivity
 import com.intern001.dating.R
 import com.intern001.dating.databinding.FragmentLoginBinding
@@ -65,10 +68,13 @@ class LoginFragment : BaseFragment() {
     }
 
     private fun setupGoogleSignIn() {
+        val webClientId = getString(R.string.default_web_client_id)
+
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestIdToken(webClientId)
             .requestEmail()
             .build()
+
         googleSignInClient = GoogleSignIn.getClient(requireContext(), gso)
     }
 
@@ -89,7 +95,9 @@ class LoginFragment : BaseFragment() {
         }
 
         binding.btnForgotPass.setOnClickListener {
-            Snackbar.make(binding.root, "Navigate to Forgot Password", Snackbar.LENGTH_SHORT).show()
+            findNavController().navigate(
+                R.id.action_login_to_checkEmail,
+            )
         }
 
         binding.btnFacebook.setOnClickListener {
@@ -143,13 +151,25 @@ class LoginFragment : BaseFragment() {
 
                 Log.d("GoogleLogin", "idToken=${idToken?.take(20)}... length=${idToken?.length}")
                 Log.d("GoogleLogin", "account.email=${account?.email}, account.id=${account?.id}")
+                Log.d("GoogleLogin", "FULL_TOKEN = $idToken")
 
-                if (!idToken.isNullOrEmpty()) {
-                    viewModel.googleLogin(idToken)
-                } else {
-                    googleSignInClient.signOut()
-                    logError("Google login failed: idToken null, force sign out")
-                }
+                FirebaseAuth.getInstance()
+                    .signInWithCredential(GoogleAuthProvider.getCredential(account.idToken, null))
+                    .addOnCompleteListener { authTask ->
+                        if (authTask.isSuccessful) {
+                            FirebaseAuth.getInstance().currentUser?.getIdToken(true)
+                                ?.addOnCompleteListener { tokenTask ->
+                                    val firebaseIdToken = tokenTask.result?.token
+                                    if (firebaseIdToken != null) {
+                                        viewModel.googleLogin(firebaseIdToken)
+                                    } else {
+                                        logError("Firebase idToken null")
+                                    }
+                                }
+                        } else {
+                            logError("Firebase signIn failed")
+                        }
+                    }
             } catch (e: ApiException) {
                 logError("Google login ApiException code=${e.statusCode}, message=${e.message}")
                 if (e.statusCode == 401) googleSignInClient.signOut()

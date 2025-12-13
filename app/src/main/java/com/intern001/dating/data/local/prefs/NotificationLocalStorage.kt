@@ -1,4 +1,4 @@
-package com.intern001.dating.data.local
+package com.intern001.dating.data.local.prefs
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -42,86 +42,56 @@ class NotificationLocalStorage @Inject constructor(
         }
     }
 
-    /**
-     * Save a notification to local storage
-     */
     fun saveNotification(notification: Notification) {
         val notifications = getAllNotifications().toMutableList()
         notifications.add(0, notification) // Add to top
         saveAllNotifications(notifications)
     }
 
-    /**
-     * Get all notifications, sorted by timestamp (newest first)
-     */
     fun getAllNotifications(): List<Notification> {
         val json = prefs.getString(KEY_NOTIFICATIONS, null) ?: return emptyList()
-        val type = object : TypeToken<List<NotificationStorageDTO>>() {}.type
         return try {
-            val dtos: List<NotificationStorageDTO> = gson.fromJson(json, type) ?: return emptyList()
-            dtos.map { it.toDomain() }
-                .sortedByDescending { it.timestamp } // Sort by newest first
+            val type = object : TypeToken<List<Notification>>() {}.type
+            val parsed: List<Notification>? = gson.fromJson(json, type)
+            (parsed ?: emptyList()).sortedByDescending { it.timestamp.time }
         } catch (e: Exception) {
             emptyList()
         }
     }
 
-    /**
-     * Get unread notifications count
-     */
-    fun getUnreadCount(): Int {
-        return getAllNotifications().count { !it.isRead }
+    fun saveAllNotifications(notifications: List<Notification>) {
+        val json = gson.toJson(notifications)
+        prefs.edit().putString(KEY_NOTIFICATIONS, json).apply()
     }
 
-    /**
-     * Mark notification as read
-     */
     fun markAsRead(notificationId: String) {
-        val notifications = getAllNotifications().toMutableList()
-        val index = notifications.indexOfFirst { it.id == notificationId }
-        if (index >= 0) {
-            notifications[index] = notifications[index].copy(isRead = true)
-            saveAllNotifications(notifications)
+        val updated = getAllNotifications().map {
+            if (it.id == notificationId) it.copy(isRead = true) else it
         }
+        saveAllNotifications(updated)
     }
 
-    /**
-     * Mark all notifications as read
-     */
     fun markAllAsRead() {
-        val notifications = getAllNotifications().map { it.copy(isRead = true) }
-        saveAllNotifications(notifications)
+        val updated = getAllNotifications().map { it.copy(isRead = true) }
+        saveAllNotifications(updated)
     }
 
-    /**
-     * Delete a notification
-     */
     fun deleteNotification(notificationId: String) {
-        val notifications = getAllNotifications().toMutableList()
-        notifications.removeAll { it.id == notificationId }
-        saveAllNotifications(notifications)
+        val updated = getAllNotifications().filterNot { it.id == notificationId }
+        saveAllNotifications(updated)
     }
 
-    /**
-     * Delete all notifications
-     */
     fun deleteAllNotifications() {
         prefs.edit().remove(KEY_NOTIFICATIONS).apply()
     }
 
-    /**
-     * Get next notification ID
-     */
-    fun getNextNotificationId(): String {
-        val nextId = prefs.getLong(KEY_NEXT_ID, 1)
-        prefs.edit().putLong(KEY_NEXT_ID, nextId + 1).apply()
-        return "notif_$nextId"
+    fun getUnreadCount(): Int {
+        return getAllNotifications().count { !it.isRead }
     }
 
-    private fun saveAllNotifications(notifications: List<Notification>) {
-        val dtos = notifications.map { NotificationStorageDTO.fromDomain(it) }
-        val json = gson.toJson(dtos)
-        prefs.edit().putString(KEY_NOTIFICATIONS, json).apply()
-        // Flow will automatically emit new value via SharedPreferences listener
+    fun getNextNotificationId(): String {
+        val nextId = prefs.getInt(KEY_NEXT_ID, 1)
+        prefs.edit().putInt(KEY_NEXT_ID, nextId + 1).apply()
+        return nextId.toString()
     }
 }

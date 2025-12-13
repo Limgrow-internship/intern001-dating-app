@@ -52,7 +52,8 @@ android {
             isDebuggable = true
         }
         release {
-            buildConfigField("String", "BASE_URL", "\"https://api.hearton.com/\"")
+            val devUrl = getLocalProperty("base.url.dev", "http://10.0.2.2:3000/")
+            buildConfigField("String", "BASE_URL", "\"$devUrl\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -130,6 +131,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-messaging")
+    implementation("com.google.firebase:firebase-auth")
 
     // play billing
     implementation(libs.billing.ktx)

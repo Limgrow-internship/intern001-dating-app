@@ -6,39 +6,62 @@
     android:paddingTop="10dp"
     android:paddingBottom="2dp"
     android:paddingStart="32dp"
-    android:paddingEnd="8dp">
+    android:paddingEnd="8dp"
+    android:clipToPadding="false"
+    android:clipChildren="false">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:orientation="horizontal"
-        android:background="@drawable/bg_bubble_right"
-        android:padding="10dp"
-        android:gravity="center_vertical">
+        android:layout_height="wrap_content"
+        android:paddingBottom="12dp">
 
-        <ImageButton
-            android:id="@+id/btnTogglePlay"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_audio_play"
-            android:background="@android:color/transparent"
-            android:contentDescription="Play/Pause"/>
+        <LinearLayout
+            android:id="@+id/audioBubble"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            android:background="@drawable/bg_bubble_right"
+            android:padding="10dp"
+            android:gravity="center_vertical">
 
-        <ImageView
-            android:id="@+id/imgWaveform"
-            android:layout_width="80dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_waveform"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"/>
+            <ImageButton
+                android:id="@+id/btnTogglePlay"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_audio_play"
+                android:background="@android:color/transparent"
+                android:contentDescription="Play/Pause"/>
+
+            <ImageView
+                android:id="@+id/imgWaveform"
+                android:layout_width="80dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_waveform"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"/>
+
+            <TextView
+                android:id="@+id/tvAudioDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0:11"
+                android:textColor="#404040"
+                android:textStyle="bold"
+                android:textSize="15sp"/>
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/tvAudioDuration"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0:11"
-            android:textColor="#404040"
-            android:textStyle="bold"
-            android:textSize="15sp"/>
-    </LinearLayout>
+            android:id="@+id/tvReaction"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:background="@drawable/bg_reaction_badge"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:elevation="3dp"
+            android:layout_alignBottom="@id/audioBubble"
+            android:layout_alignEnd="@id/audioBubble"
+            android:layout_marginEnd="-8dp"
+            android:layout_marginBottom="-10dp"
+            android:visibility="gone"/>
+    </RelativeLayout>
 </LinearLayout>
