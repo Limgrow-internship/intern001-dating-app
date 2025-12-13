@@ -50,24 +50,22 @@ class MessageAdapter(
 
         val diffCallback = MessageDiffCallback(messages, filtered)
         val diffResult = DiffUtil.calculateDiff(diffCallback)
-
-        // Log reaction changes
+        
         val reactionChanges = mutableListOf<Int>()
         for (i in filtered.indices) {
             val newMsg = filtered[i]
-            val oldMsg = messages.firstOrNull {
+            val oldMsg = messages.firstOrNull { 
                 (it.id != null && newMsg.id != null && it.id == newMsg.id) ||
-                    (it.clientMessageId != null && newMsg.clientMessageId != null && it.clientMessageId == newMsg.clientMessageId)
+                (it.clientMessageId != null && newMsg.clientMessageId != null && it.clientMessageId == newMsg.clientMessageId)
             }
             if (oldMsg != null && oldMsg.reaction != newMsg.reaction) {
                 reactionChanges.add(i)
             }
         }
-
+        
         messages = filtered
         diffResult.dispatchUpdatesTo(this)
-
-        // Force notify items with reaction changes
+        
         if (reactionChanges.isNotEmpty()) {
             reactionChanges.forEach { position ->
                 notifyItemChanged(position)
@@ -86,12 +84,10 @@ class MessageAdapter(
             val old = oldList[oldItemPosition]
             val new = newList[newItemPosition]
 
-            // Priority 1: Match by server ID
             if (old.id != null && new.id != null && old.id == new.id) {
                 return true
             }
 
-            // Priority 2: Match by client message ID
             if (old.clientMessageId != null &&
                 new.clientMessageId != null &&
                 old.clientMessageId == new.clientMessageId
@@ -99,7 +95,6 @@ class MessageAdapter(
                 return true
             }
 
-            // Priority 3: Match by server ID or client ID (one-way match)
             if ((old.id != null && old.id == new.id) ||
                 (old.clientMessageId != null && old.clientMessageId == new.clientMessageId) ||
                 (new.id != null && new.id == old.id) ||
@@ -108,7 +103,6 @@ class MessageAdapter(
                 return true
             }
 
-            // Priority 4: Fallback - match by content and timestamp
             if (old.id == null &&
                 old.clientMessageId == null &&
                 new.id == null &&
@@ -131,7 +125,6 @@ class MessageAdapter(
                 old.imgChat == new.imgChat &&
                 old.audioPath == new.audioPath &&
                 old.reaction == new.reaction &&
-                // CRITICAL: Compare reaction
                 old.delivered == new.delivered &&
                 old.replyToMessageId == new.replyToMessageId &&
                 old.replyPreview == new.replyPreview
@@ -316,8 +309,6 @@ class MessageAdapter(
             return
         }
 
-        // Nếu có cả text và image, hiển thị reaction trên text bubble
-        // Nếu chỉ có image (không có text), hiển thị reaction trên image
         val showOnImage = hasImage && !hasText && imageReaction != null
 
         if (showOnImage) {

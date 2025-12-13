@@ -245,17 +245,7 @@ class ChatViewModel @Inject constructor(
     fun addMessage(message: MessageModel) {
         val currentMessages = _messages.value.toMutableList()
 
-        // ============================================================
-        // PRIORITY 1: Handle incoming reaction updates (User B receiving User A's reaction)
-        // ============================================================
-
-        // Check if this is a reaction update message
-        // Server sends reaction in two ways:
-        // Method 1: Empty message with replyToMessageId + reaction
-        // Method 2: Full original message with reaction field updated
-
         if (!message.reaction.isNullOrBlank()) {
-            // Method 1: Reaction-only update (empty message with replyToMessageId)
             if (!message.replyToMessageId.isNullOrBlank()) {
                 val targetId = message.replyToMessageId
                 var found = false
@@ -275,7 +265,6 @@ class ChatViewModel @Inject constructor(
                 }
             }
 
-            // Method 2: Full message with same ID (reaction field updated)
             val existingById = currentMessages.find {
                 (!message.id.isNullOrBlank() && it.id == message.id) ||
                     (!message.clientMessageId.isNullOrBlank() && it.clientMessageId == message.clientMessageId)
@@ -286,7 +275,6 @@ class ChatViewModel @Inject constructor(
                     if ((msg.id == message.id && !message.id.isNullOrBlank()) ||
                         (msg.clientMessageId == message.clientMessageId && !message.clientMessageId.isNullOrBlank())
                     ) {
-                        // Merge messages, always prefer incoming reaction
                         val merged = preferMessage(msg, message)
                         merged.copy(reaction = message.reaction)
                     } else {
@@ -298,10 +286,6 @@ class ChatViewModel @Inject constructor(
             }
         }
 
-        // ============================================================
-        // PRIORITY 2: Handle empty reaction messages (shouldn't be added to list)
-        // ============================================================
-
         val hasNoContent = message.message.isNullOrBlank() &&
             message.imgChat.isNullOrBlank() &&
             message.audioPath.isNullOrBlank()
@@ -309,10 +293,6 @@ class ChatViewModel @Inject constructor(
         if (hasNoContent && !message.replyToMessageId.isNullOrBlank()) {
             return
         }
-
-        // ============================================================
-        // PRIORITY 3: Handle normal message updates (same ID, different content)
-        // ============================================================
 
         val existingById = currentMessages.find {
             (!message.id.isNullOrBlank() && it.id == message.id) ||
@@ -333,10 +313,6 @@ class ChatViewModel @Inject constructor(
             return
         }
 
-        // ============================================================
-        // PRIORITY 4: Check for duplicate messages (same content/timestamp)
-        // ============================================================
-
         val existing = currentMessages.find { isSameEvent(it, message) }
         if (existing != null) {
             val preferred = preferMessage(existing, message)
@@ -349,10 +325,6 @@ class ChatViewModel @Inject constructor(
             _messages.value = updated.sortedBy { it.timestamp ?: "" }
             return
         }
-
-        // ============================================================
-        // PRIORITY 5: Add as new message
-        // ============================================================
 
         currentMessages.add(message)
         _messages.value = currentMessages.sortedBy { it.timestamp ?: "" }
@@ -602,31 +574,27 @@ class ChatViewModel @Inject constructor(
             return
         }
         _messages.value = updated
-
-        // Send reaction to server with target message ID
+        
         targetMessage?.let { msg ->
             val targetMsgId = msg.id ?: targetId
             val targetClientId = msg.clientMessageId
             if (targetMsgId != null || targetClientId != null) {
-                // Store reaction temporarily with both server ID and client ID as keys
-                // Server will send back replyToMessageId with server ID, so we need to match it
                 if (targetMsgId != null) {
                     pendingReactions[targetMsgId] = reaction ?: ""
                 }
                 if (targetClientId != null) {
                     pendingReactions[targetClientId] = reaction ?: ""
                 }
-
+                
                 if (_isSocketConnected.value) {
-                    // Send both server ID and client ID to ensure server can match correctly
                     if (targetMsgId != null || targetClientId != null) {
                         socketService?.sendMessage(
                             matchId = currentMatchId,
                             senderId = currentUserId,
-                            message = "", // Empty message for reaction-only updates
+                            message = "",
                             clientMessageId = null,
-                            replyToMessageId = targetMsgId, // Send server ID if available
-                            replyToClientMessageId = targetClientId, // Send client ID if available
+                            replyToMessageId = targetMsgId,
+                            replyToClientMessageId = targetClientId,
                             reaction = reaction,
                         )
                         android.util.Log.d("ChatViewModel", "Sent reaction to server: reaction=$reaction, targetId=$targetId, serverId=$targetMsgId, clientId=$targetClientId")
@@ -657,7 +625,6 @@ class ChatViewModel @Inject constructor(
                 return existingCid == incomingCid
             }
 
-            // One side missing ID: fall back to content/timestamp to merge server echo with optimistic message
             if (contentKey(existing) != contentKey(incoming)) return false
             val exMs = parseMillis(existing.timestamp)
             val inMs = parseMillis(incoming.timestamp)
