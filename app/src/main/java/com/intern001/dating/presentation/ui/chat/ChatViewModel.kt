@@ -574,7 +574,7 @@ class ChatViewModel @Inject constructor(
             return
         }
         _messages.value = updated
-        
+
         targetMessage?.let { msg ->
             val targetMsgId = msg.id ?: targetId
             val targetClientId = msg.clientMessageId
@@ -585,7 +585,7 @@ class ChatViewModel @Inject constructor(
                 if (targetClientId != null) {
                     pendingReactions[targetClientId] = reaction ?: ""
                 }
-                
+
                 if (_isSocketConnected.value) {
                     if (targetMsgId != null || targetClientId != null) {
                         socketService?.sendMessage(

@@ -50,22 +50,22 @@ class MessageAdapter(
 
         val diffCallback = MessageDiffCallback(messages, filtered)
         val diffResult = DiffUtil.calculateDiff(diffCallback)
-        
+
         val reactionChanges = mutableListOf<Int>()
         for (i in filtered.indices) {
             val newMsg = filtered[i]
-            val oldMsg = messages.firstOrNull { 
+            val oldMsg = messages.firstOrNull {
                 (it.id != null && newMsg.id != null && it.id == newMsg.id) ||
-                (it.clientMessageId != null && newMsg.clientMessageId != null && it.clientMessageId == newMsg.clientMessageId)
+                    (it.clientMessageId != null && newMsg.clientMessageId != null && it.clientMessageId == newMsg.clientMessageId)
             }
             if (oldMsg != null && oldMsg.reaction != newMsg.reaction) {
                 reactionChanges.add(i)
             }
         }
-        
+
         messages = filtered
         diffResult.dispatchUpdatesTo(this)
-        
+
         if (reactionChanges.isNotEmpty()) {
             reactionChanges.forEach { position ->
                 notifyItemChanged(position)
