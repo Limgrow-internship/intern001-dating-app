@@ -74,6 +74,7 @@ data class MatchResult(
 data class MatchList(
     val matchId: String,
     val lastActivityAt: String,
+    val status: String,
     val matchedUser: UserProfileMatch,
 )
 
