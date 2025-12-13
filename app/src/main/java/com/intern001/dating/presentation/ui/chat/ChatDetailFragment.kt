@@ -90,6 +90,7 @@ class ChatDetailFragment : BaseFragment() {
     private var recordStartTime: Long = 0
     private var pendingReply: MessageModel? = null
     private var lastMessageCount: Int = 0
+    private var lastMessageTimestamp: String = ""
 
     private var isAIConversation = false
 
@@ -261,10 +262,32 @@ class ChatDetailFragment : BaseFragment() {
             }
 
             viewModel.messages.collectLatest { msgs ->
+                val previousCount = lastMessageCount
+                val previousTimestamp = lastMessageTimestamp
+
                 adapter.setMessages(msgs)
-                if (msgs.size > lastMessageCount && msgs.isNotEmpty()) {
-                    binding.rvMessages.scrollToPosition(msgs.size - 1)
+
+                if (msgs.isNotEmpty()) {
+                    val latestMsg = msgs.maxByOrNull { it.timestamp ?: "" }
+                    val latestTimestamp = latestMsg?.timestamp ?: ""
+
+                    val sizeIncreased = msgs.size > previousCount
+                    val timestampChanged = latestTimestamp != previousTimestamp && latestTimestamp.isNotBlank()
+                    val isNearBottom = isNearBottom()
+
+                    if (sizeIncreased) {
+                        binding.rvMessages.post {
+                            binding.rvMessages.smoothScrollToPosition(msgs.size - 1)
+                        }
+                    } else if (timestampChanged && isNearBottom) {
+                        binding.rvMessages.post {
+                            binding.rvMessages.smoothScrollToPosition(msgs.size - 1)
+                        }
+                    }
+
+                    lastMessageTimestamp = latestTimestamp
                 }
+
                 lastMessageCount = msgs.size
                 chatSharedViewModel.updateMessages(matchId, msgs)
                 toggleSuggestionVisibility(msgs.isEmpty())
@@ -815,5 +838,16 @@ class ChatDetailFragment : BaseFragment() {
         binding.edtMessage.clearFocus()
         val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(binding.edtMessage.windowToken, 0)
+    }
+
+    private fun isNearBottom(): Boolean {
+        val layoutManager = binding.rvMessages.layoutManager as? androidx.recyclerview.widget.LinearLayoutManager
+        if (layoutManager == null || adapter.itemCount == 0) return true
+
+        val lastVisiblePosition = layoutManager.findLastCompletelyVisibleItemPosition()
+        val totalItems = adapter.itemCount
+
+        // Consider "near bottom" if within last 3 items or if last item is visible
+        return lastVisiblePosition >= totalItems - 3 || lastVisiblePosition == totalItems - 1
     }
 }

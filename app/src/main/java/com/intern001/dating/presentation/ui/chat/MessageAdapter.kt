@@ -8,6 +8,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.intern001.dating.R
@@ -34,7 +35,7 @@ class MessageAdapter(
     private var currentMsgPos: Int = -1
 
     fun setMessages(list: List<MessageModel>) {
-        messages = list.filter { msg ->
+        val filtered = list.filter { msg ->
             val hasContent = msg.message?.isNotBlank() == true ||
                 !msg.imgChat.isNullOrBlank() ||
                 !msg.audioPath.isNullOrBlank()
@@ -46,7 +47,90 @@ class MessageAdapter(
                 true
             }
         }
-        notifyDataSetChanged()
+
+        val diffCallback = MessageDiffCallback(messages, filtered)
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+        
+        val reactionChanges = mutableListOf<Int>()
+        for (i in filtered.indices) {
+            val newMsg = filtered[i]
+            val oldMsg = messages.firstOrNull { 
+                (it.id != null && newMsg.id != null && it.id == newMsg.id) ||
+                (it.clientMessageId != null && newMsg.clientMessageId != null && it.clientMessageId == newMsg.clientMessageId)
+            }
+            if (oldMsg != null && oldMsg.reaction != newMsg.reaction) {
+                reactionChanges.add(i)
+            }
+        }
+        
+        messages = filtered
+        diffResult.dispatchUpdatesTo(this)
+        
+        if (reactionChanges.isNotEmpty()) {
+            reactionChanges.forEach { position ->
+                notifyItemChanged(position)
+            }
+        }
+    }
+
+    private class MessageDiffCallback(
+        private val oldList: List<MessageModel>,
+        private val newList: List<MessageModel>,
+    ) : DiffUtil.Callback() {
+        override fun getOldListSize(): Int = oldList.size
+        override fun getNewListSize(): Int = newList.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            val old = oldList[oldItemPosition]
+            val new = newList[newItemPosition]
+
+            if (old.id != null && new.id != null && old.id == new.id) {
+                return true
+            }
+
+            if (old.clientMessageId != null &&
+                new.clientMessageId != null &&
+                old.clientMessageId == new.clientMessageId
+            ) {
+                return true
+            }
+
+            if ((old.id != null && old.id == new.id) ||
+                (old.clientMessageId != null && old.clientMessageId == new.clientMessageId) ||
+                (new.id != null && new.id == old.id) ||
+                (new.clientMessageId != null && new.clientMessageId == old.clientMessageId)
+            ) {
+                return true
+            }
+
+            if (old.id == null &&
+                old.clientMessageId == null &&
+                new.id == null &&
+                new.clientMessageId == null &&
+                old.senderId == new.senderId &&
+                old.message == new.message &&
+                old.timestamp == new.timestamp
+            ) {
+                return true
+            }
+
+            return false
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            val old = oldList[oldItemPosition]
+            val new = newList[newItemPosition]
+
+            val isSame = old.message == new.message &&
+                old.imgChat == new.imgChat &&
+                old.audioPath == new.audioPath &&
+                old.reaction == new.reaction &&
+                old.delivered == new.delivered &&
+                old.replyToMessageId == new.replyToMessageId &&
+                old.replyPreview == new.replyPreview
+
+            return isSame
+        }
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -218,27 +302,23 @@ class MessageAdapter(
         hasImage: Boolean,
     ) {
         val emoji = msg.reaction
-        android.util.Log.d("MessageAdapter", "bindReaction: emoji=$emoji, hasText=$hasText, hasImage=$hasImage, msgId=${msg.id}, clientId=${msg.clientMessageId}")
+
         if (emoji.isNullOrBlank()) {
             textReaction.visibility = View.GONE
             imageReaction?.visibility = View.GONE
             return
         }
 
-        // Nếu có cả text và image, hiển thị reaction trên text bubble
-        // Nếu chỉ có image (không có text), hiển thị reaction trên image
         val showOnImage = hasImage && !hasText && imageReaction != null
 
         if (showOnImage) {
             imageReaction.text = emoji
             imageReaction.visibility = View.VISIBLE
             textReaction.visibility = View.GONE
-            android.util.Log.d("MessageAdapter", "bindReaction: Showing reaction on image")
         } else {
             textReaction.text = emoji
             textReaction.visibility = View.VISIBLE
             imageReaction?.visibility = View.GONE
-            android.util.Log.d("MessageAdapter", "bindReaction: Showing reaction on text")
         }
     }
 
