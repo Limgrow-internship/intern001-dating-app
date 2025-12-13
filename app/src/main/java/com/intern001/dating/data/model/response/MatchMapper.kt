@@ -278,6 +278,7 @@ fun TargetProfileResponse.toDomain(): TargetProfile {
 
 fun MatchResponseDTO.toMatchList(): MatchList = MatchList(
     matchId = this.matchId,
+    status = this.status,
     lastActivityAt = this.lastActivityAt,
     matchedUser = UserProfileMatch(
         userId = this.matchedUser.userId,
