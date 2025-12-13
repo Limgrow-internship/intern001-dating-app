@@ -730,8 +730,8 @@ class ChatDetailFragment : BaseFragment() {
             .setMessage("Are you sure you want to delete all messages in this conversation? This cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
                 viewModel.clearMessagesForMyself(matchId) {
+                    chatSharedViewModel.updateMessages(matchId, emptyList())
                     chatListViewModel.updateLastMessage(matchId, null)
-                    chatListViewModel.refreshMatches()
                     requireActivity().onBackPressedDispatcher.onBackPressed()
                 }
             }
@@ -742,7 +742,7 @@ class ChatDetailFragment : BaseFragment() {
     private fun showUnmatchDialog() {
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setTitle("Unmatch")
-            .setMessage("Bạn chắc chắn muốn unmatch với người này? Bạn sẽ không thể chat lại nếu không match lại!")
+            .setMessage("Are you sure you want to unmatch with this person? You won't be able to chat again if you don't match again!")
             .setPositiveButton("Unmatch") { _, _ ->
                 val targetUserId = arguments?.getString("targetUserId")
                 if (targetUserId.isNullOrEmpty()) {
@@ -753,55 +753,55 @@ class ChatDetailFragment : BaseFragment() {
                         viewModel.fetchMatchStatus(targetUserId)
                         Toast.makeText(
                             context,
-                            "Unmatch thành công!",
+                            "Unmatch success!",
                             Toast.LENGTH_SHORT,
                         ).show()
                         requireActivity().onBackPressedDispatcher.onBackPressed()
                     } else {
-                        Toast.makeText(context, "Unmatch thất bại!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Unmatch failed!", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
-            .setNegativeButton("Hủy", null)
+            .setNegativeButton("Cancel", null)
             .show()
     }
 
     private fun showBlockUserDialog() {
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setTitle("Block")
-            .setMessage("Sau khi chặn, bạn sẽ không thể gửi tin nhắn hoặc tương tác với người này.")
+            .setMessage("After blocking someone, you will no longer be able to send messages or interact with them..")
             .setPositiveButton("Block") { _, _ ->
                 lifecycleScope.launch {
                     viewModel.blockUser(targetUserId) { success ->
                         if (success) {
-                            Toast.makeText(context, "Đã chặn người này!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Block.", Toast.LENGTH_SHORT).show()
                             viewModel.fetchMatchStatus(targetUserId)
                             requireActivity().onBackPressedDispatcher.onBackPressed()
                         } else {
-                            Toast.makeText(context, "Chặn thất bại!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Failed !", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
             }
-            .setNegativeButton("Hủy", null)
+            .setNegativeButton("Cancel", null)
             .show()
     }
     private fun showUnblockUserDialog() {
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setTitle("Unblock")
-            .setMessage("Bạn chắc chắn muốn bỏ chặn người này?")
+            .setMessage("You definitely want to unblock this person?")
             .setPositiveButton("Unblock") { _, _ ->
                 viewModel.unblockUser(targetUserId) { success ->
                     if (success) {
-                        Toast.makeText(context, "Đã bỏ chặn!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Unblocked!", Toast.LENGTH_SHORT).show()
                         viewModel.fetchMatchStatus(targetUserId)
                         requireActivity().onBackPressedDispatcher.onBackPressed()
                     } else {
-                        Toast.makeText(context, "Bỏ chặn thất bại!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Unblocking failed!", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
-            .setNegativeButton("Hủy", null)
+            .setNegativeButton("Cancel", null)
             .show()
     }
 
