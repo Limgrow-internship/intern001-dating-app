@@ -18,4 +18,5 @@ data class MessageModel(
     val replySenderId: String? = null,
     val replySenderName: String? = null,
     val reaction: String? = null,
+    val isReactionMessage: Boolean? = null,
 )

@@ -33,6 +33,9 @@ class ChatViewModel @Inject constructor(
     private var lastSentAtMs: Long = 0L
     private val pendingClientMessageIds: ArrayDeque<String> = ArrayDeque()
 
+    // Map to store pending reactions: targetMessageId -> reaction
+    private val pendingReactions: MutableMap<String, String> = mutableMapOf()
+
     private val _messages = MutableStateFlow<List<MessageModel>>(emptyList())
     val messages: StateFlow<List<MessageModel>> = _messages
 
@@ -240,25 +243,119 @@ class ChatViewModel @Inject constructor(
     }
 
     fun addMessage(message: MessageModel) {
-        val currentMessages = _messages.value
-        val existing = currentMessages.find { isSameEvent(it, message) }
+        val currentMessages = _messages.value.toMutableList()
 
+        // ============================================================
+        // PRIORITY 1: Handle incoming reaction updates (User B receiving User A's reaction)
+        // ============================================================
+
+        // Check if this is a reaction update message
+        // Server sends reaction in two ways:
+        // Method 1: Empty message with replyToMessageId + reaction
+        // Method 2: Full original message with reaction field updated
+
+        if (!message.reaction.isNullOrBlank()) {
+            // Method 1: Reaction-only update (empty message with replyToMessageId)
+            if (!message.replyToMessageId.isNullOrBlank()) {
+                val targetId = message.replyToMessageId
+                var found = false
+
+                val updated = currentMessages.map { msg ->
+                    if (msg.id == targetId || msg.clientMessageId == targetId) {
+                        found = true
+                        msg.copy(reaction = message.reaction)
+                    } else {
+                        msg
+                    }
+                }
+
+                if (found) {
+                    _messages.value = updated.sortedBy { it.timestamp ?: "" }
+                    return
+                }
+            }
+
+            // Method 2: Full message with same ID (reaction field updated)
+            val existingById = currentMessages.find {
+                (!message.id.isNullOrBlank() && it.id == message.id) ||
+                    (!message.clientMessageId.isNullOrBlank() && it.clientMessageId == message.clientMessageId)
+            }
+
+            if (existingById != null) {
+                val updated = currentMessages.map { msg ->
+                    if ((msg.id == message.id && !message.id.isNullOrBlank()) ||
+                        (msg.clientMessageId == message.clientMessageId && !message.clientMessageId.isNullOrBlank())
+                    ) {
+                        // Merge messages, always prefer incoming reaction
+                        val merged = preferMessage(msg, message)
+                        merged.copy(reaction = message.reaction)
+                    } else {
+                        msg
+                    }
+                }
+                _messages.value = updated.sortedBy { it.timestamp ?: "" }
+                return
+            }
+        }
+
+        // ============================================================
+        // PRIORITY 2: Handle empty reaction messages (shouldn't be added to list)
+        // ============================================================
+
+        val hasNoContent = message.message.isNullOrBlank() &&
+            message.imgChat.isNullOrBlank() &&
+            message.audioPath.isNullOrBlank()
+
+        if (hasNoContent && !message.replyToMessageId.isNullOrBlank()) {
+            return
+        }
+
+        // ============================================================
+        // PRIORITY 3: Handle normal message updates (same ID, different content)
+        // ============================================================
+
+        val existingById = currentMessages.find {
+            (!message.id.isNullOrBlank() && it.id == message.id) ||
+                (!message.clientMessageId.isNullOrBlank() && it.clientMessageId == message.clientMessageId)
+        }
+
+        if (existingById != null) {
+            val updated = currentMessages.map { msg ->
+                if ((msg.id == message.id && !message.id.isNullOrBlank()) ||
+                    (msg.clientMessageId == message.clientMessageId && !message.clientMessageId.isNullOrBlank())
+                ) {
+                    preferMessage(msg, message)
+                } else {
+                    msg
+                }
+            }
+            _messages.value = updated.sortedBy { it.timestamp ?: "" }
+            return
+        }
+
+        // ============================================================
+        // PRIORITY 4: Check for duplicate messages (same content/timestamp)
+        // ============================================================
+
+        val existing = currentMessages.find { isSameEvent(it, message) }
         if (existing != null) {
             val preferred = preferMessage(existing, message)
             if (preferred == existing) {
-                android.util.Log.d("ChatViewModel", "Message already exists, skipping: ${message.message.take(50)}...")
                 return
             }
             val updated = currentMessages.map { msg ->
                 if (isSameEvent(msg, message)) preferred else msg
             }
             _messages.value = updated.sortedBy { it.timestamp ?: "" }
-        } else {
-            val updatedMessages = currentMessages + message
-            _messages.value = updatedMessages.sortedBy { it.timestamp ?: "" }
+            return
         }
 
-        android.util.Log.d("ChatViewModel", "Added message: ${message.message.take(50)}... Total: ${_messages.value.size}")
+        // ============================================================
+        // PRIORITY 5: Add as new message
+        // ============================================================
+
+        currentMessages.add(message)
+        _messages.value = currentMessages.sortedBy { it.timestamp ?: "" }
 
         if (isAIConversation && AIConstants.isMessageFromAI(message.senderId)) {
             hideAITypingIndicator()
@@ -299,39 +396,40 @@ class ChatViewModel @Inject constructor(
 
         socketService?.let { service ->
             service.onChatHistory { history ->
-                android.util.Log.d("ChatViewModel", "Received chat history: ${history.size} messages")
-                val currentMsgs = _messages.value
-                val mergedMsgs = mergeMessages(currentMsgs, history)
-                _messages.value = mergedMsgs
+                viewModelScope.launch {
+                    android.util.Log.d("ChatViewModel", "Received chat history: ${history.size} messages")
+                    val currentMsgs = _messages.value
+                    val mergedMsgs = mergeMessages(currentMsgs, history)
+                    _messages.value = mergedMsgs
+                }
             }
 
             service.onReceiveMessage { message ->
-                android.util.Log.d("ChatViewModel", "Received new message: senderId=${message.senderId}, isFromAI=${AIConstants.isMessageFromAI(message.senderId)}")
-                val isOwnMessage = message.senderId == currentUserId
+                viewModelScope.launch {
+                    val isOwnMessage = message.senderId == currentUserId
 
-                val normalizedMessage = if (isOwnMessage) {
-                    when {
-                        !message.clientMessageId.isNullOrBlank() -> {
-                            pendingClientMessageIds.remove(message.clientMessageId)
-                            message
+                    val normalizedMessage = if (isOwnMessage) {
+                        when {
+                            !message.clientMessageId.isNullOrBlank() -> {
+                                pendingClientMessageIds.remove(message.clientMessageId)
+                                message
+                            }
+                            pendingClientMessageIds.isNotEmpty() -> {
+                                val mappedId = pendingClientMessageIds.removeFirst()
+                                message.copy(clientMessageId = mappedId)
+                            }
+                            else -> message
                         }
-                        pendingClientMessageIds.isNotEmpty() -> {
-                            val mappedId = pendingClientMessageIds.removeFirst()
-                            message.copy(clientMessageId = mappedId)
-                        }
-                        else -> message
+                    } else {
+                        message
                     }
-                } else {
-                    message
-                }
 
-                addMessage(normalizedMessage)
+                    addMessage(normalizedMessage)
+                }
             }
 
             service.joinRoom(matchId, userId)
             _isSocketConnected.value = service.isConnected()
-
-            android.util.Log.d("ChatViewModel", "Joined chat room: matchId=$matchId, userId=$userId, isAI=$isAI, connected=${service.isConnected()}")
         } ?: run {
             android.util.Log.e("ChatViewModel", "Socket service not initialized")
             _error.value = "Socket service not initialized"
@@ -466,12 +564,18 @@ class ChatViewModel @Inject constructor(
         }
 
         val other = if (candidate === existing) incoming else existing
+        // For reaction, prefer the non-null one, and if both exist, prefer the incoming one (newer)
+        val preferredReaction = when {
+            !incoming.reaction.isNullOrBlank() -> incoming.reaction
+            !existing.reaction.isNullOrBlank() -> existing.reaction
+            else -> null
+        }
         return candidate.copy(
             replyToMessageId = candidate.replyToMessageId ?: other.replyToMessageId,
             replyPreview = candidate.replyPreview ?: other.replyPreview,
             replySenderId = candidate.replySenderId ?: other.replySenderId,
             replySenderName = candidate.replySenderName ?: other.replySenderName,
-            reaction = candidate.reaction ?: other.reaction,
+            reaction = preferredReaction,
         )
     }
 
@@ -482,11 +586,12 @@ class ChatViewModel @Inject constructor(
         }
         val currentMessages = _messages.value.toMutableList()
         var found = false
+        var targetMessage: MessageModel? = null
         val updated = currentMessages.map { msg ->
             val match = msg.id == targetId || msg.clientMessageId == targetId
             if (match) {
                 found = true
-                android.util.Log.d("ChatViewModel", "applyReaction: matched message id=${msg.id}, clientId=${msg.clientMessageId}, setting reaction=$reaction")
+                targetMessage = msg
                 msg.copy(reaction = reaction)
             } else {
                 msg
@@ -494,8 +599,45 @@ class ChatViewModel @Inject constructor(
         }
         if (!found) {
             android.util.Log.w("ChatViewModel", "applyReaction: No message found with id=$targetId")
+            return
         }
         _messages.value = updated
+
+        // Send reaction to server with target message ID
+        targetMessage?.let { msg ->
+            val targetMsgId = msg.id ?: targetId
+            val targetClientId = msg.clientMessageId
+            if (targetMsgId != null || targetClientId != null) {
+                // Store reaction temporarily with both server ID and client ID as keys
+                // Server will send back replyToMessageId with server ID, so we need to match it
+                if (targetMsgId != null) {
+                    pendingReactions[targetMsgId] = reaction ?: ""
+                }
+                if (targetClientId != null) {
+                    pendingReactions[targetClientId] = reaction ?: ""
+                }
+
+                if (_isSocketConnected.value) {
+                    // Send both server ID and client ID to ensure server can match correctly
+                    if (targetMsgId != null || targetClientId != null) {
+                        socketService?.sendMessage(
+                            matchId = currentMatchId,
+                            senderId = currentUserId,
+                            message = "", // Empty message for reaction-only updates
+                            clientMessageId = null,
+                            replyToMessageId = targetMsgId, // Send server ID if available
+                            replyToClientMessageId = targetClientId, // Send client ID if available
+                            reaction = reaction,
+                        )
+                        android.util.Log.d("ChatViewModel", "Sent reaction to server: reaction=$reaction, targetId=$targetId, serverId=$targetMsgId, clientId=$targetClientId")
+                    } else {
+                        android.util.Log.e("ChatViewModel", "Cannot send reaction: both serverId and clientId are null")
+                    }
+                } else {
+                    android.util.Log.w("ChatViewModel", "Socket not connected, reaction not sent to server")
+                }
+            }
+        }
     }
 
     private fun parseMillis(ts: String?): Long? {
