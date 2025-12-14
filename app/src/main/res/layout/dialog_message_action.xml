@@ -86,7 +86,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:gravity="center_vertical"
-        android:text="Reply"
+        android:text="@string/dialog_reaction_txt1"
         android:textSize="16sp"
         android:textColor="#2C2C2C"
         android:paddingStart="4dp" />
@@ -96,7 +96,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:gravity="center_vertical"
-        android:text="Delete for you"
+        android:text="@string/dialog_reaction_txt2"
         android:textSize="16sp"
         android:textColor="#2C2C2C"
         android:paddingStart="4dp" />
@@ -111,7 +111,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:gravity="center_vertical"
-        android:text="Unsend"
+        android:text="@string/dialog_reaction_txt3"
         android:textSize="16sp"
         android:textColor="#E53935"
         android:paddingStart="4dp" />

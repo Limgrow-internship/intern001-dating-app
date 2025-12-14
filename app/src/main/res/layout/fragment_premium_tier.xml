@@ -68,7 +68,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="What you get:"
+                        android:text="@string/what_you_get"
                         android:textColor="#FFFFFF"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -77,7 +77,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="16dp"
-                        android:text="Basic"
+                        android:text="@string/plan_basic"
                         android:textColor="#FFFFFF"
                         android:textSize="12sp"
                         android:textStyle="bold" />
@@ -85,7 +85,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Free"
+                        android:text="@string/plan_free"
                         android:textColor="#FFFFFF"
                         android:textSize="12sp"
                         android:textStyle="bold" />
@@ -175,7 +175,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Weekly"
+                    android:text="@string/weekly"
                     android:textColor="@android:color/white"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -184,7 +184,7 @@
                     android:id="@+id/tvWeeklyPrice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="20.000 VND"
+                    android:text="@string/weekly_price"
                     android:textColor="#FFD700"
                     android:textSize="16sp"
                     android:textStyle="bold"
@@ -234,7 +234,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Monthly"
+                            android:text="@string/monthly"
                             android:textColor="@android:color/white"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -243,7 +243,7 @@
                             android:id="@+id/tvMonthlySave"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Save 21.000 VND"
+                            android:text="@string/monthly_save"
                             android:textColor="#FFFFFF"
                             android:textSize="12sp"
                             android:layout_marginTop="2dp" />
@@ -253,7 +253,7 @@
                         android:id="@+id/tvMonthlyPrice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="59.000 VND"
+                        android:text="@string/monthly_price"
                         android:textColor="#FFD700"
                         android:textSize="16sp"
                         android:textStyle="bold"
@@ -276,7 +276,7 @@
             android:layout_marginTop="24dp"
             android:layout_marginHorizontal="16dp"
             android:layout_marginBottom="16dp"
-            android:text="Upgrade Now"
+            android:text="@string/upgrade_now"
             android:textAllCaps="false"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -327,7 +327,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="32dp"
-            android:text="Cancel anytime. Your benefits activate instantly."
+            android:text="@string/cancel_anytime"
             android:textColor="@android:color/white"
             android:textSize="12sp"
             android:gravity="center"

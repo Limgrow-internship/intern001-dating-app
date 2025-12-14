@@ -29,7 +29,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="Age"
+                    android:text="@string/filter_label_age"
                     android:textColor="@color/black"
                     android:textSize="24dp"
                     android:textStyle="bold" />
@@ -38,7 +38,7 @@
                     android:id="@+id/tvAgeValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="18 - 25"
+                    android:text="@string/filter_value_age_default"
                     android:textColor="#FF6A00"
                     android:textSize="16sp"/>
             </LinearLayout>
@@ -70,7 +70,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Gender"
+                android:text="@string/filter_label_gender"
                 android:textColor="@color/black"
                 android:textSize="24dp"
                 android:textStyle="bold" />
@@ -91,7 +91,7 @@
                         android:id="@+id/tvMale"
                         android:layout_width="wrap_content"
                         android:layout_height="39dp"
-                        android:text="Male"
+                        android:text="@string/filter_gender_male"
                         android:layout_weight="1"
                         android:layout_marginRight="10dp"
                         android:textSize="16sp"
@@ -103,7 +103,7 @@
                         android:id="@+id/tvFemale"
                         android:layout_width="wrap_content"
                         android:layout_height="39dp"
-                        android:text="Female"
+                        android:text="@string/filter_gender_female"
                         android:layout_weight="1"
                         android:textSize="16sp"
                         android:layout_marginRight="10dp"
@@ -114,7 +114,7 @@
                         android:id="@+id/tvOther"
                         android:layout_width="wrap_content"
                         android:layout_height="39dp"
-                        android:text="Other"
+                        android:text="@string/filter_gender_other"
                         android:layout_weight="1"
                         android:textSize="16sp"
                         android:gravity="center"
@@ -141,7 +141,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="Height"
+                    android:text="@string/filter_label_height"
                     android:textColor="@color/black"
                     android:textSize="24dp"
                     android:textStyle="bold" />
@@ -150,7 +150,7 @@
                     android:id="@+id/tvHeightValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="150 - 160cm"
+                    android:text="@string/filter_value_height_default"
                     android:textColor="#FF6A00"
                     android:textSize="16sp"/>
             </LinearLayout>
@@ -188,7 +188,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="Weight"
+                    android:text="@string/filter_label_weight"
                     android:textColor="@color/black"
                     android:textSize="24dp"
                     android:textStyle="bold" />
@@ -197,7 +197,7 @@
                     android:id="@+id/tvWeightValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="45 - 60kg"
+                    android:text="@string/filter_value_weight_default"
                     android:textColor="#FF6A00"
                     android:textSize="16sp"/>
             </LinearLayout>
@@ -259,7 +259,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="Distance"
+                    android:text="@string/filter_label_distance"
                     android:textColor="@color/black"
                     android:textSize="24dp"
                     android:textStyle="bold" />
@@ -268,7 +268,7 @@
                     android:id="@+id/tvDistanceValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="5 - 10km"
+                    android:text="@string/filter_value_distance_default"
                     android:textColor="#FF6A00"
                     android:textSize="16sp"/>
             </LinearLayout>
@@ -302,7 +302,7 @@
                 android:layout_height="56dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Reset All"
+                android:text="@string/filter_btn_reset_all"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="#6E6E6E"
@@ -315,7 +315,7 @@
                 android:layout_height="56dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Apply"
+                android:text="@string/filter_btn_apply"
                 android:textSize="18sp"
                 android:textColor="#FFFFFF"
                 android:textStyle="bold"
