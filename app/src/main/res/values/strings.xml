@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">HeartOnDatingApp</string>
     <string name="create_new_password_message">
@@ -25,7 +26,6 @@
     <string name="password">Password</string>
     <string name="already_have_account">Already have account?</string>
     <string name="_40">40%</string>
-    <string name="next">Next</string>
     <string name="default_web_client_id">657435569191-g1d7oab6k8n7pamh89fik2fsgpk7h6sr.apps.googleusercontent.com</string>
     <string name="log_out">Log out</string>
     <string name="billing_sub_week" translatable="false">com.ledkeyboard.weekly</string>
@@ -192,9 +192,7 @@
 
     <!-- Notification - Empty state -->
     <string name="notification_empty_title">No notifications yet</string>
-    <string name="notification_empty_message">
-    Once you have a notification, you'll see it here
-</string>
+    <string name="notification_empty_message">Once you have a notification, you\'ll see it here</string>
     <string name="notification_empty_icon_cd">No notifications</string>
 
     <!-- Notification - Error -->
@@ -242,8 +240,6 @@
     <string name="upgrade_now">Upgrade Now</string>
     <string name="cancel_anytime">Cancel anytime. Your benefits activate instantly.</string>
 
-    <string name="gender">Nam/Nữ</string>
-
     <string name="reset_password">Reset Password</string>
     <string name="new_password">New password</string>
     <string name="confirm_new_password">Confirm New Password</string>
@@ -275,13 +271,9 @@
     <string name="enter_verification_code">Enter Verification Code</string>
     <string name="verify_email_demo">+limqrow@gmail.com</string>
 
-    <string name="verify_intro_title">
-        Let's make HeartOn a safer place
-    </string>
+    <string name="verify_intro_title">Let\'s make HeartOn a safer place</string>
 
-    <string name="verify_intro_description">
-        Verify your profile so others know you're real — and ready to match with confidence.
-    </string>
+    <string name="verify_intro_description">Verify your profile so others know you\'re real — and ready to match with confidence.</string>
 
     <string name="action_get_started">Get started</string>
 
@@ -407,212 +399,6 @@
     <string name="keep_swiping">Keep Swiping</string>
     <string name="tap_to_meet">Tap to meet more heart</string>
     <string name="looking_for">I\'m looking for</string>
-
-    <string-array name="job_list">
-        <item>Accountant</item>
-        <item>Actor</item>
-        <item>Architect</item>
-        <item>Artist</item>
-        <item>Banker</item>
-        <item>Business Analyst</item>
-        <item>Civil Engineer</item>
-        <item>Consultant</item>
-        <item>Customer Service</item>
-        <item>Data Analyst</item>
-        <item>Data Scientist</item>
-        <item>Designer</item>
-        <item>Doctor</item>
-        <item>Developer</item>
-        <item>Educator</item>
-        <item>Engineer</item>
-        <item>Entrepreneur</item>
-        <item>Fashion Designer</item>
-        <item>Freelancer</item>
-        <item>Graphic Designer</item>
-        <item>HR Specialist</item>
-        <item>Lawyer</item>
-        <item>Marketing Specialist</item>
-        <item>Nurse</item>
-        <item>Photographer</item>
-        <item>Product Manager</item>
-        <item>Project Manager</item>
-        <item>Scientist</item>
-        <item>Software Engineer</item>
-        <item>Teacher</item>
-        <item>Writer</item>
-        <item>KOL</item>
-        <item>Other</item>
-    </string-array>
-
-    <string-array name="university_list_vietnam">
-        <item>Đại học Quốc gia Hà Nội</item>
-        <item>Đại học Bách khoa Hà Nội</item>
-        <item>Đại học Kinh tế Quốc dân</item>
-        <item>Đại học Sư phạm Hà Nội</item>
-        <item>Đại học Ngoại thương Hà Nội</item>
-        <item>Đại học Giao thông Vận tải Hà Nội</item>
-        <item>Đại học Xây dựng Hà Nội</item>
-        <item>Đại học Lao động – Xã hội</item>
-        <item>Học viện Ngoại giao</item>
-        <item>Học viện Tài chính</item>
-        <item>Đại học Hà Nội</item>
-        <item>Đại học Y Hà Nội</item>
-        <item>Đại học Khoa học Tự nhiên, Đại học Quốc gia Hà Nội</item>
-        <item>Đại học Khoa học Xã hội và Nhân văn, Đại học Quốc gia Hà Nội</item>
-        <item>Đại học Công nghệ, Đại học Quốc gia Hà Nội (VNU-UET)</item>
-        <item>Đại học Quốc gia Thành phố Hồ Chí Minh</item>
-        <item>Đại học Bách khoa TP. HCM</item>
-        <item>Đại học Kinh tế TP. HCM (UEH)</item>
-        <item>Đại học Kinh tế – Luật, Đại học Quốc gia TP. HCM</item>
-        <item>Đại học Khoa học Tự nhiên, Đại học Quốc gia TP. HCM</item>
-        <item>Đại học Khoa học Xã hội và Nhân văn, Đại học Quốc gia TP. HCM</item>
-        <item>Đại học Công nghệ Thông tin, Đại học Quốc gia TP. HCM</item>
-        <item>Đại học Ngoại ngữ – Tin học TP. HCM</item>
-        <item>Đại học Công nghiệp TP. HCM</item>
-        <item>Đại học Nông Lâm TP. HCM</item>
-        <item>Đại học Y Dược TP. HCM</item>
-        <item>Đại học Sư phạm TP. HCM</item>
-        <item>Đại học Tôn Đức Thắng</item>
-        <item>Đại học Mở TP. HCM</item>
-        <item>Đại học Huế</item>
-        <item>Đại học Y Dược Huế</item>
-        <item>Đại học Nông Lâm Huế</item>
-        <item>Đại học Khoa học, Đại học Huế</item>
-        <item>Đại học Đà Nẵng</item>
-        <item>Đại học Bách khoa Đà Nẵng</item>
-        <item>Đại học Kinh tế Đà Nẵng</item>
-        <item>Đại học Sư phạm Đà Nẵng</item>
-        <item>Đại học Thái Nguyên</item>
-        <item>Đại học Nông Lâm Thái Nguyên</item>
-        <item>Đại học Kỹ thuật Công nghiệp Thái Nguyên</item>
-        <item>Đại học Cần Thơ</item>
-        <item>Đại học An Giang</item>
-        <item>Đại học Bạc Liêu</item>
-        <item>Đại học Duy Tân</item>
-        <item>Đại học Văn Lang</item>
-        <item>Đại học Hoa Sen</item>
-        <item>Đại học FPT</item>
-        <item>Đại học RMIT Việt Nam</item>
-        <item>Đại học VinUniversity</item>
-        <item>Đại học Fulbright Việt Nam</item>
-        <item>Đại học Nguyễn Tất Thành</item>
-        <item>Đại học HUTECH (Công nghệ TP. HCM)</item>
-        <item>Đại học Kinh doanh và Công nghệ Hà Nội (HUBT)</item>
-        <item>Đại học Văn hóa TP. HCM</item>
-        <item>Đại học Sư phạm Kỹ thuật TP. HCM</item>
-        <item>Đại học Thương mại (National Economics University – NEU)</item>
-        <item>Đại học Công nghệ Giao thông Vận tải</item>
-        <item>Đại học Điện lực</item>
-        <item>Đại học Mỏ – Địa chất</item>
-        <item>Đại học Kiến trúc Hà Nội</item>
-        <item>Đại học Kiến trúc TP. HCM</item>
-        <item>Đại học Hải Phòng</item>
-        <item>Đại học Hàng hải Việt Nam</item>
-        <item>Đại học Bách khoa Vinh</item>
-        <item>Đại học Vinh</item>
-        <item>Khác</item>
-    </string-array>
-
-    <string-array name="zodiac_list">
-        <item>Aries</item>
-        <item>Taurus</item>
-        <item>Gemini</item>
-        <item>Cancer</item>
-        <item>Leo</item>
-        <item>Virgo</item>
-        <item>Libra</item>
-        <item>Scorpio</item>
-        <item>Sagittarius</item>
-        <item>Capricorn</item>
-        <item>Aquarius</item>
-        <item>Pisces</item>
-    </string-array>
-
-    <string-array name="vietnam_provinces_cities">
-        <item>Hà Nội</item>
-        <item>TP. Hồ Chí Minh</item>
-        <item>Hải Phòng</item>
-        <item>Đà Nẵng</item>
-        <item>Cần Thơ</item>
-        <item>An Giang</item>
-        <item>Bà Rịa – Vũng Tàu</item>
-        <item>Bắc Giang</item>
-        <item>Bắc Kạn</item>
-        <item>Bạc Liêu</item>
-        <item>Bắc Ninh</item>
-        <item>Bình Định</item>
-        <item>Bình Dương</item>
-        <item>Bình Phước</item>
-        <item>Bình Thuận</item>
-        <item>Cà Mau</item>
-        <item>Cao Bằng</item>
-        <item>Đắk Lắk</item>
-        <item>Đắk Nông</item>
-        <item>Điện Biên</item>
-        <item>Đồng Nai</item>
-        <item>Đồng Tháp</item>
-        <item>Gia Lai</item>
-        <item>Hà Giang</item>
-        <item>Hà Nam</item>
-        <item>Hà Tĩnh</item>
-        <item>Hải Dương</item>
-        <item>Hậu Giang</item>
-        <item>Hòa Bình</item>
-        <item>Hưng Yên</item>
-        <item>Khánh Hòa</item>
-        <item>Kiên Giang</item>
-        <item>Kon Tum</item>
-        <item>Lai Châu</item>
-        <item>Lâm Đồng</item>
-        <item>Lạng Sơn</item>
-        <item>Lào Cai</item>
-        <item>Long An</item>
-        <item>Nam Định</item>
-        <item>Nghệ An</item>
-        <item>Ninh Bình</item>
-        <item>Ninh Thuận</item>
-        <item>Phú Thọ</item>
-        <item>Quảng Bình</item>
-        <item>Quảng Nam</item>
-        <item>Quảng Ngãi</item>
-        <item>Quảng Ninh</item>
-        <item>Quảng Trị</item>
-        <item>Sóc Trăng</item>
-        <item>Sơn La</item>
-        <item>Tây Ninh</item>
-        <item>Thái Bình</item>
-        <item>Thái Nguyên</item>
-        <item>Thanh Hóa</item>
-        <item>Thừa Thiên – Huế</item>
-        <item>Tiền Giang</item>
-        <item>Trà Vinh</item>
-        <item>Tuyên Quang</item>
-        <item>Vĩnh Long</item>
-        <item>Vĩnh Phúc</item>
-        <item>Yên Bái</item>
-        <item>Phú Yên</item>
-    </string-array>
-
-    <string-array name="open_question_list_what">
-        <item>q1|What is something that always makes you smile?</item>
-        <item>q2|What is something that always improves your day?</item>
-        <item>q3|What is something that always surprises people about you?</item>
-        <item>q4|What is something that always brings you peace?</item>
-        <item>q5|What is something that always motivates you?</item>
-        <item>q6|What is something that always makes you laugh?</item>
-        <item>q7|What is something that always impresses you?</item>
-        <item>q8|What is something that always inspires you?</item>
-        <item>q9|What is something that always relaxes you?</item>
-        <item>q10|What is something that always reminds you of home?</item>
-    </string-array>
-
-    <string-array name="open_question_list_ideal">
-        <item>i1|My ideal weekend is...</item>
-        <item>i2|My ideal vacation looks like...</item>
-        <item>i3|My perfect morning starts with...</item>
-        <item>i4|My ideal date is...</item>
-        <item>i5|My ideal night out includes...</item>
-    </string-array>
 
     <string name="location_warning_title">Bật vị trí để nhận gợi ý tốt hơn</string>
     <string name="location_warning_message">Khi tắt vị trí, bạn sẽ nhận được ít gợi ý phù hợp hơn. Hãy bật GPS để khám phá những người gần bạn.</string>
