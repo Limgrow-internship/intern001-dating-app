@@ -21,7 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:gravity="center"
-        android:text="Unmatch"
+        android:text="@string/dialog_chat_more_txt1"
         android:textSize="18sp"
         android:textColor="#000000" />
 
@@ -35,7 +35,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:gravity="center"
-        android:text="Report"
+        android:text="@string/dialog_chat_more_txt2"
         android:textSize="18sp"
         android:textColor="#000000"/>
 
@@ -49,7 +49,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:gravity="center"
-        android:text="Delete Conversation"
+        android:text="@string/dialog_chat_more_txt3"
         android:textSize="18sp"
         android:textColor="#000000"/>
 
@@ -63,7 +63,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:gravity="center"
-        android:text="Block"
+        android:text="@string/dialog_chat_more_txt4"
         android:textSize="18sp"
         android:textColor="#000000"/>
 
@@ -72,7 +72,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:gravity="center"
-        android:text="Unblock"
+        android:text="@string/dialog_chat_more_txt5"
         android:textSize="18sp"
         android:textColor="#000000"
         android:visibility="gone"/>

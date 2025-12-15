@@ -35,12 +35,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="Notifications"
+            android:text="@string/notification_title"
             android:textColor="@color/orange_500"
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <!-- Spacer to balance the back icon -->
         <View
             android:layout_width="24dp"
             android:layout_height="24dp" />
@@ -82,7 +81,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Show notifications"
+                        android:text="@string/notification_setting_show_notifications"
                         android:textColor="@color/black"
                         android:textSize="14sp" />
 
@@ -97,14 +96,13 @@
                         android:padding="6dp"
                         android:background="?attr/selectableItemBackgroundBorderless" />
                 </LinearLayout>
-
             </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="Matches &amp; Messages"
+                android:text="@string/notification_section_matches_messages"
                 android:textColor="@color/gray_600"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -128,7 +126,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="New match"
+                        android:text="@string/notification_setting_new_match"
                         android:textColor="@color/black"
                         android:textSize="14sp" />
 
@@ -160,7 +158,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="New message"
+                        android:text="@string/notification_setting_new_message"
                         android:textColor="@color/black"
                         android:textSize="14sp" />
 
@@ -192,7 +190,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Likes &amp; SuperLikes"
+                        android:text="@string/notification_setting_likes_superlikes"
                         android:textColor="@color/black"
                         android:textSize="14sp" />
 
@@ -213,7 +211,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="Discovery"
+                android:text="@string/notification_section_discovery"
                 android:textColor="@color/gray_600"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -237,7 +235,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Suggested profiles"
+                        android:text="@string/notification_setting_suggested_profiles"
                         android:textColor="@color/black"
                         android:textSize="14sp" />
 
@@ -269,7 +267,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Nearby updates"
+                        android:text="@string/notification_setting_nearby_updates"
                         android:textColor="@color/black"
                         android:textSize="14sp" />
 
@@ -290,7 +288,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="App Info"
+                android:text="@string/notification_section_app_info"
                 android:textColor="@color/gray_600"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -314,7 +312,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Suggested profiles"
+                        android:text="@string/notification_setting_suggested_profiles"
                         android:textColor="@color/black"
                         android:textSize="14sp" />
 
@@ -346,7 +344,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Nearby updates"
+                        android:text="@string/notification_setting_nearby_updates"
                         android:textColor="@color/black"
                         android:textSize="14sp" />
 
@@ -362,8 +360,8 @@
                         android:background="?attr/selectableItemBackgroundBorderless" />
                 </LinearLayout>
             </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

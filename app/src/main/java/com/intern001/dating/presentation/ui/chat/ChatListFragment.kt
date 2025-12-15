@@ -222,7 +222,10 @@ class ChatListFragment : BaseFragment() {
                     if (matchesWithoutCache.isNotEmpty()) {
                         viewLifecycleOwner.lifecycleScope.launch {
                             matchesWithoutCache.forEach { match ->
-                                vm.getLastMessage(match.matchId)
+                                if (vm.lastMessagesCache.value[match.matchId] == null) {
+                                } else {
+                                    vm.getLastMessage(match.matchId)
+                                }
                             }
                         }
                     }
@@ -232,15 +235,19 @@ class ChatListFragment : BaseFragment() {
                         viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                             chatSharedViewModel.messagesCache.collectLatest { cache ->
                                 cache.forEach { (matchId, messages) ->
-                                    val latest = messages.maxByOrNull { it.timestamp ?: "" } ?: return@forEach
-                                    vm.updateLastMessage(
-                                        matchId,
-                                        com.intern001.dating.domain.entity.LastMessageEntity(
-                                            message = latest.previewText(),
-                                            senderId = latest.senderId ?: "",
-                                            timestamp = latest.timestamp ?: "",
-                                        ),
-                                    )
+                                    if (messages.isNotEmpty()) {
+                                        val latest = messages.maxByOrNull { it.timestamp ?: "" } ?: return@forEach
+                                        vm.updateLastMessage(
+                                            matchId,
+                                            com.intern001.dating.domain.entity.LastMessageEntity(
+                                                message = latest.previewText(),
+                                                senderId = latest.senderId ?: "",
+                                                timestamp = latest.timestamp ?: "",
+                                            ),
+                                        )
+                                    } else {
+                                        vm.updateLastMessage(matchId, null)
+                                    }
                                 }
                             }
                         }

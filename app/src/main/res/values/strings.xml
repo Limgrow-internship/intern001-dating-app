@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">HeartOnDatingApp</string>
     <string name="create_new_password_message">
@@ -20,13 +21,11 @@
     <string name="btn_continue">Continue</string>
     <string name="button">Button</string>
     <string name="male">Male</string>
-    <string name="female">Female</string>
     <string name="other">Other</string>
     <string name="sign_up">SIGN UP</string>
     <string name="password">Password</string>
     <string name="already_have_account">Already have account?</string>
     <string name="_40">40%</string>
-    <string name="next">Next</string>
     <string name="default_web_client_id">657435569191-g1d7oab6k8n7pamh89fik2fsgpk7h6sr.apps.googleusercontent.com</string>
     <string name="log_out">Log out</string>
     <string name="billing_sub_week" translatable="false">com.ledkeyboard.weekly</string>
@@ -52,7 +51,15 @@
     <string name="upgrade_text">Unlock all your likes with Premium!</string>
     <string name="btn_upgrad">Upgrade Now</string>
     <string name="profile">Profile</string>
+    <string name="profile_edit">Edit Profile</string>
+    <string name="profile_view">View Profile</string>
     <string name="change_password">Change Password</string>
+    <string name="change_password_hint1">Confirm New Password</string>
+    <string name="change_password_hint2">New Password</string>
+    <string name="change_password_successfully">Password changed successfully!</string>
+    <string name="change_password_successfully_btn">Done</string>
+    <string name="change_password_not_match">Passwords do not match</string>
+    <string name="change_password_stronger">Please choose a stronger password. Try a combination of letters, numbers</string>
     <string name="verify_profile">Verify profile</string>
     <string name="language">Language</string>
     <string name="notications">Notications</string>
@@ -88,6 +95,285 @@
     <string name="forgot_pass_success_text">Password Changed Successfully!</string>
     <string name="forgot_pass_success_text1">Your password has been updated. Please log in again to continue using your account.</string>
     <string name="forgot_pass_success_btn">Log in</string>
+
+    <string name="dialog_chat_more_txt1">Unmatch</string>
+    <string name="dialog_chat_more_txt2">Report</string>
+    <string name="dialog_chat_more_txt3">Delete Conversation</string>
+    <string name="dialog_chat_more_txt4">Block</string>
+    <string name="dialog_chat_more_txt5">Unblock</string>
+
+    <string name="dialog_delete_account_h1">Are you sure you want to delete your account?</string>
+    <string name="dialog_delete_account_title">Deleting your account will permanently erase your profile, matches, and messages. This action cannot be undone.</string>
+    <string name="dialog_delete_account_btn">Delete Account</string>
+    <string name="dialog_delete_success_txt">Your account has been deleted successfully!</string>
+
+    <string name="dialog_generate_bio_txt1">Tạo Bio với AI</string>
+    <string name="dialog_generate_bio_txt2">Nhập ý tưởng của bạn để AI tạo bio phù hợp</string>
+    <string name="dialog_generate_bio_txt3">Ví dụ: Tôi yêu thích du lịch, cà phê và đọc sách. Tôi làm việc như một kỹ sư phần mềm và thích đi bộ vào cuối tuần.</string>
+    <string name="dialog_generate_bio_txt4">Hủy</string>
+    <string name="dialog_generate_bio_txt5">Tạo Bio</string>
+
+    <string name="dialog_logout_txt1">Are you sure you want to log out?</string>
+    <string name="dialog_logout_txt2">You’ll miss new matches and messages until you sign back in.</string>
+    <string name="dialog_logout_txt3">Log out</string>
+
+    <string name="dialog_reaction_txt1">Reply</string>
+    <string name="dialog_reaction_txt2">Delete for you</string>
+    <string name="dialog_reaction_txt3">Unsend</string>
+
+    <string name="filter_txt1">Dating Mode</string>
+    <string name="filter_txt2">Friend Mode</string>
+    <string name="filter_txt3">Filter</string>
+
+    <string name="chat_list_txt1">List Matches</string>
+    <string name="chat_list_txt2">No matches yet</string>
+    <string name="chat_list_txt3">Chat</string>
+    <string name="chat_list_txt4">No chats yet</string>
+    <string name="chat_list_txt5">Match with someone to start chatting and make your first connection now.</string>
+
+    <string name="chat_screen_txt1">Đang ghi âm...</string>
+    <string name="chat_screen_txt2">Unmatched this user.</string>
+    <string name="chat_screen_txt3">Blocked this user.</string>
+    <string name="chat_screen_txt4">Reply to</string>
+    <string name="chat_screen_txt5">Message preview</string>
+    <string name="chat_screen_txt6">Text ...</string>
+
+    <!-- Filter labels -->
+    <string name="filter_label_age">Age</string>
+    <string name="filter_label_gender">Gender</string>
+    <string name="filter_label_height">Height</string>
+    <string name="filter_label_weight">Weight</string>
+    <string name="filter_label_distance">Distance</string>
+
+    <!-- Filter default values -->
+    <string name="filter_value_age_default">18 - 25</string>
+    <string name="filter_value_height_default">150 - 160cm</string>
+    <string name="filter_value_weight_default">45 - 60kg</string>
+    <string name="filter_value_distance_default">5 - 10km</string>
+
+    <!-- Filter gender -->
+    <string name="filter_gender_male">Male</string>
+    <string name="filter_gender_female">Female</string>
+    <string name="filter_gender_other">Other</string>
+
+    <!-- Filter buttons -->
+    <string name="filter_btn_reset_all">Reset All</string>
+    <string name="filter_btn_apply">Apply</string>
+
+    <!-- Profile - Photos -->
+    <string name="profile_photo_title">Photo</string>
+    <string name="profile_photo_description">Add and drag photo cards to arrange them in the order you want them to appear.</string>
+
+    <!-- Profile - Save -->
+    <string name="profile_btn_save">Save</string>
+
+    <!-- Auth - Signup -->
+    <string name="auth_signup_title">Sign Up</string>
+    <string name="auth_email_hint">Email</string>
+    <string name="auth_password_hint">Password</string>
+
+    <!-- Auth - Password rules -->
+    <string name="auth_password_rule_length">Mật khẩu tối thiểu 8 ký tự</string>
+    <string name="auth_password_rule_format">Gồm ít nhất 1 ký tự chữ và 1 ký tự số</string>
+
+    <!-- Auth - Error -->
+    <string name="auth_signup_error">Đăng ký thất bại. Vui lòng thử lại.</string>
+
+    <!-- Auth - Button -->
+    <string name="auth_btn_signup">Sign Up</string>
+
+    <!-- Auth - Footer -->
+    <string name="auth_already_have_account">Already have an account?</string>
+    <string name="auth_login">Login</string>
+
+    <!-- Notification -->
+    <string name="notification_title">Notification</string>
+    <string name="notification_filter_cd">Filter</string>
+
+    <!-- Notification - Empty state -->
+    <string name="notification_empty_title">No notifications yet</string>
+    <string name="notification_empty_message">Once you have a notification, you\'ll see it here</string>
+    <string name="notification_empty_icon_cd">No notifications</string>
+
+    <!-- Notification - Error -->
+    <string name="notification_error_message">Failed to load notifications</string>
+    <string name="notification_retry">Retry</string>
+
+    <string name="notification_setting_show_notifications">Show notifications</string>
+    <string name="notification_section_matches_messages">Matches &amp; Messages</string>
+    <string name="notification_setting_new_match">New match</string>
+    <string name="notification_setting_new_message">New message</string>
+    <string name="notification_setting_likes_superlikes">Likes &amp; SuperLikes</string>
+    <string name="notification_section_discovery">Discovery</string>
+    <string name="notification_setting_suggested_profiles">Suggested profiles</string>
+    <string name="notification_setting_nearby_updates">Nearby updates</string>
+    <string name="notification_section_app_info">App Info</string>
+
+    <string name="onboard_title">Welcome to Onboard!</string>
+    <string name="next">Next</string>
+
+    <!-- Onboarding -->
+    <string name="onboard_title_1">Match. Chat. Vibe.</string>
+    <string name="onboard_desc_1">Swipe through real people, start real convos, and find someone who matches your energy</string>
+    <string name="onboard_continue">Continue</string>
+
+    <string name="pro">Pro</string>
+    <string name="avatar">Avatar</string>
+    <string name="user_name">Tên người dùng</string>
+    <string name="gender">Nam/Nữ</string>
+    <string name="dating1">Dating</string>
+
+    <!-- Premium / Subscription -->
+    <string name="premium_tagline">Unlock more connections, more matches, more fun</string>
+
+    <string name="what_you_get">What you get:</string>
+    <string name="plan_basic">Basic</string>
+    <string name="plan_free">Free</string>
+
+    <string name="weekly">Weekly</string>
+    <string name="weekly_price">20.000 VND</string>
+
+    <string name="monthly">Monthly</string>
+    <string name="monthly_price">59.000 VND</string>
+    <string name="monthly_save">Save 21.000 VND</string>
+
+    <string name="upgrade_now">Upgrade Now</string>
+    <string name="cancel_anytime">Cancel anytime. Your benefits activate instantly.</string>
+
+    <string name="reset_password">Reset Password</string>
+    <string name="new_password">New password</string>
+    <string name="confirm_new_password">Confirm New Password</string>
+
+    <string name="report_title">Report</string>
+    <string name="report_description">
+        Report this user. Tell us what happened. Your report is anonymous.
+    </string>
+
+    <string name="action_cancel">Cancel</string>
+    <string name="action_save">Save</string>
+
+    <string name="verify_account_title">Verify Account</string>
+
+    <string name="verify_success_title">Verification Successful!</string>
+
+    <string name="verify_success_description">
+        You now have the Verified badge, showing others you’re real and ready to connect
+    </string>
+
+    <string name="action_done">Done</string>
+
+    <string name="verify_account">Verify Account</string>
+    <string name="face_inside_frame">Face inside the frame</string>
+    <string name="cannot_recognize_face">We cannot recognize your face.</string>
+    <string name="take_photo">Take a photo</string>
+    <string name="try_again">Try again</string>
+
+    <string name="enter_verification_code">Enter Verification Code</string>
+    <string name="verify_email_demo">+limqrow@gmail.com</string>
+
+    <string name="verify_intro_title">Let\'s make HeartOn a safer place</string>
+
+    <string name="verify_intro_description">Verify your profile so others know you\'re real — and ready to match with confidence.</string>
+
+    <string name="action_get_started">Get started</string>
+
+    <string name="profile_photo">Profile photo</string>
+    <string name="nearby">Gần đây</string>
+    <string name="name_age">Thien Vi, 22</string>
+    <string name="female">Female</string>
+
+    <string name="profile_description">
+    Just a coffee lover who enjoys deep talks and spontaneous trips.
+</string>
+
+    <string name="major_developer">Developer</string>
+    <string name="education_fpt">FPT University</string>
+    <string name="location_danang">DaNang, VietNam</string>
+    <string name="zodiac_capricorn">Capricorn</string>
+    <string name="weight_65">Weight: 65kg</string>
+    <string name="height_170">Height: 170cm</string>
+    <string name="more">More</string>
+
+    <string name="goals">Goals</string>
+    <string name="interests">Interests</string>
+
+    <string name="question_smile">
+    What’s something that always makes you smile?
+</string>
+
+    <string name="answer_smile">
+    Accidentally catching my reflection and realizing I look fine today
+</string>
+
+    <string name="about_me">About Me</string>
+
+    <string name="hint_introduce_yourself">
+        Introduce yourself
+    </string>
+
+    <string name="cd_generate_bio_ai">
+        Generate bio with AI
+    </string>
+
+    <string name="ai">AI</string>
+    <string name="last_message">Nice to meet you</string>
+    <string name="message_time">12:00</string>
+
+
+    <string name="personal_details">Personal Details</string>
+
+    <string name="hint_job">Job</string>
+    <string name="hint_education">Education</string>
+    <string name="hint_address">Address</string>
+
+    <string name="hint_height">Height</string>
+    <string name="hint_weight">Weight</string>
+
+    <string name="hint_zodiac">Zodiac</string>
+
+    <string name="feature_match">Match</string>
+    <string name="checked">Checked</string>
+
+
+    <string name="goal_serious_relationship">Serious relationship</string>
+    <string name="goal_new_friends">New friends</string>
+    <string name="goal_something_casual">Something casual</string>
+    <string name="goal_just_vibing">Just vibing</string>
+    <string name="goal_open_to_anything">Open to anything</string>
+    <string name="goal_still_figuring_out">Still figuring it out</string>
+
+    <string name="info">Info</string>
+    <string name="name">Name</string>
+    <string name="birthday1">Birthday</string>
+    <string name="gender1">Gender</string>
+
+    <string name="interest_music">Music</string>
+    <string name="interest_photography">Photography</string>
+    <string name="interest_travel">Travel</string>
+    <string name="interest_deep_talks">Deep talks</string>
+    <string name="interest_read_books">Read books</string>
+    <string name="interest_walking">Walking</string>
+    <string name="interest_pets_animal_lover">Pets / Animal lover</string>
+    <string name="interest_cooking">Cooking</string>
+
+    <string name="chat_reply_sender">Sender</string>
+    <string name="chat_reply_preview">Preview</string>
+
+    <string name="notification_icon">Notification icon</string>
+    <string name="notification_title1">Notification Title</string>
+    <string name="notification_message">Notification message description</string>
+    <string name="notification_time">12:00</string>
+
+    <string name="open_questions">Open Questions</string>
+
+    <string name="question_hint_what">What’s something that always ...</string>
+    <string name="answer_hint_what">
+        Accidentally catching my reflection and realizing I look fine today
+    </string>
+
+    <string name="question_hint_weekend">My ideal weekend is...</string>
+    <string name="answer_hint_weekend">Beach, music, and you</string>
+
     <!-- Home Screen Tabs -->
     <string name="for_you">For you</string>
     <string name="liked_you">Liked you</string>
@@ -113,213 +399,6 @@
     <string name="keep_swiping">Keep Swiping</string>
     <string name="tap_to_meet">Tap to meet more heart</string>
     <string name="looking_for">I\'m looking for</string>
-    <string name="interests"> Interests</string>
-
-    <string-array name="job_list">
-        <item>Accountant</item>
-        <item>Actor</item>
-        <item>Architect</item>
-        <item>Artist</item>
-        <item>Banker</item>
-        <item>Business Analyst</item>
-        <item>Civil Engineer</item>
-        <item>Consultant</item>
-        <item>Customer Service</item>
-        <item>Data Analyst</item>
-        <item>Data Scientist</item>
-        <item>Designer</item>
-        <item>Doctor</item>
-        <item>Developer</item>
-        <item>Educator</item>
-        <item>Engineer</item>
-        <item>Entrepreneur</item>
-        <item>Fashion Designer</item>
-        <item>Freelancer</item>
-        <item>Graphic Designer</item>
-        <item>HR Specialist</item>
-        <item>Lawyer</item>
-        <item>Marketing Specialist</item>
-        <item>Nurse</item>
-        <item>Photographer</item>
-        <item>Product Manager</item>
-        <item>Project Manager</item>
-        <item>Scientist</item>
-        <item>Software Engineer</item>
-        <item>Teacher</item>
-        <item>Writer</item>
-        <item>KOL</item>
-        <item>Other</item>
-    </string-array>
-
-    <string-array name="university_list_vietnam">
-        <item>Đại học Quốc gia Hà Nội</item>
-        <item>Đại học Bách khoa Hà Nội</item>
-        <item>Đại học Kinh tế Quốc dân</item>
-        <item>Đại học Sư phạm Hà Nội</item>
-        <item>Đại học Ngoại thương Hà Nội</item>
-        <item>Đại học Giao thông Vận tải Hà Nội</item>
-        <item>Đại học Xây dựng Hà Nội</item>
-        <item>Đại học Lao động – Xã hội</item>
-        <item>Học viện Ngoại giao</item>
-        <item>Học viện Tài chính</item>
-        <item>Đại học Hà Nội</item>
-        <item>Đại học Y Hà Nội</item>
-        <item>Đại học Khoa học Tự nhiên, Đại học Quốc gia Hà Nội</item>
-        <item>Đại học Khoa học Xã hội và Nhân văn, Đại học Quốc gia Hà Nội</item>
-        <item>Đại học Công nghệ, Đại học Quốc gia Hà Nội (VNU-UET)</item>
-        <item>Đại học Quốc gia Thành phố Hồ Chí Minh</item>
-        <item>Đại học Bách khoa TP. HCM</item>
-        <item>Đại học Kinh tế TP. HCM (UEH)</item>
-        <item>Đại học Kinh tế – Luật, Đại học Quốc gia TP. HCM</item>
-        <item>Đại học Khoa học Tự nhiên, Đại học Quốc gia TP. HCM</item>
-        <item>Đại học Khoa học Xã hội và Nhân văn, Đại học Quốc gia TP. HCM</item>
-        <item>Đại học Công nghệ Thông tin, Đại học Quốc gia TP. HCM</item>
-        <item>Đại học Ngoại ngữ – Tin học TP. HCM</item>
-        <item>Đại học Công nghiệp TP. HCM</item>
-        <item>Đại học Nông Lâm TP. HCM</item>
-        <item>Đại học Y Dược TP. HCM</item>
-        <item>Đại học Sư phạm TP. HCM</item>
-        <item>Đại học Tôn Đức Thắng</item>
-        <item>Đại học Mở TP. HCM</item>
-        <item>Đại học Huế</item>
-        <item>Đại học Y Dược Huế</item>
-        <item>Đại học Nông Lâm Huế</item>
-        <item>Đại học Khoa học, Đại học Huế</item>
-        <item>Đại học Đà Nẵng</item>
-        <item>Đại học Bách khoa Đà Nẵng</item>
-        <item>Đại học Kinh tế Đà Nẵng</item>
-        <item>Đại học Sư phạm Đà Nẵng</item>
-        <item>Đại học Thái Nguyên</item>
-        <item>Đại học Nông Lâm Thái Nguyên</item>
-        <item>Đại học Kỹ thuật Công nghiệp Thái Nguyên</item>
-        <item>Đại học Cần Thơ</item>
-        <item>Đại học An Giang</item>
-        <item>Đại học Bạc Liêu</item>
-        <item>Đại học Duy Tân</item>
-        <item>Đại học Văn Lang</item>
-        <item>Đại học Hoa Sen</item>
-        <item>Đại học FPT</item>
-        <item>Đại học RMIT Việt Nam</item>
-        <item>Đại học VinUniversity</item>
-        <item>Đại học Fulbright Việt Nam</item>
-        <item>Đại học Nguyễn Tất Thành</item>
-        <item>Đại học HUTECH (Công nghệ TP. HCM)</item>
-        <item>Đại học Kinh doanh và Công nghệ Hà Nội (HUBT)</item>
-        <item>Đại học Văn hóa TP. HCM</item>
-        <item>Đại học Sư phạm Kỹ thuật TP. HCM</item>
-        <item>Đại học Thương mại (National Economics University – NEU)</item>
-        <item>Đại học Công nghệ Giao thông Vận tải</item>
-        <item>Đại học Điện lực</item>
-        <item>Đại học Mỏ – Địa chất</item>
-        <item>Đại học Kiến trúc Hà Nội</item>
-        <item>Đại học Kiến trúc TP. HCM</item>
-        <item>Đại học Hải Phòng</item>
-        <item>Đại học Hàng hải Việt Nam</item>
-        <item>Đại học Bách khoa Vinh</item>
-        <item>Đại học Vinh</item>
-        <item>Khác</item>
-    </string-array>
-
-    <string-array name="zodiac_list">
-        <item>Aries</item>
-        <item>Taurus</item>
-        <item>Gemini</item>
-        <item>Cancer</item>
-        <item>Leo</item>
-        <item>Virgo</item>
-        <item>Libra</item>
-        <item>Scorpio</item>
-        <item>Sagittarius</item>
-        <item>Capricorn</item>
-        <item>Aquarius</item>
-        <item>Pisces</item>
-    </string-array>
-
-    <string-array name="vietnam_provinces_cities">
-        <item>Hà Nội</item>
-        <item>TP. Hồ Chí Minh</item>
-        <item>Hải Phòng</item>
-        <item>Đà Nẵng</item>
-        <item>Cần Thơ</item>
-        <item>An Giang</item>
-        <item>Bà Rịa – Vũng Tàu</item>
-        <item>Bắc Giang</item>
-        <item>Bắc Kạn</item>
-        <item>Bạc Liêu</item>
-        <item>Bắc Ninh</item>
-        <item>Bình Định</item>
-        <item>Bình Dương</item>
-        <item>Bình Phước</item>
-        <item>Bình Thuận</item>
-        <item>Cà Mau</item>
-        <item>Cao Bằng</item>
-        <item>Đắk Lắk</item>
-        <item>Đắk Nông</item>
-        <item>Điện Biên</item>
-        <item>Đồng Nai</item>
-        <item>Đồng Tháp</item>
-        <item>Gia Lai</item>
-        <item>Hà Giang</item>
-        <item>Hà Nam</item>
-        <item>Hà Tĩnh</item>
-        <item>Hải Dương</item>
-        <item>Hậu Giang</item>
-        <item>Hòa Bình</item>
-        <item>Hưng Yên</item>
-        <item>Khánh Hòa</item>
-        <item>Kiên Giang</item>
-        <item>Kon Tum</item>
-        <item>Lai Châu</item>
-        <item>Lâm Đồng</item>
-        <item>Lạng Sơn</item>
-        <item>Lào Cai</item>
-        <item>Long An</item>
-        <item>Nam Định</item>
-        <item>Nghệ An</item>
-        <item>Ninh Bình</item>
-        <item>Ninh Thuận</item>
-        <item>Phú Thọ</item>
-        <item>Quảng Bình</item>
-        <item>Quảng Nam</item>
-        <item>Quảng Ngãi</item>
-        <item>Quảng Ninh</item>
-        <item>Quảng Trị</item>
-        <item>Sóc Trăng</item>
-        <item>Sơn La</item>
-        <item>Tây Ninh</item>
-        <item>Thái Bình</item>
-        <item>Thái Nguyên</item>
-        <item>Thanh Hóa</item>
-        <item>Thừa Thiên – Huế</item>
-        <item>Tiền Giang</item>
-        <item>Trà Vinh</item>
-        <item>Tuyên Quang</item>
-        <item>Vĩnh Long</item>
-        <item>Vĩnh Phúc</item>
-        <item>Yên Bái</item>
-        <item>Phú Yên</item>
-    </string-array>
-
-    <string-array name="open_question_list_what">
-        <item>q1|What is something that always makes you smile?</item>
-        <item>q2|What is something that always improves your day?</item>
-        <item>q3|What is something that always surprises people about you?</item>
-        <item>q4|What is something that always brings you peace?</item>
-        <item>q5|What is something that always motivates you?</item>
-        <item>q6|What is something that always makes you laugh?</item>
-        <item>q7|What is something that always impresses you?</item>
-        <item>q8|What is something that always inspires you?</item>
-        <item>q9|What is something that always relaxes you?</item>
-        <item>q10|What is something that always reminds you of home?</item>
-    </string-array>
-
-    <string-array name="open_question_list_ideal">
-        <item>i1|My ideal weekend is...</item>
-        <item>i2|My ideal vacation looks like...</item>
-        <item>i3|My perfect morning starts with...</item>
-        <item>i4|My ideal date is...</item>
-        <item>i5|My ideal night out includes...</item>
-    </string-array>
 
     <string name="location_warning_title">Bật vị trí để nhận gợi ý tốt hơn</string>
     <string name="location_warning_message">Khi tắt vị trí, bạn sẽ nhận được ít gợi ý phù hợp hơn. Hãy bật GPS để khám phá những người gần bạn.</string>

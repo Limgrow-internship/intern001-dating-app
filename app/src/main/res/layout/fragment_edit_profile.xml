@@ -29,7 +29,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Photo"
+                    android:text="@string/profile_photo_title"
                     android:textColor="@color/black"
                     android:textSize="24dp"
                     android:textStyle="bold" />
@@ -37,7 +37,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Add and drag photo cards to arrange them in the order you want them to appear."
+                    android:text="@string/profile_photo_description"
                     android:textColor="@color/black"
                     android:textSize="16dp"/>
             </LinearLayout>
@@ -162,7 +162,7 @@
             android:id="@+id/btnSave"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="Save"
+            android:text="@string/profile_btn_save"
             android:textStyle="bold"
             android:layout_marginTop="50dp"
             android:layout_marginBottom="40dp"

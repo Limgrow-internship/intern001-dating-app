@@ -244,6 +244,12 @@ class DatingModeFragment : BaseFragment() {
                 showAlreadyLikedDialog(card.displayName)
             }
         }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.isLoadingMore.collect { isLoadingMore ->
+                binding.loadingMoreProgressBar.isVisible = isLoadingMore
+            }
+        }
     }
 
     private fun showCurrentCard() {
