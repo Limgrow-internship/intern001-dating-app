@@ -8,7 +8,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="About Me"
+        android:text="@string/about_me"
         android:textColor="@color/black"
         android:textSize="24dp"
         android:textStyle="bold" />
@@ -26,8 +26,8 @@
             android:padding="16dp"
             android:paddingEnd="48dp"
             android:textSize="16sp"
-            android:hint="Introduce your self"
-            android:textColor="#000000"
+            android:hint="@string/hint_introduce_yourself"
+            android:textColor="@android:color/black"
             android:textColorHint="#777777"
             android:gravity="top|start"
             android:inputType="textMultiLine|textCapSentences"
@@ -47,6 +47,6 @@
             android:src="@drawable/ic_magic_pen"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="4dp"
-            android:contentDescription="Generate bio with AI" />
+            android:contentDescription="@string/cd_generate_bio_ai" />
     </RelativeLayout>
 </LinearLayout>

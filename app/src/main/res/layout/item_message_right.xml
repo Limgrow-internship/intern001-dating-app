@@ -27,7 +27,7 @@
             android:id="@+id/tvReplySender"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sender"
+            android:text="@string/chat_reply_sender"
             android:textStyle="bold"
             android:textSize="13sp"
             android:textColor="#555555"/>
@@ -36,7 +36,7 @@
             android:id="@+id/tvReplyText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Preview"
+            android:text="@string/chat_reply_preview"
             android:textSize="13sp"
             android:textColor="#666666"
             android:maxLines="2"

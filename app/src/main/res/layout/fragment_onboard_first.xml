@@ -19,8 +19,6 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="0dp"
-            android:paddingEnd="0dp"
             android:paddingTop="@dimen/onboard_vertical_padding"
             android:paddingBottom="@dimen/onboard_vertical_padding">
 
@@ -51,15 +49,13 @@
                 android:layout_marginTop="@dimen/onboard_spacing_large"
                 android:layout_marginStart="@dimen/onboard_horizontal_padding"
                 android:layout_marginEnd="@dimen/onboard_horizontal_padding"
-                android:gravity="start"
-                android:text="Match. Chat. Vibe."
-                android:textAlignment="viewStart"
+                android:text="@string/onboard_title_1"
                 android:textColor="@android:color/black"
                 android:textSize="32sp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/imgContainer"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/imgContainer" />
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <TextView
                 android:id="@+id/tvDesc"
@@ -68,27 +64,22 @@
                 android:layout_marginTop="@dimen/onboard_spacing_small"
                 android:layout_marginStart="@dimen/onboard_horizontal_padding"
                 android:layout_marginEnd="@dimen/onboard_horizontal_padding"
-                android:gravity="start"
-                android:text="Swipe through real people, start real convos, and find someone who matches your energy"
-                android:textAlignment="viewStart"
+                android:text="@string/onboard_desc_1"
                 android:textColor="@android:color/black"
                 android:textSize="18sp"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvTitle"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <LinearLayout
                 android:id="@+id/layoutIndicator"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/onboard_indicator_spacing"
-                android:gravity="center"
                 android:orientation="horizontal"
-                android:paddingStart="@dimen/onboard_horizontal_padding"
-                android:paddingEnd="@dimen/onboard_horizontal_padding"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvDesc"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvDesc">
+                app:layout_constraintEnd_toEndOf="parent">
 
                 <View
                     android:layout_width="48dp"
@@ -115,10 +106,11 @@
                 android:layout_marginTop="@dimen/onboard_spacing_large"
                 android:background="#F7F7F7"
                 android:minHeight="@dimen/onboard_ad_min_height"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layoutIndicator"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/layoutIndicator" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 
@@ -130,21 +122,17 @@
         android:layout_marginEnd="@dimen/onboard_button_horizontal_margin"
         android:layout_marginBottom="@dimen/onboard_button_bottom_margin"
         android:background="@drawable/bg_button_black"
-        android:clickable="true"
-        android:focusable="true"
         android:gravity="center"
         android:minHeight="@dimen/onboard_button_min_height"
-        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <TextView
             android:id="@+id/tvBtnText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="Continue"
+            android:text="@string/onboard_continue"
             android:textColor="@android:color/white"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -156,4 +144,5 @@
             android:layout_marginStart="10dp"
             android:src="@drawable/ic_arrow" />
     </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -25,7 +25,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Report"
+            android:text="@string/report_title"
             android:textColor="#FF6500"
             android:textSize="20sp"
             android:gravity="center"
@@ -42,7 +42,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Report this user. Tell us what happened. Your report is anonymous."
+            android:text="@string/report_description"
             android:textSize="18sp"
             android:paddingTop="8dp"
             android:paddingBottom="12dp" />
@@ -66,12 +66,12 @@
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:layout_weight="1"
-            android:text="Cancel"
+            android:text="@string/action_cancel"
             android:textStyle="bold"
             android:layout_marginTop="40dp"
             android:layout_marginBottom="40dp"
             android:textColor="@android:color/white"
-            android:backgroundTint="#000000" />
+            android:backgroundTint="@color/black" />
 
         <Space
             android:layout_width="12dp"
@@ -82,12 +82,12 @@
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:layout_weight="1"
-            android:text="Save"
+            android:text="@string/action_save"
             android:textStyle="bold"
             android:layout_marginTop="40dp"
             android:layout_marginBottom="40dp"
             android:textColor="@android:color/white"
-            android:backgroundTint="#000000" />
+            android:backgroundTint="@color/black" />
     </LinearLayout>
 
     <ProgressBar

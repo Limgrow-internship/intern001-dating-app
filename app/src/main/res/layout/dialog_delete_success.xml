@@ -18,7 +18,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Your account has been deleted successfully!"
+        android:text="@string/dialog_delete_success_txt"
         android:textSize="18sp"
         android:textColor="#000000"
         android:gravity="center"
@@ -28,7 +28,7 @@
         android:id="@+id/btnDone"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:text="Done"
+        android:text="@string/change_password_successfully_btn"
         android:textColor="@color/white"
         android:gravity="center"
         android:textSize="18dp"
