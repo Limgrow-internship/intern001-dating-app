@@ -59,6 +59,9 @@ class DiscoverViewModel @Inject constructor(
     private val _showNativeAdEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val showNativeAdEvent: SharedFlow<Unit> = _showNativeAdEvent.asSharedFlow()
 
+    private val _isLoadingMore = MutableStateFlow(false)
+    val isLoadingMore: StateFlow<Boolean> = _isLoadingMore.asStateFlow()
+
     private val _undoStack = MutableStateFlow<List<MatchCard>>(emptyList())
 
     private val matchedUserIds = MutableStateFlow<Set<String>>(emptySet())
@@ -122,6 +125,9 @@ class DiscoverViewModel @Inject constructor(
                 }
             if (showLoading) {
                 setLoading()
+            } else if (append) {
+                // Show loading indicator for appending more cards
+                _isLoadingMore.value = true
             }
             getMatchCardsUseCase(limit).fold(
                 onSuccess = { cards ->
@@ -140,9 +146,11 @@ class DiscoverViewModel @Inject constructor(
                         _matchCards.value = filteredCards
                         _currentCardIndex.value = 0
                     }
+                    _isLoadingMore.value = false
                     setSuccess(_matchCards.value)
                 },
                 onFailure = { error ->
+                    _isLoadingMore.value = false
                     if (showLoading) {
                         setError(error.message ?: "Failed to load cards")
                     } else {
