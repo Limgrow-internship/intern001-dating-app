@@ -179,6 +179,13 @@ class DiscoverFragment : BaseFragment() {
                         maybeShowNativeAd()
                     }
                 }
+
+                launch {
+                    viewModel.isLoadingMore.collect { isLoadingMore ->
+                        val b = _binding ?: return@collect
+                        b.loadingMoreProgressBar.isVisible = isLoadingMore
+                    }
+                }
             }
         }
     }
