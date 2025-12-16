@@ -116,7 +116,7 @@ class ChatListFragment : BaseFragment() {
 
         binding.rvConversations.layoutManager = LinearLayoutManager(requireContext())
 
-        conversationAdapter = ConversationAdapter(listOf()) { conversation ->
+        conversationAdapter = ConversationAdapter { conversation ->
             chatSharedViewModel.preloadMessages(conversation.matchId)
 
             viewLifecycleOwner.lifecycleScope.launch {
@@ -214,7 +214,7 @@ class ChatListFragment : BaseFragment() {
                         compareBy<Conversation> { !AIConstants.isAIUser(it.userId) }
                             .thenByDescending { it.timestamp ?: "" },
                     )
-                    conversationAdapter.setData(sortedConversations)
+                    conversationAdapter.submitList(sortedConversations)
                     binding.rvConversations.isVisible = conversations.isNotEmpty()
                     binding.noChatsLayout.isVisible = conversations.isEmpty()
 

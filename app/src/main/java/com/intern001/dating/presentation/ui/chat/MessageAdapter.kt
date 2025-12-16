@@ -1,6 +1,8 @@
 package com.intern001.dating.presentation.ui.chat
 
 import android.media.MediaPlayer
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +14,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.intern001.dating.R
+import com.intern001.dating.common.performance.PerformanceMonitor
 import com.intern001.dating.data.model.MessageModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 class MessageAdapter(
     private val myUserId: String,
@@ -22,6 +29,9 @@ class MessageAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var messages = listOf<MessageModel>()
+    private val replySourceCache = mutableMapOf<String, MessageModel>()
+    private val diffScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     companion object {
         private const val VIEW_TYPE_LEFT_TEXT = 0
@@ -35,41 +45,63 @@ class MessageAdapter(
     private var currentMsgPos: Int = -1
 
     fun setMessages(list: List<MessageModel>) {
-        val filtered = list.filter { msg ->
-            val hasContent = msg.message?.isNotBlank() == true ||
-                !msg.imgChat.isNullOrBlank() ||
-                !msg.audioPath.isNullOrBlank()
-            if (!hasContent) return@filter false
+        PerformanceMonitor.measure("MessageAdapter.setMessages") {
+            val filtered = list.filter { msg ->
+                val hasContent = msg.message?.isNotBlank() == true ||
+                    !msg.imgChat.isNullOrBlank() ||
+                    !msg.audioPath.isNullOrBlank()
+                if (!hasContent) return@filter false
 
-            if (blockerId != null && myUserId == blockerId) {
-                msg.delivered != false || msg.senderId == myUserId
-            } else {
-                true
+                if (blockerId != null && myUserId == blockerId) {
+                    msg.delivered != false || msg.senderId == myUserId
+                } else {
+                    true
+                }
+            }
+
+            // Update reply source cache
+            updateReplySourceCache(filtered)
+
+            // Calculate diff on background thread
+            diffScope.launch {
+                PerformanceMonitor.measure("MessageAdapter.DiffUtil.calculateDiff") {
+                    val diffCallback = MessageDiffCallback(messages, filtered)
+                    val diffResult = DiffUtil.calculateDiff(diffCallback)
+
+                    val reactionChanges = mutableListOf<Int>()
+                    val oldMessagesMap = messages.associateBy {
+                        it.id ?: it.clientMessageId ?: ""
+                    }
+                    for (i in filtered.indices) {
+                        val newMsg = filtered[i]
+                        val oldMsg = oldMessagesMap[newMsg.id ?: newMsg.clientMessageId ?: ""]
+                        if (oldMsg != null && oldMsg.reaction != newMsg.reaction) {
+                            reactionChanges.add(i)
+                        }
+                    }
+
+                    // Update UI on main thread
+                    mainHandler.post {
+                        messages = filtered
+                        diffResult.dispatchUpdatesTo(this@MessageAdapter)
+
+                        if (reactionChanges.isNotEmpty()) {
+                            reactionChanges.forEach { position ->
+                                notifyItemChanged(position)
+                            }
+                        }
+                    }
+                }
             }
         }
+    }
 
-        val diffCallback = MessageDiffCallback(messages, filtered)
-        val diffResult = DiffUtil.calculateDiff(diffCallback)
-
-        val reactionChanges = mutableListOf<Int>()
-        for (i in filtered.indices) {
-            val newMsg = filtered[i]
-            val oldMsg = messages.firstOrNull {
-                (it.id != null && newMsg.id != null && it.id == newMsg.id) ||
-                    (it.clientMessageId != null && newMsg.clientMessageId != null && it.clientMessageId == newMsg.clientMessageId)
-            }
-            if (oldMsg != null && oldMsg.reaction != newMsg.reaction) {
-                reactionChanges.add(i)
-            }
-        }
-
-        messages = filtered
-        diffResult.dispatchUpdatesTo(this)
-
-        if (reactionChanges.isNotEmpty()) {
-            reactionChanges.forEach { position ->
-                notifyItemChanged(position)
-            }
+    private fun updateReplySourceCache(messages: List<MessageModel>) {
+        replySourceCache.clear()
+        messages.forEach { msg ->
+            msg.id?.let { replySourceCache[it] = msg }
+            msg.clientMessageId?.let { replySourceCache[it] = msg }
+            msg.timestamp?.let { replySourceCache[it] = msg }
         }
     }
 
@@ -180,7 +212,12 @@ class MessageAdapter(
                 holder.tvContent.visibility = if (!msg.message.isNullOrBlank()) View.VISIBLE else View.GONE
                 if (!msg.imgChat.isNullOrEmpty()) {
                     holder.imgChat.visibility = View.VISIBLE
-                    Glide.with(holder.imgChat).load(msg.imgChat).into(holder.imgChat)
+                    Glide.with(holder.imgChat)
+                        .load(msg.imgChat)
+                        .override(800, 800)
+                        .centerCrop()
+                        .thumbnail(0.1f)
+                        .into(holder.imgChat)
                 } else {
                     holder.imgChat.visibility = View.GONE
                 }
@@ -202,7 +239,12 @@ class MessageAdapter(
                 holder.tvContent.visibility = if (!msg.message.isNullOrBlank()) View.VISIBLE else View.GONE
                 if (!msg.imgChat.isNullOrEmpty()) {
                     holder.imgChat.visibility = View.VISIBLE
-                    Glide.with(holder.imgChat).load(msg.imgChat).into(holder.imgChat)
+                    Glide.with(holder.imgChat)
+                        .load(msg.imgChat)
+                        .override(800, 800)
+                        .centerCrop()
+                        .thumbnail(0.1f)
+                        .into(holder.imgChat)
                 } else {
                     holder.imgChat.visibility = View.GONE
                 }
@@ -280,9 +322,8 @@ class MessageAdapter(
     }
 
     private fun findReplySource(replyId: String): MessageModel? {
-        return messages.firstOrNull {
-            it.id == replyId || it.clientMessageId == replyId || it.timestamp == replyId
-        }
+        // Use cached lookup for O(1) performance
+        return replySourceCache[replyId]
     }
 
     private fun buildPreviewFromMessage(source: MessageModel): String {

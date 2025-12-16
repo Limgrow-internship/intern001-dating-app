@@ -2,7 +2,8 @@ package com.intern001.dating.presentation.ui.home
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DecodeFormat
 import com.intern001.dating.R
@@ -10,9 +11,8 @@ import com.intern001.dating.databinding.ItemLikedYouBinding
 import com.intern001.dating.domain.model.LikedYouUser
 
 class LikedYouAdapter(
-    private var items: List<LikedYouUser> = emptyList(),
     private val onItemClick: (LikedYouUser) -> Unit,
-) : RecyclerView.Adapter<LikedYouAdapter.ViewHolder>() {
+) : ListAdapter<LikedYouUser, LikedYouAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     inner class ViewHolder(val binding: ItemLikedYouBinding) : RecyclerView.ViewHolder(binding.root) {
 
@@ -60,13 +60,18 @@ class LikedYouAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(items[position])
+        holder.bind(getItem(position))
     }
 
-    override fun getItemCount(): Int = items.size
+    companion object {
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<LikedYouUser>() {
+            override fun areItemsTheSame(oldItem: LikedYouUser, newItem: LikedYouUser): Boolean {
+                return oldItem.userId == newItem.userId
+            }
 
-    fun updateData(newItems: List<LikedYouUser>) {
-        items = newItems
-        notifyDataSetChanged()
+            override fun areContentsTheSame(oldItem: LikedYouUser, newItem: LikedYouUser): Boolean {
+                return oldItem == newItem
+            }
+        }
     }
 }

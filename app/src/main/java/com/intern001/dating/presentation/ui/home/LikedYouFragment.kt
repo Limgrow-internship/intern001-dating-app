@@ -77,7 +77,7 @@ class LikedYouFragment : BaseFragment() {
 
                         is LikedYouViewModel.UiState.Success -> {
                             binding.progressBar.visibility = View.GONE
-                            adapter.updateData(state.data)
+                            adapter.submitList(state.data)
                         }
 
                         is LikedYouViewModel.UiState.Error -> {
