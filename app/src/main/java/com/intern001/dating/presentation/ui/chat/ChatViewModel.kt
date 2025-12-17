@@ -4,6 +4,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.intern001.dating.common.performance.PerformanceMonitor
 import com.intern001.dating.data.local.prefs.TokenManager
 import com.intern001.dating.data.local.repository.ChatLocalRepository
 import com.intern001.dating.data.model.MessageModel
@@ -38,6 +39,8 @@ class ChatViewModel @Inject constructor(
 
     private val _messages = MutableStateFlow<List<MessageModel>>(emptyList())
     val messages: StateFlow<List<MessageModel>> = _messages
+    private var cachedSortedMessages: List<MessageModel>? = null
+    private var lastSortTimestamp: String? = null
 
     private val _matchStatus = MutableStateFlow("active")
     val matchStatus: StateFlow<String> = _matchStatus
@@ -66,7 +69,10 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val allMsgs = repo.getHistory(matchId)
-                _messages.value = allMsgs.sortedBy { it.timestamp ?: "" }
+                val sorted = allMsgs.sortedBy { it.timestamp ?: "" }
+                _messages.value = sorted
+                cachedSortedMessages = sorted
+                lastSortTimestamp = sorted.lastOrNull()?.timestamp
 
                 try {
                     localRepo.saveMessages(allMsgs)
@@ -80,7 +86,10 @@ class ChatViewModel @Inject constructor(
                     val localMessages = localRepo.getMessagesByMatchIdSync(matchId)
                     if (localMessages.isNotEmpty()) {
                         android.util.Log.d("ChatViewModel", "Loaded ${localMessages.size} messages from local DB (offline)")
-                        _messages.value = localMessages
+                        val sorted = localMessages.sortedBy { it.timestamp ?: "" }
+                        _messages.value = sorted
+                        cachedSortedMessages = sorted
+                        lastSortTimestamp = sorted.lastOrNull()?.timestamp
                     }
                 } catch (localError: Exception) {
                     android.util.Log.e("ChatViewModel", "Failed to load from local DB", localError)
@@ -111,34 +120,51 @@ class ChatViewModel @Inject constructor(
     fun newClientMessageId(): String = UUID.randomUUID().toString()
 
     private fun mergeMessages(current: List<MessageModel>, new: List<MessageModel>): List<MessageModel> {
-        val merged = LinkedHashMap<String, MessageModel>()
+        return PerformanceMonitor.measure("ChatViewModel.mergeMessages") {
+            // Use HashMap for O(1) lookup instead of O(n) find operations
+            val merged = HashMap<String, MessageModel>(current.size + new.size)
 
-        fun uniqueKey(msg: MessageModel): String {
-            // Prefer clientMessageId; fallback to previous composite keys
-            msg.clientMessageId?.let { return "cid_$it" }
-            return if (!msg.timestamp.isNullOrBlank()) {
-                messageKey(msg)
-            } else {
-                "${contentKey(msg)}_${msg.delivered ?: "unknown"}"
+            fun uniqueKey(msg: MessageModel): String {
+                // Prefer clientMessageId; fallback to previous composite keys
+                msg.clientMessageId?.let { return "cid_$it" }
+                msg.id?.let { return "id_$it" }
+                return if (!msg.timestamp.isNullOrBlank()) {
+                    messageKey(msg)
+                } else {
+                    "${contentKey(msg)}_${msg.delivered ?: "unknown"}"
+                }
             }
-        }
 
-        current.forEach { msg ->
-            val key = uniqueKey(msg)
-            merged[key] = msg
-        }
+            // Build lookup map for existing messages
+            val currentMap = current.associateBy { uniqueKey(it) }
+            merged.putAll(currentMap)
 
-        new.forEach { msg ->
-            val existingEntry = merged.entries.find { isSameEvent(it.value, msg) }
-            if (existingEntry != null) {
-                merged[existingEntry.key] = preferMessage(existingEntry.value, msg)
-            } else {
+            // Merge new messages efficiently
+            new.forEach { msg ->
                 val key = uniqueKey(msg)
-                merged[key] = msg
+                val existing = merged[key]
+                if (existing != null && isSameEvent(existing, msg)) {
+                    merged[key] = preferMessage(existing, msg)
+                } else {
+                    // Check if message exists with different key
+                    val existingByEvent = merged.values.firstOrNull { isSameEvent(it, msg) }
+                    if (existingByEvent != null) {
+                        val existingKey = uniqueKey(existingByEvent)
+                        merged[existingKey] = preferMessage(existingByEvent, msg)
+                    } else {
+                        merged[key] = msg
+                    }
+                }
             }
-        }
 
-        return merged.values.sortedBy { it.timestamp ?: "" }
+            // Only sort if necessary (when new messages added or order changed)
+            val sorted = PerformanceMonitor.measure("ChatViewModel.mergeMessages.sort") {
+                merged.values.sortedBy { it.timestamp ?: "" }
+            }
+            cachedSortedMessages = sorted
+            lastSortTimestamp = sorted.lastOrNull()?.timestamp
+            sorted
+        }
     }
 
     fun sendMessage(message: MessageModel) {
@@ -243,94 +269,104 @@ class ChatViewModel @Inject constructor(
     }
 
     fun addMessage(message: MessageModel) {
-        val currentMessages = _messages.value.toMutableList()
+        PerformanceMonitor.measure("ChatViewModel.addMessage") {
+            val currentMessages = _messages.value
+            val needsSort = cachedSortedMessages == null ||
+                (message.timestamp != null && message.timestamp != lastSortTimestamp)
 
-        if (!message.reaction.isNullOrBlank()) {
-            if (!message.replyToMessageId.isNullOrBlank()) {
-                val targetId = message.replyToMessageId
-                var found = false
+            if (!message.reaction.isNullOrBlank()) {
+                if (!message.replyToMessageId.isNullOrBlank()) {
+                    val targetId = message.replyToMessageId
+                    val targetIndex = currentMessages.indexOfFirst {
+                        it.id == targetId || it.clientMessageId == targetId
+                    }
 
-                val updated = currentMessages.map { msg ->
-                    if (msg.id == targetId || msg.clientMessageId == targetId) {
-                        found = true
-                        msg.copy(reaction = message.reaction)
-                    } else {
-                        msg
+                    if (targetIndex >= 0) {
+                        val updated = currentMessages.toMutableList().apply {
+                            set(targetIndex, this[targetIndex].copy(reaction = message.reaction))
+                        }
+                        _messages.value = if (needsSort) updated.sortedBy { it.timestamp ?: "" } else updated
+                        if (needsSort) {
+                            cachedSortedMessages = _messages.value
+                            lastSortTimestamp = _messages.value.lastOrNull()?.timestamp
+                        }
+                        return
                     }
                 }
 
-                if (found) {
-                    _messages.value = updated.sortedBy { it.timestamp ?: "" }
+                val existingIndex = currentMessages.indexOfFirst {
+                    (!message.id.isNullOrBlank() && it.id == message.id) ||
+                        (!message.clientMessageId.isNullOrBlank() && it.clientMessageId == message.clientMessageId)
+                }
+
+                if (existingIndex >= 0) {
+                    val existing = currentMessages[existingIndex]
+                    val updated = currentMessages.toMutableList().apply {
+                        set(existingIndex, preferMessage(existing, message).copy(reaction = message.reaction))
+                    }
+                    _messages.value = if (needsSort) updated.sortedBy { it.timestamp ?: "" } else updated
+                    if (needsSort) {
+                        cachedSortedMessages = _messages.value
+                        lastSortTimestamp = _messages.value.lastOrNull()?.timestamp
+                    }
                     return
                 }
             }
 
-            val existingById = currentMessages.find {
+            val hasNoContent = message.message.isNullOrBlank() &&
+                message.imgChat.isNullOrBlank() &&
+                message.audioPath.isNullOrBlank()
+
+            if (hasNoContent && !message.replyToMessageId.isNullOrBlank()) {
+                return
+            }
+
+            val existingIndex = currentMessages.indexOfFirst {
                 (!message.id.isNullOrBlank() && it.id == message.id) ||
                     (!message.clientMessageId.isNullOrBlank() && it.clientMessageId == message.clientMessageId)
             }
 
-            if (existingById != null) {
-                val updated = currentMessages.map { msg ->
-                    if ((msg.id == message.id && !message.id.isNullOrBlank()) ||
-                        (msg.clientMessageId == message.clientMessageId && !message.clientMessageId.isNullOrBlank())
-                    ) {
-                        val merged = preferMessage(msg, message)
-                        merged.copy(reaction = message.reaction)
-                    } else {
-                        msg
-                    }
+            if (existingIndex >= 0) {
+                val existing = currentMessages[existingIndex]
+                val updated = currentMessages.toMutableList().apply {
+                    set(existingIndex, preferMessage(existing, message))
                 }
-                _messages.value = updated.sortedBy { it.timestamp ?: "" }
+                _messages.value = if (needsSort) updated.sortedBy { it.timestamp ?: "" } else updated
+                if (needsSort) {
+                    cachedSortedMessages = _messages.value
+                    lastSortTimestamp = _messages.value.lastOrNull()?.timestamp
+                }
                 return
             }
-        }
 
-        val hasNoContent = message.message.isNullOrBlank() &&
-            message.imgChat.isNullOrBlank() &&
-            message.audioPath.isNullOrBlank()
-
-        if (hasNoContent && !message.replyToMessageId.isNullOrBlank()) {
-            return
-        }
-
-        val existingById = currentMessages.find {
-            (!message.id.isNullOrBlank() && it.id == message.id) ||
-                (!message.clientMessageId.isNullOrBlank() && it.clientMessageId == message.clientMessageId)
-        }
-
-        if (existingById != null) {
-            val updated = currentMessages.map { msg ->
-                if ((msg.id == message.id && !message.id.isNullOrBlank()) ||
-                    (msg.clientMessageId == message.clientMessageId && !message.clientMessageId.isNullOrBlank())
-                ) {
-                    preferMessage(msg, message)
-                } else {
-                    msg
+            val existingEventIndex = currentMessages.indexOfFirst { isSameEvent(it, message) }
+            if (existingEventIndex >= 0) {
+                val existing = currentMessages[existingEventIndex]
+                val preferred = preferMessage(existing, message)
+                if (preferred == existing) {
+                    return
                 }
-            }
-            _messages.value = updated.sortedBy { it.timestamp ?: "" }
-            return
-        }
-
-        val existing = currentMessages.find { isSameEvent(it, message) }
-        if (existing != null) {
-            val preferred = preferMessage(existing, message)
-            if (preferred == existing) {
+                val updated = currentMessages.toMutableList().apply {
+                    set(existingEventIndex, preferred)
+                }
+                _messages.value = if (needsSort) updated.sortedBy { it.timestamp ?: "" } else updated
+                if (needsSort) {
+                    cachedSortedMessages = _messages.value
+                    lastSortTimestamp = _messages.value.lastOrNull()?.timestamp
+                }
                 return
             }
-            val updated = currentMessages.map { msg ->
-                if (isSameEvent(msg, message)) preferred else msg
+
+            val updated = currentMessages + message
+            _messages.value = if (needsSort) updated.sortedBy { it.timestamp ?: "" } else updated
+            if (needsSort) {
+                cachedSortedMessages = _messages.value
+                lastSortTimestamp = _messages.value.lastOrNull()?.timestamp
             }
-            _messages.value = updated.sortedBy { it.timestamp ?: "" }
-            return
-        }
 
-        currentMessages.add(message)
-        _messages.value = currentMessages.sortedBy { it.timestamp ?: "" }
-
-        if (isAIConversation && AIConstants.isMessageFromAI(message.senderId)) {
-            hideAITypingIndicator()
+            if (isAIConversation && AIConstants.isMessageFromAI(message.senderId)) {
+                hideAITypingIndicator()
+            }
         }
     }
 
@@ -556,22 +592,17 @@ class ChatViewModel @Inject constructor(
             android.util.Log.w("ChatViewModel", "applyReaction: targetId is null or blank")
             return
         }
-        val currentMessages = _messages.value.toMutableList()
-        var found = false
-        var targetMessage: MessageModel? = null
-        val updated = currentMessages.map { msg ->
-            val match = msg.id == targetId || msg.clientMessageId == targetId
-            if (match) {
-                found = true
-                targetMessage = msg
-                msg.copy(reaction = reaction)
-            } else {
-                msg
-            }
+        val currentMessages = _messages.value
+        val targetIndex = currentMessages.indexOfFirst {
+            it.id == targetId || it.clientMessageId == targetId
         }
-        if (!found) {
+        if (targetIndex < 0) {
             android.util.Log.w("ChatViewModel", "applyReaction: No message found with id=$targetId")
             return
+        }
+        val targetMessage = currentMessages[targetIndex]
+        val updated = currentMessages.toMutableList().apply {
+            set(targetIndex, targetMessage.copy(reaction = reaction))
         }
         _messages.value = updated
 

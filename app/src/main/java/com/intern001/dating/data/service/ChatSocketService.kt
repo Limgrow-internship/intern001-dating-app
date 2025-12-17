@@ -13,6 +13,8 @@ class ChatSocketService(private val token: String) {
     private var socket: Socket? = null
     private val TAG = "ChatSocketService"
     var onConnectionStatusChanged: ((Boolean) -> Unit)? = null
+    private var chatHistoryListenerRegistered = false
+    private var receiveMessageListenerRegistered = false
 
     fun connect() {
         try {
@@ -89,6 +91,7 @@ class ChatSocketService(private val token: String) {
             pendingJoinRoom = Pair(matchId, userId)
 
             // This will be handled by EVENT_CONNECT listener
+            // Note: once() automatically removes listener after first call, so no duplicate risk
             if (pendingJoinRoom != null) {
                 socket?.once(Socket.EVENT_CONNECT) {
                     pendingJoinRoom?.let { (mId, uId) ->
@@ -106,6 +109,10 @@ class ChatSocketService(private val token: String) {
     }
 
     fun onChatHistory(callback: (List<MessageModel>) -> Unit) {
+        // Remove existing listener to prevent duplicates
+        if (chatHistoryListenerRegistered) {
+            socket?.off("chat_history")
+        }
         socket?.on("chat_history") { args ->
             try {
                 val messagesJson = args[0] as? JSONArray
@@ -115,11 +122,14 @@ class ChatSocketService(private val token: String) {
                 Log.e(TAG, "Error parsing chat history", e)
             }
         }
+        chatHistoryListenerRegistered = true
     }
 
     fun onReceiveMessage(callback: (MessageModel) -> Unit) {
         // Remove any existing listener first to avoid duplicates
-        socket?.off("receive_message")
+        if (receiveMessageListenerRegistered) {
+            socket?.off("receive_message")
+        }
 
         socket?.on("receive_message") { args ->
             try {
@@ -132,6 +142,7 @@ class ChatSocketService(private val token: String) {
                 Log.e(TAG, "Error parsing message", e)
             }
         }
+        receiveMessageListenerRegistered = true
     }
 
     fun sendMessage(
@@ -187,6 +198,9 @@ class ChatSocketService(private val token: String) {
         socket?.disconnect()
         socket?.off()
         socket = null
+        chatHistoryListenerRegistered = false
+        receiveMessageListenerRegistered = false
+        pendingJoinRoom = null
         Log.d(TAG, "Socket disconnected and cleaned up")
     }
 
