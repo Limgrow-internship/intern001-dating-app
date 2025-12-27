@@ -5,6 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.intern001.dating.R
@@ -17,14 +19,8 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class ConversationAdapter(
-    private var conversations: List<ChatListFragment.Conversation>,
     private val onClick: (ChatListFragment.Conversation) -> Unit,
-) : RecyclerView.Adapter<ConversationAdapter.ConversationViewHolder>() {
-
-    fun setData(newData: List<ChatListFragment.Conversation>) {
-        conversations = newData
-        notifyDataSetChanged()
-    }
+) : ListAdapter<ChatListFragment.Conversation, ConversationAdapter.ConversationViewHolder>(DIFF_CALLBACK) {
 
     inner class ConversationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imvAvatar: ImageView = itemView.findViewById(R.id.avatar)
@@ -42,7 +38,7 @@ class ConversationAdapter(
     }
 
     override fun onBindViewHolder(holder: ConversationViewHolder, position: Int) {
-        val c = conversations[position]
+        val c = getItem(position)
         val isAIConversation = AIConstants.isAIUser(c.userId)
 
         Glide.with(holder.itemView.context)
@@ -61,8 +57,6 @@ class ConversationAdapter(
 
         holder.itemView.setOnClickListener { onClick(c) }
     }
-
-    override fun getItemCount() = conversations.size
 
     private fun formatChatTimestamp(isoString: String): String {
         return try {
@@ -85,6 +79,24 @@ class ConversationAdapter(
             }
         } catch (e: Exception) {
             ""
+        }
+    }
+
+    companion object {
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<ChatListFragment.Conversation>() {
+            override fun areItemsTheSame(
+                oldItem: ChatListFragment.Conversation,
+                newItem: ChatListFragment.Conversation,
+            ): Boolean {
+                return oldItem.matchId == newItem.matchId
+            }
+
+            override fun areContentsTheSame(
+                oldItem: ChatListFragment.Conversation,
+                newItem: ChatListFragment.Conversation,
+            ): Boolean {
+                return oldItem == newItem
+            }
         }
     }
 }

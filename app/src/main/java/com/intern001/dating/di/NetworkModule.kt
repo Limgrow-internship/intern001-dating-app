@@ -33,7 +33,11 @@ object NetworkModule {
     @Singleton
     fun provideLoggingInterceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            level = if (BuildConfig.DEBUG) {
+                HttpLoggingInterceptor.Level.BODY
+            } else {
+                HttpLoggingInterceptor.Level.NONE
+            }
         }
     }
 
@@ -45,11 +49,15 @@ object NetworkModule {
             val requestBuilder = originalRequest.newBuilder()
 
             val token = tokenManager.getAccessToken()
-            android.util.Log.d("AuthInterceptor", "Request URL: ${originalRequest.url}")
-            android.util.Log.d("AuthInterceptor", "Token exists: ${token != null}")
+            if (BuildConfig.DEBUG) {
+                android.util.Log.d("AuthInterceptor", "Request URL: ${originalRequest.url}")
+                android.util.Log.d("AuthInterceptor", "Token exists: ${token != null}")
+            }
 
             token?.let {
-                android.util.Log.d("AuthInterceptor", "Full token: $it")
+                if (BuildConfig.DEBUG) {
+                    android.util.Log.d("AuthInterceptor", "Full token: $it")
+                }
                 requestBuilder.addHeader("Authorization", "Bearer $it")
             }
 
@@ -57,10 +65,14 @@ object NetworkModule {
             requestBuilder.addHeader("Content-Type", "application/json")
 
             val request = requestBuilder.build()
-            android.util.Log.d("AuthInterceptor", "Authorization header: ${request.header("Authorization")}")
+            if (BuildConfig.DEBUG) {
+                android.util.Log.d("AuthInterceptor", "Authorization header: ${request.header("Authorization")}")
+            }
 
             val response = chain.proceed(request)
-            android.util.Log.d("AuthInterceptor", "Response code: ${response.code}")
+            if (BuildConfig.DEBUG) {
+                android.util.Log.d("AuthInterceptor", "Response code: ${response.code}")
+            }
 
             response
         }
